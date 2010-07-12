@@ -1,70 +1,84 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Cone
 {
     public static class Verify
     {
         internal static Action<string> ExpectationFailed = message => { throw new ExpectationFailedException(message); };
+        
+        class Lazy<T>
+        {
+            bool forced;
+            object value;
+
+            public Lazy(Func<T> func) {
+                value = func;
+            }
+
+            public T Value { get { return forced ? (T)value : Force(); } }
+
+            T Force() {
+                forced = true;
+                var tmp = ((Func<T>)value)();
+                value = tmp;
+                return tmp;
+            }
+        }
 
         struct BoundExpect
         {
+            static readonly ConstructorInfo expector = typeof(Expect).GetConstructor(new[] { typeof(object), typeof(object), typeof(string), typeof(bool) });
             Expression actual, expected;
-            Expect expect;
-            string format;
-            bool outcome;
+            Lazy<Expect> expect;
 
             public static BoundExpect From(Expression body) {
-                if (body.NodeType == ExpressionType.Call) {
+                if (body.NodeType == ExpressionType.Call)
                     return From((MethodCallExpression)body);
-                } else {
+                else
                     return From((BinaryExpression)body);
-                }
             }
 
             public static BoundExpect From(MethodCallExpression call){
-                return new BoundExpect { 
-                    actual = call, 
-                    expected = Expression.Constant(true),
-                    format = Expect.FailFormat,
-                    outcome = true
-                };
+                return new BoundExpect(call.NodeType, 
+                    call, 
+                    Expression.Constant(true),
+                    true);
             }
 
             public static BoundExpect From(BinaryExpression body) {
-                var expect = new BoundExpect { 
-                    actual = body.Left, 
-                    expected = body.Right,
-                    format = Expect.EqualFormat,
-                    outcome = true
-                };
-                switch (body.NodeType) {
-                    case ExpressionType.Equal: break;
-                    case ExpressionType.NotEqual:
-                        expect.format = Expect.NotEqualFormat;
-                        expect.outcome = false;
-                        break;
-                    default: throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
-                }
-                return expect;
+                return new BoundExpect(body.NodeType, 
+                    body.Left, 
+                    body.Right,
+                    body.NodeType == ExpressionType.Equal);
+            }
+
+            BoundExpect(ExpressionType nodeType, Expression actual, Expression expected, bool outcome) {
+                var format = VerifyAndGetFormat(nodeType);
+                this.actual = actual;
+                this.expected = expected;
+                expect = new Lazy<Expect>(Expression.Lambda<Func<Expect>>(
+                        Expression.New(expector,
+                            Expression.TypeAs(actual, typeof(object)),
+                            Expression.TypeAs(expected, typeof(object)),
+                            Expression.Constant(format), Expression.Constant(outcome)))
+                    .Compile());
             }
 
             public bool Check() {
-                return Result().Check();
+                return expect.Value.Check();
             }
 
-            public string Format() { return Result().Format(actual, expected); }
+            public string Format() { return expect.Value.Format(actual, expected); }
 
-            Expect Result() {
-                if (expect != null)
-                    return expect;
-                var types = new[] { actual.Type, expected.Type };
-                return expect = Expression.Lambda<Func<Expect>>(
-                        Expression.New(typeof(Expect).GetConstructors()[0],
-                            Expression.TypeAs(actual, typeof(object)), 
-                            Expression.TypeAs(expected, typeof(object)), 
-                            Expression.Constant(format), Expression.Constant(outcome)))
-                    .Compile()();
+            static string VerifyAndGetFormat(ExpressionType nodeType) {
+                switch (nodeType) {
+                    case ExpressionType.Call: return Expect.FailFormat;
+                    case ExpressionType.Equal: return Expect.EqualFormat;
+                    case ExpressionType.NotEqual: return Expect.NotEqualFormat;
+                    default: throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", nodeType));
+                }
             }
         }
 
