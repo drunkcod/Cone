@@ -1,0 +1,6 @@
+$RECYCLE.BIN/
+Build
+*.suo
+*.user
+obj/
+TrackerTools/Server/bin
