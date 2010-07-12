@@ -20,6 +20,10 @@ namespace Cone
             } catch { }
             Verify.That(() => counter.Next() == 1);
         }
+        public void supports_null_values_as_actual() {
+            Counter x = null;
+            Verify.That(() => x == null);
+        }
     }
 
     [Describe(typeof(Verify), "expression formatting")]
