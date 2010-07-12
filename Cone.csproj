@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConeNUnitAddin.cs" />
+    <Compile Include="ContextAttribute.cs" />
     <Compile Include="DescribeAttribute.cs" />
     <Compile Include="Expect.cs" />
     <Compile Include="ExpectationFailedException.cs" />

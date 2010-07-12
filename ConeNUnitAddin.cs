@@ -20,8 +20,9 @@ namespace Cone
             var suite = new ConeSuite(type);
             foreach (var item in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
                 if (item.DeclaringType == type) {
-                    var parms = new ParameterSet();
-                    parms.TestName = NameFor(item);
+                    var parms = new ParameterSet {
+                        TestName = NameFor(item)
+                    };
                     suite.Add(NUnitTestCaseBuilder.BuildSingleTestMethod(item, suite, parms));
                 }
             return suite;
@@ -47,7 +48,11 @@ namespace Cone
         }
 
         static DescribeAttribute DescriptionOf(Type type) {
-            return (DescribeAttribute)type.GetCustomAttributes(typeof(DescribeAttribute), true)[0];
+            var descriptions = type.GetCustomAttributes(typeof(DescribeAttribute), true);
+            if(descriptions.Length == 1)
+                return (DescribeAttribute)descriptions[0];
+            var context = (ContextAttribute)type.GetCustomAttributes(typeof(ContextAttribute), true)[0];
+            return new DescribeAttribute(type.DeclaringType, context.Context); 
         }
     }
 
@@ -68,7 +73,11 @@ namespace Cone
         }
 
         bool ISuiteBuilder.CanBuildFrom(Type type) {
-            return type.GetCustomAttributes(typeof(DescribeAttribute), true).Length == 1;
+            return Has<DescribeAttribute>(type) || (Has<ContextAttribute>(type) && Has<DescribeAttribute>(type.DeclaringType));
+        }
+
+        bool Has<T>(Type type) {
+            return type.GetCustomAttributes(typeof(T), true).Length == 1;
         }
     }
 }

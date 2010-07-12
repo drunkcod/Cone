@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Cone
 {
-    [Describe(typeof(Bowling), "#score")]
+    [Describe(typeof(Bowling), "Score")]
     public class BowlingSpec
     {
         public void returns_0_for_gutter_game() {
