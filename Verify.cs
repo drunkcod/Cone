@@ -8,7 +8,7 @@ namespace Cone
         internal static Action<string> ExpectationFailed = message => { throw new ExpectationFailedException(message); };
 
         public static void That(Expression<Func<bool>> expr) {
-            var body = expr.Body as BinaryExpression;
+            var body = (BinaryExpression)expr.Body;
             var actual = body.Left;
             var expected = body.Right;
 
@@ -41,8 +41,20 @@ namespace Cone
                     if (member.Expression.NodeType == ExpressionType.Constant)
                         return member.Member.Name;
                     return Format(member.Expression) + "." + member.Member.Name;
+                case ExpressionType.Call:
+                    var call = (MethodCallExpression)expr;
+                    var args = new string[call.Arguments.Count];
+                    for (int i = 0; i != args.Length; ++i)
+                        args[i] = Format(call.Arguments[i]);
+                    return FormatCallTarget(call) + "." + call.Method.Name + "(" + string.Join(", ", args) + ")";
             }
             return expr.ToString();
+        }
+
+        static string FormatCallTarget(MethodCallExpression call) {
+            if (call.Object == null)
+                return call.Method.DeclaringType.Name;
+            return Format(call.Object);
         }
     }
 }

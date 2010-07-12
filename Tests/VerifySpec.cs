@@ -3,15 +3,21 @@ using System.Linq.Expressions;
 
 namespace Cone
 {
+    class Counter
+    {
+        int next;
+
+        public int Next() { return next++; }
+        public int Next(int step) {
+            var n = next;
+            next += step;
+            return n;
+        }
+    }
+
     [Describe(typeof(Verify))]
     public class VerifySpec
     {
-        class Counter
-        {
-            int next;
-
-            public int Next() { return next++; }
-        }
 
         public void should_evaluate_only_once() {
             var counter = new Counter();
@@ -23,6 +29,10 @@ namespace Cone
         public void supports_null_values_as_actual() {
             Counter x = null;
             Verify.That(() => x == null);
+        }
+        public void support_identity_checking() {
+            var obj = new Counter();
+            Verify.That(() => object.ReferenceEquals(obj, obj) != true);
         }
     }
 
@@ -46,7 +56,15 @@ namespace Cone
                 Verify.That(() => e.Message == message);
             }
         }
-
+        public void MethodCall_static() {
+            var obj = new Counter();
+            CheckFormatting(() => object.ReferenceEquals(obj, obj) == false, Expect.New(true, false), "Object.ReferenceEquals(obj, obj)", "False");
+        }
+        public void MethodCall() {
+            var obj = new Counter();
+            obj.Next(7);
+            CheckFormatting(() => obj.Next() == 8, Expect.New(7, 8), "obj.Next()", "8");
+        }
         void CheckFormatting(Expression<Func<bool>> expr, Expect values, string actual, string expected) {
             try {
                 Verify.That(expr);
