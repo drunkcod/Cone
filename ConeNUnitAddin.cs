@@ -7,18 +7,23 @@ using NUnit.Core.Extensibility;
 using NUnit.Framework;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using NUnit.Core.Builders;
 
 namespace Cone
 {
     class ConeSuite : TestSuite
     {
+        static readonly Regex normalizeNamePattern = new Regex(@"_|\+", RegexOptions.Compiled);
         readonly Type type;
 
         public static TestSuite For(Type type) {
             var suite = new ConeSuite(type);
             foreach (var item in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
-                if (item.DeclaringType == type)
-                    suite.Add(NormalizeName(new NUnitTestMethod(item)));
+                if (item.DeclaringType == type) {
+                    var parms = new ParameterSet();
+                    parms.TestName = NameFor(item);
+                    suite.Add(NUnitTestCaseBuilder.BuildSingleTestMethod(item, suite, parms));
+                }
             return suite;
         }
 
@@ -26,9 +31,8 @@ namespace Cone
             this.type = type;
         }
 
-        static Test NormalizeName(Test test) {
-            test.TestName.Name = Regex.Replace(test.TestName.Name, @"_|\+", " ");
-            return test;
+        static string NameFor(MethodInfo method) {
+            return normalizeNamePattern.Replace(method.Name, " ");
         }
 
         static string ParentFor(Type type) {
