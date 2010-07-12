@@ -13,6 +13,8 @@ namespace Cone
             next += step;
             return n;
         }
+
+        public bool ReturnsFalse() { return false; }
     }
 
     [Describe(typeof(Verify))]
@@ -39,35 +41,44 @@ namespace Cone
         {
             public void ArrayLength() {
                 var array = new int[0];
-                CheckFormatting(() => array.Length == 1, Expect.New(array.Length, 1), "array.Length", "1");
+                CheckFormatting(() => array.Length == 1, Expect.Equal(array.Length, 1, Expect.EqualFormat), "array.Length", "1");
             }
             public void Property() {
                 var bowling = new Bowling();
-                CheckFormatting(() => bowling.Score == 1, Expect.New(bowling.Score, 1), "bowling.Score", "1");
+                CheckFormatting(() => bowling.Score == 1, Expect.Equal(bowling.Score, 1, Expect.EqualFormat), "bowling.Score", "1");
             }
             public void NotEqual() {
                 var a = 42;
                 try {
                     Verify.That(() => a != 42);
                 } catch (Exception e) {
-                    var message = Expect.New(a, 42).FormatNotEqual("a", "42");
+                    var message = Expect.Equal(a, 42, Expect.NotEqualFormat).Format("a", "42");
+                    Verify.That(() => e.Message == message);
+                }
+            }
+            public void unary_Call() {
+                var foo = new Counter();
+                try {
+                    Verify.That(() => foo.ReturnsFalse());
+                } catch (Exception e) {
+                    var message = Expect.Equal(false, true, Expect.FailFormat).Format("foo.ReturnsFalse()", string.Empty);
                     Verify.That(() => e.Message == message);
                 }
             }
             public void MethodCall_static() {
                 var obj = new Counter();
-                CheckFormatting(() => object.ReferenceEquals(obj, obj) == false, Expect.New(true, false), "Object.ReferenceEquals(obj, obj)", "False");
+                CheckFormatting(() => object.ReferenceEquals(obj, obj) == false, Expect.Equal(true, false, Expect.EqualFormat), "Object.ReferenceEquals(obj, obj)", "False");
             }
             public void MethodCall() {
                 var obj = new Counter();
                 obj.Next(7);
-                CheckFormatting(() => obj.Next() == 8, Expect.New(7, 8), "obj.Next()", "8");
+                CheckFormatting(() => obj.Next() == 8, Expect.Equal(7, 8, Expect.EqualFormat), "obj.Next()", "8");
             }
             void CheckFormatting(Expression<Func<bool>> expr, Expect values, string actual, string expected) {
                 try {
                     Verify.That(expr);
                 } catch (Exception e) {
-                    var message = values.FormatEqual(actual, expected);
+                    var message = values.Format(actual, expected);
                     Verify.That(() => e.Message == message);
                 }
             }
