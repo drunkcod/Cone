@@ -32,7 +32,7 @@ namespace Cone
         }
         public void support_identity_checking() {
             var obj = new Counter();
-            Verify.That(() => object.ReferenceEquals(obj, obj) != true);
+            Verify.That(() => object.ReferenceEquals(obj, obj) == true);
         }
     }
 
