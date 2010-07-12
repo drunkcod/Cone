@@ -5,6 +5,8 @@ namespace Cone
 {
     public static class Verify
     {
+        internal static Action<string> ExpectationFailed = message => { throw new ExpectationFailedException(message); };
+
         public static void That(Expression<Func<bool>> expr) {
             var body = expr.Body as BinaryExpression;
             var actual = body.Left;
@@ -19,11 +21,11 @@ namespace Cone
             switch (body.NodeType) {
                 case ExpressionType.NotEqual:
                     if (expect.Equal())
-                        throw new ExpectationFailedException(expect.FormatNotEqual(Format(actual), Format(expected)));
+                        ExpectationFailed(expect.FormatNotEqual(Format(actual), Format(expected)));
                     break;
                 case ExpressionType.Equal:
                     if (!expect.Equal())
-                        throw new ExpectationFailedException(expect.FormatEqual(Format(actual), Format(expected)));
+                        ExpectationFailed(expect.FormatEqual(Format(actual), Format(expected)));
                     break;
                 default: throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
             }

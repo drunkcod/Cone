@@ -2,8 +2,8 @@
 {
     class Expect
     {
-        const string EqualFormat = "{0} wasn't equal to {1}.\nExpected {3}\nActual {2}";
-        const string NotEqualFormat = "{0} was equal to {1}.\nDidn't expect {3}";
+        const string EqualFormat = "  {0} wasn't equal to {1}.\n  Expected {3}\nActual {2}";
+        const string NotEqualFormat = "  {0} was equal to {1}.\n  Didn't expect {3}";
 
         readonly object actual;
         readonly object expected;

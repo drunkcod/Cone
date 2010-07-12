@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Cone.Tests
+namespace Cone
 {
     [Describe(typeof(Verify))]
     public class VerifySpec
@@ -13,14 +13,6 @@ namespace Cone.Tests
             public int Next() { return next++; }
         }
 
-        public void ArrayLength_expression_formatting() {
-            var array = new int[0];
-            CheckFormatting(() => array.Length == 1, Expect.New(array.Length, 1), "array.Length", "1");
-        }
-        public void Property_expression_formatting() {
-            var bowling = new Bowling();
-            CheckFormatting(() => bowling.Score == 1, Expect.New(bowling.Score, 1), "bowling.Score", "1");
-        }
         public void should_evaluate_only_once() {
             var counter = new Counter();
             try {
@@ -28,11 +20,24 @@ namespace Cone.Tests
             } catch { }
             Verify.That(() => counter.Next() == 1);
         }
-        public void NotEqual_formatting() {
+    }
+
+    [Describe(typeof(Verify), "expression formatting")]
+    public class VerifyFormattingSpec
+    {
+        public void ArrayLength() {
+            var array = new int[0];
+            CheckFormatting(() => array.Length == 1, Expect.New(array.Length, 1), "array.Length", "1");
+        }
+        public void Property() {
+            var bowling = new Bowling();
+            CheckFormatting(() => bowling.Score == 1, Expect.New(bowling.Score, 1), "bowling.Score", "1");
+        }
+        public void NotEqual() {
             var a = 42;
             try {
                 Verify.That(() => a != 42);
-            } catch (ExpectationFailedException e) {
+            } catch (Exception e) {
                 var message = Expect.New(a, 42).FormatNotEqual("a", "42");
                 Verify.That(() => e.Message == message);
             }
@@ -41,7 +46,7 @@ namespace Cone.Tests
         void CheckFormatting(Expression<Func<bool>> expr, Expect values, string actual, string expected) {
             try {
                 Verify.That(expr);
-            } catch (ExpectationFailedException e) {
+            } catch (Exception e) {
                 var message = values.FormatEqual(actual, expected);
                 Verify.That(() => e.Message == message);
             }
