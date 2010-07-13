@@ -6,11 +6,8 @@ namespace Cone
     class ExpressionFormatter
     {
         public string Format(Expression expr) {
-            UnaryExpression unary;
             switch (expr.NodeType) {
-                case ExpressionType.ArrayLength:
-                    unary = (UnaryExpression)expr;
-                    return Format(unary.Operand) + ".Length";                
+                case ExpressionType.ArrayLength: return FormatUnary(expr) + ".Length";                
                 case ExpressionType.MemberAccess:
                     var member = (MemberExpression)expr;
                     if (member.Expression == null)
@@ -20,10 +17,8 @@ namespace Cone
                     return Format(member.Expression) + "." + member.Member.Name;
                 case ExpressionType.Call:
                     var call = (MethodCallExpression)expr;
-                    return FormatCallTarget(call) + "." + call.Method.Name + FormatArgs(call.Arguments); 
-                case ExpressionType.Quote:
-                    unary = (UnaryExpression)expr;
-                    return Format(unary.Operand);
+                    return FormatCallTarget(call) + "." + call.Method.Name + FormatArgs(call.Arguments);
+                case ExpressionType.Quote: return FormatUnary(expr);
                 case ExpressionType.Lambda:
                     var lambda = (LambdaExpression)expr;
                     return FormatArgs(lambda.Parameters) + " => " + Format(lambda.Body);
@@ -61,6 +56,10 @@ namespace Cone
         string FormatBinary(Expression expr, string op) {
             var binary = (BinaryExpression)expr;
             return Format(binary.Left) + op + Format(binary.Right);
+        }
+
+        string FormatUnary(Expression expr) {
+            return Format(((UnaryExpression)expr).Operand);
         }
     }
 }
