@@ -23,20 +23,17 @@ namespace Cone
         readonly object actual;
         readonly object expected;
         readonly string format;
-        readonly bool outcome;
 
-        public static Expect Equal<TActual, TExpected>(TActual actual, TExpected expected, string format) { return new Expect(actual, expected, format, true); }
-        public static Expect NotEqual<TActual, TExpected>(TActual actual, TExpected expected, string format) { return new Expect(actual, expected, format, false); }
+        public static Expect Equal<TActual, TExpected>(TActual actual, TExpected expected, string format) { return new Expect(actual, expected, format); }
 
-        public Expect(object actual, object expected, string format, bool result) {
+        public Expect(object actual, object expected, string format) {
             this.actual = actual ?? ExpectNull;
             this.expected = expected;
             this.format = format;
-            this.outcome = result;
         }
 
         public bool Check() { 
-            return actual.Equals(expected) == outcome;
+            return actual.Equals(expected);
         }
 
         public string Format(Expression actualDisplay, Expression expectedDisplay) {
