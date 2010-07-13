@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using NUnit.Framework;
 
 namespace Cone
 {
@@ -44,11 +45,7 @@ namespace Cone
         [Context("expression formatting")]
         public class ExpressionFormatting
         {
-            public void ArrayLength() {
-                var array = new int[0];
-                CheckFormatting(() => array.Length == 1, Expect.Equal(array.Length, 1, Expect.EqualFormat), "array.Length", "1");
-            }
-            public void Property() {
+            public void Equal() {
                 var bowling = new Bowling();
                 CheckFormatting(() => bowling.Score == 1, Expect.Equal(bowling.Score, 1, Expect.EqualFormat), "bowling.Score", "1");
             }
@@ -60,15 +57,7 @@ namespace Cone
                 var foo = new Counter();
                 CheckFormatting(() => foo.ReturnsFalse(), Expect.Equal(false, true, Expect.FailFormat), "foo.ReturnsFalse()", string.Empty);
             }
-            public void MethodCall_static() {
-                var obj = new Counter();
-                CheckFormatting(() => object.ReferenceEquals(obj, obj) == false, Expect.Equal(true, false, Expect.EqualFormat), "Object.ReferenceEquals(obj, obj)", "False");
-            }
-            public void MethodCall() {
-                var obj = new Counter();
-                obj.Next(7);
-                CheckFormatting(() => obj.Next() == 8, Expect.Equal(7, 8, Expect.EqualFormat), "obj.Next()", "8");
-            }
+
             void CheckFormatting(Expression<Func<bool>> expr, Expect values, string actual, string expected) {
                 try {
                     Verify.That(expr);
