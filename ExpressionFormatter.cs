@@ -10,7 +10,7 @@ namespace Cone
             switch (expr.NodeType) {
                 case ExpressionType.ArrayLength:
                     unary = (UnaryExpression)expr;
-                    return Format(unary.Operand) + ".Length";
+                    return Format(unary.Operand) + ".Length";                
                 case ExpressionType.MemberAccess:
                     var member = (MemberExpression)expr;
                     if (member.Expression == null)
@@ -27,6 +27,9 @@ namespace Cone
                 case ExpressionType.Lambda:
                     var lambda = (LambdaExpression)expr;
                     return FormatArgs(lambda.Parameters) + " => " + Format(lambda.Body);
+                case ExpressionType.Equal: return FormatBinary(expr, " == ");
+                case ExpressionType.NotEqual: return FormatBinary(expr, " != ");
+
             }
             return expr.ToString();
         }
@@ -53,6 +56,11 @@ namespace Cone
 
         string FormatArgs(string[] value) {
             return "(" + string.Join(", ", value) + ")";
+        }
+
+        string FormatBinary(Expression expr, string op) {
+            var binary = (BinaryExpression)expr;
+            return Format(binary.Left) + op + Format(binary.Right);
         }
     }
 }

@@ -20,6 +20,10 @@ namespace Cone
         public void Call_static() {
             Verify.That(() => FormatBody(() => DateTime.Parse("2010-07-13")) == "DateTime.Parse(\"2010-07-13\")");
         }
+        public void Equal() {
+            var a = 42;
+            Verify.That(() => FormatBody(() => a == 42) == "a == 42");
+        }
         public void Property() {
             var date = DateTime.Now;
             Verify.That(() => FormatBody(() => date.Year) == "date.Year");
@@ -36,6 +40,10 @@ namespace Cone
         }
         public void Lambda_with_parameters() {
             Verify.That(() => FormatBody<Func<int,int,int>>(() => (x, y) => 1) == "(x, y) => 1");
+        }
+        public void NotEqual() {
+            var a = 42;
+            Verify.That(() => FormatBody(() => a != 42) == "a != 42");
         }
 
         string FormatBody<T>(Expression<Func<T>> expr) {
