@@ -36,7 +36,7 @@ namespace Cone
             if (suiteBuilders == null)
                 return false;
             suiteBuilders.Install(this);
-            Verify.ExpectationFailed = message => { throw new AssertionException(message); };
+            Verify.ExpectationFailed = AssertionFailed;
             return true;
         }
 
@@ -46,6 +46,10 @@ namespace Cone
 
         bool ISuiteBuilder.CanBuildFrom(Type type) {
             return type.Has<DescribeAttribute>();
+        }
+
+        static void AssertionFailed(string message) {
+            throw new AssertionException(message);
         }
     }
 }

@@ -27,6 +27,16 @@ namespace Cone
         public void Property_static() {
             Verify.That(() => FormatBody(() => DateTime.Now) == "DateTime.Now");
         }
+        public void expands_quoted_expression() {
+            var obj = this;
+            Verify.That(() => FormatBody<Func<int>>(() => () => obj.GetHashCode()) == "() => obj.GetHashCode()");
+        }
+        public void Lambda() {
+            Verify.That(() => FormatBody<Func<int>>(() => () => 1) == "() => 1");
+        }
+        public void Lambda_with_parameters() {
+            Verify.That(() => FormatBody<Func<int,int,int>>(() => (x, y) => 1) == "(x, y) => 1");
+        }
 
         string FormatBody<T>(Expression<Func<T>> expr) {
             return new ExpressionFormatter().Format(expr.Body);

@@ -1,13 +1,15 @@
 ﻿using System.Linq.Expressions;
+using System.Collections.Generic;
 
 namespace Cone
 {
     class ExpressionFormatter
     {
         public string Format(Expression expr) {
+            UnaryExpression unary;
             switch (expr.NodeType) {
                 case ExpressionType.ArrayLength:
-                    var unary = (UnaryExpression)expr;
+                    unary = (UnaryExpression)expr;
                     return Format(unary.Operand) + ".Length";
                 case ExpressionType.MemberAccess:
                     var member = (MemberExpression)expr;
@@ -18,10 +20,13 @@ namespace Cone
                     return Format(member.Expression) + "." + member.Member.Name;
                 case ExpressionType.Call:
                     var call = (MethodCallExpression)expr;
-                    var args = new string[call.Arguments.Count];
-                    for (int i = 0; i != args.Length; ++i)
-                        args[i] = Format(call.Arguments[i]);
-                    return FormatCallTarget(call) + "." + call.Method.Name + "(" + string.Join(", ", args) + ")";
+                    return FormatCallTarget(call) + "." + call.Method.Name + FormatArgs(call.Arguments); 
+                case ExpressionType.Quote:
+                    unary = (UnaryExpression)expr;
+                    return Format(unary.Operand);
+                case ExpressionType.Lambda:
+                    var lambda = (LambdaExpression)expr;
+                    return FormatArgs(lambda.Parameters) + " => " + Format(lambda.Body);
             }
             return expr.ToString();
         }
@@ -30,6 +35,24 @@ namespace Cone
             if (call.Object == null)
                 return call.Method.DeclaringType.Name;
             return Format(call.Object);
+        }
+
+        string FormatArgs(IList<ParameterExpression> args) {
+            var items = new string[args.Count];
+            for (int i = 0; i != items.Length; ++i)
+                items[i] = Format(args[i]);
+            return FormatArgs(items);
+        }
+
+        string FormatArgs(IList<Expression> args) {
+            var items = new string[args.Count];
+            for (int i = 0; i != items.Length; ++i)
+                items[i] = Format(args[i]);
+            return FormatArgs(items);
+        }
+
+        string FormatArgs(string[] value) {
+            return "(" + string.Join(", ", value) + ")";
         }
     }
 }
