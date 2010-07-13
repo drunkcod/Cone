@@ -54,7 +54,12 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AfterAllAttribute.cs" />
+    <Compile Include="AfterEachAttribute.cs" />
+    <Compile Include="BeforeAllAttribute.cs" />
+    <Compile Include="BeforeEachAttribute.cs" />
     <Compile Include="ConeNUnitAddin.cs" />
+    <Compile Include="ConeSuite.cs" />
     <Compile Include="ContextAttribute.cs" />
     <Compile Include="DescribeAttribute.cs" />
     <Compile Include="Expect.cs" />

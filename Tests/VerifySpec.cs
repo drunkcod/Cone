@@ -20,6 +20,8 @@ namespace Cone
     [Describe(typeof(Verify))]
     public class VerifySpec
     {
+        static int TheAnswer = 42;
+
         public void should_evaluate_only_once() {
             var counter = new Counter();
             try {
@@ -34,6 +36,9 @@ namespace Cone
         public void support_identity_checking() {
             var obj = new Counter();
             Verify.That(() => object.ReferenceEquals(obj, obj) == true);
+        }
+        public void support_static_fields() {
+            Verify.That(() => TheAnswer == 42);
         }
 
         [Context("expression formatting")]
