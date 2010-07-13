@@ -64,9 +64,9 @@
     <Compile Include="DescribeAttribute.cs" />
     <Compile Include="Expect.cs" />
     <Compile Include="ExpectationFailedException.cs" />
-    <Compile Include="Tests\BowlingSpec.cs" />
-    <Compile Include="Tests\ConeSuiteSpec.cs" />
-    <Compile Include="Tests\VerifySpec.cs" />
+    <Compile Include="Specs\BowlingSpec.cs" />
+    <Compile Include="Specs\ConeSuiteSpec.cs" />
+    <Compile Include="Specs\VerifySpec.cs" />
     <Compile Include="Verify.cs" />
   </ItemGroup>
   <ItemGroup>

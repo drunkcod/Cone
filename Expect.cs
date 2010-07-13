@@ -27,13 +27,13 @@ namespace Cone
         public static Expect Equal<TActual, TExpected>(TActual actual, TExpected expected, string format) { return new Expect(actual, expected, format); }
 
         public Expect(object actual, object expected, string format) {
-            this.actual = actual ?? ExpectNull;
-            this.expected = expected;
+            this.actual = actual;
+            this.expected = expected ?? ExpectNull;
             this.format = format;
         }
 
         public bool Check() { 
-            return actual.Equals(expected);
+            return expected.Equals(actual);
         }
 
         public string Format(Expression actualDisplay, Expression expectedDisplay) {
