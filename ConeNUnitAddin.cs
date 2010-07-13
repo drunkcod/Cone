@@ -11,6 +11,23 @@ using NUnit.Core.Builders;
 
 namespace Cone
 {
+    static class TypeExtensions
+    {
+        public static bool Has<T>(this Type type) {
+            return type.GetCustomAttributes(typeof(T), true).Length == 1;
+        }
+
+        public static bool TryGetAttribute<T>(this Type type, out T value) {
+            var attributes = type.GetCustomAttributes(typeof(T), true);
+            if (attributes.Length == 1) {
+                value = (T)attributes[0];
+                return true;
+            }
+            value = default(T);
+            return false;
+        }
+    }
+
     class ConeSuite : TestSuite
     {
         static readonly Regex normalizeNamePattern = new Regex(@"_|\+", RegexOptions.Compiled);
@@ -25,6 +42,9 @@ namespace Cone
                     };
                     suite.Add(NUnitTestCaseBuilder.BuildSingleTestMethod(item, suite, parms));
                 }
+            foreach (var context in type.GetNestedTypes())
+                if (context.Has<ContextAttribute>())
+                    suite.Add(For(context));
             return suite;
         }
 
@@ -41,18 +61,22 @@ namespace Cone
         }
 
         static string NameFor(Type type) {
-            var desc = DescriptionOf(type);
-            if (string.IsNullOrEmpty(desc.Context))
-                return desc.DescribedType.Name;
-            return desc.DescribedType.Name + " - " + desc.Context;
+            DescribeAttribute desc;
+            if (type.TryGetAttribute<DescribeAttribute>(out desc)) {
+                if (string.IsNullOrEmpty(desc.Context))
+                    return desc.DescribedType.Name;
+                return desc.DescribedType.Name + " - " + desc.Context;
+            }
+            ContextAttribute context;
+            type.TryGetAttribute<ContextAttribute>(out context);
+            return context.Context;
         }
 
         static DescribeAttribute DescriptionOf(Type type) {
-            var descriptions = type.GetCustomAttributes(typeof(DescribeAttribute), true);
-            if(descriptions.Length == 1)
-                return (DescribeAttribute)descriptions[0];
-            var context = (ContextAttribute)type.GetCustomAttributes(typeof(ContextAttribute), true)[0];
-            return new DescribeAttribute(type.DeclaringType, context.Context); 
+            DescribeAttribute desc;
+            if(!type.TryGetAttribute<DescribeAttribute>(out desc))
+                type.DeclaringType.TryGetAttribute<DescribeAttribute>(out desc);
+            return desc;
         }
     }
 
@@ -73,11 +97,7 @@ namespace Cone
         }
 
         bool ISuiteBuilder.CanBuildFrom(Type type) {
-            return Has<DescribeAttribute>(type) || (Has<ContextAttribute>(type) && Has<DescribeAttribute>(type.DeclaringType));
-        }
-
-        bool Has<T>(Type type) {
-            return type.GetCustomAttributes(typeof(T), true).Length == 1;
+            return type.Has<DescribeAttribute>();
         }
     }
 }

@@ -49,21 +49,11 @@ namespace Cone
             }
             public void NotEqual() {
                 var a = 42;
-                try {
-                    Verify.That(() => a != 42);
-                } catch (Exception e) {
-                    var message = Expect.Equal(a, 42, Expect.NotEqualFormat).Format("a", "42");
-                    Verify.That(() => e.Message == message);
-                }
+                CheckFormatting(() => a != 42, Expect.Equal(a, 42, Expect.NotEqualFormat), "a", "42");
             }
             public void unary_Call() {
                 var foo = new Counter();
-                try {
-                    Verify.That(() => foo.ReturnsFalse());
-                } catch (Exception e) {
-                    var message = Expect.Equal(false, true, Expect.FailFormat).Format("foo.ReturnsFalse()", string.Empty);
-                    Verify.That(() => e.Message == message);
-                }
+                CheckFormatting(() => foo.ReturnsFalse(), Expect.Equal(false, true, Expect.FailFormat), "foo.ReturnsFalse()", string.Empty);
             }
             public void MethodCall_static() {
                 var obj = new Counter();
