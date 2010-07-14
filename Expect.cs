@@ -14,7 +14,7 @@ namespace Cone
 
     public class Expect
     {
-        public const string EqualFormat = "  {0} wasn't equal to {1}.\n  Expected {3}\nActual {2}";
+        public const string EqualFormat = "  {0} wasn't equal to {1}.\n  Expected: {3}\n  But was: {2}";
         public const string NotEqualFormat = "  {0} was equal to {1}.\n  Didn't expect {3}";
         public const string FailFormat = "  {0} failed.";
         

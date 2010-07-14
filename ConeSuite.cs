@@ -90,12 +90,12 @@ namespace Cone
             get { return type; }
         }
 
-        static string NameFor(MethodInfo method) {
-            return normalizeNamePattern.Replace(method.Name, " ");
-        }
-
         static string ParentFor(Type type) {
             return DescriptionOf(type).DescribedType.Namespace;
+        }
+
+        static string NameFor(MethodInfo method) {
+            return normalizeNamePattern.Replace(method.Name, " ");
         }
 
         static string NameFor(Type type) {

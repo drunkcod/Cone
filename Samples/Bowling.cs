@@ -3,21 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Cone
+namespace Cone.Samples
 {
-    [Describe(typeof(Bowling), "Score")]
-    public class BowlingSpec
-    {
-        public void returns_0_for_gutter_game() {
-            var bowling = new Bowling();
-            20.Times(() => bowling.Hit(0));
-            Verify.That(() => bowling.Score == 0);
-        }
-    }
-
     public class Bowling
     {
-        public int Score { get { return 0; } }
+        public int Score { get { return -1; } }
         public void Hit(int pins) { }
     }
 
