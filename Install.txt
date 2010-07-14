@@ -1,0 +1,15 @@
+Cone - for friendly testing 
+-------------------------
+
+Installation
+-------------------------
+
+Copy the following files to your "NUnit\bin\net-2.0\addins" directory:
+  * Bin\Cone.Addin.dll
+  * Bin\Cone.dll
+
+Usage
+-------------------------
+Simply reference "Bin\Cone.dll" in your test/spec project and that should be it.
+You should find some samples in the "Samples" directory of this distribution.
+

@@ -1,6 +1,5 @@
 $RECYCLE.BIN/
-Build
+Bin
 *.suo
 *.user
 obj/
-TrackerTools/Server/bin

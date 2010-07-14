@@ -48,6 +48,11 @@ namespace Cone
         [Context("expression formatting")]
         public class ExpressionFormatting
         {
+            class Bowling
+            {
+                public int Score { get { return 0; } }
+            }
+
             public void Equal() {
                 var bowling = new Bowling();
                 CheckFormatting(() => bowling.Score == 1, Expect.Equal(bowling.Score, 1, Expect.EqualFormat), "bowling.Score", "1");

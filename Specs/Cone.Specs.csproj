@@ -12,7 +12,7 @@
     <AssemblyName>Cone.Specs</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <OutputPath>$(SolutionDir)\Build</OutputPath>
+    <OutputPath>$(SolutionDir)\Bin</OutputPath>
     <IntermediateOutputPath>$(OutputPath)\obj\$(MSBuildProjectName)</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -34,21 +34,23 @@
     <Reference Include="nunit.core, Version=2.5.5.10112, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Lib\NUnit\nunit.core.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="nunit.core.interfaces, Version=2.5.5.10112, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Lib\NUnit\nunit.core.interfaces.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="nunit.framework, Version=2.5.5.10112, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Lib\NUnit\nunit.framework.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BowlingSpec.cs" />
     <Compile Include="Addin\ConeSuiteSpec.cs" />
     <Compile Include="ExpressionFormatterSpec.cs" />
     <Compile Include="VerifySpec.cs" />
@@ -57,6 +59,7 @@
     <ProjectReference Include="..\Addin\Cone.Addin.csproj">
       <Project>{C1B2EAD0-140C-4D5F-A757-1092CB39AECE}</Project>
       <Name>Cone.Addin</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\Cone.csproj">
       <Project>{E557FD03-E249-4211-80CF-FB0923FD4C7D}</Project>
