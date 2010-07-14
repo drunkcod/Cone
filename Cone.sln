@@ -5,8 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cone", "Cone.csproj", "{E55
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cone.Specs", "Specs\Cone.Specs.csproj", "{BF157BB9-A8AE-4CE1-BDD8-8EFA7358EC0B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cone.Samples", "Samples\Cone.Samples.csproj", "{A277DEC5-9AE8-433A-ADF8-8B084ACD3CE9}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cone.Addin", "Addin\Cone.Addin.csproj", "{C1B2EAD0-140C-4D5F-A757-1092CB39AECE}"
 EndProject
 Global
@@ -39,16 +37,6 @@ Global
 		{BF157BB9-A8AE-4CE1-BDD8-8EFA7358EC0B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{BF157BB9-A8AE-4CE1-BDD8-8EFA7358EC0B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{BF157BB9-A8AE-4CE1-BDD8-8EFA7358EC0B}.Release|x86.ActiveCfg = Release|Any CPU
-		{A277DEC5-9AE8-433A-ADF8-8B084ACD3CE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A277DEC5-9AE8-433A-ADF8-8B084ACD3CE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A277DEC5-9AE8-433A-ADF8-8B084ACD3CE9}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{A277DEC5-9AE8-433A-ADF8-8B084ACD3CE9}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{A277DEC5-9AE8-433A-ADF8-8B084ACD3CE9}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A277DEC5-9AE8-433A-ADF8-8B084ACD3CE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A277DEC5-9AE8-433A-ADF8-8B084ACD3CE9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A277DEC5-9AE8-433A-ADF8-8B084ACD3CE9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{A277DEC5-9AE8-433A-ADF8-8B084ACD3CE9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{A277DEC5-9AE8-433A-ADF8-8B084ACD3CE9}.Release|x86.ActiveCfg = Release|Any CPU
 		{C1B2EAD0-140C-4D5F-A757-1092CB39AECE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C1B2EAD0-140C-4D5F-A757-1092CB39AECE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1B2EAD0-140C-4D5F-A757-1092CB39AECE}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU

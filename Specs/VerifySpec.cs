@@ -41,6 +41,9 @@ namespace Cone
         public void support_static_fields() {
             Verify.That(() => TheAnswer == 42);
         }
+        public void negated_expression() {
+            Verify.That(() => !(TheAnswer == 7));
+        }
 
         [Context("expression formatting")]
         public class ExpressionFormatting

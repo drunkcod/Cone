@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Cone, Version=0.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Build\Cone.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=2.5.5.10112, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Lib\NUnit\nunit.framework.dll</HintPath>
@@ -41,12 +45,7 @@
   <ItemGroup>
     <Compile Include="Bowling.cs" />
     <Compile Include="BowlingSpec.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Cone.csproj">
-      <Project>{E557FD03-E249-4211-80CF-FB0923FD4C7D}</Project>
-      <Name>Cone</Name>
-    </ProjectReference>
+    <Compile Include="GettingStartedSpec.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

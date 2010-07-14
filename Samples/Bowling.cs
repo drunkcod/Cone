@@ -7,7 +7,7 @@ namespace Cone.Samples
 {
     public class Bowling
     {
-        public int Score { get { return -1; } }
+        public int Score { get { return 0; } }
         public void Hit(int pins) { }
     }
 

@@ -35,7 +35,12 @@ namespace Cone
             bool outcome;
 
             public static BoundExpect From(Expression body) {
-                if (body.NodeType == ExpressionType.Call)
+                if (body.NodeType == ExpressionType.Not) {
+                    var x = From(((UnaryExpression)body).Operand);
+                    x.outcome = !x.outcome;
+                    return x;
+                }
+                else if (body.NodeType == ExpressionType.Call)
                     return new BoundExpect(body.NodeType,
                         body,
                         Expression.Constant(true),

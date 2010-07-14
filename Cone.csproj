@@ -52,6 +52,7 @@
     <Compile Include="ExpectationFailedException.cs" />
     <Compile Include="ExpressionFormatter.cs" />
     <Compile Include="Verify.cs" />
+    <Compile Include="Version.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
