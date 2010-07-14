@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{BF157BB9-A8AE-4CE1-BDD8-8EFA7358EC0B}</ProjectGuid>
+    <ProjectGuid>{C1B2EAD0-140C-4D5F-A757-1092CB39AECE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Cone</RootNamespace>
-    <AssemblyName>Cone.Specs</AssemblyName>
+    <RootNamespace>Cone.Addin</RootNamespace>
+    <AssemblyName>Cone.Addin</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <OutputPath>$(SolutionDir)\Build</OutputPath>
@@ -45,19 +45,17 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BowlingSpec.cs" />
-    <Compile Include="Addin\ConeSuiteSpec.cs" />
-    <Compile Include="ExpressionFormatterSpec.cs" />
-    <Compile Include="VerifySpec.cs" />
+    <Compile Include="ConeNUnitAddin.cs" />
+    <Compile Include="ConeSuite.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Addin\Cone.Addin.csproj">
-      <Project>{C1B2EAD0-140C-4D5F-A757-1092CB39AECE}</Project>
-      <Name>Cone.Addin</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Cone.csproj">
       <Project>{E557FD03-E249-4211-80CF-FB0923FD4C7D}</Project>
       <Name>Cone</Name>

@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NUnit.Core;
 using NUnit.Core.Extensibility;
 using NUnit.Framework;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using NUnit.Core.Builders;
 
-namespace Cone
+namespace Cone.Addin
 {
     static class TypeExtensions
     {

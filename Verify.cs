@@ -6,7 +6,7 @@ namespace Cone
 {
     public static class Verify
     {
-        internal static Action<string> ExpectationFailed = message => { throw new ExpectationFailedException(message); };
+        public static Action<string> ExpectationFailed = message => { throw new ExpectationFailedException(message); };
         
         class Lazy<T>
         {

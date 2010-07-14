@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using NUnit.Core;
 using NUnit.Core.Builders;
 using NUnit.Core.Extensibility;
-using System.Collections.Generic;
 
-namespace Cone
+namespace Cone.Addin
 {
     public class ConeSuite : TestSuite
     {
