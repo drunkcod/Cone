@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Cone
 {
-    class ConeSuite : TestSuite
+    public class ConeSuite : TestSuite
     {
         static readonly Regex normalizeNamePattern = new Regex(@"_|\+", RegexOptions.Compiled);
         readonly Type type;

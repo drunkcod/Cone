@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Cone
 {
-    class ExpressionFormatter
+    public class ExpressionFormatter
     {
         public string Format(Expression expr) {
             switch (expr.NodeType) {
