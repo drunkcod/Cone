@@ -6,6 +6,13 @@ using System.Linq.Expressions;
 
 namespace Cone
 {
+    static class Extensions
+    {
+        public static bool IsOfType(this object obj, Type type) {
+            return type.IsAssignableFrom(obj.GetType());
+        }
+    }
+
     [Describe(typeof(ExpressionFormatter))]
     public class ExpressionFormatterSpec
     {
@@ -20,6 +27,12 @@ namespace Cone
         public void Call_static() {
             Verify.That(() => FormatBody(() => DateTime.Parse("2010-07-13")) == "DateTime.Parse(\"2010-07-13\")");
         }
+
+        public void Callt_extension_method() {
+            var obj = this;
+            Verify.That(() => FormatBody(() => obj.IsOfType(typeof(object))) == "obj.IsOfType(typeof(Object))");
+        }
+
         public void Equal() {
             var a = 42;
             Verify.That(() => FormatBody(() => a == 42) == "a == 42");

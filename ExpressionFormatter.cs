@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using System.Collections.Generic;
 
 namespace Cone
@@ -17,21 +18,32 @@ namespace Cone
                     return Format(member.Expression) + "." + member.Member.Name;
                 case ExpressionType.Call:
                     var call = (MethodCallExpression)expr;
-                    return FormatCallTarget(call) + "." + call.Method.Name + FormatArgs(call.Arguments);
+                    int firstArgument;
+                    return FormatCallTarget(call, out firstArgument) + "." + call.Method.Name + FormatArgs(call.Arguments, firstArgument);
                 case ExpressionType.Quote: return FormatUnary(expr);
                 case ExpressionType.Lambda:
                     var lambda = (LambdaExpression)expr;
                     return FormatArgs(lambda.Parameters) + " => " + Format(lambda.Body);
                 case ExpressionType.Equal: return FormatBinary(expr, " == ");
                 case ExpressionType.NotEqual: return FormatBinary(expr, " != ");
-
+                case ExpressionType.Constant:
+                    var constant = (ConstantExpression)expr;
+                    if(constant.Type != typeof(Type))
+                        return constant.ToString();
+                    var type = (Type)constant.Value;
+                    return "typeof(" + type.Name + ")";
             }
             return expr.ToString();
         }
 
-        string FormatCallTarget(MethodCallExpression call) {
-            if (call.Object == null)
-                return call.Method.DeclaringType.Name;
+        string FormatCallTarget(MethodCallExpression call, out int firstArgument) {
+            firstArgument = 0;
+            if (call.Object == null) {
+                if(call.Method.GetCustomAttributes(typeof(System.Runtime.CompilerServices.ExtensionAttribute), false).Length == 0)
+                    return call.Method.DeclaringType.Name;
+                firstArgument = 1;
+                return Format(call.Arguments[0]);
+            }
             return Format(call.Object);
         }
 
@@ -42,10 +54,10 @@ namespace Cone
             return FormatArgs(items);
         }
 
-        string FormatArgs(IList<Expression> args) {
-            var items = new string[args.Count];
+        string FormatArgs(IList<Expression> args, int first) {
+            var items = new string[args.Count - first];
             for (int i = 0; i != items.Length; ++i)
-                items[i] = Format(args[i]);
+                items[i] = Format(args[first +  i]);
             return FormatArgs(items);
         }
 
