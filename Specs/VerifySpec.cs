@@ -30,6 +30,9 @@ namespace Cone
             } catch { }
             Verify.That(() => counter.Next() == 1);
         }
+        public void support_constant_expressions() {
+            Verify.That(() => 1 + 2 == 3);
+        }
         public void supports_null_values_as_actual() {
             Counter x = null;
             Verify.That(() => x == null);

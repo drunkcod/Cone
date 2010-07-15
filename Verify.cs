@@ -39,13 +39,15 @@ namespace Cone
                     var x = From(((UnaryExpression)body).Operand);
                     x.outcome = !x.outcome;
                     return x;
-                }
-                else if (body.NodeType == ExpressionType.Call)
+                } else if (body.NodeType == ExpressionType.Call) {
                     return new BoundExpect(body.NodeType,
                         body,
                         Expression.Constant(true),
                         true);
-                else
+                } else if (body.NodeType == ExpressionType.Constant) {
+                    var constant = (ConstantExpression)body;
+                    return new BoundExpect(body, Expression.Constant(true), true, new Expect((bool)constant.Value, true, Expect.FailFormat)); 
+                } else
                     return From((BinaryExpression)body);
             }
 
@@ -61,12 +63,19 @@ namespace Cone
                 this.actual = actual;
                 this.expected = expected;
                 this.outcome = outcome;
-                expect = Expression.Lambda<Func<Expect>>(
+                this.expect = Expression.Lambda<Func<Expect>>(
                         Expression.New(expector,
                             Expression.TypeAs(actual, typeof(object)),
                             Expression.TypeAs(expected, typeof(object)),
                             Expression.Constant(format)))
                     .Compile()();
+            }
+
+            BoundExpect(Expression actual, Expression expected, bool outcome, Expect expect) {
+                this.actual = actual;
+                this.expected = expected;
+                this.outcome = outcome;
+                this.expect = expect;
             }
 
             public bool Check() {
