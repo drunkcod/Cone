@@ -35,31 +35,39 @@ namespace Cone
             bool outcome;
 
             public static BoundExpect From(Expression body) {
-                if (body.NodeType == ExpressionType.Not) {
-                    var x = From(((UnaryExpression)body).Operand);
-                    x.outcome = !x.outcome;
-                    return x;
-                } else if (body.NodeType == ExpressionType.Call) {
-                    return new BoundExpect(body.NodeType,
-                        body,
-                        Expression.Constant(true),
-                        true);
-                } else if (body.NodeType == ExpressionType.Constant) {
-                    var constant = (ConstantExpression)body;
-                    return new BoundExpect(body, Expression.Constant(true), true, new Expect((bool)constant.Value, true, Expect.FailFormat)); 
-                } else
-                    return From((BinaryExpression)body);
+                switch (body.NodeType) {
+                    case ExpressionType.Not:
+                        var x = From(((UnaryExpression)body).Operand);
+                        x.outcome = !x.outcome;
+                        return x;
+
+                    case ExpressionType.Call:
+                        return new BoundExpect(Expect.FailFormat,
+                            body,
+                            Expression.Constant(true),
+                            true);
+
+                    case ExpressionType.Constant:
+                        var constant = (ConstantExpression)body;
+                        return new BoundExpect(body, Expression.Constant(true), true, new Expect((bool)constant.Value, true, Expect.FailFormat));
+
+                    case ExpressionType.Equal:
+                        return FromBinary(Expect.EqualFormat, (BinaryExpression)body);
+
+                    case ExpressionType.NotEqual:
+                        return FromBinary(Expect.NotEqualFormat, (BinaryExpression)body);
+                }
+                throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
             }
 
-            public static BoundExpect From(BinaryExpression body) {
-                return new BoundExpect(body.NodeType, 
+            public static BoundExpect FromBinary(string format, BinaryExpression body) {
+                return new BoundExpect(format, 
                     body.Left, 
                     body.Right,
                     body.NodeType == ExpressionType.Equal);
             }
 
-            BoundExpect(ExpressionType nodeType, Expression actual, Expression expected, bool outcome) {
-                var format = VerifyAndGetFormat(nodeType);
+            BoundExpect(string format, Expression actual, Expression expected, bool outcome) {
                 this.actual = actual;
                 this.expected = expected;
                 this.outcome = outcome;
@@ -83,15 +91,6 @@ namespace Cone
             }
 
             public string Format() { return expect.Format(actual, expected); }
-
-            static string VerifyAndGetFormat(ExpressionType nodeType) {
-                switch (nodeType) {
-                    case ExpressionType.Call: return Expect.FailFormat;
-                    case ExpressionType.Equal: return Expect.EqualFormat;
-                    case ExpressionType.NotEqual: return Expect.NotEqualFormat;
-                    default: throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", nodeType));
-                }
-            }
         }
 
         public static void That(Expression<Func<bool>> expr) {
