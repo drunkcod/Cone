@@ -79,11 +79,7 @@ namespace Cone.Addin
                 }
             }
             suite.BindTo(setup);
-            foreach (var item in type.GetNestedTypes()) {
-                ContextAttribute context;
-                if (item.TryGetAttribute<ContextAttribute>(out context))
-                    suite.Add(For(item, parentSuiteName, context.Context));
-            }
+            suite.AddNestedContexts();
             return suite;
         }
 
@@ -121,6 +117,14 @@ namespace Cone.Addin
             if (!type.TryGetAttribute<DescribeAttribute>(out desc))
                 type.DeclaringType.TryGetAttribute<DescribeAttribute>(out desc);
             return desc;
+        }
+
+        void AddNestedContexts() {
+            foreach (var item in type.GetNestedTypes()) {
+                ContextAttribute context;
+                if (item.TryGetAttribute<ContextAttribute>(out context))
+                    Add(For(item, TestName.FullName, context.Context));
+            }
         }
 
         void BindTo(FixtureSetup setup) {
