@@ -58,15 +58,15 @@ namespace Cone
 
             public void Equal() {
                 var bowling = new Bowling();
-                CheckFormatting(() => bowling.Score == 1, Expect.Equal(bowling.Score, 1, Expect.EqualFormat), "bowling.Score", "1");
+                CheckFormatting(() => bowling.Score == 1, Expect.Equal(bowling.Score, 1, Expect.EqualFormat, Expect.EqualValuesFormat), "bowling.Score", "1");
             }
             public void NotEqual() {
                 var a = 42;
-                CheckFormatting(() => a != 42, Expect.Equal(a, 42, Expect.NotEqualFormat), "a", "42");
+                CheckFormatting(() => a != 42, Expect.Equal(a, 42, Expect.NotEqualFormat, Expect.NotEqualValuesFormat), "a", "42");
             }
             public void unary_Call() {
                 var foo = new Counter();
-                CheckFormatting(() => foo.ReturnsFalse(), Expect.Equal(false, true, Expect.FailFormat), "foo.ReturnsFalse()", string.Empty);
+                CheckFormatting(() => foo.ReturnsFalse(), Expect.Equal(false, true, Expect.FailFormat, ""), "foo.ReturnsFalse()", string.Empty);
             }
 
             void CheckFormatting(Expression<Func<bool>> expr, Expect values, string actual, string expected) {

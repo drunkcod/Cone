@@ -24,14 +24,9 @@ namespace Cone
                 case ExpressionType.Lambda:
                     var lambda = (LambdaExpression)expr;
                     return FormatArgs(lambda.Parameters) + " => " + Format(lambda.Body);
-                case ExpressionType.Equal: return FormatBinary(expr, " == ");
-                case ExpressionType.NotEqual: return FormatBinary(expr, " != ");
-                case ExpressionType.Constant:
-                    var constant = (ConstantExpression)expr;
-                    if(constant.Type != typeof(Type))
-                        return constant.ToString();
-                    var type = (Type)constant.Value;
-                    return "typeof(" + type.Name + ")";
+                case ExpressionType.Equal: return FormatBinary(expr, GetBinaryOp);
+                case ExpressionType.NotEqual: goto case ExpressionType.Equal;
+                case ExpressionType.Constant: return FormatConstant((ConstantExpression)expr);
             }
             return expr.ToString();
         }
@@ -45,6 +40,15 @@ namespace Cone
                 return Format(call.Arguments[0]);
             }
             return Format(call.Object);
+        }
+
+        string FormatConstant(ConstantExpression constant) {
+            if (constant.Type.IsEnum)
+                return constant.Type.Name + "." + constant.Value.ToString();
+            else if (constant.Type != typeof(Type))
+                return constant.ToString();
+            var type = (Type)constant.Value;
+            return "typeof(" + type.Name + ")";
         }
 
         string FormatArgs(IList<ParameterExpression> args) {
@@ -65,9 +69,29 @@ namespace Cone
             return "(" + string.Join(", ", value) + ")";
         }
 
-        string FormatBinary(Expression expr, string op) {
+        public string FormatBinary(Expression expr, Func<ExpressionType, string> getOp) {
             var binary = (BinaryExpression)expr;
-            return Format(binary.Left) + op + Format(binary.Right);
+            return FormatBinary(binary.Left, binary.Right, getOp(binary.NodeType));
+        }
+
+        static string GetBinaryOp(ExpressionType nodeType) {
+            switch (nodeType) {
+                case ExpressionType.Equal: return " == ";
+                case ExpressionType.NotEqual: return " != ";
+                default: return " ? ";
+            }
+        }
+
+        string FormatBinary(Expression left, Expression right, string op) {
+            if (left.NodeType == ExpressionType.Convert) {
+                var convert = (UnaryExpression)left;
+                left = convert.Operand;
+                if (right.NodeType == ExpressionType.Constant && right.Type.Equals(typeof(int))) {
+                    var newValue = Enum.ToObject(convert.Operand.Type, (int)((ConstantExpression)right).Value);
+                    right = Expression.Constant(newValue);
+                }
+            }
+            return Format(left) + op + Format(right);
         }
 
         string FormatUnary(Expression expr) {

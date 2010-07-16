@@ -29,8 +29,8 @@ namespace Cone
 
         struct BoundExpect
         {
-            static readonly ConstructorInfo expector = typeof(Expect).GetConstructor(new[] { typeof(object), typeof(object), typeof(string) });
-            Expression actual, expected;
+            static readonly ConstructorInfo expector = typeof(Expect).GetConstructor(new[] { typeof(object), typeof(object), typeof(string), typeof(string) });
+            Expression body;
             Expect expect;
             bool outcome;
 
@@ -42,46 +42,47 @@ namespace Cone
                         return x;
 
                     case ExpressionType.Call:
-                        return new BoundExpect(Expect.FailFormat,
+                        return new BoundExpect(Expect.FailFormat, "",
+                            body,
                             body,
                             Expression.Constant(true),
                             true);
 
                     case ExpressionType.Constant:
                         var constant = (ConstantExpression)body;
-                        return new BoundExpect(body, Expression.Constant(true), true, new Expect((bool)constant.Value, true, Expect.FailFormat));
+                        return new BoundExpect(body, true, new Expect((bool)constant.Value, true, Expect.FailFormat, ""));
 
                     case ExpressionType.Equal:
-                        return FromBinary(Expect.EqualFormat, (BinaryExpression)body);
+                        return FromBinary(Expect.EqualFormat, Expect.EqualValuesFormat, (BinaryExpression)body);
 
                     case ExpressionType.NotEqual:
-                        return FromBinary(Expect.NotEqualFormat, (BinaryExpression)body);
+                        return FromBinary(Expect.NotEqualFormat, Expect.NotEqualValuesFormat, (BinaryExpression)body);
                 }
                 throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
             }
 
-            public static BoundExpect FromBinary(string format, BinaryExpression body) {
-                return new BoundExpect(format, 
+            public static BoundExpect FromBinary(string format, string formatValues, BinaryExpression body) {
+                return new BoundExpect(format,
+                    formatValues,
+                    body,
                     body.Left, 
                     body.Right,
                     body.NodeType == ExpressionType.Equal);
             }
 
-            BoundExpect(string format, Expression actual, Expression expected, bool outcome) {
-                this.actual = actual;
-                this.expected = expected;
+            BoundExpect(string format, string formatValues,Expression body, Expression actual, Expression expected, bool outcome) {
+                this.body = body;
                 this.outcome = outcome;
                 this.expect = Expression.Lambda<Func<Expect>>(
                         Expression.New(expector,
                             Expression.TypeAs(actual, typeof(object)),
                             Expression.TypeAs(expected, typeof(object)),
-                            Expression.Constant(format)))
+                            Expression.Constant(format), Expression.Constant(formatValues)))
                     .Compile()();
             }
 
-            BoundExpect(Expression actual, Expression expected, bool outcome, Expect expect) {
-                this.actual = actual;
-                this.expected = expected;
+            BoundExpect(Expression body, bool outcome, Expect expect) {
+                this.body = body;
                 this.outcome = outcome;
                 this.expect = expect;
             }
@@ -90,7 +91,7 @@ namespace Cone
                 return expect.Check() == outcome;
             }
 
-            public string Format() { return expect.Format(actual, expected); }
+            public string Format() { return "  " + expect.Format(body); }
         }
 
         public static void That(Expression<Func<bool>> expr) {

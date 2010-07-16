@@ -58,6 +58,10 @@ namespace Cone
             var a = 42;
             Verify.That(() => FormatBody(() => a != 42) == "a != 42");
         }
+        public void enum_names() {
+            var status = TestStatus.Failure;
+            Verify.That(() => FormatBody(() => status == TestStatus.Success) == "status == TestStatus.Success");
+        }
 
         string FormatBody<T>(Expression<Func<T>> expr) {
             return new ExpressionFormatter().Format(expr.Body);

@@ -70,6 +70,7 @@ namespace Cone.Addin
 
                 [AfterEach]
                 public void Silly(ITestResult result) {
+                   Verify.That(() => result.Status == TestStatus.Success);
                     Product *= int.Parse(result.TestName);
                 }
 
@@ -94,7 +95,6 @@ namespace Cone.Addin
         {
             [Context("with multiple categories", Category = "Empty, Context")]
             public class EmptyContext { }
-        
         }
 
         public void attaches_Category_to_described_suite() {

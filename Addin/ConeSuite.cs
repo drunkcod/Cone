@@ -90,6 +90,7 @@ namespace Cone.Addin
         {
             public ConeTestMethod(MethodInfo method, Test suite, string name) : base(method) {
                 this.Parent = suite;
+                this.TestName.FullName = suite.TestName.FullName + "." + name;
                 this.TestName.Name = name;
             }
 
@@ -112,7 +113,12 @@ namespace Cone.Addin
             protected override void After(TestResult testResult) {
                 var parms = new[] { new TestResultAdapter(testResult) }; 
                 for(int i = 0; i != afters.Length; ++i)
-                    afters[i].Invoke(Fixture, parms);
+                    try {
+                        afters[i].Invoke(Fixture, parms);
+                    } catch (TargetInvocationException e) {
+                        throw e.InnerException;
+                    }
+                    
             }
         }
 
@@ -123,7 +129,7 @@ namespace Cone.Addin
             var afterEachWithParam = new List<MethodInfo>();
             foreach (var item in type.GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
                 var parms = item.GetParameters();
-                if (!setup.CollectFixtureMethod(item) && item.DeclaringType == type && parms.Length == 0)
+                if (!setup.CollectFixtureMethod(item) && item.DeclaringType != typeof(object) && parms.Length == 0)
                     tests.Add(item);
                 else if(parms.Length == 1 
                     && typeof(ITestResult).IsAssignableFrom(parms[0].ParameterType) 
