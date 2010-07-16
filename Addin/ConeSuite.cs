@@ -83,8 +83,7 @@ namespace Cone.Addin
             return suite;
         }
 
-        ConeSuite(Type type, string parentSuiteName, string name)
-            : base(parentSuiteName, name) {
+        ConeSuite(Type type, string parentSuiteName, string name) : base(parentSuiteName, name) {
             this.type = type;
         }
 
@@ -107,15 +106,13 @@ namespace Cone.Addin
                     return desc.DescribedType.Name;
                 return desc.DescribedType.Name + " - " + desc.Context;
             }
-            ContextAttribute context;
-            type.TryGetAttribute<ContextAttribute>(out context);
-            return context.Context;
+            throw new NotSupportedException();
         }
 
         static DescribeAttribute DescriptionOf(Type type) {
             DescribeAttribute desc;
             if (!type.TryGetAttribute<DescribeAttribute>(out desc))
-                type.DeclaringType.TryGetAttribute<DescribeAttribute>(out desc);
+                throw new NotSupportedException();
             return desc;
         }
 
