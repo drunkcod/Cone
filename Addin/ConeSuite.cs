@@ -63,10 +63,11 @@ namespace Cone.Addin
         }
 
         public static TestSuite For(Type type) {
-            return For(type, ParentFor(type), NameFor(type));
+            var description = DescriptionOf(type);
+            return For(type, description.ParentSuiteName, description.TestName).AddCategories(description);
         }
 
-        public static TestSuite For(Type type, string parentSuiteName, string name) {
+        public static ConeSuite For(Type type, string parentSuiteName, string name) {
             var suite = new ConeSuite(type, parentSuiteName, name);
             var setup = new FixtureSetup();
 
@@ -91,22 +92,8 @@ namespace Cone.Addin
             get { return type; }
         }
 
-        static string ParentFor(Type type) {
-            return DescriptionOf(type).DescribedType.Namespace;
-        }
-
         static string NameFor(MethodInfo method) {
             return normalizeNamePattern.Replace(method.Name, " ");
-        }
-
-        static string NameFor(Type type) {
-            DescribeAttribute desc;
-            if (type.TryGetAttribute<DescribeAttribute>(out desc)) {
-                if (string.IsNullOrEmpty(desc.Context))
-                    return desc.DescribedType.Name;
-                return desc.DescribedType.Name + " - " + desc.Context;
-            }
-            throw new NotSupportedException();
         }
 
         static DescribeAttribute DescriptionOf(Type type) {
@@ -120,7 +107,7 @@ namespace Cone.Addin
             foreach (var item in type.GetNestedTypes()) {
                 ContextAttribute context;
                 if (item.TryGetAttribute<ContextAttribute>(out context))
-                    Add(For(item, TestName.FullName, context.Context));
+                    Add(For(item, TestName.FullName, context.Context).AddCategories(context));
             }
         }
 
@@ -129,6 +116,13 @@ namespace Cone.Addin
             setUpMethods = setup.BeforeEach.ToArray();
             tearDownMethods = setup.AfterEach.ToArray();
             fixtureTearDownMethods = setup.AfterAll.ToArray();
+        }
+
+        ConeSuite AddCategories(ContextAttribute context) {
+            if(!string.IsNullOrEmpty(context.Category))
+                foreach(var category in context.Category.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    Categories.Add(category.Trim());
+            return this;
         }
 
     }

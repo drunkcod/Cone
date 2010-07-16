@@ -69,6 +69,26 @@ namespace Cone.Addin
                 public void works_as_expected() { }
             }
         }
+
+        [Describe(typeof(EmptySpec), Category = "Empty")]
+        class EmptySpec 
+        {
+            [Context("with multiple categories", Category = "Empty, Context")]
+            public class EmptyContext { }
+        
+        }
+
+        public void attaches_Category_to_described_suite() {
+            var suite = ConeSuite.For(typeof(EmptySpec));
+            Verify.That(() => suite.Categories.Contains("Empty"));
+        }
+
+        public void multiple_categories_can_be_comma_seperated() {
+            var suite = ConeSuite.For(typeof(EmptySpec)).Tests[0] as ConeSuite;
+            Verify.That(() => suite.Categories.Contains("Empty"));
+            Verify.That(() => suite.Categories.Contains("Context"));
+        }
+
         public void zzz_rely_on_sorting_to_check_that_AfterAll_is_triggered() {
             //Verify.That(() => After.AfterAllExecuted == true);
             Assert.That(After.AfterAllExecuted, Is.True);

@@ -39,7 +39,7 @@ namespace Cone.Addin
         }
 
         bool ISuiteBuilder.CanBuildFrom(Type type) {
-            return type.Has<DescribeAttribute>();
+            return type.IsPublic && type.Has<DescribeAttribute>();
         }
 
         static void AssertionFailed(string message) {
