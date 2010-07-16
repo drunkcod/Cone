@@ -21,6 +21,8 @@ namespace Cone.Addin
             internal List<MethodInfo> AfterAll = new List<MethodInfo>();
 
             public bool CollectFixtureMethod(MethodInfo method) {
+                if (method.GetParameters().Length != 0)
+                    return false;
                 var item = new MethodMarks(method);
                 var marks = 0;
                 while(item.MoveNext()) {
@@ -67,18 +69,78 @@ namespace Cone.Addin
             return For(type, description.ParentSuiteName, description.TestName).AddCategories(description);
         }
 
+        class TestResultAdapter : ITestResult
+        {
+            readonly TestResult result;
+
+            public TestResultAdapter(TestResult result) {
+                this.result = result;
+            }
+
+            string ITestResult.TestName {
+                get { return result.Test.TestName.Name; }
+            }
+
+            TestStatus ITestResult.Status {
+                get { return result.ResultState == ResultState.Success ? TestStatus.Success : TestStatus.Failure; }
+            }
+        }
+
+        class ConeTestMethod : NUnitTestMethod
+        {
+            public ConeTestMethod(MethodInfo method, Test suite, string name) : base(method) {
+                this.Parent = suite;
+                this.TestName.Name = name;
+            }
+
+            public override void doRun(TestResult testResult) {
+                base.doRun(testResult);
+                After(testResult);
+            }
+
+            protected virtual void After(TestResult testResult) { }
+        }
+
+        class ReportingConeTestMethod : ConeTestMethod
+        {
+            readonly MethodInfo[] afters;
+
+            public ReportingConeTestMethod(MethodInfo method, TestSuite suite, string name, MethodInfo[] afters) : base(method, suite, name) {
+                this.afters = afters;
+            }
+
+            protected override void After(TestResult testResult) {
+                var parms = new[] { new TestResultAdapter(testResult) }; 
+                for(int i = 0; i != afters.Length; ++i)
+                    afters[i].Invoke(Fixture, parms);
+            }
+        }
+
         public static ConeSuite For(Type type, string parentSuiteName, string name) {
             var suite = new ConeSuite(type, parentSuiteName, name);
             var setup = new FixtureSetup();
-
+            var tests = new List<MethodInfo>();
+            var afterEachWithParam = new List<MethodInfo>();
             foreach (var item in type.GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
-                if (!setup.CollectFixtureMethod(item) && item.DeclaringType == type) {
-                    var parms = new ParameterSet {
-                        TestName = NameFor(item)
-                    };
-                    suite.Add(NUnitTestCaseBuilder.BuildSingleTestMethod(item, suite, parms));
+                var parms = item.GetParameters();
+                if (!setup.CollectFixtureMethod(item) && item.DeclaringType == type && parms.Length == 0)
+                    tests.Add(item);
+                else if(parms.Length == 1 
+                    && typeof(ITestResult).IsAssignableFrom(parms[0].ParameterType) 
+                    && item.GetCustomAttributes(typeof(AfterEachAttribute), true).Length == 1){
+                        afterEachWithParam.Add(item);
                 }
             }
+
+            if (afterEachWithParam.Count == 0)
+                foreach (var item in tests)
+                    suite.Add(new ConeTestMethod(item, suite, NameFor(item)));
+            else {
+                var afterEachWithParamArray = afterEachWithParam.ToArray();
+                foreach (var item in tests)
+                    suite.Add(new ReportingConeTestMethod(item, suite, NameFor(item), afterEachWithParamArray));
+            }
+
             suite.BindTo(setup);
             suite.AddNestedContexts();
             return suite;

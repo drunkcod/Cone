@@ -58,6 +58,25 @@ namespace Cone.Addin
                 Verify.That(() => Shared == 0);
                 Shared = 1;
             }
+
+            [Context("each with result")]
+            public class AfterEachWithResult
+            {
+                static int Product = 1;
+                [AfterAll]
+                public void VerifyProduct() {
+                    Verify.That(() => Product == 21);
+                }
+
+                [AfterEach]
+                public void Silly(ITestResult result) {
+                    Product *= int.Parse(result.TestName);
+                }
+
+                public void _3() { }
+                public void _7() { }
+            }
+
         }
 
         [Context("Nesting")]
