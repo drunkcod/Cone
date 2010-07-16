@@ -60,6 +60,15 @@ namespace Cone.Addin
             }
         }
 
+        [Context("Nesting")]
+        public class Nesting
+        {
+            [Context("Contexts")]
+            public class Contexts
+            {
+                public void works_as_expected() { }
+            }
+        }
         public void zzz_rely_on_sorting_to_check_that_AfterAll_is_triggered() {
             //Verify.That(() => After.AfterAllExecuted == true);
             Assert.That(After.AfterAllExecuted, Is.True);

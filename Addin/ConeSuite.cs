@@ -63,7 +63,11 @@ namespace Cone.Addin
         }
 
         public static TestSuite For(Type type) {
-            var suite = new ConeSuite(type);
+            return For(type, ParentFor(type), NameFor(type));
+        }
+
+        public static TestSuite For(Type type, string parentSuiteName, string name) {
+            var suite = new ConeSuite(type, parentSuiteName, name);
             var setup = new FixtureSetup();
 
             foreach (var item in type.GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
@@ -75,14 +79,16 @@ namespace Cone.Addin
                 }
             }
             suite.BindTo(setup);
-            foreach (var context in type.GetNestedTypes())
-                if (context.Has<ContextAttribute>())
-                    suite.Add(For(context));
+            foreach (var item in type.GetNestedTypes()) {
+                ContextAttribute context;
+                if (item.TryGetAttribute<ContextAttribute>(out context))
+                    suite.Add(For(item, parentSuiteName, context.Context));
+            }
             return suite;
         }
 
-        ConeSuite(Type type)
-            : base(ParentFor(type), NameFor(type)) {
+        ConeSuite(Type type, string parentSuiteName, string name)
+            : base(parentSuiteName, name) {
             this.type = type;
         }
 
