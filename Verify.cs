@@ -29,7 +29,6 @@ namespace Cone
 
         struct BoundExpect
         {
-            static readonly ConstructorInfo expector = typeof(Expect).GetConstructor(new[] { typeof(object), typeof(object), typeof(string), typeof(string) });
             Expression body;
             Expect expect;
             bool outcome;
@@ -45,12 +44,11 @@ namespace Cone
                         return new BoundExpect(Expect.FailFormat, "",
                             body,
                             body,
-                            Expression.Constant(true),
                             true);
 
                     case ExpressionType.Constant:
                         var constant = (ConstantExpression)body;
-                        return new BoundExpect(body, true, new Expect((bool)constant.Value, true, Expect.FailFormat, ""));
+                        return new BoundExpect(body, true, new Expect((bool)constant.Value, Expect.FailFormat));
 
                     case ExpressionType.Equal:
                         return FromBinary(Expect.EqualFormat, Expect.EqualValuesFormat, (BinaryExpression)body);
@@ -66,19 +64,13 @@ namespace Cone
                     formatValues,
                     body,
                     body.Left, 
-                    body.Right,
                     body.NodeType == ExpressionType.Equal);
             }
 
-            BoundExpect(string format, string formatValues,Expression body, Expression actual, Expression expected, bool outcome) {
+            BoundExpect(string format, string formatValues,Expression body, Expression actual, bool outcome) {
                 this.body = body;
                 this.outcome = outcome;
-                this.expect = Expression.Lambda<Func<Expect>>(
-                        Expression.New(expector,
-                            Expression.TypeAs(actual, typeof(object)),
-                            Expression.TypeAs(expected, typeof(object)),
-                            Expression.Constant(format), Expression.Constant(formatValues)))
-                    .Compile()();
+                this.expect = Expect.Lambda(body, actual, format, formatValues).Compile()();
             }
 
             BoundExpect(Expression body, bool outcome, Expect expect) {
@@ -91,7 +83,7 @@ namespace Cone
                 return expect.Check() == outcome;
             }
 
-            public string Format() { return "  " + expect.Format(body); }
+            public string Format() { return expect.Format(body); }
         }
 
         public static void That(Expression<Func<bool>> expr) {

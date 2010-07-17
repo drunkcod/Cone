@@ -66,7 +66,7 @@ namespace Cone
             }
             public void unary_Call() {
                 var foo = new Counter();
-                CheckFormatting(() => foo.ReturnsFalse(), Expect.Equal(false, true, Expect.FailFormat, ""), "foo.ReturnsFalse()", string.Empty);
+                CheckFormatting(() => foo.ReturnsFalse(), Expect.Equal(false, Expect.FailFormat), "foo.ReturnsFalse()", string.Empty);
             }
 
             void CheckFormatting(Expression<Func<bool>> expr, Expect values, string actual, string expected) {

@@ -76,9 +76,9 @@ namespace Cone
 
         static string GetBinaryOp(ExpressionType nodeType) {
             switch (nodeType) {
-                case ExpressionType.Equal: return " == ";
-                case ExpressionType.NotEqual: return " != ";
-                default: return " ? ";
+                case ExpressionType.Equal: return "{0} == {1}";
+                case ExpressionType.NotEqual: return "{0} != {1}";
+                default: return "{0} ? {1}";
             }
         }
 
@@ -91,7 +91,7 @@ namespace Cone
                     right = Expression.Constant(newValue);
                 }
             }
-            return Format(left) + op + Format(right);
+            return string.Format(op, Format(left), Format(right));
         }
 
         string FormatUnary(Expression expr) {

@@ -66,6 +66,7 @@ namespace Cone.Addin
                 [AfterAll]
                 public void VerifyProduct() {
                     Verify.That(() => Product == 21);
+                    Product = 1;
                 }
 
                 [AfterEach]
@@ -77,7 +78,6 @@ namespace Cone.Addin
                 public void _3() { }
                 public void _7() { }
             }
-
         }
 
         [Context("Nesting")]
