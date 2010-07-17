@@ -41,21 +41,20 @@ namespace Cone
                         return x;
 
                     case ExpressionType.Call:
-                        return new BoundExpect(Expect.FailFormat, body, true);
+                        return new BoundExpect(body);
 
                     case ExpressionType.Constant: goto case ExpressionType.Call;
 
                      case ExpressionType.Equal:
-                        return new BoundExpect(Expect.EqualFormat, Expect.EqualValuesFormat, (BinaryExpression)body, true);
+                        return new BoundExpect(body);
 
                     case ExpressionType.NotEqual:
-                        return new BoundExpect(Expect.NotEqualFormat, Expect.NotEqualValuesFormat, (BinaryExpression)body, false);
+                        return new BoundExpect(body);
                 }
                 throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
             }
 
-            BoundExpect(string format, Expression body, bool outcome) : this(body, outcome, Expect.Lambda(body, format)) { }
-            BoundExpect(string format, string formatValues, BinaryExpression body, bool outcome) : this(body, outcome, Expect.Lambda(body, format, formatValues)) { }
+            BoundExpect(Expression body) : this(body, body.NodeType != ExpressionType.NotEqual, Expect.Lambda(body)) { }
 
             BoundExpect(Expression body, bool outcome, Expression<Func<Expect>> expect) {
                 this.body = body;

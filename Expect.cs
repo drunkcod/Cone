@@ -19,48 +19,46 @@ namespace Cone
         }
     }
 
+    public struct BinaryExpectFormat
+    {
+        public readonly string FormatExpression;
+        public readonly string FormatValues;
+
+        public BinaryExpectFormat(string formatExpression, string formatValues) {
+            this.FormatExpression = formatExpression;
+            this.FormatValues = formatValues;
+        }
+    }
+
     public class Expect
     {
-        public const string EqualFormat = "  {0} wasn't equal to {1}";
-        public const string EqualValuesFormat = "  Expected: {1}\n  But was: {0}";
-        public const string NotEqualFormat = "  {0} was equal to {1}";
-        public const string NotEqualValuesFormat = "  Didn't expect {1}";
-        public const string FailFormat = "  {0} failed.";
+        public const string FormatExpression = "  {0} failed";
 
-        static readonly ConstructorInfo expector = typeof(Expect).GetConstructor(new[] { typeof(object), typeof(string) });
-        static readonly ConstructorInfo binaryExpector = typeof(BinaryExpect).GetConstructor(new[] { typeof(object), typeof(object), typeof(string), typeof(string) });
+        static readonly ConstructorInfo expector = typeof(Expect).GetConstructor(new[] { typeof(object) });
+        static readonly ConstructorInfo binaryExpector = typeof(BinaryExpect).GetConstructor(new[] { typeof(object), typeof(object), typeof(BinaryExpectFormat) });
         
         protected readonly ExpressionFormatter formatter = new ExpressionFormatter();
         protected readonly object actual;
-        protected readonly string format;
 
-        public static Expect Equal(object actual, string format) {
-            return new Expect(actual, format); 
-        }
-
-        public static Expect Equal(object actual, object expected, string format, string formatValues) {
-            return new BinaryExpect(actual, expected, format, formatValues);
-        }
-
-        public static Expression<Func<Expect>> Lambda(Expression body, string format) {
+        public static Expression<Func<Expect>> Lambda(Expression body) {
+            var binary = body as BinaryExpression;
+            if (binary != null)
+                return Lambda(binary);
             return Expression.Lambda<Func<Expect>>(
                 Expression.New(expector,
-                        Expression.TypeAs(body, typeof(object)),
-                        Expression.Constant(format)));
+                        Expression.TypeAs(body, typeof(object))));
         }
 
-        public static Expression<Func<Expect>> Lambda(BinaryExpression body, string format, string formatValues) {
+        static Expression<Func<Expect>> Lambda(BinaryExpression body) {
             return Expression.Lambda<Func<Expect>>(
                 Expression.New(binaryExpector,
                         Expression.TypeAs(body.Left, typeof(object)),
                         Expression.TypeAs(body.Right, typeof(object)),
-                        Expression.Constant(format), Expression.Constant(formatValues)));
+                        Expression.Constant(BinaryExpect.GetBinaryFormat(body.NodeType))));
         }
 
-
-        public Expect(object actual, string format) {
+        public Expect(object actual) {
             this.actual = actual;
-            this.format = format;
         }
 
         public bool Check() { 
@@ -68,11 +66,11 @@ namespace Cone
         }
 
         public virtual string Format(Expression expr) {
-            return string.Format(format, formatter.Format(expr));
+            return string.Format(FormatExpression, formatter.Format(expr));
         }
 
         public virtual string Format(params string[] args) {
-            return string.Format(format, args);
+            return string.Format(FormatExpression, args);
         }
 
         protected virtual object Expected { get { return true; } }
@@ -80,14 +78,17 @@ namespace Cone
 
     public class BinaryExpect : Expect
     {
+        public static readonly BinaryExpectFormat EqualFormat = new BinaryExpectFormat("  {0} wasn't equal to {1}", "  Expected: {1}\n  But was: {0}");
+        public static readonly BinaryExpectFormat NotEqualFormat = new BinaryExpectFormat("  {0} was equal to {1}", "  Didn't expect {1}");
+
         static readonly ExpectNull ExpectNull = new ExpectNull();
 
         readonly object expected;
-        readonly string formatValues;
+        readonly BinaryExpectFormat format;
         
-        public BinaryExpect(object actual, object expected, string format, string formatValues) : base(actual, format) {
+        public BinaryExpect(object actual, object expected, BinaryExpectFormat format) : base(actual) {
             this.expected = expected;
-            this.formatValues = formatValues;
+            this.format = format;
         }
 
         override public string Format(Expression expr) {
@@ -95,25 +96,28 @@ namespace Cone
         }
 
         override public string Format(params string[] args) {
-            return string.Format(format, args) + "\n" + FormatValues();
+            return string.Format(format.FormatExpression, args) + "\n" + FormatValues();
         }
 
         protected string FormatValues() {
-            return string.Format(formatValues, actual, expected);
+            return string.Format(format.FormatValues, actual, expected);
         }
 
         protected override object Expected {
-            get {
-                return expected ?? ExpectNull;
+            get { return expected ?? ExpectNull; }
+        }
+
+
+        internal static BinaryExpectFormat GetBinaryFormat(ExpressionType nodeType) {
+            switch (nodeType) {
+                case ExpressionType.Equal: return BinaryExpect.EqualFormat;
+                case ExpressionType.NotEqual: return BinaryExpect.NotEqualFormat;
             }
+            throw new NotSupportedException();
         }
 
         static string GetBinaryOp(ExpressionType nodeType) {
-            switch (nodeType) {
-                case ExpressionType.Equal: return Expect.EqualFormat;
-                case ExpressionType.NotEqual: return Expect.NotEqualFormat;
-            }
-            throw new NotSupportedException();
+            return GetBinaryFormat(nodeType).FormatExpression;
         }
     }
 }
