@@ -8,25 +8,6 @@ namespace Cone
     {
         public static Action<string> ExpectationFailed = message => { throw new ExpectationFailedException(message); };
         
-        class Lazy<T>
-        {
-            bool forced;
-            object value;
-
-            public Lazy(Func<T> func) {
-                value = func;
-            }
-
-            public T Value { get { return forced ? (T)value : Force(); } }
-
-            T Force() {
-                forced = true;
-                var tmp = ((Func<T>)value)();
-                value = tmp;
-                return tmp;
-            }
-        }
-
         struct BoundExpect
         {
             Expression body;
@@ -60,8 +41,7 @@ namespace Cone
         }
 
         public static void That(Expression<Func<bool>> expr) {
-            var expect = BoundExpect.From(expr.Body);
-            expect.Check(ExpectationFailed);
+            BoundExpect.From(expr.Body).Check(ExpectationFailed);
         }
     }
 }
