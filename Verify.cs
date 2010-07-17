@@ -41,42 +41,26 @@ namespace Cone
                         return x;
 
                     case ExpressionType.Call:
-                        return new BoundExpect(Expect.FailFormat, "",
-                            body,
-                            body,
-                            true);
+                        return new BoundExpect(Expect.FailFormat, body, true);
 
-                    case ExpressionType.Constant:
-                        var constant = (ConstantExpression)body;
-                        return new BoundExpect(body, true, new Expect((bool)constant.Value, Expect.FailFormat));
+                    case ExpressionType.Constant: goto case ExpressionType.Call;
 
-                    case ExpressionType.Equal:
-                        return FromBinary(Expect.EqualFormat, Expect.EqualValuesFormat, (BinaryExpression)body);
+                     case ExpressionType.Equal:
+                        return new BoundExpect(Expect.EqualFormat, Expect.EqualValuesFormat, (BinaryExpression)body, true);
 
                     case ExpressionType.NotEqual:
-                        return FromBinary(Expect.NotEqualFormat, Expect.NotEqualValuesFormat, (BinaryExpression)body);
+                        return new BoundExpect(Expect.NotEqualFormat, Expect.NotEqualValuesFormat, (BinaryExpression)body, false);
                 }
                 throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
             }
 
-            public static BoundExpect FromBinary(string format, string formatValues, BinaryExpression body) {
-                return new BoundExpect(format,
-                    formatValues,
-                    body,
-                    body.Left, 
-                    body.NodeType == ExpressionType.Equal);
-            }
+            BoundExpect(string format, Expression body, bool outcome) : this(body, outcome, Expect.Lambda(body, format)) { }
+            BoundExpect(string format, string formatValues, BinaryExpression body, bool outcome) : this(body, outcome, Expect.Lambda(body, format, formatValues)) { }
 
-            BoundExpect(string format, string formatValues,Expression body, Expression actual, bool outcome) {
+            BoundExpect(Expression body, bool outcome, Expression<Func<Expect>> expect) {
                 this.body = body;
                 this.outcome = outcome;
-                this.expect = Expect.Lambda(body, actual, format, formatValues).Compile()();
-            }
-
-            BoundExpect(Expression body, bool outcome, Expect expect) {
-                this.body = body;
-                this.outcome = outcome;
-                this.expect = expect;
+                this.expect = expect.Compile()();
             }
 
             public bool Check() {

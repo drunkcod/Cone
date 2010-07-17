@@ -42,15 +42,11 @@ namespace Cone
             return new BinaryExpect(actual, expected, format, formatValues);
         }
 
-        public static Expression<Func<Expect>> Lambda(Expression body, Expression actual, string format, string formatValues) {
-            BinaryExpression binary = body as BinaryExpression;
-            if (binary != null)
-                return Lambda(binary, format, formatValues);
-            else
-                return Expression.Lambda<Func<Expect>>(
-                    Expression.New(expector,
-                            Expression.TypeAs(actual, typeof(object)),
-                            Expression.Constant(format)));
+        public static Expression<Func<Expect>> Lambda(Expression body, string format) {
+            return Expression.Lambda<Func<Expect>>(
+                Expression.New(expector,
+                        Expression.TypeAs(body, typeof(object)),
+                        Expression.Constant(format)));
         }
 
         public static Expression<Func<Expect>> Lambda(BinaryExpression body, string format, string formatValues) {
