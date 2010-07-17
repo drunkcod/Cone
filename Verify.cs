@@ -23,8 +23,8 @@ namespace Cone
                 case ExpressionType.Constant: return new Verify(body);
                 case ExpressionType.Equal: return new Verify(body);
                 case ExpressionType.NotEqual: return new Verify(body);
+                default: throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
             }
-            throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
         }
 
         Verify(Expression body){
