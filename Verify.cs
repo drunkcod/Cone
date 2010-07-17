@@ -40,39 +40,31 @@ namespace Cone
                         x.outcome = !x.outcome;
                         return x;
 
-                    case ExpressionType.Call:
-                        return new BoundExpect(body);
-
-                    case ExpressionType.Constant: goto case ExpressionType.Call;
-
-                     case ExpressionType.Equal:
-                        return new BoundExpect(body);
-
-                    case ExpressionType.NotEqual:
-                        return new BoundExpect(body);
+                    case ExpressionType.Call: return new BoundExpect(body);
+                    case ExpressionType.Constant: return new BoundExpect(body);
+                    case ExpressionType.Equal: return new BoundExpect(body);
+                    case ExpressionType.NotEqual: return new BoundExpect(body);
                 }
                 throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
             }
 
-            BoundExpect(Expression body) : this(body, body.NodeType != ExpressionType.NotEqual, Expect.Lambda(body)) { }
-
-            BoundExpect(Expression body, bool outcome, Expression<Func<Expect>> expect) {
+            BoundExpect(Expression body){
                 this.body = body;
-                this.outcome = outcome;
-                this.expect = expect.Compile()();
+                this.outcome = body.NodeType != ExpressionType.NotEqual;
+                this.expect = Expect.Lambda(body).Compile()();
             }
 
-            public bool Check() {
-                return expect.Check() == outcome;
+            public void Check(Action<string> onError) {
+                if(expect.Check() != outcome)
+                    onError(Format());
             }
 
-            public string Format() { return expect.Format(body); }
+            string Format() { return expect.Format(body); }
         }
 
         public static void That(Expression<Func<bool>> expr) {
             var expect = BoundExpect.From(expr.Body);
-            if(!expect.Check())
-                ExpectationFailed(expect.Format());
+            expect.Check(ExpectationFailed);
         }
     }
 }
