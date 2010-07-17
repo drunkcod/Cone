@@ -30,7 +30,6 @@ namespace Cone
         struct BoundExpect
         {
             Expression body;
-            Expect expect;
             bool outcome;
 
             public static BoundExpect From(Expression body) {
@@ -51,15 +50,13 @@ namespace Cone
             BoundExpect(Expression body){
                 this.body = body;
                 this.outcome = body.NodeType != ExpressionType.NotEqual;
-                this.expect = Expect.Lambda(body).Compile()();
             }
 
             public void Check(Action<string> onError) {
+                var expect = Expect.Lambda(body).Compile()();
                 if(expect.Check() != outcome)
-                    onError(Format());
+                    onError(expect.Format());
             }
-
-            string Format() { return expect.Format(body); }
         }
 
         public static void That(Expression<Func<bool>> expr) {

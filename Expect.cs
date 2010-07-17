@@ -34,10 +34,11 @@ namespace Cone
     {
         public const string FormatExpression = "  {0} failed";
 
-        static readonly ConstructorInfo expector = typeof(Expect).GetConstructor(new[] { typeof(object) });
-        static readonly ConstructorInfo binaryExpector = typeof(BinaryExpect).GetConstructor(new[] { typeof(object), typeof(object), typeof(BinaryExpectFormat) });
+        static readonly ConstructorInfo expector = typeof(Expect).GetConstructor(new[] { typeof(Expression), typeof(object) });
+        static readonly ConstructorInfo binaryExpector = typeof(BinaryExpect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object), typeof(BinaryExpectFormat) });
         
         protected readonly ExpressionFormatter formatter = new ExpressionFormatter();
+        protected readonly Expression body;
         protected readonly object actual;
 
         public static Expression<Func<Expect>> Lambda(Expression body) {
@@ -46,18 +47,21 @@ namespace Cone
                 return Lambda(binary);
             return Expression.Lambda<Func<Expect>>(
                 Expression.New(expector,
+                        Expression.Constant(body),
                         Expression.TypeAs(body, typeof(object))));
         }
 
         static Expression<Func<Expect>> Lambda(BinaryExpression body) {
             return Expression.Lambda<Func<Expect>>(
                 Expression.New(binaryExpector,
+                        Expression.Constant(body),
                         Expression.TypeAs(body.Left, typeof(object)),
                         Expression.TypeAs(body.Right, typeof(object)),
                         Expression.Constant(BinaryExpect.GetBinaryFormat(body.NodeType))));
         }
 
-        public Expect(object actual) {
+        public Expect(Expression body, object actual) {
+            this.body = body;
             this.actual = actual;
         }
 
@@ -65,8 +69,8 @@ namespace Cone
             return Expected.Equals(actual);
         }
 
-        public virtual string Format(Expression expr) {
-            return string.Format(FormatExpression, formatter.Format(expr));
+        public virtual string Format() {
+            return string.Format(FormatExpression, formatter.Format(body));
         }
 
         public virtual string Format(params string[] args) {
@@ -86,13 +90,13 @@ namespace Cone
         readonly object expected;
         readonly BinaryExpectFormat format;
         
-        public BinaryExpect(object actual, object expected, BinaryExpectFormat format) : base(actual) {
+        public BinaryExpect(Expression body, object actual, object expected, BinaryExpectFormat format) : base(body, actual) {
             this.expected = expected;
             this.format = format;
         }
 
-        override public string Format(Expression expr) {
-            return formatter.FormatBinary(expr, GetBinaryOp) + "\n" + FormatValues();
+        override public string Format() {
+            return formatter.FormatBinary(body, GetBinaryOp) + "\n" + FormatValues();
         }
 
         override public string Format(params string[] args) {
@@ -106,7 +110,6 @@ namespace Cone
         protected override object Expected {
             get { return expected ?? ExpectNull; }
         }
-
 
         internal static BinaryExpectFormat GetBinaryFormat(ExpressionType nodeType) {
             switch (nodeType) {
