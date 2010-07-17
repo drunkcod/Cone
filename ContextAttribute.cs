@@ -7,6 +7,7 @@ namespace Cone
     {
         public readonly string Context;
         public string Category;
+
         public ContextAttribute(string context) {
             Context = context;
         }

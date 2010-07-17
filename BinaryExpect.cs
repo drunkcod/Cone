@@ -41,10 +41,10 @@ namespace Cone
         public static Expression<Func<Expect>> Lambda(BinaryExpression body) {
             return Expression.Lambda<Func<Expect>>(
                 Expression.New(binaryExpector,
-                        Expression.Constant(body),
-                        Expression.TypeAs(body.Left, typeof(object)),
-                        Expression.TypeAs(body.Right, typeof(object)),
-                        Expression.Constant(BinaryExpect.GetBinaryFormat(body.NodeType))));
+                    Expression.Constant(body),
+                    Expression.TypeAs(body.Left, typeof(object)),
+                    Expression.TypeAs(body.Right, typeof(object)),
+                    Expression.Constant(BinaryExpect.GetBinaryFormat(body.NodeType))));
         }
 
         readonly object expected;
@@ -64,7 +64,7 @@ namespace Cone
             return string.Format(format.FormatExpression, args) + "\n" + FormatValues();
         }
 
-        protected string FormatValues() {
+        string FormatValues() {
             return string.Format(format.FormatValues, actual, expected);
         }
 
