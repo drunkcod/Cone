@@ -37,7 +37,6 @@ namespace Cone
         static readonly ConstructorInfo expector = typeof(Expect).GetConstructor(new[] { typeof(Expression), typeof(object) });
         static readonly ConstructorInfo binaryExpector = typeof(BinaryExpect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object), typeof(BinaryExpectFormat) });
         
-        protected readonly ExpressionFormatter formatter = new ExpressionFormatter();
         protected readonly Expression body;
         protected readonly object actual;
 
@@ -69,7 +68,7 @@ namespace Cone
             return Expected.Equals(actual);
         }
 
-        public virtual string Format() {
+        public virtual string Format(ExpressionFormatter formatter) {
             return string.Format(FormatExpression, formatter.Format(body));
         }
 
@@ -95,7 +94,7 @@ namespace Cone
             this.format = format;
         }
 
-        override public string Format() {
+        override public string Format(ExpressionFormatter formatter) {
             return formatter.FormatBinary(body, GetBinaryOp) + "\n" + FormatValues();
         }
 

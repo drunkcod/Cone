@@ -4,44 +4,42 @@ using System.Reflection;
 
 namespace Cone
 {
-    public static class Verify
+    public class Verify
     {
         public static Action<string> ExpectationFailed = message => { throw new ExpectationFailedException(message); };
-        
-        struct BoundExpect
-        {
-            Expression body;
-            bool outcome;
+        static readonly ExpressionFormatter Formatter = new ExpressionFormatter();
 
-            public static BoundExpect From(Expression body) {
-                switch (body.NodeType) {
-                    case ExpressionType.Not:
-                        var x = From(((UnaryExpression)body).Operand);
-                        x.outcome = !x.outcome;
-                        return x;
+        readonly Expression body;
+        bool outcome;
 
-                    case ExpressionType.Call: return new BoundExpect(body);
-                    case ExpressionType.Constant: return new BoundExpect(body);
-                    case ExpressionType.Equal: return new BoundExpect(body);
-                    case ExpressionType.NotEqual: return new BoundExpect(body);
-                }
-                throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
+        static Verify From(Expression body) {
+            switch (body.NodeType) {
+                case ExpressionType.Not:
+                    var x = From(((UnaryExpression)body).Operand);
+                    x.outcome = !x.outcome;
+                    return x;
+
+                case ExpressionType.Call: return new Verify(body);
+                case ExpressionType.Constant: return new Verify(body);
+                case ExpressionType.Equal: return new Verify(body);
+                case ExpressionType.NotEqual: return new Verify(body);
             }
+            throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
+        }
 
-            BoundExpect(Expression body){
-                this.body = body;
-                this.outcome = body.NodeType != ExpressionType.NotEqual;
-            }
+        Verify(Expression body){
+            this.body = body;
+            this.outcome = body.NodeType != ExpressionType.NotEqual;
+        }
 
-            public void Check(Action<string> onError) {
-                var expect = Expect.Lambda(body).Compile()();
-                if(expect.Check() != outcome)
-                    onError(expect.Format());
-            }
+        public void Check() {
+            var expect = Expect.Lambda(body).Compile()();
+            if(expect.Check() != outcome)
+                ExpectationFailed(expect.Format(Formatter));
         }
 
         public static void That(Expression<Func<bool>> expr) {
-            BoundExpect.From(expr.Body).Check(ExpectationFailed);
+            From(expr.Body).Check();
         }
     }
 }
