@@ -8,7 +8,7 @@ namespace Cone.Addin
         readonly MethodInfo[] afters;
 
         public ReportingConeTestMethod(MethodInfo method, object[] parameters, ConeSuite suite, string name, MethodInfo[] afters)
-            : base(method, parameters, suite, name) {
+            : base(method, parameters, suite, suite, name) {
             this.afters = afters;
         }
 

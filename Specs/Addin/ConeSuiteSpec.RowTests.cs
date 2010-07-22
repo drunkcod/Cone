@@ -8,7 +8,7 @@ namespace Cone.Addin
     public class RowTestFixture
     {
         [Row(1, 1, 2)]
-        [Row(4, 2, 42, Pending = true)]
+        [Row(4, 2, 42, IsPending = true)]
         public void Add(int a, int b, int r) { Verify.That(() => a + b == r); }
     }
 
@@ -17,6 +17,32 @@ namespace Cone.Addin
         [Context("row based tests")]
         public class RowTests
         {
+            [Context("Before and After are triggered")]
+            public class BeforeAndAfterRows
+            {
+                internal static int Magic;
+                int Mojo;
+
+                [BeforeAll]
+                public void Initialize() { Magic = 1; }
+
+                [BeforeEach]
+                public void BeforeEach() {
+                    Verify.That(() => Magic == 1);
+                    Mojo = Magic + Magic; 
+                }
+
+                [AfterEach]
+                public void AfterEach() { Mojo = 0; }
+
+                [AfterAll]
+                public void AfterAll() { Magic = 0; }
+
+                [Row(2, 0), Row(0, 2)]
+                public void calculate_magic(int a, int b) {
+                    Verify.That(() => a + b == Mojo);
+                }
+            }
             public void create_test_per_input_row() {
                 var suite = ConeSuite.For(typeof(RowTestFixture));
 
@@ -29,6 +55,10 @@ namespace Cone.Addin
 
                 Verify.That(() => testNames.Contains("Add(1, 1, 2)"));
                 Verify.That(() => testNames.Contains("Add(4, 2, 42)"));
+            }
+
+            public void zzz_put_me_last_to_check_that_AfterAll_for_rows_was_executed() {
+                Verify.That(() => BeforeAndAfterRows.Magic == 0);
             }
         }
     }

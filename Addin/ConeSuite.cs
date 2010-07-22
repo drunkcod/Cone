@@ -8,7 +8,15 @@ using NUnit.Core.Extensibility;
 
 namespace Cone.Addin
 {
-    public class ConeSuite : TestSuite
+
+    public interface IConeTest
+    {
+        void Before();
+        void After();
+        object Fixture { get; }
+    }
+
+    public class ConeSuite : TestSuite, IConeTest
     {
         static readonly Regex normalizeNamePattern = new Regex(@"_|\+", RegexOptions.Compiled);
         readonly Type type;
@@ -71,10 +79,11 @@ namespace Cone.Addin
                 Tests.ForEach(item => suite.Add(createTest(item, NoArguments, suite)));
                 RowTests.ForEach(item => {
                     var method = item.Method;
+//                    suite.Add(new ConeRowSuite(method, item.Rows, suite, NameFor(method)));
                     var subSuite = suite.AddSubSuite(method.DeclaringType, NameFor(method));
                     foreach (var row in item.Rows) {
                         var test = createTest(method, row.Parameters, subSuite);
-                        if (row.Pending)
+                        if (row.IsPending)
                             test.RunState = RunState.Ignored;
                         subSuite.Add(test);
                     }
@@ -84,7 +93,7 @@ namespace Cone.Addin
             Func<MethodInfo, object[], ConeSuite, Test> GetTestFactory()
             {
                 if (AfterEachWithResult.Count == 0)
-                    return (m, a, s) => new ConeTestMethod(m, a, s, NameFor(m, a));
+                    return (m, a, s) => new ConeTestMethod(m, a, s, s, NameFor(m, a));
                 else {
                     var afterEachWithResultArray = AfterEachWithResult.ToArray();
                     return (m, a, s) => new ReportingConeTestMethod(m, a, s, NameFor(m, a), afterEachWithResultArray);
@@ -109,11 +118,11 @@ namespace Cone.Addin
             var suite = new ConeSuite(type, parentSuiteName, name);
             var setup = new FixtureSetup();
             foreach (var item in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
-                setup.CollectFixtureMethod(item); 
+                setup.CollectFixtureMethod(item);
 
-            setup.AddTestsTo(suite);
             suite.BindTo(setup);
             suite.AddNestedContexts();
+            setup.AddTestsTo(suite);
             return suite;
         }
 
@@ -144,6 +153,8 @@ namespace Cone.Addin
 
         public ConeSuite AddSubSuite(Type fixtureType, string name) {
             var subSuite = new ConeSuite(fixtureType, TestName.FullName, name);
+            subSuite.setUpMethods = setUpMethods;
+            subSuite.tearDownMethods = tearDownMethods;
             Add(subSuite);
             return subSuite;
         }
@@ -152,13 +163,13 @@ namespace Cone.Addin
             return normalizeNamePattern.Replace(method.Name, " ");
         }
 
-        static string NameFor(MethodInfo method, object[] arguments) {
-            if (arguments == null)
+        internal static string NameFor(MethodInfo method, object[] parameters) {
+            if (parameters == null)
                 return NameFor(method);
             var baseName = NameFor(method);
-            var displayArguments = new string[arguments.Length];
-            for (int i = 0; i != arguments.Length; ++i)
-                displayArguments[i] = arguments[i].ToString();
+            var displayArguments = new string[parameters.Length];
+            for (int i = 0; i != parameters.Length; ++i)
+                displayArguments[i] = parameters[i].ToString();
             return baseName + "(" + string.Join(", ", displayArguments) + ")";
         }
 

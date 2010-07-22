@@ -6,7 +6,7 @@ namespace Cone
     public class RowAttribute : Attribute
     {
         public readonly object[] Parameters;
-        public bool Pending;
+        public bool IsPending;
         public RowAttribute(params object[] args) { Parameters = args; }
     }
 }
