@@ -15,14 +15,18 @@ namespace Cone.Addin
 
         class FixtureSetup
         {
-            internal List<MethodInfo> BeforeAll = new List<MethodInfo>();
-            internal List<MethodInfo> BeforeEach = new List<MethodInfo>();
-            internal List<MethodInfo> AfterEach = new List<MethodInfo>();
-            internal List<MethodInfo> AfterAll = new List<MethodInfo>();
+            public List<MethodInfo> BeforeAll = new List<MethodInfo>();
+            public List<MethodInfo> BeforeEach = new List<MethodInfo>();
+            public List<MethodInfo> AfterEach = new List<MethodInfo>();
+            public List<MethodInfo> AfterAll = new List<MethodInfo>();
+            
+            readonly List<MethodInfo> AfterEachWithResult = new List<MethodInfo>();
+            readonly List<MethodInfo> Tests = new List<MethodInfo>();
 
             public bool CollectFixtureMethod(MethodInfo method) {
-                if (method.GetParameters().Length != 0)
-                    return false;
+                var parms = method.GetParameters();
+                if (parms.Length != 0)
+                    return CollectAfterEachWithResult(method, parms);
                 var item = new MethodMarks(method);
                 var marks = 0;
                 while(item.MoveNext()) {
@@ -31,7 +35,30 @@ namespace Cone.Addin
                     marks += item.AddIfMarked<BeforeAllAttribute>(BeforeAll);
                     marks += item.AddIfMarked<AfterAllAttribute>(AfterAll);
                 }
+                if (marks == 0 && method.DeclaringType != typeof(object))
+                    Tests.Add(method);
                 return marks != 0;
+            }
+
+            public void AddTestsTo(TestSuite suite) {
+                if (AfterEachWithResult.Count == 0)
+                    foreach (var item in Tests)
+                        suite.Add(new ConeTestMethod(item, suite, NameFor(item)));
+                else {
+                    var afterEachWithResultArray = AfterEachWithResult.ToArray();
+                    foreach (var item in Tests)
+                        suite.Add(new ReportingConeTestMethod(item, suite, NameFor(item), afterEachWithResultArray));
+                }
+            }
+
+            bool CollectAfterEachWithResult(MethodInfo method, ParameterInfo[] parms) {
+                if (parms.Length == 1
+                && typeof(ITestResult).IsAssignableFrom(parms[0].ParameterType)
+                && method.Has<AfterEachAttribute>()) {
+                    AfterEachWithResult.Add(method);
+                    return true;
+                }                
+                return false;
             }
 
             struct MethodMarks
@@ -69,11 +96,11 @@ namespace Cone.Addin
             return For(type, description.ParentSuiteName, description.TestName).AddCategories(description);
         }
 
-        class TestResultAdapter : ITestResult
+        class NUnitTestResultAdapter : ITestResult
         {
             readonly TestResult result;
 
-            public TestResultAdapter(TestResult result) {
+            public NUnitTestResultAdapter(TestResult result) {
                 this.result = result;
             }
 
@@ -111,42 +138,23 @@ namespace Cone.Addin
             }
 
             protected override void After(TestResult testResult) {
-                var parms = new[] { new TestResultAdapter(testResult) }; 
+                var parms = new[] { new NUnitTestResultAdapter(testResult) }; 
                 for(int i = 0; i != afters.Length; ++i)
                     try {
                         afters[i].Invoke(Fixture, parms);
                     } catch (TargetInvocationException e) {
                         throw e.InnerException;
                     }
-                    
             }
         }
 
         public static ConeSuite For(Type type, string parentSuiteName, string name) {
             var suite = new ConeSuite(type, parentSuiteName, name);
             var setup = new FixtureSetup();
-            var tests = new List<MethodInfo>();
-            var afterEachWithParam = new List<MethodInfo>();
-            foreach (var item in type.GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
-                var parms = item.GetParameters();
-                if (!setup.CollectFixtureMethod(item) && item.DeclaringType != typeof(object) && parms.Length == 0)
-                    tests.Add(item);
-                else if(parms.Length == 1 
-                    && typeof(ITestResult).IsAssignableFrom(parms[0].ParameterType) 
-                    && item.GetCustomAttributes(typeof(AfterEachAttribute), true).Length == 1){
-                        afterEachWithParam.Add(item);
-                }
-            }
+            foreach (var item in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
+                setup.CollectFixtureMethod(item); 
 
-            if (afterEachWithParam.Count == 0)
-                foreach (var item in tests)
-                    suite.Add(new ConeTestMethod(item, suite, NameFor(item)));
-            else {
-                var afterEachWithParamArray = afterEachWithParam.ToArray();
-                foreach (var item in tests)
-                    suite.Add(new ReportingConeTestMethod(item, suite, NameFor(item), afterEachWithParamArray));
-            }
-
+            setup.AddTestsTo(suite);
             suite.BindTo(setup);
             suite.AddNestedContexts();
             return suite;
@@ -192,6 +200,5 @@ namespace Cone.Addin
                     Categories.Add(category.Trim());
             return this;
         }
-
     }
 }
