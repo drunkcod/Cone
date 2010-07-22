@@ -68,20 +68,17 @@ namespace Cone.Addin
             public void AddTestsTo(ConeSuite suite) {
                 var createTest = GetTestFactory();
 
-                foreach (var item in Tests)
-                    suite.Add(createTest(item, NoArguments, suite));
-
-                foreach (var item in RowTests) {
+                Tests.ForEach(item => suite.Add(createTest(item, NoArguments, suite)));
+                RowTests.ForEach(item => {
                     var method = item.Method;
-                    var subSuite = new ConeSuite(method.DeclaringType, suite.TestName.FullName, NameFor(method));
+                    var subSuite = suite.AddSubSuite(method.DeclaringType, NameFor(method));
                     foreach (var row in item.Rows) {
                         var test = createTest(method, row.Parameters, subSuite);
                         if (row.Pending)
                             test.RunState = RunState.Ignored;
                         subSuite.Add(test);
                     }
-                    suite.Add(subSuite);
-                }
+                });
             }
 
             Func<MethodInfo, object[], ConeSuite, Test> GetTestFactory()
@@ -143,6 +140,12 @@ namespace Cone.Addin
 
         public override Type FixtureType {
             get { return type; }
+        }
+
+        public ConeSuite AddSubSuite(Type fixtureType, string name) {
+            var subSuite = new ConeSuite(fixtureType, TestName.FullName, name);
+            Add(subSuite);
+            return subSuite;
         }
 
         static string NameFor(MethodInfo method) {
