@@ -42,6 +42,7 @@
     <Compile Include="ExpressionFormatter.cs" />
     <Compile Include="CustomAttributeProviderExtensions.cs" />
     <Compile Include="ITestResult.cs" />
+    <Compile Include="RowAttribute.cs" />
     <Compile Include="Verify.cs" />
     <Compile Include="Version.cs" />
   </ItemGroup>

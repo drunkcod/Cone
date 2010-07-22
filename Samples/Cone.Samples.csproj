@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Bowling.cs" />
     <Compile Include="BowlingSpec.cs" />
+    <Compile Include="DataDrivenTests.cs" />
     <Compile Include="GettingStartedSpec.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

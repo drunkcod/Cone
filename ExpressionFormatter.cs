@@ -8,7 +8,8 @@ namespace Cone
     {
         public string Format(Expression expr) {
             switch (expr.NodeType) {
-                case ExpressionType.ArrayLength: return FormatUnary(expr) + ".Length";                
+                case ExpressionType.ArrayLength: return FormatUnary(expr) + ".Length";
+                case ExpressionType.Add: goto case ExpressionType.Equal;
                 case ExpressionType.MemberAccess:
                     var member = (MemberExpression)expr;
                     if (member.Expression == null)
@@ -76,6 +77,7 @@ namespace Cone
 
         static string GetBinaryOp(ExpressionType nodeType) {
             switch (nodeType) {
+                case ExpressionType.Add: return "{0} + {1}";
                 case ExpressionType.Equal: return "{0} == {1}";
                 case ExpressionType.NotEqual: return "{0} != {1}";
                 default: return "{0} ? {1}";

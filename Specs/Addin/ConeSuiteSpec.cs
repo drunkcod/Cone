@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace Cone.Addin
 {
     [Describe(typeof(ConeSuite))]
-    public class ConeSuiteSpec
+    public partial class ConeSuiteSpec
     {
         [Context("Before")]
         public class Before
@@ -33,6 +33,7 @@ namespace Cone.Addin
                 Verify.That(() => LocalMagic == 42);
             }
         }
+
         [Context("After")]
         public class After
         {
@@ -91,7 +92,7 @@ namespace Cone.Addin
         }
 
         [Describe(typeof(EmptySpec), Category = "Empty")]
-        class EmptySpec 
+        class EmptySpec
         {
             [Context("with multiple categories", Category = "Empty, Context")]
             public class EmptyContext { }

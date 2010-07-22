@@ -20,10 +20,12 @@ namespace Cone
             var array = new int[0];
             Verify.That(() => FormatBody(() => array.Length) == "array.Length");
         }
+
         public void Call() {
             var obj = this;
             Verify.That(() => FormatBody(() => obj.GetType()) == "obj.GetType()"); 
         }
+
         public void Call_static() {
             Verify.That(() => FormatBody(() => DateTime.Parse("2010-07-13")) == "DateTime.Parse(\"2010-07-13\")");
         }
@@ -37,27 +39,39 @@ namespace Cone
             var a = 42;
             Verify.That(() => FormatBody(() => a == 42) == "a == 42");
         }
+
+        public void addition() {
+            int a = 1, b = 1;
+            Verify.That(() => FormatBody(() => a + b == 2) == "a + b == 2");
+        }
+
         public void Property() {
             var date = DateTime.Now;
             Verify.That(() => FormatBody(() => date.Year) == "date.Year");
         }
+
         public void Property_static() {
             Verify.That(() => FormatBody(() => DateTime.Now) == "DateTime.Now");
         }
+
         public void expands_quoted_expression() {
             var obj = this;
             Verify.That(() => FormatBody<Func<int>>(() => () => obj.GetHashCode()) == "() => obj.GetHashCode()");
         }
+
         public void Lambda() {
             Verify.That(() => FormatBody<Func<int>>(() => () => 1) == "() => 1");
         }
+
         public void Lambda_with_parameters() {
             Verify.That(() => FormatBody<Func<int,int,int>>(() => (x, y) => 1) == "(x, y) => 1");
         }
+
         public void NotEqual() {
             var a = 42;
             Verify.That(() => FormatBody(() => a != 42) == "a != 42");
         }
+
         public void enum_names() {
             var status = TestStatus.Failure;
             Verify.That(() => FormatBody(() => status == TestStatus.Success) == "status == TestStatus.Success");
