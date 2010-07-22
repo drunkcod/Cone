@@ -1,7 +1,7 @@
-﻿using System.Reflection;
-using NUnit.Core;
-using System;
+﻿using System;
 using System.Diagnostics;
+using System.Reflection;
+using NUnit.Core;
 
 namespace Cone.Addin
 {
@@ -45,7 +45,6 @@ namespace Cone.Addin
                 testResult.Time = time.Elapsed.TotalSeconds;
                 After(testResult);
                 listener.TestFinished(testResult);
-                Fixture = null;
             }
             return testResult;
         }
@@ -53,6 +52,7 @@ namespace Cone.Addin
         void After(TestResult testResult) {
             Suite.After();
             AfterCore(testResult);
+            Fixture = null;
         }
 
         void Before() {

@@ -3,6 +3,6 @@
 namespace Cone
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class BeforeAllAttribute : Attribute
+    public sealed class BeforeAllAttribute : Attribute
     {}
 }

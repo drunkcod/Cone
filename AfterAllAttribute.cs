@@ -6,6 +6,6 @@ using System.Text;
 namespace Cone
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class AfterAllAttribute : Attribute
+    public sealed class AfterAllAttribute : Attribute
     {}
 }

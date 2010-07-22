@@ -15,6 +15,17 @@ namespace Cone.Addin
 
         class FixtureSetup
         {
+            class RowTestCase
+            {
+                public readonly MethodInfo Method;
+                public readonly RowAttribute[] Rows;
+
+                public RowTestCase(MethodInfo method, RowAttribute[] rows) {
+                    Method = method;
+                    Rows = rows;
+                }
+            }
+
             static readonly object[] NoArguments = null;
             public List<MethodInfo> BeforeAll = new List<MethodInfo>();
             public List<MethodInfo> BeforeEach = new List<MethodInfo>();
@@ -23,26 +34,34 @@ namespace Cone.Addin
             
             readonly List<MethodInfo> AfterEachWithResult = new List<MethodInfo>();
             readonly List<MethodInfo> Tests = new List<MethodInfo>();
-            readonly List<MethodInfo> RowTests = new List<MethodInfo>();
+            readonly List<RowTestCase> RowTests = new List<RowTestCase>();
 
             public void CollectFixtureMethod(MethodInfo method) {
+                if (method.DeclaringType == typeof(object))
+                    return;
                 var parms = method.GetParameters();
-                if (parms.Length != 0)
-                    CollectWithArguments(method, parms);
-                else 
+                if (parms.Length == 0)
                     CollectNiladic(method);
+                else 
+                    CollectWithArguments(method, parms);
             }
 
             private void CollectNiladic(MethodInfo method) {
-                var item = new MethodMarks(method);
-                var marks = 0;
-                while (item.MoveNext()) {
-                    marks += item.AddIfMarked<BeforeEachAttribute>(BeforeEach);
-                    marks += item.AddIfMarked<AfterEachAttribute>(AfterEach);
-                    marks += item.AddIfMarked<BeforeAllAttribute>(BeforeAll);
-                    marks += item.AddIfMarked<AfterAllAttribute>(AfterAll);
+                var attributes = method.GetCustomAttributes(true);
+                var isTest = true;
+                for (int i = 0; i != attributes.Length; ++i) {
+                    var x = attributes[i];
+                    if (x is BeforeEachAttribute) {
+                        BeforeEach.Add(method); isTest = false;
+                    } else if (x is AfterEachAttribute) {
+                        AfterEach.Add(method); isTest = false;
+                    } else if (x is BeforeAllAttribute) {
+                        BeforeAll.Add(method); isTest = false;
+                    } else if (x is AfterAllAttribute) {
+                        AfterAll.Add(method); isTest = false;
+                    }
                 }
-                if (marks == 0 && method.DeclaringType != typeof(object))
+                if (isTest)
                     Tests.Add(method);
             }
 
@@ -53,12 +72,11 @@ namespace Cone.Addin
                     suite.Add(createTest(item, NoArguments, suite));
 
                 foreach (var item in RowTests) {
-                    var subSuite = new ConeSuite(item.DeclaringType, suite.TestName.FullName, NameFor(item));
-                    foreach (var row in item.GetCustomAttributes(typeof(RowAttribute), true)) {
-                        var x = (RowAttribute)row;
-                        var parameters = x.Parameters;
-                        var test = createTest(item, parameters, subSuite);
-                        if (x.Pending)
+                    var method = item.Method;
+                    var subSuite = new ConeSuite(method.DeclaringType, suite.TestName.FullName, NameFor(method));
+                    foreach (var row in item.Rows) {
+                        var test = createTest(method, row.Parameters, subSuite);
+                        if (row.Pending)
                             test.RunState = RunState.Ignored;
                         subSuite.Add(test);
                     }
@@ -77,83 +95,17 @@ namespace Cone.Addin
             }
 
             void CollectWithArguments(MethodInfo method, ParameterInfo[] parms) {
-                if (method.Has<RowAttribute>())
-                    RowTests.Add(method);
-                else if (parms.Length == 1
+                if (!method.Has<RowAttribute>(rows => RowTests.Add(new RowTestCase(method, rows)))
+                && parms.Length == 1
                 && typeof(ITestResult).IsAssignableFrom(parms[0].ParameterType)
                 && method.Has<AfterEachAttribute>())
                     AfterEachWithResult.Add(method);
-            }
-
-            struct MethodMarks
-            {
-                readonly MethodInfo method;
-                readonly object[] attributes;
-                object current;
-                int n;
-
-                public MethodMarks(MethodInfo method) {
-                    this.method = method;
-                    this.attributes = method.GetCustomAttributes(true);
-                    this.n = 0;
-                    this.current = null;
-                }
-
-                public bool MoveNext() {
-                    var hasMore = n != attributes.Length;
-                    if (hasMore)
-                        current = attributes[n++];
-                    return hasMore;
-                }
-
-                public int AddIfMarked<T>(List<MethodInfo> target) {
-                    if (!(current is T))
-                        return 0;
-                    target.Add(method);
-                    return 1;
-                }
             }
         }
 
         public static TestSuite For(Type type) {
             var description = DescriptionOf(type);
             return For(type, description.ParentSuiteName, description.TestName).AddCategories(description);
-        }
-
-        class NUnitTestResultAdapter : ITestResult
-        {
-            readonly TestResult result;
-
-            public NUnitTestResultAdapter(TestResult result) {
-                this.result = result;
-            }
-
-            string ITestResult.TestName {
-                get { return result.Test.TestName.Name; }
-            }
-
-            TestStatus ITestResult.Status {
-                get { return result.ResultState == ResultState.Success ? TestStatus.Success : TestStatus.Failure; }
-            }
-        }
-
-        class ReportingConeTestMethod : ConeTestMethod
-        {
-            readonly MethodInfo[] afters;
-
-            public ReportingConeTestMethod(MethodInfo method, object[] parameters, ConeSuite suite, string name, MethodInfo[] afters) : base(method, parameters, suite, name) {
-                this.afters = afters;
-            }
-
-            protected override void AfterCore(TestResult testResult) {
-                var parms = new[] { new NUnitTestResultAdapter(testResult) }; 
-                for(int i = 0; i != afters.Length; ++i)
-                    try {
-                        afters[i].Invoke(Fixture, parms);
-                    } catch (TargetInvocationException e) {
-                        throw e.InnerException;
-                    }
-            }
         }
 
         public static ConeSuite For(Type type, string parentSuiteName, string name) {

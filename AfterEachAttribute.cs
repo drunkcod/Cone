@@ -3,6 +3,6 @@
 namespace Cone
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class AfterEachAttribute : Attribute
+    public sealed class AfterEachAttribute : Attribute
     {}
 }
