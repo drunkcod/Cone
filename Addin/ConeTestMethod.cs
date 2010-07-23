@@ -19,12 +19,43 @@ namespace Cone.Addin
             Parent = suite;
         }
 
+        public override object Fixture {
+            get { return Parent.Fixture; }
+            set { Parent.Fixture = value;  }
+        }
+
+        public override TestResult Run(EventListener listener, ITestFilter filter) {
+            var testResult = new TestResult(this);
+            var time = Stopwatch.StartNew();
+            try {
+                listener.TestStarted(TestName);
+                switch(RunState){
+                    case RunState.Runnable: 
+                        Before();
+                        Run(testResult);
+                        break;
+                    case RunState.Ignored: testResult.Ignore("Pending"); break;        
+            }
+            } catch (TargetInvocationException e) {
+                testResult.SetResult(ResultState.Failure, e.InnerException);
+            } catch (Exception e) {
+                testResult.SetResult(ResultState.Failure, e);
+            } finally {
+                testResult.Time = time.Elapsed.TotalSeconds;
+                After(new NUnitTestResultAdapter(testResult));
+                listener.TestFinished(testResult);
+            }
+            return testResult;
+        }
+
         public override string TestType { get { return GetType().Name; } }
         protected IConeTest Suite { get { return (IConeTest)Parent; } }
 
         public void Before() { Suite.Before(); }
 
         public void After(ITestResult testResult) { Suite.After(testResult); }
+
+        protected virtual void Run(TestResult testResult){}
     }
 
     class ConeRowSuite : ConeTest
@@ -37,40 +68,7 @@ namespace Cone.Addin
                 this.parameters = parameters;
             }
 
-            public override object Fixture {
-                get { return Parent.Fixture; }
-                set { Parent.Fixture = value;  }
-            }
-
-            public override TestResult Run(EventListener listener, ITestFilter filter) {
-                var testResult = new TestResult(this);
-                var time = Stopwatch.StartNew();
-                try {
-                    listener.TestStarted(TestName);
-                    switch (RunState) {
-                        case RunState.Runnable:
-                            Before();
-                            Run(testResult);
-                            break;
-                        case RunState.Ignored: testResult.Ignore("Pending"); break;
-                    }
-                } catch (TargetInvocationException e) {
-                    testResult.SetResult(ResultState.Failure, e.InnerException);
-                } catch (Exception e) {
-                    testResult.SetResult(ResultState.Failure, e);
-                } finally {
-                    testResult.Time = time.Elapsed.TotalSeconds;
-                    After(new NUnitTestResultAdapter(testResult));
-                    listener.TestFinished(testResult);
-                }
-                return testResult;
-            }
-
-            void After(ITestResult testResult) {
-                Suite.After(testResult);
-            }
-
-            void Run(TestResult testResult) {
+            protected override void Run(TestResult testResult) {
                 Method.Invoke(Fixture, parameters);
                 testResult.Success();
             }
@@ -123,44 +121,11 @@ namespace Cone.Addin
     {
         readonly MethodInfo method;
 
-        public ConeTestMethod(MethodInfo method, object[] parameters, Test suite, IConeTest parent, string name) : base(suite, name) {
+        public ConeTestMethod(MethodInfo method, Test suite, string name) : base(suite, name) {
             this.method = method;
         }
 
-        public override object Fixture {
-            get { return Parent.Fixture; }
-            set { Parent.Fixture = value; }
-        }
-
-        public override TestResult Run(EventListener listener, ITestFilter filter) {
-            var testResult = new TestResult(this);
-            var time = Stopwatch.StartNew();
-            try {
-                listener.TestStarted(TestName);
-                switch(RunState){
-                    case RunState.Runnable: 
-                        Before();
-                        Run(testResult);
-                        break;
-                    case RunState.Ignored: testResult.Ignore("Pending"); break;        
-            }
-            } catch (TargetInvocationException e) {
-                testResult.SetResult(ResultState.Failure, e.InnerException);
-            } catch (Exception e) {
-                testResult.SetResult(ResultState.Failure, e);
-            } finally {
-                testResult.Time = time.Elapsed.TotalSeconds;
-                After(new NUnitTestResultAdapter(testResult));
-                listener.TestFinished(testResult);
-            }
-            return testResult;
-        }
-
-        void After(ITestResult testResult) {
-            Suite.After(testResult);
-        }
-
-        void Run(TestResult testResult) {
+        protected override void Run(TestResult testResult) {
             method.Invoke(Fixture, null);
             testResult.Success();
         }

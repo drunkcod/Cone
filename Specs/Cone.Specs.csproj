@@ -52,7 +52,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Addin\ConeSuiteSpec.cs" />
-    <Compile Include="Addin\ConeSuiteSpec.RowTests.cs" />
+    <Compile Include="Addin\ConeSuiteSpec.RowTests.cs">
+      <DependentUpon>ConeSuiteSpec.cs</DependentUpon>
+    </Compile>
     <Compile Include="ExpressionFormatterSpec.cs" />
     <Compile Include="VerifySpec.cs" />
   </ItemGroup>

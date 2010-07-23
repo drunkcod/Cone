@@ -35,7 +35,6 @@ namespace Cone.Addin
                 }
             }
 
-            static readonly object[] NoArguments = null;
             public List<MethodInfo> BeforeAll = new List<MethodInfo>();
             public List<MethodInfo> BeforeEach = new List<MethodInfo>();
             public List<MethodInfo> AfterEach = new List<MethodInfo>();
@@ -75,14 +74,8 @@ namespace Cone.Addin
             }
 
             public void AddTestsTo(ConeSuite suite) {
-                var createTest = GetTestFactory();
-                Tests.ForEach(item => suite.Add(createTest(item, NoArguments, suite)));
+                Tests.ForEach(item => suite.Add(new ConeTestMethod(item, suite, NameFor(item))));
                 RowTests.ForEach(item => suite.Add(new ConeRowSuite(item.Method, item.Rows, suite, NameFor(item.Method))));
-            }
-
-            Func<MethodInfo, object[], ConeSuite, Test> GetTestFactory()
-            {
-                return (m, a, s) => new ConeTestMethod(m, a, s, s, NameFor(m, a));
             }
 
             void CollectWithArguments(MethodInfo method, ParameterInfo[] parms) {

@@ -42,7 +42,6 @@ namespace Cone.Addin
 
                 [AfterEach]
                 public void Tally(ITestResult testResult) {
-                    System.Console.WriteLine(testResult.TestName);
                     switch (testResult.Status) {
                         case TestStatus.Success: ++Passed; break;
                         case TestStatus.Pending: ++Pending; break;
