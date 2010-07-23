@@ -13,7 +13,6 @@ namespace Cone.Addin
     {
         void Before();
         void After();
-        object Fixture { get; }
     }
 
     public class ConeSuite : TestSuite, IConeTest
@@ -79,7 +78,6 @@ namespace Cone.Addin
                 Tests.ForEach(item => suite.Add(createTest(item, NoArguments, suite)));
                 RowTests.ForEach(item => {
                     var method = item.Method;
-//                    suite.Add(new ConeRowSuite(method, item.Rows, suite, NameFor(method)));
                     var subSuite = suite.AddSubSuite(method.DeclaringType, NameFor(method));
                     foreach (var row in item.Rows) {
                         var test = createTest(method, row.Parameters, subSuite);
