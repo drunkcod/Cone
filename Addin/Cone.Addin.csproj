@@ -62,7 +62,6 @@
     <Compile Include="ConeSuite.cs" />
     <Compile Include="ConeTestMethod.cs" />
     <Compile Include="NUnitTestResultAdapter.cs" />
-    <Compile Include="ReportingConeTestMethod.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cone.csproj">

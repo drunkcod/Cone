@@ -14,7 +14,13 @@ namespace Cone.Addin
         }
 
         TestStatus ITestResult.Status {
-            get { return result.ResultState == ResultState.Success ? TestStatus.Success : TestStatus.Failure; }
+            get {
+                switch (result.ResultState) {
+                    case ResultState.Ignored: return TestStatus.Pending;
+                    case ResultState.Failure: return TestStatus.Failure;
+                    default: return TestStatus.Success;
+                }
+            }
         }
     }
 }

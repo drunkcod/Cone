@@ -21,10 +21,15 @@ namespace Cone.Addin
             public class BeforeAndAfterRows
             {
                 internal static int Magic;
+                internal static int Passed;
+                internal static int Pending;
                 int Mojo;
 
                 [BeforeAll]
-                public void Initialize() { Magic = 1; }
+                public void Initialize() { 
+                    Magic = 1;
+                    Passed = Pending = 0;
+                }
 
                 [BeforeEach]
                 public void BeforeEach() {
@@ -35,10 +40,19 @@ namespace Cone.Addin
                 [AfterEach]
                 public void AfterEach() { Mojo = 0; }
 
+                [AfterEach]
+                public void Tally(ITestResult testResult) {
+                    System.Console.WriteLine(testResult.TestName);
+                    switch (testResult.Status) {
+                        case TestStatus.Success: ++Passed; break;
+                        case TestStatus.Pending: ++Pending; break;
+                    }
+                }
+
                 [AfterAll]
                 public void AfterAll() { Magic = 0; }
 
-                [Row(2, 0), Row(0, 2)]
+                [Row(2, 0), Row(0, 2), Row(1, 1, IsPending = true)]
                 public void calculate_magic(int a, int b) {
                     Verify.That(() => a + b == Mojo);
                 }
@@ -59,6 +73,8 @@ namespace Cone.Addin
 
             public void zzz_put_me_last_to_check_that_AfterAll_for_rows_was_executed() {
                 Verify.That(() => BeforeAndAfterRows.Magic == 0);
+                Verify.That(() => BeforeAndAfterRows.Passed == 2);
+                Verify.That(() => BeforeAndAfterRows.Pending == 1);
             }
         }
     }

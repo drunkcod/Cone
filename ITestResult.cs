@@ -2,7 +2,7 @@
 {
     public enum TestStatus
     {
-        Success, Failure
+        Success, Pending, Failure
     }
 
     public interface ITestResult

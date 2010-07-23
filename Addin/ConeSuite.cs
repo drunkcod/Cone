@@ -12,13 +12,15 @@ namespace Cone.Addin
     public interface IConeTest
     {
         void Before();
-        void After();
+        void After(ITestResult testResult);
     }
 
     public class ConeSuite : TestSuite, IConeTest
     {
         static readonly Regex normalizeNamePattern = new Regex(@"_|\+", RegexOptions.Compiled);
+
         readonly Type type;
+        MethodInfo[] afterEachWithResult;
 
         class FixtureSetup
         {
@@ -39,7 +41,7 @@ namespace Cone.Addin
             public List<MethodInfo> AfterEach = new List<MethodInfo>();
             public List<MethodInfo> AfterAll = new List<MethodInfo>();
             
-            readonly List<MethodInfo> AfterEachWithResult = new List<MethodInfo>();
+            public readonly List<MethodInfo> AfterEachWithResult = new List<MethodInfo>();
             readonly List<MethodInfo> Tests = new List<MethodInfo>();
             readonly List<RowTestCase> RowTests = new List<RowTestCase>();
 
@@ -74,28 +76,13 @@ namespace Cone.Addin
 
             public void AddTestsTo(ConeSuite suite) {
                 var createTest = GetTestFactory();
-
                 Tests.ForEach(item => suite.Add(createTest(item, NoArguments, suite)));
-                RowTests.ForEach(item => {
-                    var method = item.Method;
-                    var subSuite = suite.AddSubSuite(method.DeclaringType, NameFor(method));
-                    foreach (var row in item.Rows) {
-                        var test = createTest(method, row.Parameters, subSuite);
-                        if (row.IsPending)
-                            test.RunState = RunState.Ignored;
-                        subSuite.Add(test);
-                    }
-                });
+                RowTests.ForEach(item => suite.Add(new ConeRowSuite(item.Method, item.Rows, suite, NameFor(item.Method))));
             }
 
             Func<MethodInfo, object[], ConeSuite, Test> GetTestFactory()
             {
-                if (AfterEachWithResult.Count == 0)
-                    return (m, a, s) => new ConeTestMethod(m, a, s, s, NameFor(m, a));
-                else {
-                    var afterEachWithResultArray = AfterEachWithResult.ToArray();
-                    return (m, a, s) => new ReportingConeTestMethod(m, a, s, NameFor(m, a), afterEachWithResultArray);
-                }
+                return (m, a, s) => new ConeTestMethod(m, a, s, s, NameFor(m, a));
             }
 
             void CollectWithArguments(MethodInfo method, ParameterInfo[] parms) {
@@ -128,21 +115,22 @@ namespace Cone.Addin
             this.type = type;
         }
 
-        public void After() {
-            FixtureInvokeAll(tearDownMethods);
+        public void After(ITestResult testResult) {
+            FixtureInvokeAll(afterEachWithResult, new[] { testResult });
+            FixtureInvokeAll(tearDownMethods, null);
         }
 
         public void Before() {
             if(Fixture == null)
                 Fixture = FixtureType.GetConstructor(Type.EmptyTypes).Invoke(null);
-            FixtureInvokeAll(setUpMethods);
+            FixtureInvokeAll(setUpMethods, null);
         }
 
-        void FixtureInvokeAll(MethodInfo[] methods) {
+        void FixtureInvokeAll(MethodInfo[] methods, object[] parameters) {
             if (methods == null)
                 return;
             for (int i = 0; i != methods.Length; ++i)
-                methods[i].Invoke(Fixture, null);
+                methods[i].Invoke(Fixture, parameters);
         }
 
         public override Type FixtureType {
@@ -153,6 +141,7 @@ namespace Cone.Addin
             var subSuite = new ConeSuite(fixtureType, TestName.FullName, name);
             subSuite.setUpMethods = setUpMethods;
             subSuite.tearDownMethods = tearDownMethods;
+            subSuite.afterEachWithResult = afterEachWithResult;
             Add(subSuite);
             return subSuite;
         }
@@ -190,6 +179,7 @@ namespace Cone.Addin
             fixtureSetUpMethods = setup.BeforeAll.ToArray();
             setUpMethods = setup.BeforeEach.ToArray();
             tearDownMethods = setup.AfterEach.ToArray();
+            afterEachWithResult = setup.AfterEachWithResult.ToArray();
             fixtureTearDownMethods = setup.AfterAll.ToArray();
         }
 
