@@ -31,7 +31,7 @@ namespace Cone.Addin
             this.tests = new ArrayList(rows.Length);
             for (int i = 0; i != rows.Length; ++i) {
                 var parameters = rows[i].Parameters;
-                var rowTest = new ConeRowTest(parameters, this, ConeSuite.NameFor(method, parameters));
+                var rowTest = new ConeRowTest(parameters, this, ConeTestNamer.NameFor(method, parameters));
                 if (rows[i].IsPending)
                     rowTest.RunState = RunState.Ignored;
                 tests.Add(rowTest);

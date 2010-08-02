@@ -35,6 +35,7 @@
     <Compile Include="BeforeAllAttribute.cs" />
     <Compile Include="BeforeEachAttribute.cs" />
     <Compile Include="BinaryExpect.cs" />
+    <Compile Include="ConeTestNamer.cs" />
     <Compile Include="ContextAttribute.cs" />
     <Compile Include="DescribeAttribute.cs" />
     <Compile Include="Expect.cs" />

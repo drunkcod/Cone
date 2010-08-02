@@ -6,10 +6,9 @@ using NUnit.Core;
 
 namespace Cone.Addin
 {
+ 
     public class ConeSuite : TestSuite, IConeTest
     {
-        static readonly Regex normalizeNamePattern = new Regex(@"_|\+", RegexOptions.Compiled);
-
         readonly Type type;
         MethodInfo[] afterEachWithResult;
 
@@ -65,8 +64,8 @@ namespace Cone.Addin
             }
 
             public void AddTestsTo(ConeSuite suite) {
-                Tests.ForEach(item => suite.Add(new ConeTestMethod(item, suite, NameFor(item))));
-                RowTests.ForEach(item => suite.Add(new ConeRowSuite(item.Method, item.Rows, suite, NameFor(item.Method))));
+                Tests.ForEach(item => suite.Add(new ConeTestMethod(item, suite, ConeTestNamer.NameFor(item))));
+                RowTests.ForEach(item => suite.Add(new ConeRowSuite(item.Method, item.Rows, suite, ConeTestNamer.NameFor(item.Method))));
             }
 
             void CollectWithArguments(MethodInfo method, ParameterInfo[] parms) {
@@ -128,20 +127,6 @@ namespace Cone.Addin
             subSuite.afterEachWithResult = afterEachWithResult;
             Add(subSuite);
             return subSuite;
-        }
-
-        static string NameFor(MethodInfo method) {
-            return normalizeNamePattern.Replace(method.Name, " ");
-        }
-
-        internal static string NameFor(MethodInfo method, object[] parameters) {
-            if (parameters == null)
-                return NameFor(method);
-            var baseName = NameFor(method);
-            var displayArguments = new string[parameters.Length];
-            for (int i = 0; i != parameters.Length; ++i)
-                displayArguments[i] = parameters[i].ToString();
-            return baseName + "(" + string.Join(", ", displayArguments) + ")";
         }
 
         static DescribeAttribute DescriptionOf(Type type) {
