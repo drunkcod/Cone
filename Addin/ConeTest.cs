@@ -34,7 +34,7 @@ namespace Cone.Addin
                         Run(testResult);
                         break;
                     case RunState.Ignored: testResult.Ignore("Pending"); break;        
-            }
+                }
             } catch (TargetInvocationException e) {
                 testResult.SetResult(ResultState.Failure, e.InnerException);
             } catch (Exception e) {

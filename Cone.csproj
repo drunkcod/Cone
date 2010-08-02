@@ -41,8 +41,10 @@
     <Compile Include="ExpectationFailedException.cs" />
     <Compile Include="ExpressionFormatter.cs" />
     <Compile Include="CustomAttributeProviderExtensions.cs" />
+    <Compile Include="IConeTest.cs" />
     <Compile Include="ITestResult.cs" />
     <Compile Include="RowAttribute.cs" />
+    <Compile Include="TypeExtensions.cs" />
     <Compile Include="Verify.cs" />
     <Compile Include="Version.cs" />
   </ItemGroup>

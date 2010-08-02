@@ -3,18 +3,9 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using NUnit.Core;
-using NUnit.Core.Builders;
-using NUnit.Core.Extensibility;
 
 namespace Cone.Addin
 {
-
-    public interface IConeTest
-    {
-        void Before();
-        void After(ITestResult testResult);
-    }
-
     public class ConeSuite : TestSuite, IConeTest
     {
         static readonly Regex normalizeNamePattern = new Regex(@"_|\+", RegexOptions.Compiled);
