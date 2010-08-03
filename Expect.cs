@@ -9,7 +9,7 @@ namespace Cone
         public const string FormatExpression = "  {0} failed";
 
         static readonly ConstructorInfo expector = typeof(Expect).GetConstructor(new[] { typeof(Expression), typeof(object) });
-        
+
         protected readonly Expression body;
         protected readonly object actual;
 
@@ -28,7 +28,7 @@ namespace Cone
             this.actual = actual;
         }
 
-        public bool Check() { 
+        public bool Check() {
             return Expected.Equals(actual);
         }
 

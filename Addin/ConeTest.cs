@@ -29,11 +29,11 @@ namespace Cone.Addin
             try {
                 listener.TestStarted(TestName);
                 switch(RunState){
-                    case RunState.Runnable: 
+                    case RunState.Runnable:
                         Before();
                         Run(testResult);
                         break;
-                    case RunState.Ignored: testResult.Ignore("Pending"); break;        
+                    case RunState.Ignored: testResult.Ignore("Pending"); break;
                 }
             } catch (TargetInvocationException e) {
                 testResult.SetResult(ResultState.Failure, e.InnerException);

@@ -30,25 +30,25 @@ namespace Cone
             } catch { }
             Verify.That(() => counter.Next() == 1);
         }
-        
+
         public void support_constant_expressions() {
             Verify.That(() => 1 + 2 == 3);
         }
-        
+
         public void supports_null_values_as_actual() {
             Counter x = null;
             Verify.That(() => x == null);
         }
-        
+
         public void support_identity_checking() {
             var obj = new Counter();
             Verify.That(() => object.ReferenceEquals(obj, obj) == true);
         }
-        
+
         public void support_static_fields() {
             Verify.That(() => TheAnswer == 42);
         }
-        
+
         public void negated_expression() {
             Verify.That(() => !(TheAnswer == 7));
         }
@@ -65,12 +65,12 @@ namespace Cone
                 var bowling = new Bowling();
                 CheckFormatting(() => bowling.Score == 1, new BinaryExpect(null, bowling.Score, 1, BinaryExpect.EqualFormat), "bowling.Score", "1");
             }
-            
+
             public void NotEqual() {
                 var a = 42;
                 CheckFormatting(() => a != 42, new BinaryExpect(null, a, 42, BinaryExpect.NotEqualFormat), "a", "42");
             }
-            
+
             public void unary_Call() {
                 var foo = new Counter();
                 CheckFormatting(() => foo.ReturnsFalse(), new Expect(null, false), "foo.ReturnsFalse()", string.Empty);

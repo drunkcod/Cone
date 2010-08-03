@@ -26,7 +26,7 @@ namespace Cone.Addin
                 int Mojo;
 
                 [BeforeAll]
-                public void Initialize() { 
+                public void Initialize() {
                     Magic = 1;
                     Passed = Pending = 0;
                 }
@@ -34,7 +34,7 @@ namespace Cone.Addin
                 [BeforeEach]
                 public void BeforeEach() {
                     Verify.That(() => Magic == 1);
-                    Mojo = Magic + Magic; 
+                    Mojo = Magic + Magic;
                 }
 
                 [AfterEach]

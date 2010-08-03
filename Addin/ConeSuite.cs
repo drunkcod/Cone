@@ -6,74 +6,133 @@ using NUnit.Core;
 
 namespace Cone.Addin
 {
- 
     public class ConeSuite : TestSuite, IConeTest
     {
         readonly Type type;
         MethodInfo[] afterEachWithResult;
 
-        class FixtureSetup
+        class ConeFixtureMethods
         {
-            class RowTestCase
-            {
-                public readonly MethodInfo Method;
-                public readonly RowAttribute[] Rows;
+            public MethodInfo[] BeforeAll;
+            public MethodInfo[] BeforeEach;
+            public MethodInfo[] AfterEach;
+            public MethodInfo[] AfterAll;
+            public MethodInfo[] AfterEachWithResult;
+        }
 
-                public RowTestCase(MethodInfo method, RowAttribute[] rows) {
-                    Method = method;
-                    Rows = rows;
-                }
+        class ConeFixtureSetup
+        {
+            [Flags]
+            enum MethodMarks
+            {
+                None,
+                Test = 1,
+                BeforeAll = 1 << 2,
+                BeforeEach = 1 << 3,
+                AfterEach = 1 << 4,
+                AfterAll = 1 << 5,
+                AfterEachWithResult = 1 << 6
             }
 
-            public List<MethodInfo> BeforeAll = new List<MethodInfo>();
-            public List<MethodInfo> BeforeEach = new List<MethodInfo>();
-            public List<MethodInfo> AfterEach = new List<MethodInfo>();
-            public List<MethodInfo> AfterAll = new List<MethodInfo>();
-            
-            public readonly List<MethodInfo> AfterEachWithResult = new List<MethodInfo>();
-            readonly List<MethodInfo> Tests = new List<MethodInfo>();
-            readonly List<RowTestCase> RowTests = new List<RowTestCase>();
+            MethodInfo[] methods;
+            MethodMarks[] marks;
+            ConeSuite suite;
+            int beforeAllCount, beforeEachCount, afterEachCount, afterEachWithResultCount, afterAllCount;
 
-            public void CollectFixtureMethod(MethodInfo method) {
+            public ConeFixtureSetup(ConeSuite suite) {
+                this.suite = suite;
+            }
+
+            public void CollectFixtureMethods(Type type) {
+                methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance);
+                marks = new MethodMarks[methods.Length];             
+                ResetCounts();
+
+                for (int i = 0; i != methods.Length; ++i)
+                    ClassifyMethod(i);
+            }
+
+            public ConeFixtureMethods GetFixtureMethods() {
+                var x = new ConeFixtureMethods();
+                x.BeforeAll = new MethodInfo[beforeAllCount];
+                x.BeforeEach = new MethodInfo[beforeEachCount];
+                x.AfterEach = new MethodInfo[afterEachCount];
+                x.AfterEachWithResult = new MethodInfo[afterEachWithResultCount];
+                x.AfterAll = new MethodInfo[afterAllCount];
+
+                ResetCounts();
+
+                for (int i = 0; i != methods.Length; ++i) {
+                    var method = methods[i];
+
+                    if (MarkedAs(MethodMarks.BeforeAll, i))
+                        x.BeforeAll[beforeAllCount++] = method;
+                    if (MarkedAs(MethodMarks.BeforeEach, i))
+                        x.BeforeEach[beforeEachCount++] = method;
+                    if (MarkedAs(MethodMarks.AfterEach, i))
+                        x.AfterEach[afterEachCount++] = method;
+                    if (MarkedAs(MethodMarks.AfterEachWithResult, i))
+                        x.AfterEachWithResult[afterEachWithResultCount++] = method;
+                    if (MarkedAs(MethodMarks.AfterAll, i))
+                        x.AfterAll[afterAllCount++] = method;
+                }
+
+                return x;
+            }
+
+            void ClassifyMethod(int index) {
+                var method = methods[index];
                 if (method.DeclaringType == typeof(object))
                     return;
                 var parms = method.GetParameters();
                 if (parms.Length == 0)
-                    CollectNiladic(method);
-                else 
-                    CollectWithArguments(method, parms);
+                    marks[index] = ClassifyNiladic(method);
+                else
+                    marks[index] = ClassifyWithArguments(method, parms);
             }
 
-            private void CollectNiladic(MethodInfo method) {
+            MethodMarks ClassifyNiladic(MethodInfo method) {
                 var attributes = method.GetCustomAttributes(true);
-                var isTest = true;
+                var marks = MethodMarks.None;
                 for (int i = 0; i != attributes.Length; ++i) {
                     var x = attributes[i];
                     if (x is BeforeEachAttribute) {
-                        BeforeEach.Add(method); isTest = false;
+                        marks |= MethodMarks.BeforeEach;
+                        ++beforeEachCount;
                     } else if (x is AfterEachAttribute) {
-                        AfterEach.Add(method); isTest = false;
+                        marks |= MethodMarks.AfterEach;
+                        ++afterEachCount;
                     } else if (x is BeforeAllAttribute) {
-                        BeforeAll.Add(method); isTest = false;
+                        marks |= MethodMarks.BeforeAll;
+                        ++beforeAllCount;
                     } else if (x is AfterAllAttribute) {
-                        AfterAll.Add(method); isTest = false;
+                        marks |= MethodMarks.AfterAll;
+                        ++afterAllCount;
                     }
                 }
-                if (isTest)
-                    Tests.Add(method);
+                if (marks != MethodMarks.None)
+                    return marks;
+                suite.Add(new ConeTestMethod(method, suite, ConeTestNamer.NameFor(method)));
+                return MethodMarks.Test;
             }
 
-            public void AddTestsTo(ConeSuite suite) {
-                Tests.ForEach(item => suite.Add(new ConeTestMethod(item, suite, ConeTestNamer.NameFor(item))));
-                RowTests.ForEach(item => suite.Add(new ConeRowSuite(item.Method, item.Rows, suite, ConeTestNamer.NameFor(item.Method))));
+            void ResetCounts() {
+                beforeAllCount = beforeEachCount = afterEachCount = afterEachWithResultCount = afterAllCount = 0;
             }
 
-            void CollectWithArguments(MethodInfo method, ParameterInfo[] parms) {
-                if (!method.Has<RowAttribute>(rows => RowTests.Add(new RowTestCase(method, rows)))
+            MethodMarks ClassifyWithArguments(MethodInfo method, ParameterInfo[] parms) {
+                if (!method.Has<RowAttribute>(rows => suite.Add(new ConeRowSuite(method, rows, suite, ConeTestNamer.NameFor(method))))
                 && parms.Length == 1
                 && typeof(ITestResult).IsAssignableFrom(parms[0].ParameterType)
-                && method.Has<AfterEachAttribute>())
-                    AfterEachWithResult.Add(method);
+                && method.Has<AfterEachAttribute>()) {
+                    ++afterEachWithResultCount;
+                    return MethodMarks.AfterEachWithResult;
+                }
+                else return MethodMarks.None;
+            }
+
+            bool MarkedAs(MethodMarks mark, int index) {
+                return (marks[index] & mark) != 0;
             }
         }
 
@@ -84,13 +143,10 @@ namespace Cone.Addin
 
         public static ConeSuite For(Type type, string parentSuiteName, string name) {
             var suite = new ConeSuite(type, parentSuiteName, name);
-            var setup = new FixtureSetup();
-            foreach (var item in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
-                setup.CollectFixtureMethod(item);
-
-            suite.BindTo(setup);
+            var setup = new ConeFixtureSetup(suite);
+            setup.CollectFixtureMethods(type);
+            suite.BindTo(setup.GetFixtureMethods());
             suite.AddNestedContexts();
-            setup.AddTestsTo(suite);
             return suite;
         }
 
@@ -144,12 +200,12 @@ namespace Cone.Addin
             }
         }
 
-        void BindTo(FixtureSetup setup) {
-            fixtureSetUpMethods = setup.BeforeAll.ToArray();
-            setUpMethods = setup.BeforeEach.ToArray();
-            tearDownMethods = setup.AfterEach.ToArray();
-            afterEachWithResult = setup.AfterEachWithResult.ToArray();
-            fixtureTearDownMethods = setup.AfterAll.ToArray();
+        void BindTo(ConeFixtureMethods setup) {
+            fixtureSetUpMethods = setup.BeforeAll;
+            setUpMethods = setup.BeforeEach;
+            tearDownMethods = setup.AfterEach;
+            afterEachWithResult = setup.AfterEachWithResult;
+            fixtureTearDownMethods = setup.AfterAll;
         }
 
         ConeSuite AddCategories(ContextAttribute context) {

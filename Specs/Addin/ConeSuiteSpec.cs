@@ -14,7 +14,7 @@ namespace Cone.Addin
         {
             static int Magic = 0;
             int LocalMagic;
-            
+
             [BeforeAll]
             public void InitializeMagic() {
                 Magic = 21;

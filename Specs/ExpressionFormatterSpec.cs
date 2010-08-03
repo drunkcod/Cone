@@ -23,7 +23,7 @@ namespace Cone
 
         public void Call() {
             var obj = this;
-            Verify.That(() => FormatBody(() => obj.GetType()) == "obj.GetType()"); 
+            Verify.That(() => FormatBody(() => obj.GetType()) == "obj.GetType()");
         }
 
         public void Call_static() {
