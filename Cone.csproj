@@ -35,6 +35,7 @@
     <Compile Include="BeforeAllAttribute.cs" />
     <Compile Include="BeforeEachAttribute.cs" />
     <Compile Include="BinaryExpect.cs" />
+    <Compile Include="ConeFixtureSetup.cs" />
     <Compile Include="ConeTestNamer.cs" />
     <Compile Include="ContextAttribute.cs" />
     <Compile Include="DescribeAttribute.cs" />
@@ -42,6 +43,7 @@
     <Compile Include="ExpectationFailedException.cs" />
     <Compile Include="ExpressionFormatter.cs" />
     <Compile Include="CustomAttributeProviderExtensions.cs" />
+    <Compile Include="IConeSuite.cs" />
     <Compile Include="IConeTest.cs" />
     <Compile Include="ITestResult.cs" />
     <Compile Include="RowAttribute.cs" />
