@@ -5,7 +5,7 @@ using NUnit.Core;
 
 namespace Cone.Addin
 {
-    abstract class ConeTest : Test, IConeTest
+    abstract class ConeTest : Test, IConeFixture
     {
         static TestName BuildTestName(Test suite, string name) {
             var testName = new TestName();
@@ -42,13 +42,13 @@ namespace Cone.Addin
             } finally {
                 testResult.Time = time.Elapsed.TotalSeconds;
                 After(new NUnitTestResultAdapter(testResult));
-                listener.TestFinished(testResult);
+                listener.TestFinished((TestResult)testResult);
             }
             return testResult;
         }
 
         public override string TestType { get { return GetType().Name; } }
-        protected IConeTest Suite { get { return (IConeTest)Parent; } }
+        protected IConeFixture Suite { get { return (IConeFixture)Parent; } }
 
         public void Before() { Suite.Before(); }
 

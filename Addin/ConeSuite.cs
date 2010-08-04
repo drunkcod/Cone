@@ -6,22 +6,23 @@ using NUnit.Core;
 
 namespace Cone.Addin
 {
-    public class ConeSuite : TestSuite, IConeTest, IConeSuite
+    public class ConeSuite : TestSuite, IConeFixture, IConeSuite
     {
         readonly Type type;
         MethodInfo[] afterEachWithResult;
 
         public static TestSuite For(Type type) {
             var description = DescriptionOf(type);
-            return For(type, description.ParentSuiteName, description.TestName).AddCategories(description);
+            return For(type, description, description.ParentSuiteName, description.TestName);
         }
 
-        public static ConeSuite For(Type type, string parentSuiteName, string name) {
+        public static ConeSuite For(Type type, ContextAttribute context, string parentSuiteName, string name) {
             var suite = new ConeSuite(type, parentSuiteName, name);
             var setup = new ConeFixtureSetup(suite);
             setup.CollectFixtureMethods(type);
             suite.BindTo(setup.GetFixtureMethods());
             suite.AddNestedContexts();
+            suite.AddCategories(context);
             return suite;
         }
 
@@ -41,8 +42,6 @@ namespace Cone.Addin
         }
 
         void FixtureInvokeAll(MethodInfo[] methods, object[] parameters) {
-            if (methods == null)
-                return;
             for (int i = 0; i != methods.Length; ++i)
                 methods[i].Invoke(Fixture, parameters);
         }
@@ -71,7 +70,7 @@ namespace Cone.Addin
             foreach (var item in type.GetNestedTypes()) {
                 ContextAttribute context;
                 if (item.TryGetAttribute<ContextAttribute>(out context))
-                    Add(For(item, TestName.FullName, context.Context).AddCategories(context));
+                    Add(For(item, context, TestName.FullName, context.Context));
             }
         }
 
@@ -83,11 +82,10 @@ namespace Cone.Addin
             fixtureTearDownMethods = setup.AfterAll;
         }
 
-        ConeSuite AddCategories(ContextAttribute context) {
+        void AddCategories(ContextAttribute context) {
             if(!string.IsNullOrEmpty(context.Category))
                 foreach(var category in context.Category.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                     Categories.Add(category.Trim());
-            return this;
         }
 
         void IConeSuite.AddTestMethod(MethodInfo method) { Add(new ConeTestMethod(method, this, ConeTestNamer.NameFor(method))); }

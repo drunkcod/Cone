@@ -1,7 +1,8 @@
 ﻿namespace Cone
 {
-    public interface IConeTest
+    public interface IConeFixture
     {
+        object Fixture { get; }
         void Before();
         void After(ITestResult testResult);
     }

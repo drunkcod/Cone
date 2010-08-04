@@ -44,7 +44,7 @@
     <Compile Include="ExpressionFormatter.cs" />
     <Compile Include="CustomAttributeProviderExtensions.cs" />
     <Compile Include="IConeSuite.cs" />
-    <Compile Include="IConeTest.cs" />
+    <Compile Include="IConeFixture.cs" />
     <Compile Include="ITestResult.cs" />
     <Compile Include="RowAttribute.cs" />
     <Compile Include="TypeExtensions.cs" />
