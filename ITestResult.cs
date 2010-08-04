@@ -1,4 +1,6 @@
-﻿namespace Cone
+﻿using System;
+
+namespace Cone
 {
     public enum TestStatus
     {
@@ -9,5 +11,9 @@
     {
         string TestName { get; }
         TestStatus Status { get; }
+
+        void Success();
+        void Pending(string reason);
+        void TestFailure(Exception error);
     }
 }

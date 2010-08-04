@@ -16,7 +16,7 @@ namespace Cone.Addin
                 this.parameters = parameters;
             }
 
-            protected override void Run(TestResult testResult) {
+            protected override void Run(ITestResult testResult) {
                 Method.Invoke(Fixture, parameters);
                 testResult.Success();
             }

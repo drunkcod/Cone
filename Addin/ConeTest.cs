@@ -24,27 +24,35 @@ namespace Cone.Addin
         }
 
         public override TestResult Run(EventListener listener, ITestFilter filter) {
-            var testResult = new TestResult(this);
+            var nunitTestResult = new TestResult(this);
+            ITestResult testResult = new NUnitTestResultAdapter(nunitTestResult);
             var time = Stopwatch.StartNew();
-            try {
-                listener.TestStarted(TestName);
-                switch(RunState){
-                    case RunState.Runnable:
-                        Before();
-                        Run(testResult);
-                        break;
-                    case RunState.Ignored: testResult.Ignore("Pending"); break;
-                }
-            } catch (TargetInvocationException e) {
-                testResult.SetResult(ResultState.Failure, e.InnerException);
-            } catch (Exception e) {
-                testResult.SetResult(ResultState.Failure, e);
-            } finally {
-                testResult.Time = time.Elapsed.TotalSeconds;
-                After(new NUnitTestResultAdapter(testResult));
-                listener.TestFinished((TestResult)testResult);
+            
+            listener.TestStarted(TestName);
+            switch(RunState){
+                case RunState.Runnable:
+                    Before();
+                    Guarded(() => Run(testResult), testResult.TestFailure);
+                    After(testResult);
+                    break;
+                case RunState.Ignored: testResult.Pending("Pending"); break;
             }
-            return testResult;
+            
+            
+            time.Stop();
+            nunitTestResult.Time = time.Elapsed.TotalSeconds;
+            listener.TestFinished(nunitTestResult);
+            return nunitTestResult;
+        }
+
+        void Guarded(Action action, Action<Exception> handleException) {
+            try {
+                action();
+            } catch (TargetInvocationException ex) {
+                handleException(ex.InnerException);
+            } catch (Exception ex) {
+                handleException(ex);
+            }
         }
 
         public override string TestType { get { return GetType().Name; } }
@@ -54,6 +62,6 @@ namespace Cone.Addin
 
         public void After(ITestResult testResult) { Suite.After(testResult); }
 
-        protected virtual void Run(TestResult testResult){}
+        protected virtual void Run(ITestResult testResult){}
     }
 }

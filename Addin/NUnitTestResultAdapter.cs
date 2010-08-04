@@ -1,4 +1,6 @@
-﻿using NUnit.Core;
+﻿using System;
+using NUnit.Core;
+
 namespace Cone.Addin
 {
     class NUnitTestResultAdapter : ITestResult
@@ -22,5 +24,9 @@ namespace Cone.Addin
                 }
             }
         }
+
+        void ITestResult.Success() { result.Success(); }
+        void ITestResult.Pending(string reason) { result.Ignore(reason); }
+        void ITestResult.TestFailure(Exception error) { result.SetResult(ResultState.Failure, error); }
     }
 }

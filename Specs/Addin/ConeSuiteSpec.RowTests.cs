@@ -73,7 +73,7 @@ namespace Cone.Addin
             public void zzz_put_me_last_to_check_that_AfterAll_for_rows_was_executed() {
                 Verify.That(() => BeforeAndAfterRows.Magic == 0);
                 Verify.That(() => BeforeAndAfterRows.Passed == 2);
-                Verify.That(() => BeforeAndAfterRows.Pending == 1);
+                Verify.That(() => BeforeAndAfterRows.Pending == 0);//Should not execute for pending tests
             }
         }
     }
