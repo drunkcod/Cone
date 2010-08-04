@@ -14,7 +14,7 @@
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <OutputPath>$(SolutionDir)\Bin</OutputPath>
-    <IntermediateOutputPath>$(OutputPath)\obj\$(MSBuildProjectName)</IntermediateOutputPath>
+    <IntermediateOutputPath>$(SolutionDir)\Build\obj\$(MSBuildProjectName)</IntermediateOutputPath>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup>

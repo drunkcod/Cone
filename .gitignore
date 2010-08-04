@@ -1,5 +1,6 @@
 $RECYCLE.BIN/
 Bin
+Build
 *.suo
 *.user
 obj/

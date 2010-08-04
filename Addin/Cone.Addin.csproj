@@ -12,8 +12,8 @@
     <AssemblyName>Cone.Addin</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <OutputPath>$(SolutionDir)\Bin</OutputPath>
-    <IntermediateOutputPath>$(OutputPath)\obj\$(MSBuildProjectName)</IntermediateOutputPath>
+    <OutputPath>$(SolutionDir)\Bin\$(NUnitVersion)</OutputPath>
+    <IntermediateOutputPath>$(SolutionDir)\Build\obj\$(MSBuildProjectName)</IntermediateOutputPath>
     <TargetFrameworkProfile />
     <NUnitVersion>2.5.5.10112</NUnitVersion>
   </PropertyGroup>
@@ -35,12 +35,15 @@
   <ItemGroup>
     <Reference Include="nunit.core">
       <HintPath>..\Tools\NUnit-$(NUnitVersion)\bin\net-2.0\lib\nunit.core.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="nunit.core.interfaces">
       <HintPath>..\Tools\NUnit-$(NUnitVersion)\bin\net-2.0\lib\nunit.core.interfaces.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\Tools\NUnit-$(NUnitVersion)\bin\net-2.0\framework\nunit.framework.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -64,6 +67,7 @@
     <ProjectReference Include="..\Cone.csproj">
       <Project>{E557FD03-E249-4211-80CF-FB0923FD4C7D}</Project>
       <Name>Cone</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
