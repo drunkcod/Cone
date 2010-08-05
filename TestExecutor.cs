@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Reflection;
 
 namespace Cone
 {
-    public interface IConeTest 
-    {
-        void Run(ITestResult testResult);
-    }
-
     public class TestExecutor
     {
         readonly IConeFixture fixture;

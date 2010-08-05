@@ -5,8 +5,6 @@ using NUnit.Core;
 
 namespace Cone.Addin
 {
-
-
     public abstract class ConeTest : Test, IConeTest
     {
         readonly TestExecutor testExecutor;
@@ -38,7 +36,6 @@ namespace Cone.Addin
                 case RunState.Runnable: testExecutor.Run(this, testResult); break;
                 case RunState.Ignored: testResult.Pending("Pending"); break;
             }
-            
             
             time.Stop();
             nunitTestResult.Time = time.Elapsed.TotalSeconds;

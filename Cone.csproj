@@ -45,6 +45,7 @@
     <Compile Include="CustomAttributeProviderExtensions.cs" />
     <Compile Include="IConeSuite.cs" />
     <Compile Include="IConeFixture.cs" />
+    <Compile Include="IConeTest.cs" />
     <Compile Include="ITestResult.cs" />
     <Compile Include="RowAttribute.cs" />
     <Compile Include="TestExecutor.cs" />
