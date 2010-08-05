@@ -33,7 +33,7 @@ namespace Cone
         }
 
         public void Check() {
-            var expect = Expect.Lambda(body).Compile()();
+            var expect = Lambda(body).Compile()();
             if(expect.Check() != outcome)
                 ExpectationFailed(expect.Format(Formatter));
         }
@@ -41,5 +41,13 @@ namespace Cone
         public static void That(Expression<Func<bool>> expr) {
             From(expr.Body).Check();
         }
+
+        public static Expression<Func<Expect>> Lambda(Expression body) {
+            var binary = body as BinaryExpression;
+            if (binary != null)
+                return BinaryExpect.Lambda(binary);
+            return Expect.Lambda(body);
+        }
+
     }
 }
