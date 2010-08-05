@@ -1,6 +1,7 @@
 ﻿#r "Tools\DotNetZip\Ionic.Zip.Reduced.dll"
 open System.Diagnostics
 open System.IO
+open System.Reflection
 open Ionic.Zip
 
 let build args =
@@ -16,6 +17,8 @@ let build args =
   build.ExitCode = 0
 
 let package() =
+    let version = AssemblyName.GetAssemblyName("Bin\Cone.dll").Version.ToString()
+
     use zip = new ZipFile()
 
     zip.AddDirectory("Bin", "Bin") |> ignore
@@ -23,7 +26,7 @@ let package() =
     zip.AddDirectory("Samples", "Samples") |> ignore
     zip.AddFile("Cone.Samples.sln") |> ignore
     zip.AddFile("Install.txt") |> ignore
-    zip.Save(@"Bin\Cone-0.0.1.0.zip")
+    zip.Save(@"Bin\Cone-" + version + ".zip")
     true
 
 Directory.Delete("Build", true)
