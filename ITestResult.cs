@@ -14,6 +14,7 @@ namespace Cone
 
         void Success();
         void Pending(string reason);
-        void TestFailure(Exception error);
+        void BeforeFailure(Exception ex);
+        void TestFailure(Exception ex);
     }
 }

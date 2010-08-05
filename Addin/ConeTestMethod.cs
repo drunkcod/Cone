@@ -17,9 +17,6 @@ namespace Cone.Addin
 
         public MethodInfo Method { get { return method; } }
 
-        protected override void Run(ITestResult testResult) {
-            Method.Invoke(Fixture, null);
-            testResult.Success();
-        }
+        public override void Run(ITestResult testResult) { Method.Invoke(Fixture, null); }
     }
 }

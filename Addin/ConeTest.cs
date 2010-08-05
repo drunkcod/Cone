@@ -5,8 +5,12 @@ using NUnit.Core;
 
 namespace Cone.Addin
 {
-    abstract class ConeTest : Test, IConeFixture
+
+
+    public abstract class ConeTest : Test, IConeTest
     {
+        readonly TestExecutor testExecutor;
+
         static TestName BuildTestName(Test suite, string name) {
             var testName = new TestName();
             testName.FullName = suite.TestName.FullName + "." + name;
@@ -16,6 +20,7 @@ namespace Cone.Addin
 
         protected ConeTest(Test suite, string name): base(BuildTestName(suite, name)) {
             Parent = suite;
+            testExecutor = new TestExecutor((IConeFixture)suite);
         }
 
         public override object Fixture {
@@ -30,11 +35,7 @@ namespace Cone.Addin
             
             listener.TestStarted(TestName);
             switch(RunState){
-                case RunState.Runnable:
-                    Before();
-                    Guarded(() => Run(testResult), testResult.TestFailure);
-                    After(testResult);
-                    break;
+                case RunState.Runnable: testExecutor.Run(this, testResult); break;
                 case RunState.Ignored: testResult.Pending("Pending"); break;
             }
             
@@ -45,23 +46,8 @@ namespace Cone.Addin
             return nunitTestResult;
         }
 
-        void Guarded(Action action, Action<Exception> handleException) {
-            try {
-                action();
-            } catch (TargetInvocationException ex) {
-                handleException(ex.InnerException);
-            } catch (Exception ex) {
-                handleException(ex);
-            }
-        }
-
         public override string TestType { get { return GetType().Name; } }
-        protected IConeFixture Suite { get { return (IConeFixture)Parent; } }
 
-        public void Before() { Suite.Before(); }
-
-        public void After(ITestResult testResult) { Suite.After(testResult); }
-
-        protected virtual void Run(ITestResult testResult){}
+        public virtual void Run(ITestResult testResult){}
     }
 }

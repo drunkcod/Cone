@@ -47,6 +47,7 @@
     <Compile Include="IConeFixture.cs" />
     <Compile Include="ITestResult.cs" />
     <Compile Include="RowAttribute.cs" />
+    <Compile Include="TestExecutor.cs" />
     <Compile Include="TypeExtensions.cs" />
     <Compile Include="Verify.cs" />
     <Compile Include="Version.cs" />
