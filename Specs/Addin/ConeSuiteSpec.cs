@@ -113,5 +113,8 @@ namespace Cone.Addin
             //Verify.That(() => After.AfterAllExecuted == true);
             Assert.That(After.AfterAllExecuted, Is.True);
         }
+
+        [Pending]
+        public void this_test_is_pending() { Assert.Fail(); }
     }
 }

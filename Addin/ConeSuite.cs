@@ -90,7 +90,17 @@ namespace Cone.Addin
                     Categories.Add(category.Trim());
         }
 
-        void IConeSuite.AddTestMethod(MethodInfo method) { Add(new ConeTestMethod(method, this, testExecutor, ConeTestNamer.NameFor(method))); }
-        void IConeSuite.AddRowTest(MethodInfo method, RowAttribute[] rows) { Add(new ConeRowSuite(method, rows, this, testExecutor, ConeTestNamer.NameFor(method))); }
+        void IConeSuite.AddTestMethod(MethodInfo method) { 
+            AddMethod(method, new ConeTestMethod(method, this, testExecutor, ConeTestNamer.NameFor(method))); 
+        }
+        
+        void IConeSuite.AddRowTest(MethodInfo method, RowAttribute[] rows) { 
+            AddMethod(method, new ConeRowSuite(method, rows, this, testExecutor, ConeTestNamer.NameFor(method))); 
+        }
+
+        void AddMethod(MethodInfo method, Test test) {
+            method.Has<PendingAttribute>(x => test.RunState = RunState.Ignored);
+            Add(test);
+        }
     }
 }
