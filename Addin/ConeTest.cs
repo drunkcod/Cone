@@ -7,7 +7,7 @@ namespace Cone.Addin
 {
     public abstract class ConeTest : Test, IConeTest
     {
-        readonly TestExecutor testExecutor;
+        internal readonly TestExecutor testExecutor;
 
         static TestName BuildTestName(Test suite, string name) {
             var testName = new TestName();
@@ -16,9 +16,9 @@ namespace Cone.Addin
             return testName;
         }
 
-        protected ConeTest(Test suite, string name): base(BuildTestName(suite, name)) {
+        protected ConeTest(Test suite, TestExecutor testExecutor, string name): base(BuildTestName(suite, name)) {
             Parent = suite;
-            testExecutor = new TestExecutor((IConeFixture)suite);
+            this.testExecutor = testExecutor; 
         }
 
         public override object Fixture {

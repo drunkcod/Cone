@@ -9,6 +9,7 @@ namespace Cone.Addin
     public class ConeSuite : TestSuite, IConeFixture, IConeSuite
     {
         readonly Type type;
+        readonly TestExecutor testExecutor;
         MethodInfo[] afterEachWithResult;
 
         public static TestSuite For(Type type) {
@@ -28,6 +29,7 @@ namespace Cone.Addin
 
         ConeSuite(Type type, string parentSuiteName, string name) : base(parentSuiteName, name) {
             this.type = type;
+            this.testExecutor = new TestExecutor(this);
         }
 
         public void After(ITestResult testResult) {
@@ -88,7 +90,7 @@ namespace Cone.Addin
                     Categories.Add(category.Trim());
         }
 
-        void IConeSuite.AddTestMethod(MethodInfo method) { Add(new ConeTestMethod(method, this, ConeTestNamer.NameFor(method))); }
-        void IConeSuite.AddRowTest(MethodInfo method, RowAttribute[] rows) { Add(new ConeRowSuite(method, rows, this, ConeTestNamer.NameFor(method))); }
+        void IConeSuite.AddTestMethod(MethodInfo method) { Add(new ConeTestMethod(method, this, testExecutor, ConeTestNamer.NameFor(method))); }
+        void IConeSuite.AddRowTest(MethodInfo method, RowAttribute[] rows) { Add(new ConeRowSuite(method, rows, this, testExecutor, ConeTestNamer.NameFor(method))); }
     }
 }

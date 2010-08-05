@@ -12,7 +12,7 @@ namespace Cone.Addin
             readonly object[] parameters;
 
             public ConeRowTest(object[] parameters, ConeRowSuite parent, string name)
-                : base(parent, name) {
+                : base(parent, parent.testExecutor, name) {
                 this.parameters = parameters;
             }
 
@@ -23,8 +23,8 @@ namespace Cone.Addin
 
         readonly ArrayList tests;
 
-        public ConeRowSuite(MethodInfo method, RowAttribute[] rows, Test suite, string name)
-            : base(method, suite, name) {
+        public ConeRowSuite(MethodInfo method, RowAttribute[] rows, Test suite, TestExecutor testExecutor, string name)
+            : base(method, suite, testExecutor, name) {
             this.tests = new ArrayList(rows.Length);
             for (int i = 0; i != rows.Length; ++i) {
                 var parameters = rows[i].Parameters;

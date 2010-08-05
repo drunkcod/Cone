@@ -29,5 +29,6 @@ namespace Cone.Addin
         void ITestResult.Pending(string reason) { result.Ignore(reason); }
         void ITestResult.BeforeFailure(Exception ex) { result.SetResult(ResultState.Failure, ex.Message, ex.StackTrace, FailureSite.SetUp); }
         void ITestResult.TestFailure(Exception ex) { result.SetResult(ResultState.Failure, ex.Message, ex.StackTrace, FailureSite.Test); }
+        void ITestResult.AfterFailure(Exception ex) { result.SetResult(ResultState.Failure, ex.Message, ex.StackTrace, FailureSite.TearDown); }
     }
 }

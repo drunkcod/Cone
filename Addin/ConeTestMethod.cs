@@ -10,8 +10,8 @@ namespace Cone.Addin
     {
         readonly MethodInfo method;
 
-        public ConeTestMethod(MethodInfo method, Test suite, string name)
-            : base(suite, name) {
+        public ConeTestMethod(MethodInfo method, Test suite, TestExecutor testExecutor, string name)
+            : base(suite, testExecutor, name) {
             this.method = method;
         }
 

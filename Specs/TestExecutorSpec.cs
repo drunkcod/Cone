@@ -51,6 +51,15 @@ namespace Cone
             testResultMock.Verify(x => x.TestFailure(ex));        
         }
 
+        public void report_AfterFailure_if_excpetion_raished_during_cleanup() { 
+            var ex = new NotImplementedException();
+            contextMock.Setup(x => x.After(TestResult)).Throws(ex);
+
+            RunTest();
+
+            testResultMock.Verify(x => x.AfterFailure(ex));     
+        }
+
         public void doesnt_Run_test_when_establish_context_fails() {
             var ex = new NotImplementedException();
             contextMock.Setup(x => x.Before()).Throws(ex);
