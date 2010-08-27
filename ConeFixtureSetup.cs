@@ -28,11 +28,13 @@ namespace Cone
 
         MethodInfo[] methods;
         MethodMarks[] marks;
-        IConeSuite suite;
         int beforeAllCount, beforeEachCount, afterEachCount, afterEachWithResultCount, afterAllCount;
+        readonly IConeSuite suite;
+        readonly ConeTestNamer testNamer;
 
-        public ConeFixtureSetup(IConeSuite suite) {
+        public ConeFixtureSetup(IConeSuite suite, ConeTestNamer testNamer) {
             this.suite = suite;
+            this.testNamer = testNamer;
         }
 
         public void CollectFixtureMethods(Type type) {
@@ -126,7 +128,7 @@ namespace Cone
             return (marks[index] & mark) != 0;
         }
 
-        void AddTestMethod(MethodInfo method) { suite.AddTestMethod(method); }
-        void AddRowTest(MethodInfo method, RowAttribute[] rows) { suite.AddRowTest(method, rows); }
+        void AddTestMethod(MethodInfo method) { suite.AddTestMethod(testNamer.NameFor(method), method); }
+        void AddRowTest(MethodInfo method, RowAttribute[] rows) { suite.AddRowTest(testNamer.NameFor(method), method, rows); }
     }
 }

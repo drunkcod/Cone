@@ -4,7 +4,7 @@ namespace Cone
 {
     public interface IConeSuite
     {
-        void AddTestMethod(MethodInfo method);
-        void AddRowTest(MethodInfo method, RowAttribute[] rows);
+        void AddTestMethod(string name, MethodInfo method);
+        void AddRowTest(string name, MethodInfo method, RowAttribute[] rows);
     }
 }

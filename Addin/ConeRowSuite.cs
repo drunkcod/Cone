@@ -23,12 +23,12 @@ namespace Cone.Addin
 
         readonly ArrayList tests;
 
-        public ConeRowSuite(MethodInfo method, RowAttribute[] rows, Test suite, TestExecutor testExecutor, string name)
+        public ConeRowSuite(MethodInfo method, RowAttribute[] rows, Test suite, TestExecutor testExecutor, string name, ConeTestNamer testNamer)
             : base(method, suite, testExecutor, name) {
             this.tests = new ArrayList(rows.Length);
             for (int i = 0; i != rows.Length; ++i) {
                 var parameters = rows[i].Parameters;
-                var rowTest = new ConeRowTest(parameters, this, ConeTestNamer.NameFor(method, parameters));
+                var rowTest = new ConeRowTest(parameters, this, testNamer.NameFor(method, parameters));
                 if (rows[i].IsPending)
                     rowTest.RunState = RunState.Ignored;
                 tests.Add(rowTest);

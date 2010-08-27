@@ -10,6 +10,7 @@ namespace Cone.Addin
     {
         readonly Type type;
         readonly TestExecutor testExecutor;
+        readonly ConeTestNamer testNamer = new ConeTestNamer();
         MethodInfo[] afterEachWithResult;
 
         public static TestSuite For(Type type) {
@@ -19,7 +20,7 @@ namespace Cone.Addin
 
         public static ConeSuite For(Type type, ContextAttribute context, string parentSuiteName, string name) {
             var suite = new ConeSuite(type, parentSuiteName, name);
-            var setup = new ConeFixtureSetup(suite);
+            var setup = new ConeFixtureSetup(suite, suite.testNamer);
             setup.CollectFixtureMethods(type);
             suite.BindTo(setup.GetFixtureMethods());
             suite.AddNestedContexts();
@@ -90,12 +91,12 @@ namespace Cone.Addin
                     Categories.Add(category.Trim());
         }
 
-        void IConeSuite.AddTestMethod(MethodInfo method) { 
-            AddMethod(method, new ConeTestMethod(method, this, testExecutor, ConeTestNamer.NameFor(method))); 
+        void IConeSuite.AddTestMethod(string name, MethodInfo method) { 
+            AddMethod(method, new ConeTestMethod(method, this, testExecutor, name)); 
         }
         
-        void IConeSuite.AddRowTest(MethodInfo method, RowAttribute[] rows) { 
-            AddMethod(method, new ConeRowSuite(method, rows, this, testExecutor, ConeTestNamer.NameFor(method))); 
+        void IConeSuite.AddRowTest(string name, MethodInfo method, RowAttribute[] rows) { 
+            AddMethod(method, new ConeRowSuite(method, rows, this, testExecutor, name, testNamer)); 
         }
 
         void AddMethod(MethodInfo method, Test test) {
