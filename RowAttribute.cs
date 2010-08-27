@@ -7,6 +7,7 @@ namespace Cone
     {
         public readonly object[] Parameters;
         public bool IsPending;
+        public string Name;
         public RowAttribute(params object[] args) { Parameters = args; }
     }
 }

@@ -9,6 +9,7 @@ namespace Cone.Addin
     {
         [Row(1, 1, 2)]
         [Row(4, 2, 42, IsPending = true)]
+        [Row(1, 1, 2, Name = "One + One is Two")]
         public void Add(int a, int b, int r) { Verify.That(() => a + b == r); }
     }
 
@@ -59,7 +60,7 @@ namespace Cone.Addin
             public void create_test_per_input_row() {
                 var suite = ConeSuite.For(typeof(RowTestFixture));
 
-                Verify.That(() => suite.TestCount == 2);
+                Verify.That(() => suite.TestCount == 3);
             }
 
             public void are_named_by_their_arguments() {
@@ -68,6 +69,13 @@ namespace Cone.Addin
 
                 Verify.That(() => testNames.Contains("Add(1, 1, 2)"));
                 Verify.That(() => testNames.Contains("Add(4, 2, 42)"));
+            }
+
+            public void can_use_custom_name() {
+                var suite = ConeSuite.For(typeof(RowTestFixture));
+                var testNames = suite.Tests.Cast<ITest>().SelectMany(x => x.Tests.Cast<ITest>()).Select(x => x.TestName.Name);
+
+                Verify.That(() => testNames.Contains("One + One is Two"));                
             }
 
             public void zzz_put_me_last_to_check_that_AfterAll_for_rows_was_executed() {
