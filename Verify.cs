@@ -18,13 +18,22 @@ namespace Cone
                     var x = From(((UnaryExpression)body).Operand);
                     x.outcome = !x.outcome;
                     return x;
-
-                case ExpressionType.Call: return new Verify(body);
-                case ExpressionType.Constant: return new Verify(body);
-                case ExpressionType.Equal: return new Verify(body);
-                case ExpressionType.NotEqual: return new Verify(body);
-                default: throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
+                default: 
+                    if(UnsupportedExpressionType(body.NodeType))
+                        throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
+                    return new Verify(body);
             }
+        }
+
+        static bool UnsupportedExpressionType(ExpressionType nodeType) {
+            switch (nodeType) {
+                case ExpressionType.Call: return false;
+                case ExpressionType.Constant: return false;
+                case ExpressionType.Equal: return false;
+                case ExpressionType.NotEqual: return false;
+                case ExpressionType.MemberAccess: return false;
+            }
+            return true;
         }
 
         Verify(Expression body){

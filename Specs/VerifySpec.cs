@@ -53,6 +53,16 @@ namespace Cone
             Verify.That(() => !(TheAnswer == 7));
         }
 
+        public class PossiblyGreen
+        {
+            public bool IsGreen { get { return true; } }
+        }
+
+        public void bool_member_access() {
+            var obj = new PossiblyGreen();
+            Verify.That(() => obj.IsGreen);
+        }
+
         [Context("expression formatting")]
         public class ExpressionFormatting
         {
