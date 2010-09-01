@@ -21,11 +21,16 @@ namespace Cone
                     return Format(member.Expression) + "." + member.Member.Name;
                 case ExpressionType.Call:
                     var call = (MethodCallExpression)expr;
-                    int firstArgument;
+                    int firstArgumentOffset;
+                    var target = FormatCallTarget(call, out firstArgumentOffset);
                     var method = call.Method;
+                    var invocation = string.Empty;
+                    var parameterFormat = "({0})";
                     if(method.IsSpecialName && IndexerGet == method.Name)
-                        return FormatCallTarget(call, out firstArgument) + FormatArgs(call.Arguments, firstArgument, "[{0}]");
-                    return FormatCallTarget(call, out firstArgument) + "." + method.Name + FormatArgs(call.Arguments, firstArgument, "({0})");
+                        parameterFormat = "[{0}]";
+                    else 
+                        invocation = "." + method.Name;
+                    return target + invocation + FormatArgs(call.Arguments, firstArgumentOffset, parameterFormat);
                 case ExpressionType.Quote: return FormatUnary(expr);
                 case ExpressionType.Lambda:
                     var lambda = (LambdaExpression)expr;
