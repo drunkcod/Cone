@@ -6,6 +6,8 @@ namespace Cone
 {
     public class ExpressionFormatter
     {
+        const string IndexerGet = "get_Item";
+
         public string Format(Expression expr) {
             switch (expr.NodeType) {
                 case ExpressionType.ArrayLength: return FormatUnary(expr) + ".Length";
@@ -20,7 +22,10 @@ namespace Cone
                 case ExpressionType.Call:
                     var call = (MethodCallExpression)expr;
                     int firstArgument;
-                    return FormatCallTarget(call, out firstArgument) + "." + call.Method.Name + FormatArgs(call.Arguments, firstArgument);
+                    var method = call.Method;
+                    if(method.IsSpecialName && IndexerGet == method.Name)
+                        return FormatCallTarget(call, out firstArgument) + FormatArgs(call.Arguments, firstArgument, "[{0}]");
+                    return FormatCallTarget(call, out firstArgument) + "." + method.Name + FormatArgs(call.Arguments, firstArgument, "({0})");
                 case ExpressionType.Quote: return FormatUnary(expr);
                 case ExpressionType.Lambda:
                     var lambda = (LambdaExpression)expr;
@@ -56,18 +61,18 @@ namespace Cone
             var items = new string[args.Count];
             for (int i = 0; i != items.Length; ++i)
                 items[i] = Format(args[i]);
-            return FormatArgs(items);
+            return FormatArgs(items, "({0})");
         }
 
-        string FormatArgs(IList<Expression> args, int first) {
+        string FormatArgs(IList<Expression> args, int first, string format) {
             var items = new string[args.Count - first];
             for (int i = 0; i != items.Length; ++i)
                 items[i] = Format(args[first +  i]);
-            return FormatArgs(items);
+            return FormatArgs(items, format);
         }
 
-        string FormatArgs(string[] value) {
-            return "(" + string.Join(", ", value) + ")";
+        string FormatArgs(string[] value, string format) {
+            return string.Format(format, string.Join(", ", value));
         }
 
         public string FormatBinary(Expression expr, Func<ExpressionType, string> getOp) {

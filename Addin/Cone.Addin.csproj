@@ -15,7 +15,7 @@
     <OutputPath>$(SolutionDir)\Bin\$(NUnitVersion)</OutputPath>
     <IntermediateOutputPath>$(SolutionDir)\Build\obj\$(MSBuildProjectName)</IntermediateOutputPath>
     <TargetFrameworkProfile />
-    <NUnitVersion>2.5.5.10112</NUnitVersion>
+    <NUnitVersion>2.5.7.10213</NUnitVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

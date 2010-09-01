@@ -77,6 +77,11 @@ namespace Cone
             Verify.That(() => FormatBody(() => status == TestStatus.Success) == "status == TestStatus.Success");
         }
 
+        public void Item_indexer_properties() {
+            var stuff = new Dictionary<string, int>();
+            Verify.That(() => FormatBody(() => stuff["Answer"]) == "stuff[\"Answer\"]");
+        }
+
         string FormatBody<T>(Expression<Func<T>> expr) {
             return new ExpressionFormatter().Format(expr.Body);
         }
