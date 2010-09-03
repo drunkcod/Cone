@@ -91,6 +91,18 @@ namespace Cone.Addin
             }
         }
 
+        [Context("Static")]
+        public static class StaticFixture
+        {
+            public static bool StaticMethowWasCalled = false;
+            public static void static_method() { StaticMethowWasCalled = true; }
+        }
+
+        [AfterAll]
+        public void StaticFixture_was_run() {
+            Verify.That(() => StaticFixture.StaticMethowWasCalled);
+        }
+
         [Describe(typeof(EmptySpec), Category = "Empty")]
         class EmptySpec
         {

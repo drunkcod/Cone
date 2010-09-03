@@ -38,7 +38,7 @@ namespace Cone
         }
 
         public void CollectFixtureMethods(Type type) {
-            methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance);
+            methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
             marks = new MethodMarks[methods.Length];
             ResetCounts();
 

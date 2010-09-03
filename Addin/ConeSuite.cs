@@ -39,8 +39,11 @@ namespace Cone.Addin
         }
 
         public void Before() {
-            if(Fixture == null)
-                Fixture = FixtureType.GetConstructor(Type.EmptyTypes).Invoke(null);
+            if (Fixture == null) {
+                var ctor = FixtureType.GetConstructor(Type.EmptyTypes);
+                if(ctor != null)
+                    Fixture = ctor.Invoke(null);
+            }
             FixtureInvokeAll(setUpMethods, null);
         }
 
