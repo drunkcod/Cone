@@ -10,16 +10,9 @@ namespace Cone
     {
         ParameterFormatter formatter = new ParameterFormatter();
 
-        public void displays_array_elements() {
-            Verify.That(() => Format(new[] { 1, 2, 3 }) == "{ 1, 2, 3 }");
-        }
-        public void quoted_strings() {
-            Verify.That(() => Format("Hello World") == "\"Hello World\"");
-        }
-        public void null_() {
-            Verify.That(() => Format(null) == "null");
-        }
-
-        string Format(object obj) { return formatter.Format(obj); }
+        [Row(new[] { 1, 2, 3 }, "{ 1, 2, 3 }", Name="array elements")
+        ,Row("Hello World", "\"Hello World\"", Name = "quote strings")
+        ,Row(null, "null", Name= "null")]
+        public void VerifyFormat(object obj, string expected) { Verify.That(() => formatter.Format(obj) == expected); }
     }
 }
