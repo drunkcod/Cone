@@ -7,6 +7,9 @@ namespace Cone
     public class ParameterFormatter
     {
         public string Format(object obj) {
+            var str = obj as string;
+            if (str != null)
+                return String.Format("\"{0}\"", str);
             var collection = obj as IEnumerable;
             if (collection != null)
                 return FormatCollection(collection);
