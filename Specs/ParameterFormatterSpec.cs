@@ -16,6 +16,9 @@ namespace Cone
         public void quoted_strings() {
             Verify.That(() => Format("Hello World") == "\"Hello World\"");
         }
+        public void null_() {
+            Verify.That(() => Format(null) == "null");
+        }
 
         string Format(object obj) { return formatter.Format(obj); }
     }

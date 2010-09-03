@@ -7,6 +7,8 @@ namespace Cone
     public class ParameterFormatter
     {
         public string Format(object obj) {
+            if (obj == null)
+                return "null";
             var str = obj as string;
             if (str != null)
                 return String.Format("\"{0}\"", str);
