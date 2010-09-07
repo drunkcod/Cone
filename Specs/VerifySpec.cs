@@ -73,17 +73,17 @@ namespace Cone
 
             public void Equal() {
                 var bowling = new Bowling();
-                CheckFormatting(() => bowling.Score == 1, new BinaryExpect(null, bowling.Score, 1, BinaryExpect.EqualFormat), "bowling.Score", "1");
+                CheckFormatting(() => bowling.Score == 1, new BinaryExpect(null, bowling.Score, 1, BinaryExpect.EqualFormat, true), "bowling.Score", "1");
             }
 
             public void NotEqual() {
                 var a = 42;
-                CheckFormatting(() => a != 42, new BinaryExpect(null, a, 42, BinaryExpect.NotEqualFormat), "a", "42");
+                CheckFormatting(() => a != 42, new BinaryExpect(null, a, 42, BinaryExpect.NotEqualFormat, true), "a", "42");
             }
 
             public void unary_Call() {
                 var foo = new Counter();
-                CheckFormatting(() => foo.ReturnsFalse(), new Expect(null, false, null), "foo.ReturnsFalse()", string.Empty);
+                CheckFormatting(() => foo.ReturnsFalse(), new Expect(null, false, null, true), "foo.ReturnsFalse()", string.Empty);
             }
 
             void CheckFormatting(Expression<Func<bool>> expr, Expect values, string actual, string expected) {

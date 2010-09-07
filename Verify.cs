@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Cone
 {
@@ -9,19 +8,14 @@ namespace Cone
         public static Action<string> ExpectationFailed = message => { throw new ExpectationFailedException(message); };
         static readonly ExpressionFormatter Formatter = new ExpressionFormatter();
 
-        readonly Expression body;
-        bool outcome;
-
-        static Verify From(Expression body) {
+        static Expect From(Expression body, bool outcome) {
             switch (body.NodeType) {
                 case ExpressionType.Not:
-                    var x = From(((UnaryExpression)body).Operand);
-                    x.outcome = !x.outcome;
-                    return x;
-                default: 
-                    if(UnsupportedExpressionType(body.NodeType))
+                    return From(((UnaryExpression)body).Operand, !outcome);
+                default:
+                    if (UnsupportedExpressionType(body.NodeType))
                         throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
-                    return new Verify(body);
+                    return Lambda(body, outcome);
             }
         }
 
@@ -36,30 +30,24 @@ namespace Cone
             return true;
         }
 
-        Verify(Expression body){
-            this.body = body;
-            this.outcome = body.NodeType != ExpressionType.NotEqual;
-        }
-
-        void Check() {
-            var expect = Lambda(body).Compile()();
-            expect.Check(outcome, ExpectationFailed, Formatter);
-        }
-
         public static void That(Expression<Func<bool>> expr) {
-            From(expr.Body).Check();
+            Check(From(expr.Body, true));
         }
 
         public static TException Exception<TException>(Expression<Action> expr) where TException : Exception {
-            var expect = new ExceptionExpect(expr);
-            return expect.Check<TException>(ExpectationFailed, Formatter);
+            return (TException)Check(new ExceptionExpect(expr, typeof(TException)));
         }
 
-        public Expression<Func<Expect>> Lambda(Expression body) {
+        static object Check(IExpect expect) {
+            return expect.Check(ExpectationFailed, Formatter);
+        }
+        
+        static Expect Lambda(Expression body, bool outcome) {
+            outcome &= body.NodeType != ExpressionType.NotEqual;
             var binary = body as BinaryExpression;
             if (binary != null)
-                return BinaryExpect.Lambda(binary);
-            return Expect.Lambda(body);
+                return BinaryExpect.From(binary, outcome);
+            return Expect.From(body, outcome);
         }
     }
 }

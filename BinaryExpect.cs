@@ -36,21 +36,23 @@ namespace Cone
         public static readonly BinaryExpectFormat NotEqualFormat = new BinaryExpectFormat("  {0} was equal to {1}", "  Didn't expect {1}");
 
         static readonly ExpectNull ExpectNull = new ExpectNull();
-        static readonly ConstructorInfo binaryExpector = typeof(BinaryExpect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object), typeof(BinaryExpectFormat) });
+        static readonly ConstructorInfo binaryExpector = typeof(BinaryExpect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object), typeof(BinaryExpectFormat), typeof(bool) });
 
-        public static Expression<Func<Expect>> Lambda(BinaryExpression body) {
+        public static Expect From(BinaryExpression body, bool outcome) {
             return Expression.Lambda<Func<Expect>>(
                 Expression.New(binaryExpector,
                     Expression.Constant(body),
                     Expression.TypeAs(body.Left, typeof(object)),
                     Expression.TypeAs(body.Right, typeof(object)),
-                    Expression.Constant(BinaryExpect.GetBinaryFormat(body.NodeType))));
+                    Expression.Constant(BinaryExpect.GetBinaryFormat(body.NodeType)), 
+                    Expression.Constant(outcome)))
+                .Compile()();
         }
 
         readonly BinaryExpectFormat format;
 
-        public BinaryExpect(Expression body, object actual, object expected, BinaryExpectFormat format)
-            : base(body, actual, expected) {
+        public BinaryExpect(Expression body, object actual, object expected, BinaryExpectFormat format, bool outcome)
+            : base(body, actual, expected, outcome) {
             this.format = format;
         }
 
