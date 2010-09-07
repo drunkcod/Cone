@@ -8,25 +8,29 @@ namespace Cone
     {
         public const string FormatExpression = "  {0} failed";
 
-        static readonly ConstructorInfo expector = typeof(Expect).GetConstructor(new[] { typeof(Expression), typeof(object) });
+        static readonly ConstructorInfo expector = typeof(Expect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object) });
 
         protected readonly Expression body;
         protected readonly object actual;
+        protected readonly object expected;
 
         public static Expression<Func<Expect>> Lambda(Expression body) {
             return Expression.Lambda<Func<Expect>>(
                 Expression.New(expector,
                         Expression.Constant(body),
-                        Expression.TypeAs(body, typeof(object))));
+                        Expression.TypeAs(body, typeof(object)), 
+                        Expression.TypeAs(Expression.Constant(true), typeof(object))));
         }
         
-        public Expect(Expression body, object actual) {
+        public Expect(Expression body, object actual, object expected) {
             this.body = body;
             this.actual = actual;
+            this.expected = expected;
         }
 
-        public bool Check() {
-            return Expected.Equals(actual);
+        public void Check(bool outcome, Action<string> onCheckFailed, ExpressionFormatter formatter) {
+            if (Expected.Equals(actual) != outcome)
+                onCheckFailed(Format(formatter));
         }
 
         public virtual string Format(ExpressionFormatter formatter) {
@@ -37,6 +41,6 @@ namespace Cone
             return string.Format(FormatExpression, args);
         }
 
-        protected virtual object Expected { get { return true; } }
+        protected virtual object Expected { get { return expected; } }
     }
 }

@@ -47,12 +47,10 @@ namespace Cone
                     Expression.Constant(BinaryExpect.GetBinaryFormat(body.NodeType))));
         }
 
-        readonly object expected;
         readonly BinaryExpectFormat format;
 
         public BinaryExpect(Expression body, object actual, object expected, BinaryExpectFormat format)
-            : base(body, actual) {
-            this.expected = expected;
+            : base(body, actual, expected) {
             this.format = format;
         }
 

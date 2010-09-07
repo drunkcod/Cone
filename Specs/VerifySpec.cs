@@ -83,7 +83,7 @@ namespace Cone
 
             public void unary_Call() {
                 var foo = new Counter();
-                CheckFormatting(() => foo.ReturnsFalse(), new Expect(null, false), "foo.ReturnsFalse()", string.Empty);
+                CheckFormatting(() => foo.ReturnsFalse(), new Expect(null, false, null), "foo.ReturnsFalse()", string.Empty);
             }
 
             void CheckFormatting(Expression<Func<bool>> expr, Expect values, string actual, string expected) {
@@ -112,12 +112,22 @@ namespace Cone
                 Verify.Exception<NotImplementedException>(() => NotImplemented());
             }
 
+            public void rasises_expectation_failed_when_exception_missing() {
+                try {
+                    Verify.Exception<NotSupportedException>(() => Nothing());
+                    throw new NotSupportedException();
+                } catch (Exception e) {
+                    Verify.That(() => e.GetType() == ExpectedExcpetionType());
+                }
+            }
+
             public void verify_Exception_message() {
                 var e = Verify.Exception<NotImplementedException>(() => NotImplemented());
                 Verify.That(() => e.GetType() == typeof(NotImplementedException));
                 Verify.That(() => e.Message == new NotImplementedException().Message);
             }
 
+            void Nothing() { }
             void NotImplemented() { throw new NotImplementedException(); }
 
             Type ExpectedExcpetionType() {
