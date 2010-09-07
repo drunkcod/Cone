@@ -95,5 +95,39 @@ namespace Cone
                 }
             }
         }
+
+        [Context("Exceptions")]
+        public class Exceptions
+        {
+            public void raises_expectation_failed_when_wrong_type_of_excpetion_raised() {
+                try {
+                    Verify.Exception<NotSupportedException>(() => NotImplemented());
+                    throw new NotSupportedException();
+                } catch (Exception e) {
+                    Verify.That(() => e.GetType() == ExpectedExcpetionType());
+                }
+            }
+
+            public void passes_when_Exception_types_match() {
+                Verify.Exception<NotImplementedException>(() => NotImplemented());
+            }
+
+            public void verify_Exception_message() {
+                var e = Verify.Exception<NotImplementedException>(() => NotImplemented());
+                Verify.That(() => e.GetType() == typeof(NotImplementedException));
+                Verify.That(() => e.Message == new NotImplementedException().Message);
+            }
+
+            void NotImplemented() { throw new NotImplementedException(); }
+
+            Type ExpectedExcpetionType() {
+                try {
+                    Verify.ExpectationFailed(string.Empty);
+                } catch (Exception e) { 
+                    return e.GetType(); 
+                }
+                return null;
+            }
+        }
     }
 }

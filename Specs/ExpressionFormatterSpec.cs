@@ -30,7 +30,7 @@ namespace Cone
             Verify.That(() => FormatBody(() => DateTime.Parse("2010-07-13")) == "DateTime.Parse(\"2010-07-13\")");
         }
 
-        public void Callt_extension_method() {
+        public void Call_extension_method() {
             var obj = this;
             Verify.That(() => FormatBody(() => obj.IsOfType(typeof(object))) == "obj.IsOfType(typeof(Object))");
         }

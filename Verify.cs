@@ -41,7 +41,7 @@ namespace Cone
             this.outcome = body.NodeType != ExpressionType.NotEqual;
         }
 
-        public void Check() {
+        void Check() {
             var expect = Lambda(body).Compile()();
             if(expect.Check() != outcome)
                 ExpectationFailed(expect.Format(Formatter));
@@ -49,6 +49,21 @@ namespace Cone
 
         public static void That(Expression<Func<bool>> expr) {
             From(expr.Body).Check();
+        }
+
+        public static TException Exception<TException>(Expression<Action> expr) where TException : Exception {
+            try {
+                expr.Compile()();
+                ExpectationFailed(Formatter.Format(expr) + " didn't raise an exception.");
+                return null;
+            } catch (TException expected) {
+                return expected;
+            } catch (Exception e) {
+                var message = string.Format("{0} raised the wrong type of Exception\nExpected: {1}\nActual: {2}",
+                    Formatter.Format(expr), typeof(TException), e.GetType());
+                ExpectationFailed(message);
+                return null;
+            }
         }
 
         public static Expression<Func<Expect>> Lambda(Expression body) {
