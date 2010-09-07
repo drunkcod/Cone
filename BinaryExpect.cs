@@ -52,20 +52,16 @@ namespace Cone
         readonly BinaryExpectFormat format;
 
         public BinaryExpect(Expression body, object actual, object expected, BinaryExpectFormat format, bool outcome)
-            : base(body, actual, expected, outcome) {
+            : base(body, actual, expected ?? ExpectNull, outcome) {
             this.format = format;
         }
 
-        string Format(ExpressionFormatter formatter) {
+        protected override string Format(ExpressionFormatter formatter) {
             return formatter.FormatBinary(body, GetBinaryOp) + "\n" + FormatValues();
         }
 
         string FormatValues() {
             return string.Format(format.FormatValues, actual, expected);
-        }
-
-        protected override object Expected {
-            get { return expected ?? ExpectNull; }
         }
 
         internal static BinaryExpectFormat GetBinaryFormat(ExpressionType nodeType) {
