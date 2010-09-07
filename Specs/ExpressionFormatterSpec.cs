@@ -82,11 +82,19 @@ namespace Cone
             Verify.That(() => FormatBody(() => stuff["Answer"]) == "stuff[\"Answer\"]");
         }
 
-        int FixtureMember = 42;
+        int A = 42, B = 7;
         public void fixture_member() {
-            var body = FormatBody(() => FormatBody(() => FixtureMember));
-            Verify.That(() => body == "FormatBody(() => FixtureMember)");
+            var body = FormatBody(() => FormatBody(() => A));
+            Verify.That(() => body == "FormatBody(() => A)");
         }
+
+        public void greater() { Verify.That(() => FormatBody(() => A > B) == "A > B"); }
+
+        public void greater_or_equal() { Verify.That(() => FormatBody(() => A >= B) == "A >= B"); }
+        
+        public void less() { Verify.That(() => FormatBody(() => A < B) == "A < B"); }
+        
+        public void less_or_equal() { Verify.That(() => FormatBody(() => A <= B) == "A <= B"); }
 
         string FormatBody<T>(Expression<Func<T>> expr) {
             return new ExpressionFormatter().Format(expr.Body);
