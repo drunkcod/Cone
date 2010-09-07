@@ -27,7 +27,7 @@ namespace Cone
             return null;
         }
 
-        public override string FormatBody(ExpressionFormatter formatter) {
+        public override string FormatBody(IExpressionFormatter formatter) {
             if(actual == null)
                 return string.Format(MissingExceptionFormat, formatter.Format(body));
             return string.Format(UnexpectedExceptionFormat,

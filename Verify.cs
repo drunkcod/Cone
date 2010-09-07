@@ -25,6 +25,10 @@ namespace Cone
                 case ExpressionType.Constant: return false;
                 case ExpressionType.Equal: return false;
                 case ExpressionType.NotEqual: return false;
+                case ExpressionType.GreaterThan: return false;
+                case ExpressionType.GreaterThanOrEqual: return false;
+                case ExpressionType.LessThan: return false;
+                case ExpressionType.LessThanOrEqual: return false;
                 case ExpressionType.MemberAccess: return false;
             }
             return true;

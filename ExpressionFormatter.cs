@@ -4,23 +4,28 @@ using System.Collections.Generic;
 
 namespace Cone
 {
-    public class ExpressionFormatter
+    public interface IExpressionFormatter
+    {
+        string Format(Expression expression);
+    }
+
+    public class ExpressionFormatter : IExpressionFormatter
     {
         const string IndexerGet = "get_Item";
 
-        public string Format(Expression expr) {
-            switch (expr.NodeType) {
-                case ExpressionType.ArrayLength: return FormatUnary(expr) + ".Length";
+        public string Format(Expression expression) {
+            switch (expression.NodeType) {
+                case ExpressionType.ArrayLength: return FormatUnary(expression) + ".Length";
                 case ExpressionType.Add: goto case ExpressionType.Equal;
                 case ExpressionType.MemberAccess:
-                    var member = (MemberExpression)expr;
+                    var member = (MemberExpression)expression;
                     if (member.Expression == null)
                         return member.Member.DeclaringType.Name + "." + member.Member.Name;
                     if (member.Expression.NodeType == ExpressionType.Constant)
                         return member.Member.Name;
                     return Format(member.Expression) + "." + member.Member.Name;
                 case ExpressionType.Call:
-                    var call = (MethodCallExpression)expr;
+                    var call = (MethodCallExpression)expression;
                     int firstArgumentOffset;
                     var target = FormatCallTarget(call, out firstArgumentOffset);
                     var method = call.Method;
@@ -30,16 +35,24 @@ namespace Cone
                         parameterFormat = "[{0}]";
                     else 
                         invocation = "." + method.Name;
+                    if (call.Object != null && call.Object.NodeType == ExpressionType.Constant) {
+                        target = string.Empty;
+                        invocation = method.Name;
+                    }
                     return target + invocation + FormatArgs(call.Arguments, firstArgumentOffset, parameterFormat);
-                case ExpressionType.Quote: return FormatUnary(expr);
+                case ExpressionType.Quote: return FormatUnary(expression);
                 case ExpressionType.Lambda:
-                    var lambda = (LambdaExpression)expr;
+                    var lambda = (LambdaExpression)expression;
                     return FormatArgs(lambda.Parameters) + " => " + Format(lambda.Body);
-                case ExpressionType.Equal: return FormatBinary(expr, GetBinaryOp);
+                case ExpressionType.Equal: return FormatBinary(expression, GetBinaryOp);
                 case ExpressionType.NotEqual: goto case ExpressionType.Equal;
-                case ExpressionType.Constant: return FormatConstant((ConstantExpression)expr);
+                case ExpressionType.GreaterThan: goto case ExpressionType.Equal;
+                case ExpressionType.GreaterThanOrEqual: goto case ExpressionType.Equal;
+                case ExpressionType.LessThan: goto case ExpressionType.Equal;
+                case ExpressionType.LessThanOrEqual: goto case ExpressionType.Equal;
+                case ExpressionType.Constant: return FormatConstant((ConstantExpression)expression);
             }
-            return expr.ToString();
+            return expression.ToString();
         }
 
         string FormatCallTarget(MethodCallExpression call, out int firstArgument) {
@@ -80,7 +93,7 @@ namespace Cone
             return string.Format(format, string.Join(", ", value));
         }
 
-        public string FormatBinary(Expression expr, Func<ExpressionType, string> getOp) {
+        string FormatBinary(Expression expr, Func<ExpressionType, string> getOp) {
             var binary = (BinaryExpression)expr;
             return FormatBinary(binary.Left, binary.Right, getOp(binary.NodeType));
         }
@@ -90,6 +103,10 @@ namespace Cone
                 case ExpressionType.Add: return "{0} + {1}";
                 case ExpressionType.Equal: return "{0} == {1}";
                 case ExpressionType.NotEqual: return "{0} != {1}";
+                case ExpressionType.GreaterThan: return "{0} > {1}";
+                case ExpressionType.GreaterThanOrEqual: return "{0} >= {1}";
+                case ExpressionType.LessThan: return "{0} < {1}";
+                case ExpressionType.LessThanOrEqual: return "{0} <= {1}";
                 default: return "{0} ? {1}";
             }
         }

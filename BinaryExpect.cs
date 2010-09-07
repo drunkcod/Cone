@@ -19,21 +19,10 @@ namespace Cone
         }
     }
 
-    public struct BinaryExpectFormat
-    {
-        public readonly string FormatExpression;
-        public readonly string FormatValues;
-
-        public BinaryExpectFormat(string formatExpression, string formatValues) {
-            this.FormatExpression = formatExpression;
-            this.FormatValues = formatValues;
-        }
-    }
-
     public class BinaryExpect : Expect
     {
-        public static readonly BinaryExpectFormat EqualFormat = new BinaryExpectFormat("{0} == {1}", "  Expected: {1}\n  But was: {0}");
-        public static readonly BinaryExpectFormat NotEqualFormat = new BinaryExpectFormat("{0} != {1}", "  Didn't expect both to be {1}");
+        public const string EqualFormat = "Expected: {1}\n  But was: {0}";
+        public const string NotEqualFormat = "Didn't expect both to be {1}";
 
         static readonly ExpectNull ExpectNull = new ExpectNull();
         static readonly ConstructorInfo BinaryExpectCtor = typeof(BinaryExpect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object) });
@@ -46,29 +35,25 @@ namespace Cone
             : base(body, actual, expected ?? ExpectNull) {
         }
 
-        public override string FormatBody(ExpressionFormatter formatter) {
-            return formatter.FormatBinary(body, GetBinaryOp);
-        }
-
-        public override string FormatValues(ExpressionFormatter formatter) {
+        public override string FormatValues(IExpressionFormatter formatter) {
             var format = GetBinaryFormat(body.NodeType);
-            return string.Format(format.FormatValues, actual, expected);
+            return string.Format(format, actual, expected);
         }
 
-        internal static BinaryExpectFormat GetBinaryFormat(ExpressionType nodeType) {
+        internal static string GetBinaryFormat(ExpressionType nodeType) {
             switch (nodeType) {
                 case ExpressionType.Equal: return BinaryExpect.EqualFormat;
                 case ExpressionType.NotEqual: return BinaryExpect.NotEqualFormat;
             }
-            throw new NotSupportedException();
+            return string.Empty;
         }
 
         public override bool Check() {
-            return base.Check() ^ body.NodeType == ExpressionType.NotEqual;
-        }
-
-        static string GetBinaryOp(ExpressionType nodeType) {
-            return GetBinaryFormat(nodeType).FormatExpression;
+            if (body.NodeType == ExpressionType.Equal)
+                return expected.Equals(actual);
+            return Expression.Lambda<Func<bool>>(
+                Expression.MakeBinary(body.NodeType, Expression.Constant(actual), Expression.Constant(expected)))
+                .Compile()();
         }
     }
 }

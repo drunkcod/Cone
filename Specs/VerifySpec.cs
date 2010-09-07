@@ -63,6 +63,36 @@ namespace Cone
             Verify.That(() => obj.IsGreen);
         }
 
+        [Context("binary expressions")]
+        public class BinaryExpressions
+        {
+            int a = 1, b = 2;
+
+            public void equal() {
+                Verify.That(() => a == a);
+            }
+
+            public void not_equal() {
+                Verify.That(() => a != b);
+            }
+
+            public void less() {
+                Verify.That(() => a < b);
+            }
+
+            public void less_or_equal() {
+                Verify.That(() => a <= a);
+            }
+
+            public void greater() {
+                Verify.That(() => b > a);
+            }
+
+            public void greater_or_equal() {
+                Verify.That(() => b >= a);
+            }
+        }
+
         [Context("Exceptions")]
         public class Exceptions
         {

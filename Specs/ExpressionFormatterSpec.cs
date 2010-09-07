@@ -82,6 +82,12 @@ namespace Cone
             Verify.That(() => FormatBody(() => stuff["Answer"]) == "stuff[\"Answer\"]");
         }
 
+        int FixtureMember = 42;
+        public void fixture_member() {
+            var body = FormatBody(() => FormatBody(() => FixtureMember));
+            Verify.That(() => body == "FormatBody(() => FixtureMember)");
+        }
+
         string FormatBody<T>(Expression<Func<T>> expr) {
             return new ExpressionFormatter().Format(expr.Body);
         }
