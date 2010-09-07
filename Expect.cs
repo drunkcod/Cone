@@ -15,7 +15,7 @@ namespace Cone
         readonly protected object expected;
         readonly protected object actual;
 
-        protected ExpectBase(Expression body, object expected, object actual) {
+        protected ExpectBase(Expression body, object actual, object expected) {
             this.body = body;
             this.expected = expected;
             this.actual = actual;
@@ -47,8 +47,9 @@ namespace Cone
                         Expression.Constant(outcome)))
                 .Compile()();
         }
-        
-        public Expect(Expression body, object actual, object expected, bool outcome) : base(body, expected, actual) {
+
+        public Expect(Expression body, object actual, object expected, bool outcome)
+            : base(body, actual, expected) {
             this.outcome = outcome;
         }
 

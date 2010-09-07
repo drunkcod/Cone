@@ -8,8 +8,8 @@ namespace Cone
         public const string MissingExceptionFormat = "{0} didn't raise an exception.";
         public const string UnexpectedExceptionFormat = "{0} raised the wrong type of Exception\nExpected: {1}\nActual: {2}";
 
-        public ExceptionExpect(Expression<Action> body, Type expected) 
-            : base(body, expected, Invoke(body))  {
+        public ExceptionExpect(Expression<Action> body, Type expected)
+            : base(body, Invoke(body), expected) {
         }
 
         Type ExpectedExceptionType { get { return (Type)expected; } }
