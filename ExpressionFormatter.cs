@@ -94,13 +94,13 @@ namespace Cone
 
         static string GetBinaryOp(ExpressionType nodeType) {
             switch (nodeType) {
-                case ExpressionType.Add: return "{0} + {1}";
-                case ExpressionType.Equal: return "{0} == {1}";
-                case ExpressionType.NotEqual: return "{0} != {1}";
-                case ExpressionType.GreaterThan: return "{0} > {1}";
-                case ExpressionType.GreaterThanOrEqual: return "{0} >= {1}";
-                case ExpressionType.LessThan: return "{0} < {1}";
-                case ExpressionType.LessThanOrEqual: return "{0} <= {1}";
+                case ExpressionType.Add: return "+";
+                case ExpressionType.Equal: return "==";
+                case ExpressionType.NotEqual: return "!=";
+                case ExpressionType.GreaterThan: return ">";
+                case ExpressionType.GreaterThanOrEqual: return ">=";
+                case ExpressionType.LessThan: return "<";
+                case ExpressionType.LessThanOrEqual: return "<=";
                 default: return string.Empty;
             }
         }
@@ -118,7 +118,7 @@ namespace Cone
                     right = Expression.Constant(newValue);
                 }
             }
-            return string.Format(op, Format(left), Format(right));
+            return string.Format("{0} {1} {2}", Format(left), op, Format(right));
         }
 
         string FormatUnary(Expression expr) {

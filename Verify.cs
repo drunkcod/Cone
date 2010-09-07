@@ -9,29 +9,27 @@ namespace Cone
         static readonly ExpressionFormatter Formatter = new ExpressionFormatter();
 
         static IExpect From(Expression body) {
-            switch (body.NodeType) {
-                case ExpressionType.Not:
-                    return new NotExpect(From(((UnaryExpression)body).Operand));
-                default:
-                    if (UnsupportedExpressionType(body.NodeType))
-                        throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
-                    return Lambda(body);
-            }
+            if(body.NodeType == ExpressionType.Not)
+                return new NotExpect(From(((UnaryExpression)body).Operand));
+
+            if (SupportedExpressionType(body.NodeType))
+                return Lambda(body);
+            throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
         }
 
-        static bool UnsupportedExpressionType(ExpressionType nodeType) {
+        static bool SupportedExpressionType(ExpressionType nodeType) {
             switch (nodeType) {
-                case ExpressionType.Call: return false;
-                case ExpressionType.Constant: return false;
-                case ExpressionType.Equal: return false;
-                case ExpressionType.NotEqual: return false;
-                case ExpressionType.GreaterThan: return false;
-                case ExpressionType.GreaterThanOrEqual: return false;
-                case ExpressionType.LessThan: return false;
-                case ExpressionType.LessThanOrEqual: return false;
-                case ExpressionType.MemberAccess: return false;
+                case ExpressionType.Call: return true;
+                case ExpressionType.Constant: return true;
+                case ExpressionType.Equal: return true;
+                case ExpressionType.NotEqual: return true;
+                case ExpressionType.GreaterThan: return true;
+                case ExpressionType.GreaterThanOrEqual: return true;
+                case ExpressionType.LessThan: return true;
+                case ExpressionType.LessThanOrEqual: return true;
+                case ExpressionType.MemberAccess: return true;
             }
-            return true;
+            return false;
         }
 
         public static void That(Expression<Func<bool>> expr) {
