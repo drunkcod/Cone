@@ -24,7 +24,7 @@ namespace Cone
             } catch (Exception e) {
                 if (expectedExceptionType.IsAssignableFrom(e.GetType()))
                     return e;
-                onCheckFailed(FormatUnexpected(e, expectedExceptionType, formatter));
+                onCheckFailed(FormatUnexpected(e, formatter));
                 return null;
             }
         }
@@ -33,9 +33,9 @@ namespace Cone
             return string.Format(MissingExceptionFormat, formatter.Format(expr));
         }
 
-        string FormatUnexpected(Exception e, Type expectedType, ExpressionFormatter formatter) {
-            return string.Format("{0} raised the wrong type of Exception\nExpected: {1}\nActual: {2}",
-                formatter.Format(expr), expectedType, e.GetType());
+        string FormatUnexpected(Exception e, ExpressionFormatter formatter) {
+            return string.Format(UnexpectedExceptionFormat,
+                formatter.Format(expr), expectedExceptionType, e.GetType());
         }
     }
 }
