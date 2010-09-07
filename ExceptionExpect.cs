@@ -8,34 +8,40 @@ namespace Cone
         public const string MissingExceptionFormat = "{0} didn't raise an exception.";
         public const string UnexpectedExceptionFormat = "{0} raised the wrong type of Exception\nExpected: {1}\nActual: {2}";
 
-        readonly Expression<Action> expr;
-        readonly Type expectedExceptionType;
+        readonly Expression expr;
+        readonly object actual;
+        readonly Type expected;
 
         public ExceptionExpect(Expression<Action> expr, Type expectedExceptionType) {
             this.expr = expr;
-            this.expectedExceptionType = expectedExceptionType;
+            this.actual = Invoke(expr);
+            this.expected = expectedExceptionType;
         }
 
         public object Check(Action<string> onCheckFailed, ExpressionFormatter formatter) {
+            if(actual == null)
+                onCheckFailed(FormatMissing(formatter));
+            else if(!expected.IsAssignableFrom(actual.GetType()))
+                onCheckFailed(FormatUnexpected(formatter));
+            return actual;
+        }
+
+        static object Invoke(Expression<Action> expr) {
             try {
                 expr.Compile()();
-                onCheckFailed(FormatMissing(formatter));
-                return null;
-            } catch (Exception e) {
-                if (expectedExceptionType.IsAssignableFrom(e.GetType()))
-                    return e;
-                onCheckFailed(FormatUnexpected(e, formatter));
-                return null;
+            } catch(Exception e) {
+                return e;
             }
+            return null;
         }
 
         string FormatMissing(ExpressionFormatter formatter) {
             return string.Format(MissingExceptionFormat, formatter.Format(expr));
         }
 
-        string FormatUnexpected(Exception e, ExpressionFormatter formatter) {
+        string FormatUnexpected(ExpressionFormatter formatter) {
             return string.Format(UnexpectedExceptionFormat,
-                formatter.Format(expr), expectedExceptionType, e.GetType());
+                formatter.Format(expr), expected, actual.GetType());
         }
     }
 }
