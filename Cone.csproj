@@ -46,6 +46,7 @@
     <Compile Include="IConeSuite.cs" />
     <Compile Include="IConeFixture.cs" />
     <Compile Include="IConeTest.cs" />
+    <Compile Include="ITestName.cs" />
     <Compile Include="ITestResult.cs" />
     <Compile Include="ParameterFormatter.cs" />
     <Compile Include="PendingAttribute.cs" />

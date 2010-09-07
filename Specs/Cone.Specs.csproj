@@ -56,6 +56,7 @@
     <Compile Include="Addin\ConeSuiteSpec.RowTests.cs">
       <DependentUpon>ConeSuiteSpec.cs</DependentUpon>
     </Compile>
+    <Compile Include="Addin\NUnitTestResultAdapterSpec.cs" />
     <Compile Include="ParameterFormatterSpec.cs" />
     <Compile Include="TestExecutorSpec.cs" />
     <Compile Include="ExpressionFormatterSpec.cs" />

@@ -9,7 +9,7 @@ namespace Cone
 
     public interface ITestResult
     {
-        string TestName { get; }
+        ITestName TestName { get; }
         TestStatus Status { get; }
 
         void Success();

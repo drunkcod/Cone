@@ -73,7 +73,7 @@ namespace Cone.Addin
                 [AfterEach]
                 public void Silly(ITestResult result) {
                    Verify.That(() => result.Status == TestStatus.Success);
-                    Product *= int.Parse(result.TestName);
+                    Product *= int.Parse(result.TestName.Name);
                 }
 
                 public void _3() { }
