@@ -8,14 +8,14 @@ namespace Cone
         public static Action<string> ExpectationFailed = message => { throw new ExpectationFailedException(message); };
         static readonly ExpressionFormatter Formatter = new ExpressionFormatter();
 
-        static Expect From(Expression body, bool outcome) {
+        static IExpect From(Expression body) {
             switch (body.NodeType) {
                 case ExpressionType.Not:
-                    return From(((UnaryExpression)body).Operand, !outcome);
+                    return new NotExpect(From(((UnaryExpression)body).Operand));
                 default:
                     if (UnsupportedExpressionType(body.NodeType))
                         throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
-                    return Lambda(body, outcome);
+                    return Lambda(body);
             }
         }
 
@@ -31,7 +31,7 @@ namespace Cone
         }
 
         public static void That(Expression<Func<bool>> expr) {
-            Check(From(expr.Body, true));
+            Check(From(expr.Body));
         }
 
         public static TException Exception<TException>(Expression<Action> expr) where TException : Exception {
@@ -39,15 +39,16 @@ namespace Cone
         }
 
         static object Check(IExpect expect) {
-            return expect.Check(ExpectationFailed, Formatter);
+            if (!expect.Check())
+                ExpectationFailed(expect.FormatBody(Formatter) + "\n" + expect.FormatValues(Formatter));
+            return expect.Actual;
         }
         
-        static Expect Lambda(Expression body, bool outcome) {
-            outcome &= body.NodeType != ExpressionType.NotEqual;
+        static Expect Lambda(Expression body) {
             var binary = body as BinaryExpression;
             if (binary != null)
-                return BinaryExpect.From(binary, outcome);
-            return Expect.From(body, outcome);
+                return BinaryExpect.From(binary);
+            return Expect.From(body);
         }
     }
 }

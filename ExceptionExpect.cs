@@ -14,11 +14,8 @@ namespace Cone
 
         Type ExpectedExceptionType { get { return (Type)expected; } }
 
-        protected override void CheckCore(Action<string> onCheckFailed, ExpressionFormatter formatter) {
-            if(actual == null)
-                onCheckFailed(FormatMissing(formatter));
-            else if(!ExpectedExceptionType.IsAssignableFrom(actual.GetType()))
-                onCheckFailed(FormatUnexpected(formatter));
+        public override bool Check() {
+            return actual != null && ExpectedExceptionType.IsAssignableFrom(actual.GetType());
         }
 
         static object Invoke(Expression<Action> expr) {
@@ -30,11 +27,9 @@ namespace Cone
             return null;
         }
 
-        string FormatMissing(ExpressionFormatter formatter) {
-            return string.Format(MissingExceptionFormat, formatter.Format(body));
-        }
-
-        string FormatUnexpected(ExpressionFormatter formatter) {
+        public override string FormatBody(ExpressionFormatter formatter) {
+            if(actual == null)
+                return string.Format(MissingExceptionFormat, formatter.Format(body));
             return string.Format(UnexpectedExceptionFormat,
                 formatter.Format(body), expected, actual.GetType());
         }

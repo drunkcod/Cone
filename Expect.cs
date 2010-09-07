@@ -6,7 +6,10 @@ namespace Cone
 {
     public interface IExpect
     {
-        object Check(Action<string> onCheckFailed, ExpressionFormatter formatter);
+        object Actual { get; }
+        bool Check();
+        string FormatBody(ExpressionFormatter formatter);
+        string FormatValues(ExpressionFormatter formatter);
     }
 
     public abstract class ExpectBase : IExpect
@@ -19,52 +22,41 @@ namespace Cone
             this.body = body;
             this.expected = expected;
             this.actual = actual;
-        } 
-
-        public object Check(Action<string> onCheckFailed, ExpressionFormatter formatter) {
-            CheckCore(onCheckFailed, formatter);
-            return actual;
         }
 
-        protected abstract void CheckCore(Action<string> onCheckFailed, ExpressionFormatter formatter);
+        public object Actual { get { return actual; } }
+        public virtual string FormatBody(ExpressionFormatter formatter){ return formatter.Format(body); }
+        public virtual string FormatValues(ExpressionFormatter formatter){ return string.Empty; }
+        public abstract bool Check();
     }
 
     public class Expect : ExpectBase
     {
         public const string FormatExpression = "  {0} failed";
 
-        static readonly ConstructorInfo ExpectCtor = typeof(Expect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object), typeof(bool) });
+        static readonly ConstructorInfo ExpectCtor = typeof(Expect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object) });
 
-        readonly bool outcome;
-
-        public static Expect From(Expression body, bool outcome) {
-            return From(ExpectCtor, body, body, Expression.Constant(true), outcome);
+        public static Expect From(Expression body) {
+            return From(ExpectCtor, body, body, Expression.Constant(true));
         }
 
-        internal    static Expect From(ConstructorInfo ctor, Expression body, Expression left, Expression right, bool outcome) {
+        internal static Expect From(ConstructorInfo ctor, Expression body, Expression left, Expression right) {
             return Expression.Lambda<Func<Expect>>(
                 Expression.New(ctor,
                         Expression.Constant(body),
                         Box(left),
-                        Box(right),
-                        Expression.Constant(outcome)))
+                        Box(right)))
                 .Compile()();
         }
 
         static Expression Box(Expression expression) { return Expression.TypeAs(expression, typeof(object)); }
 
-        public Expect(Expression body, object actual, object expected, bool outcome)
+        public Expect(Expression body, object actual, object expected)
             : base(body, actual, expected) {
-            this.outcome = outcome;
         }
 
-        protected override void CheckCore(Action<string> onCheckFailed, ExpressionFormatter formatter) {
-            if (expected.Equals(actual) != outcome)
-                onCheckFailed(Format(formatter));
-        }
-
-        protected virtual string Format(ExpressionFormatter formatter) {
-            return string.Format(FormatExpression, formatter.Format(body));
+        public override bool Check() {
+            return expected.Equals(actual);
         }
     }
 }

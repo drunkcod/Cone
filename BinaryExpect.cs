@@ -32,25 +32,25 @@ namespace Cone
 
     public class BinaryExpect : Expect
     {
-        public static readonly BinaryExpectFormat EqualFormat = new BinaryExpectFormat("  {0} wasn't equal to {1}", "  Expected: {1}\n  But was: {0}");
-        public static readonly BinaryExpectFormat NotEqualFormat = new BinaryExpectFormat("  {0} was equal to {1}", "  Didn't expect {1}");
+        public static readonly BinaryExpectFormat EqualFormat = new BinaryExpectFormat("{0} == {1}", "  Expected: {1}\n  But was: {0}");
+        public static readonly BinaryExpectFormat NotEqualFormat = new BinaryExpectFormat("{0} != {1}", "  Didn't expect both to be {1}");
 
         static readonly ExpectNull ExpectNull = new ExpectNull();
-        static readonly ConstructorInfo BinaryExpectCtor = typeof(BinaryExpect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object), typeof(bool) });
+        static readonly ConstructorInfo BinaryExpectCtor = typeof(BinaryExpect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object) });
 
-        public static Expect From(BinaryExpression body, bool outcome) {
-            return Expect.From(BinaryExpectCtor, body, body.Left, body.Right, outcome);
+        public static Expect From(BinaryExpression body) {
+            return Expect.From(BinaryExpectCtor, body, body.Left, body.Right);
         }
 
-        public BinaryExpect(Expression body, object actual, object expected, bool outcome)
-            : base(body, actual, expected ?? ExpectNull, outcome) {
+        public BinaryExpect(Expression body, object actual, object expected)
+            : base(body, actual, expected ?? ExpectNull) {
         }
 
-        protected override string Format(ExpressionFormatter formatter) {
-            return formatter.FormatBinary(body, GetBinaryOp) + "\n" + FormatValues();
+        public override string FormatBody(ExpressionFormatter formatter) {
+            return formatter.FormatBinary(body, GetBinaryOp);
         }
 
-        string FormatValues() {
+        public override string FormatValues(ExpressionFormatter formatter) {
             var format = GetBinaryFormat(body.NodeType);
             return string.Format(format.FormatValues, actual, expected);
         }
@@ -61,6 +61,10 @@ namespace Cone
                 case ExpressionType.NotEqual: return BinaryExpect.NotEqualFormat;
             }
             throw new NotSupportedException();
+        }
+
+        public override bool Check() {
+            return base.Check() ^ body.NodeType == ExpressionType.NotEqual;
         }
 
         static string GetBinaryOp(ExpressionType nodeType) {

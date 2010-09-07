@@ -49,6 +49,7 @@
     <Compile Include="IConeTest.cs" />
     <Compile Include="ITestName.cs" />
     <Compile Include="ITestResult.cs" />
+    <Compile Include="NotExpect.cs" />
     <Compile Include="ParameterFormatter.cs" />
     <Compile Include="PendingAttribute.cs" />
     <Compile Include="RowAttribute.cs" />
