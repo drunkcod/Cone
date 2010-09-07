@@ -56,12 +56,8 @@ namespace Cone
             this.format = format;
         }
 
-        override public string Format(ExpressionFormatter formatter) {
+        string Format(ExpressionFormatter formatter) {
             return formatter.FormatBinary(body, GetBinaryOp) + "\n" + FormatValues();
-        }
-
-        override public string Format(params string[] args) {
-            return string.Format(format.FormatExpression, args) + "\n" + FormatValues();
         }
 
         string FormatValues() {
