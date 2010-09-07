@@ -36,24 +36,14 @@ namespace Cone
         public static readonly BinaryExpectFormat NotEqualFormat = new BinaryExpectFormat("  {0} was equal to {1}", "  Didn't expect {1}");
 
         static readonly ExpectNull ExpectNull = new ExpectNull();
-        static readonly ConstructorInfo binaryExpector = typeof(BinaryExpect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object), typeof(BinaryExpectFormat), typeof(bool) });
+        static readonly ConstructorInfo BinaryExpectCtor = typeof(BinaryExpect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object), typeof(bool) });
 
         public static Expect From(BinaryExpression body, bool outcome) {
-            return Expression.Lambda<Func<Expect>>(
-                Expression.New(binaryExpector,
-                    Expression.Constant(body),
-                    Expression.TypeAs(body.Left, typeof(object)),
-                    Expression.TypeAs(body.Right, typeof(object)),
-                    Expression.Constant(BinaryExpect.GetBinaryFormat(body.NodeType)), 
-                    Expression.Constant(outcome)))
-                .Compile()();
+            return Expect.From(BinaryExpectCtor, body, body.Left, body.Right, outcome);
         }
 
-        readonly BinaryExpectFormat format;
-
-        public BinaryExpect(Expression body, object actual, object expected, BinaryExpectFormat format, bool outcome)
+        public BinaryExpect(Expression body, object actual, object expected, bool outcome)
             : base(body, actual, expected ?? ExpectNull, outcome) {
-            this.format = format;
         }
 
         protected override string Format(ExpressionFormatter formatter) {
@@ -61,6 +51,7 @@ namespace Cone
         }
 
         string FormatValues() {
+            var format = GetBinaryFormat(body.NodeType);
             return string.Format(format.FormatValues, actual, expected);
         }
 

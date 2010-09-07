@@ -34,19 +34,24 @@ namespace Cone
         public const string FormatExpression = "  {0} failed";
 
         static readonly ConstructorInfo ExpectCtor = typeof(Expect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object), typeof(bool) });
-        static readonly Expression BoxedTrue = Expression.TypeAs(Expression.Constant(true), typeof(object));
 
         readonly bool outcome;
 
         public static Expect From(Expression body, bool outcome) {
+            return From(ExpectCtor, body, body, Expression.Constant(true), outcome);
+        }
+
+        internal    static Expect From(ConstructorInfo ctor, Expression body, Expression left, Expression right, bool outcome) {
             return Expression.Lambda<Func<Expect>>(
-                Expression.New(ExpectCtor,
+                Expression.New(ctor,
                         Expression.Constant(body),
-                        Expression.TypeAs(body, typeof(object)), 
-                        BoxedTrue,
+                        Box(left),
+                        Box(right),
                         Expression.Constant(outcome)))
                 .Compile()();
         }
+
+        static Expression Box(Expression expression) { return Expression.TypeAs(expression, typeof(object)); }
 
         public Expect(Expression body, object actual, object expected, bool outcome)
             : base(body, actual, expected) {
