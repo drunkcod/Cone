@@ -42,7 +42,7 @@ namespace Cone
 
         static object Check(IExpect expect) {
             if (!expect.Check())
-                ExpectationFailed(expect.FormatBody(Formatter) + "\n" + expect.FormatValues(Formatter));
+                ExpectationFailed(expect.FormatExpression(Formatter) + "\n" + expect.FormatMessage(Formatter));
             return expect.Actual;
         }
         

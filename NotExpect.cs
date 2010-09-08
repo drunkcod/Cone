@@ -15,11 +15,11 @@
             return !inner.Check();
         }
 
-        public string FormatBody(IExpressionFormatter formatter) {
-            return string.Format("!({0})", inner.FormatBody(formatter));
+        public string FormatExpression(IExpressionFormatter formatter) {
+            return string.Format("!({0})", inner.FormatExpression(formatter));
         }
 
-        public string FormatValues(IExpressionFormatter formatter) {
+        public string FormatMessage(IExpressionFormatter formatter) {
             return string.Empty;
         }
     }

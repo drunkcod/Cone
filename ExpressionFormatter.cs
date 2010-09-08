@@ -32,12 +32,11 @@ namespace Cone
                     var parameterFormat = "({0})";
                     if(method.IsSpecialName && IndexerGet == method.Name)
                         parameterFormat = "[{0}]";
-                    else 
-                        invocation = "." + method.Name;
-                    if (call.Object != null && call.Object.NodeType == ExpressionType.Constant) {
+                    else if (call.Object != null && call.Object.NodeType == ExpressionType.Constant) {
                         target = string.Empty;
                         invocation = method.Name;
-                    }
+                    } else
+                        invocation = "." + method.Name;
                     return target + invocation + FormatArgs(call.Arguments, firstArgumentOffset, parameterFormat);
                 case ExpressionType.Quote: return FormatUnary(expression);
                 case ExpressionType.Lambda:
@@ -56,13 +55,14 @@ namespace Cone
 
         string FormatCallTarget(MethodCallExpression call, out int firstArgument) {
             firstArgument = 0;
-            if (call.Object == null) {
+            var target = call.Object;
+            if (target == null) {
                 if(call.Method.GetCustomAttributes(typeof(System.Runtime.CompilerServices.ExtensionAttribute), false).Length == 0)
                     return call.Method.DeclaringType.Name;
                 firstArgument = 1;
                 return Format(call.Arguments[0]);
             }
-            return Format(call.Object);
+            return Format(target);
         }
 
         string FormatConstant(ConstantExpression constant) {
