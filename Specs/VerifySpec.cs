@@ -108,10 +108,10 @@ namespace Cone
             public void passes_when_Exception_types_match() {
                 Verify.Exception<NotImplementedException>(() => NotImplemented());
             }
-
-            public void rasises_expectation_failed_when_exception_missing() {
+           
+            public void raises_expectation_failed_when_exception_missing() {
                 try {
-                    Verify.Exception<NotSupportedException>(() => Nothing());
+                    Verify.Exception<Exception>(() => Nothing());
                     throw new NotSupportedException();
                 } catch (Exception e) {
                     Verify.That(() => e.GetType() == ExpectedExcpetionType());
