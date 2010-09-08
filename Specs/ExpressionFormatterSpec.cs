@@ -25,26 +25,26 @@ namespace Cone
             Verify.That(() => FormatBody(expression) == result);
         }
 
-        public void ArrayLength() {
+        public void array_length() {
             var array = new int[0];
             VerifyFormat(() => array.Length, "array.Length");
         }
 
-        public void Call() {
+        public void member_call() {
             var obj = this;
             VerifyFormat(() => obj.GetType(), "obj.GetType()");
         }
 
-        public void Call_static() {
+        public void static_method_call() {
             VerifyFormat(() => DateTime.Parse("2010-07-13"), "DateTime.Parse(\"2010-07-13\")");
         }
 
-        public void Call_extension_method() {
+        public void extension_method() {
             var obj = this;
             VerifyFormat(() => obj.IsOfType(typeof(object)), "obj.IsOfType(typeof(Object))");
         }
 
-        public void Equal() {
+        public void equality() {
             var a = 42;
             VerifyFormat(() => a == 42, "a == 42");
         }
@@ -54,12 +54,12 @@ namespace Cone
             VerifyFormat(() => a + b == 2, "a + b == 2");
         }
 
-        public void Property() {
+        public void property_access() {
             var date = DateTime.Now;
             VerifyFormat(() => date.Year, "date.Year");
         }
 
-        public void Property_static() {
+        public void static_property_access() {
             VerifyFormat(() => DateTime.Now, "DateTime.Now");
         }
 
@@ -68,15 +68,15 @@ namespace Cone
             VerifyFormat<Func<int>>(() => () => obj.GetHashCode(), "() => obj.GetHashCode()");
         }
 
-        public void Lambda() {
+        public void lambda() {
             VerifyFormat<Func<int>>(() => () => 1, "() => 1");
         }
 
-        public void Lambda_with_parameters() {
+        public void lambda_with_parameters() {
             VerifyFormat<Func<int,int,int>>(() => (x, y) => 1, "(x, y) => 1");
         }
 
-        public void NotEqual() {
+        public void inequality() {
             var a = 42;
             VerifyFormat(() => a != 42, "a != 42");
         }
@@ -86,7 +86,7 @@ namespace Cone
             VerifyFormat(() => status == TestStatus.Success, "status == TestStatus.Success");
         }
 
-        public void Item_indexer_properties() {
+        public void indexer_property() {
             var stuff = new Dictionary<string, int>();
             VerifyFormat(() => stuff["Answer"], "stuff[\"Answer\"]");
         }
