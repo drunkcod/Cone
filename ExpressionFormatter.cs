@@ -43,6 +43,9 @@ namespace Cone
                     var lambda = (LambdaExpression)expression;
                     return FormatArgs(lambda.Parameters) + " => " + Format(lambda.Body);
                 case ExpressionType.Constant: return FormatConstant((ConstantExpression)expression);
+                case ExpressionType.Convert:
+                    var convert = (UnaryExpression)expression;
+                    return string.Format("({0}){1}", FormatType(convert.Type), Format(convert.Operand));
 
                 default:
                     var binaryOp = GetBinaryOp(expression.NodeType);
@@ -50,6 +53,13 @@ namespace Cone
                         return expression.ToString();
                     else
                         return FormatBinary(expression, binaryOp);
+            }
+        }
+
+        string FormatType(Type type) {
+            switch(type.FullName) {
+                case "System.Object": return "object";
+                default: return type.Name;
             }
         }
 

@@ -32,8 +32,8 @@ namespace Cone
             return false;
         }
 
-        public static void That(Expression<Func<bool>> expr) {
-            Check(From(expr.Body));
+        public static object That(Expression<Func<bool>> expr) {
+            return Check(From(expr.Body));
         }
 
         public static TException Exception<TException>(Expression<Action> expr) where TException : Exception {

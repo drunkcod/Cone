@@ -67,6 +67,7 @@ namespace Cone
         public class BinaryExpressions
         {
             int a = 1, b = 2;
+            object obj = 2;
 
             public void equal() {
                 Verify.That(() => a == a);
@@ -90,6 +91,10 @@ namespace Cone
 
             public void greater_or_equal() {
                 Verify.That(() => b >= a);
+            }
+
+            public void return_value_is_actual() {
+                Verify.That(() => Object.ReferenceEquals(Verify.That(() => obj == (object)b), obj));
             }
         }
 
