@@ -93,7 +93,7 @@ namespace Cone
                 Verify.That(() => b >= a);
             }
 
-            public void return_value_is_actual() {
+            public void return_value_is_same_as_actual() {
                 Verify.That(() => Object.ReferenceEquals(Verify.That(() => obj == (object)b), obj));
             }
         }

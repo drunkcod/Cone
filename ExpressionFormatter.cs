@@ -59,6 +59,9 @@ namespace Cone
         string FormatType(Type type) {
             switch(type.FullName) {
                 case "System.Object": return "object";
+                case "System.String": return "string";
+                case "System.Boolean": return "bool";
+                case "System.Int32": return "int";
                 default: return type.Name;
             }
         }

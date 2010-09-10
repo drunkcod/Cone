@@ -91,10 +91,18 @@ namespace Cone
             VerifyFormat(() => stuff["Answer"], "stuff[\"Answer\"]");
         }
 
-        public void cast() {
-            VerifyFormat(() => (object)A, "(object)A");
-        }
+        public void cast_object() { VerifyFormat(() => (object)A, "(object)A"); }
 
+        public void cast_string() { VerifyFormat(() => (string)Obj, "(string)Obj"); }
+
+        public void cast_Boolean() { VerifyFormat(() => (bool)Obj, "(bool)Obj"); }
+
+        public void cast_Int32() { VerifyFormat(() => (int)Obj, "(int)Obj"); }
+
+        public void cast_any() { VerifyFormat(() => (Expression)Obj, "(Expression)Obj"); }
+
+
+        object Obj = new object();
         int A = 42, B = 7;
         public void fixture_member() {
             VerifyFormat(() => FormatBody(() => A), "FormatBody(() => A)");
