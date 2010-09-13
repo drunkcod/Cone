@@ -32,8 +32,6 @@ namespace Cone
 
     public class Expect : ExpectBase
     {
-        public const string FormatExpression = "  {0} failed";
-
         static readonly ConstructorInfo ExpectCtor = typeof(Expect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object) });
 
         public static Expect From(Expression body) {

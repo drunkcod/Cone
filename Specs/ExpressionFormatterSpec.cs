@@ -20,7 +20,6 @@ namespace Cone
 
         string FormatBody<T>(Expression<Func<T>> expression) { return Formatter.Format(expression.Body); }
 
-
         void VerifyFormat<T>(Expression<Func<T>> expression, string result) {
             Verify.That(() => FormatBody(expression) == result);
         }
@@ -100,7 +99,6 @@ namespace Cone
         public void cast_Int32() { VerifyFormat(() => (int)Obj, "(int)Obj"); }
 
         public void cast_any() { VerifyFormat(() => (Expression)Obj, "(Expression)Obj"); }
-
 
         object Obj = new object();
         int A = 42, B = 7;
