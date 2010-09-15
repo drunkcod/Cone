@@ -2,11 +2,8 @@
 
 namespace Cone
 {
-    public interface IRowTestData
+    public interface IRowTestData : IRowData
     {
-        string Name { get; }
         MethodInfo Method { get; }
-        object[] Parameters { get; }
-        bool IsPending { get; }
     }
 }

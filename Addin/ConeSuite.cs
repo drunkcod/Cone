@@ -99,21 +99,18 @@ namespace Cone.Addin
             if(rowSources == null || rowSources.Length == 0)
                 return;
             var fixture = CreateFixture();
-            var rows = new Dictionary<MethodInfo, List<RowAttribute>>();
+            var rows = new Dictionary<MethodInfo, List<IRowData>>();
             foreach(var item in rowSources) {
                 foreach(IRowTestData row in (IEnumerable<IRowTestData>)item.Invoke(fixture, null)) {
-                    List<RowAttribute> parameters;
+                    List<IRowData> parameters;
                     if(!rows.TryGetValue(row.Method, out parameters))
-                        rows[row.Method] = parameters = new List<RowAttribute>();
-                    var newRow = new RowAttribute(row.Parameters);
-                    newRow.Name = row.Name; 
-                    newRow.IsPending = row.IsPending;
-                    parameters.Add(newRow);                 
+                        rows[row.Method] = parameters = new List<IRowData>();
+                    parameters.Add(row);                 
                 }
             }
             IConeSuite suite = this;
             foreach(var item in rows)
-                suite.AddRowTest(item.Key.Name, item.Key, item.Value.ToArray());
+                suite.AddRowTest(item.Key.Name, item.Key, item.Value);
         }
 
         void AddCategories(ContextAttribute context) {
@@ -126,7 +123,7 @@ namespace Cone.Addin
             AddMethod(method, new ConeTestMethod(method, this, testExecutor, name)); 
         }
         
-        void IConeSuite.AddRowTest(string name, MethodInfo method, RowAttribute[] rows) { 
+        void IConeSuite.AddRowTest(string name, MethodInfo method, IEnumerable<IRowData> rows) { 
             AddMethod(method, new ConeRowSuite(method, rows, this, testExecutor, name, testNamer)); 
         }
 

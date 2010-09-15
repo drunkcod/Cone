@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using NUnit.Core;
+using System.Collections.Generic;
 
 namespace Cone.Addin
 {
@@ -23,14 +24,16 @@ namespace Cone.Addin
 
         readonly ArrayList tests;
 
-        public ConeRowSuite(MethodInfo method, RowAttribute[] rows, Test suite, TestExecutor testExecutor, string name, ConeTestNamer testNamer)
+        public ConeRowSuite(MethodInfo method, IEnumerable<IRowData> rows, Test suite, TestExecutor testExecutor, string name, ConeTestNamer testNamer)
             : base(method, suite, testExecutor, name) {
-            this.tests = new ArrayList(rows.Length);
-            for (int i = 0; i != rows.Length; ++i) {
-                var parameters = rows[i].Parameters;
-                var rowName = rows[i].Name ?? testNamer.NameFor(method, parameters);
+            
+            this.tests = new ArrayList();
+
+            foreach (var row in rows) {
+                var parameters = row.Parameters;
+                var rowName = row.Name ?? testNamer.NameFor(method, parameters);
                 var rowTest = new ConeRowTest(parameters, this, rowName);
-                if (rows[i].IsPending)
+                if (row.IsPending)
                     rowTest.RunState = RunState.Ignored;
                 tests.Add(rowTest);
             }

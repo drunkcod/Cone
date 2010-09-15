@@ -3,11 +3,14 @@
 namespace Cone
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public class RowAttribute : Attribute
+    public class RowAttribute : Attribute, IRowData
     {
-        public readonly object[] Parameters;
-        public bool IsPending;
-        public string Name;
-        public RowAttribute(params object[] args) { Parameters = args; }
+        readonly object[] args;
+
+        public RowAttribute(params object[] args) { this.args = args; }
+
+        public string Name { get; set; }
+        public object[] Parameters { get { return args; } } 
+        public bool IsPending { get; set; }
     }
 }

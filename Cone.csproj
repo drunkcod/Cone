@@ -47,6 +47,7 @@
     <Compile Include="IConeSuite.cs" />
     <Compile Include="IConeFixture.cs" />
     <Compile Include="IConeTest.cs" />
+    <Compile Include="IRowData.cs" />
     <Compile Include="ITestName.cs" />
     <Compile Include="ITestResult.cs" />
     <Compile Include="NotExpect.cs" />
