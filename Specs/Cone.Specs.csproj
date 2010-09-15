@@ -59,6 +59,7 @@
     <Compile Include="Addin\NUnitTestResultAdapterSpec.cs" />
     <Compile Include="BinaryExpectSpec.cs" />
     <Compile Include="ParameterFormatterSpec.cs" />
+    <Compile Include="RowBuilderSpec.cs" />
     <Compile Include="TestExecutorSpec.cs" />
     <Compile Include="ExpressionFormatterSpec.cs" />
     <Compile Include="VerifySpec.cs" />

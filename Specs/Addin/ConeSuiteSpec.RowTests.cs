@@ -1,10 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using NUnit.Core;
-using NUnit.Framework;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System;
-using System.Reflection;
 
 namespace Cone.Addin
 {
@@ -56,10 +52,10 @@ namespace Cone.Addin
             }
 
             [Context("static row fixture")]
-            public class StaticRowFixture : RowTestFixtureSpec<RowTestFixture> {}
+            public class StaticRowFixture : RowTestFixtureSpec<RowTestFixture> { }
 
             [Context("dynamic row fixture")]
-            public class DynamicRowFixture : RowTestFixtureSpec<DynamicRowTestFixture>{}
+            public class DynamicRowFixture : RowTestFixtureSpec<DynamicRowTestFixture> { }
 
             [Context("Before and After are triggered")]
             public class BeforeAndAfterRows

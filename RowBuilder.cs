@@ -53,6 +53,8 @@ namespace Cone
             return AddRow(pendingTest, row => row.SetPending(true));
         }
 
+        public IRowTestData this[int index] { get { return rows[index]; } }
+
         RowBuilder<T> AddRow(Expression<Action<T>> expression, Action<RowTestData> withRow) {
             var row = CreateRow((MethodCallExpression)expression.Body); 
             withRow(row);
@@ -70,7 +72,9 @@ namespace Cone
         }
 
         object Collect(Expression expression) {
-            return ((ConstantExpression)expression).Value;
+            if(expression.NodeType == ExpressionType.Constant)
+                return ((ConstantExpression)expression).Value;
+            return Expression.Lambda<Func<object>>(Expression.TypeAs(expression, typeof(object))).Compile()();
         }
 
         IEnumerator<IRowTestData> IEnumerable<IRowTestData>.GetEnumerator() { return rows.GetEnumerator(); }

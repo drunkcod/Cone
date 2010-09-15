@@ -48,11 +48,11 @@ namespace Cone
                     return string.Format("({0}){1}", FormatType(convert.Type), Format(convert.Operand));
 
                 default:
-                    var binaryOp = GetBinaryOp(expression.NodeType);
-                    if (string.IsNullOrEmpty(binaryOp))
+                    var binary = expression as BinaryExpression;
+                    if (binary == null)
                         return expression.ToString();
                     else
-                        return FormatBinary(expression, binaryOp);
+                        return FormatBinary(binary);
             }
         }
 
@@ -107,22 +107,20 @@ namespace Cone
 
         static string GetBinaryOp(ExpressionType nodeType) {
             switch (nodeType) {
-                case ExpressionType.Add: return "+";
-                case ExpressionType.Equal: return "==";
-                case ExpressionType.NotEqual: return "!=";
-                case ExpressionType.GreaterThan: return ">";
-                case ExpressionType.GreaterThanOrEqual: return ">=";
-                case ExpressionType.LessThan: return "<";
-                case ExpressionType.LessThanOrEqual: return "<=";
-                default: return string.Empty;
+                case ExpressionType.Add: return "{0} + {1}";
+                case ExpressionType.Equal: return "{0} == {1}";
+                case ExpressionType.NotEqual: return "{0} != {1}";
+                case ExpressionType.GreaterThan: return "{0} > {1}";
+                case ExpressionType.GreaterThanOrEqual: return "{0} >= {1}";
+                case ExpressionType.LessThan: return "{0} < {1}";
+                case ExpressionType.LessThanOrEqual: return "{0} <= {1}";
+                case ExpressionType.ArrayIndex: return "{0}[{1}]";
+                default: throw new NotSupportedException("Unsupported BinaryExression type " + nodeType);
             }
         }
 
-        string FormatBinary(Expression expr, string op) {
-            var binary = (BinaryExpression)expr;
-            return FormatBinary(binary.Left, binary.Right, op);
-        }
-        string FormatBinary(Expression left, Expression right, string op) {
+        string FormatBinary(BinaryExpression binary) {
+            Expression left = binary.Left, right = binary.Right;
             if (left.NodeType == ExpressionType.Convert) {
                 var convert = (UnaryExpression)left;
                 left = convert.Operand;
@@ -131,7 +129,7 @@ namespace Cone
                     right = Expression.Constant(newValue);
                 }
             }
-            return string.Format("{0} {1} {2}", Format(left), op, Format(right));
+            return string.Format(GetBinaryOp(binary.NodeType), Format(left), Format(right));
         }
 
         string FormatUnary(Expression expr) {

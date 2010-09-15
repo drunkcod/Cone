@@ -100,6 +100,11 @@ namespace Cone
 
         public void cast_any() { VerifyFormat(() => (Expression)Obj, "(Expression)Obj"); }
 
+        public void array_index() {
+            var rows = new[]{ 42 }; 
+            VerifyFormat(() => rows[0], "rows[0]");
+        }
+
         object Obj = new object();
         int A = 42, B = 7;
         public void fixture_member() {
