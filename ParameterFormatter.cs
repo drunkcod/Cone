@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Cone
 {
-    public class ParameterFormatter
+    public class ParameterFormatter : IFormatter<object>
     {
         public string Format(object obj) {
             if (obj == null)

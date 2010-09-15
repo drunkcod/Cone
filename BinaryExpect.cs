@@ -35,9 +35,9 @@ namespace Cone
             : base(body, actual, expected ?? ExpectNull) {
         }
 
-        public override string FormatMessage(IExpressionFormatter formatter) {
+        public override string FormatMessage(IFormatter<object> formatter) {
             var format = GetBinaryFormat(body.NodeType);
-            return string.Format(format, actual, expected);
+            return string.Format(format, formatter.Format(actual), formatter.Format(expected));
         }
 
         internal static string GetBinaryFormat(ExpressionType nodeType) {

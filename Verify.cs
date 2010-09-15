@@ -6,7 +6,8 @@ namespace Cone
     public class Verify
     {
         public static Action<string> ExpectationFailed = message => { throw new ExpectationFailedException(message); };
-        static readonly ExpressionFormatter Formatter = new ExpressionFormatter();
+        static readonly ExpressionFormatter ExpressionFormatter = new ExpressionFormatter();
+        static readonly ParameterFormatter ParameterFormatter = new ParameterFormatter();
 
         static IExpect From(Expression body) {
             if(body.NodeType == ExpressionType.Not)
@@ -42,7 +43,7 @@ namespace Cone
 
         static object Check(IExpect expect) {
             if (!expect.Check())
-                ExpectationFailed(expect.FormatExpression(Formatter) + "\n" + expect.FormatMessage(Formatter));
+                ExpectationFailed(expect.FormatExpression(ExpressionFormatter) + "\n" + expect.FormatMessage(ParameterFormatter));
             return expect.Actual;
         }
         

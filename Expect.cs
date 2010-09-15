@@ -8,8 +8,8 @@ namespace Cone
     {
         object Actual { get; }
         bool Check();
-        string FormatExpression(IExpressionFormatter formatter);
-        string FormatMessage(IExpressionFormatter formatter);
+        string FormatExpression(IFormatter<Expression> formatter);
+        string FormatMessage(IFormatter<object> formatter);
     }
 
     public abstract class ExpectBase : IExpect
@@ -25,8 +25,8 @@ namespace Cone
         }
 
         public object Actual { get { return actual; } }
-        public virtual string FormatExpression(IExpressionFormatter formatter){ return formatter.Format(body); }
-        public virtual string FormatMessage(IExpressionFormatter formatter){ return string.Empty; }
+        public virtual string FormatExpression(IFormatter<Expression> formatter){ return formatter.Format(body); }
+        public virtual string FormatMessage(IFormatter<object> formatter){ return string.Empty; }
         public abstract bool Check();
     }
 

@@ -1,4 +1,5 @@
-﻿namespace Cone
+﻿using System.Linq.Expressions;
+namespace Cone
 {
     class NotExpect : IExpect
     {
@@ -15,11 +16,11 @@
             return !inner.Check();
         }
 
-        public string FormatExpression(IExpressionFormatter formatter) {
+        public string FormatExpression(IFormatter<Expression> formatter) {
             return string.Format("!({0})", inner.FormatExpression(formatter));
         }
 
-        public string FormatMessage(IExpressionFormatter formatter) {
+        public string FormatMessage(IFormatter<object> formatter) {
             return string.Empty;
         }
     }
