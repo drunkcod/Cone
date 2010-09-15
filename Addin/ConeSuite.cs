@@ -40,11 +40,16 @@ namespace Cone.Addin
 
         public void Before() {
             if (Fixture == null) {
-                var ctor = FixtureType.GetConstructor(Type.EmptyTypes);
-                if(ctor != null)
-                    Fixture = ctor.Invoke(null);
+                Fixture = CreateFixture();
             }
             FixtureInvokeAll(setUpMethods, null);
+        }
+
+        object CreateFixture() { 
+            var ctor = FixtureType.GetConstructor(Type.EmptyTypes);
+            if(ctor == null)
+                return null;
+            return ctor.Invoke(null);
         }
 
         void FixtureInvokeAll(MethodInfo[] methods, object[] parameters) {
@@ -86,6 +91,29 @@ namespace Cone.Addin
             tearDownMethods = setup.AfterEach;
             afterEachWithResult = setup.AfterEachWithResult;
             fixtureTearDownMethods = setup.AfterAll;
+
+            CreateDynamicRowTests(setup.RowSource);
+        }
+
+        void CreateDynamicRowTests(MethodInfo[] rowSources) {
+            if(rowSources == null || rowSources.Length == 0)
+                return;
+            var fixture = CreateFixture();
+            var rows = new Dictionary<MethodInfo, List<RowAttribute>>();
+            foreach(var item in rowSources) {
+                foreach(IRowTestData row in (IEnumerable<IRowTestData>)item.Invoke(fixture, null)) {
+                    List<RowAttribute> parameters;
+                    if(!rows.TryGetValue(row.Method, out parameters))
+                        rows[row.Method] = parameters = new List<RowAttribute>();
+                    var newRow = new RowAttribute(row.Parameters);
+                    newRow.Name = row.Name; 
+                    newRow.IsPending = row.IsPending;
+                    parameters.Add(newRow);                 
+                }
+            }
+            IConeSuite suite = this;
+            foreach(var item in rows)
+                suite.AddRowTest(item.Key.Name, item.Key, item.Value.ToArray());
         }
 
         void AddCategories(ContextAttribute context) {

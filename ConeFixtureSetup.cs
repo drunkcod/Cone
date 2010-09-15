@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Collections.Generic;
 
 namespace Cone
 {
@@ -10,6 +11,7 @@ namespace Cone
         public MethodInfo[] AfterEach;
         public MethodInfo[] AfterAll;
         public MethodInfo[] AfterEachWithResult;
+        public MethodInfo[] RowSource;
     }
 
     public class ConeFixtureSetup
@@ -23,12 +25,13 @@ namespace Cone
             BeforeEach = 1 << 3,
             AfterEach = 1 << 4,
             AfterAll = 1 << 5,
-            AfterEachWithResult = 1 << 6
+            AfterEachWithResult = 1 << 6,
+            RowSource = 1 << 7
         }
 
         MethodInfo[] methods;
         MethodMarks[] marks;
-        int beforeAllCount, beforeEachCount, afterEachCount, afterEachWithResultCount, afterAllCount;
+        int beforeAllCount, beforeEachCount, afterEachCount, afterEachWithResultCount, afterAllCount, rowSourceCount;
         readonly IConeSuite suite;
         readonly ConeTestNamer testNamer;
 
@@ -53,7 +56,8 @@ namespace Cone
             x.AfterEach = new MethodInfo[afterEachCount];
             x.AfterEachWithResult = new MethodInfo[afterEachWithResultCount];
             x.AfterAll = new MethodInfo[afterAllCount];
-
+            x.RowSource = new MethodInfo[rowSourceCount];
+            
             ResetCounts();
 
             for (int i = 0; i != methods.Length; ++i) {
@@ -69,6 +73,8 @@ namespace Cone
                     x.AfterEachWithResult[afterEachWithResultCount++] = method;
                 if (MarkedAs(MethodMarks.AfterAll, i))
                     x.AfterAll[afterAllCount++] = method;
+                if (MarkedAs(MethodMarks.RowSource, i))
+                    x.RowSource[rowSourceCount++] = method;
             }
 
             return x;
@@ -106,12 +112,15 @@ namespace Cone
             }
             if (marks != MethodMarks.None)
                 return marks;
+            if(method.ReturnType != typeof(void))
+                return ClassifyRowSource(method);
+
             AddTestMethod(method);
             return MethodMarks.Test;
         }
 
         void ResetCounts() {
-            beforeAllCount = beforeEachCount = afterEachCount = afterEachWithResultCount = afterAllCount = 0;
+            beforeAllCount = beforeEachCount = afterEachCount = afterEachWithResultCount = afterAllCount = rowSourceCount = 0;
         }
 
         MethodMarks ClassifyWithArguments(MethodInfo method, ParameterInfo[] parms) {
@@ -122,6 +131,13 @@ namespace Cone
                 ++afterEachWithResultCount;
                 return MethodMarks.AfterEachWithResult;
             } else return MethodMarks.None;
+        }
+
+        MethodMarks ClassifyRowSource(MethodInfo method){
+            if(!typeof(IEnumerable<IRowTestData>).IsAssignableFrom(method.ReturnType))
+                return MethodMarks.None;
+            ++rowSourceCount;
+            return MethodMarks.RowSource;
         }
 
         bool MarkedAs(MethodMarks mark, int index) {
