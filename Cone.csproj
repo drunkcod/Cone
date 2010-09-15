@@ -55,6 +55,7 @@
     <Compile Include="PendingAttribute.cs" />
     <Compile Include="RowAttribute.cs" />
     <Compile Include="IRowTestData.cs" />
+    <Compile Include="RowBuilder.cs" />
     <Compile Include="TestExecutor.cs" />
     <Compile Include="TypeExtensions.cs" />
     <Compile Include="Verify.cs" />
