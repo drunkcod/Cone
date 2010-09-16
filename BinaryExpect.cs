@@ -21,8 +21,8 @@ namespace Cone
 
     public class BinaryExpect : Expect
     {
-        public const string EqualFormat = "Expected: {1}\n  But was: {0}";
-        public const string NotEqualFormat = "Didn't expect both to be {1}";
+        public const string EqualFormat = "  Expected: {1}\n  But was:  {0}";
+        public const string NotEqualFormat = "  Didn't expect both to be {1}";
 
         static readonly ExpectNull ExpectNull = new ExpectNull();
         static readonly ConstructorInfo BinaryExpectCtor = typeof(BinaryExpect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object) });

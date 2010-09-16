@@ -11,6 +11,7 @@ namespace Cone.Addin
         readonly Type type;
         readonly TestExecutor testExecutor;
         readonly ConeTestNamer testNamer = new ConeTestNamer();
+        readonly Dictionary<string,ConeRowSuite> rowSuites = new Dictionary<string,ConeRowSuite>();
         MethodInfo[] afterEachWithResult;
 
         public static TestSuite For(Type type) {
@@ -123,8 +124,15 @@ namespace Cone.Addin
             AddMethod(method, new ConeTestMethod(method, this, testExecutor, name)); 
         }
         
-        void IConeSuite.AddRowTest(string name, MethodInfo method, IEnumerable<IRowData> rows) { 
-            AddMethod(method, new ConeRowSuite(method, rows, this, testExecutor, name, testNamer)); 
+        void IConeSuite.AddRowTest(string name, MethodInfo method, IEnumerable<IRowData> rows) {
+            ConeRowSuite suite;
+            var key = method.Name + "." + name;
+            if(!rowSuites.TryGetValue(key, out suite)) {
+                rowSuites[key] = suite = new ConeRowSuite(method, this, testExecutor, name);
+                AddMethod(method, suite); 
+            }
+            suite.Add(rows, testNamer);
+
         }
 
         void AddMethod(MethodInfo method, Test test) {
