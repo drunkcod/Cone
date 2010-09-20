@@ -4,6 +4,9 @@ open System.IO
 open System.Reflection
 open Ionic.Zip
 
+let clean what =
+    what |> Seq.map (fun p -> try Directory.Delete(p, true); true with | :? DirectoryNotFoundException -> true | _ -> false) |> Seq.reduce (&&)
+
 let build args =
   let fxPath = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()  
   let msBuild4 = Path.Combine(fxPath, @"..\v4.0.30319\MSBuild.exe")
@@ -29,10 +32,8 @@ let package() =
     zip.Save(@"Bin\Cone-" + version + ".zip")
     true
 
-Directory.Delete("Build", true)
-Directory.Delete("Bin", true)
-
-build ""
+clean ["Build";"Bin"]
+&& build ""
 && build "/p:NUnitVersion=2.5.5.10112 /t:Cone_Addin:Rebuild"
 && build "/p:NUnitVersion=2.5.7.10213 /t:Cone_Addin:Rebuild"
 && package()
