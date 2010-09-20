@@ -1,8 +1,8 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using NUnit.Core;
-using System.Collections.Generic;
 
 namespace Cone.Addin
 {
@@ -22,13 +22,11 @@ namespace Cone.Addin
             MethodInfo Method { get { return ((ConeRowSuite)Parent).Method; } }
         }
 
-        readonly ArrayList tests;
+        readonly List<Test> tests = new List<Test>();
 
         public ConeRowSuite(MethodInfo method, Test suite, TestExecutor testExecutor, string name)
-            : base(method, suite, testExecutor, name) {
-            
-            this.tests = new ArrayList();
-        }
+            : base(method, suite, testExecutor, name) 
+        { }
 
         public void Add(IEnumerable<IRowData> rows, ConeTestNamer testNamer) {
             foreach (var row in rows) { 
@@ -46,8 +44,7 @@ namespace Cone.Addin
             var time = Stopwatch.StartNew();
             listener.SuiteStarted(TestName);
             try {
-                foreach (Test item in Tests)
-                    testResult.AddResult(item.Run(listener, filter));
+                tests.ForEach(item  => testResult.AddResult(item.Run(listener, filter)));
             } finally {
                 testResult.Time = time.Elapsed.TotalSeconds;
                 listener.SuiteFinished(testResult);

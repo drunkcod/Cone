@@ -125,14 +125,17 @@ namespace Cone.Addin
         }
         
         void IConeSuite.AddRowTest(string name, MethodInfo method, IEnumerable<IRowData> rows) {
+            GetSuite(method, name).Add(rows, testNamer);
+        }
+
+        ConeRowSuite GetSuite(MethodInfo method, string name) {
             ConeRowSuite suite;
             var key = method.Name + "." + name;
             if(!rowSuites.TryGetValue(key, out suite)) {
                 rowSuites[key] = suite = new ConeRowSuite(method, this, testExecutor, name);
                 AddMethod(method, suite); 
             }
-            suite.Add(rows, testNamer);
-
+            return suite;
         }
 
         void AddMethod(MethodInfo method, Test test) {
