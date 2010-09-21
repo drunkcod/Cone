@@ -71,6 +71,10 @@ namespace Cone
             VerifyFormat<Func<int>>(() => () => 1, "() => 1");
         }
 
+        public void lambda_with_singe_parameter() {
+            VerifyFormat<Func<int, int>>(() => x => 1, "x => 1");
+        }
+
         public void lambda_with_parameters() {
             VerifyFormat<Func<int,int,int>>(() => (x, y) => 1, "(x, y) => 1");
         }

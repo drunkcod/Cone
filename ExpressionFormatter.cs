@@ -39,9 +39,7 @@ namespace Cone
                         invocation = "." + method.Name;
                     return target + invocation + FormatArgs(call.Arguments, firstArgumentOffset, parameterFormat);
                 case ExpressionType.Quote: return FormatUnary(expression);
-                case ExpressionType.Lambda:
-                    var lambda = (LambdaExpression)expression;
-                    return FormatArgs(lambda.Parameters) + " => " + Format(lambda.Body);
+                case ExpressionType.Lambda: return FormatLambda((LambdaExpression)expression);
                 case ExpressionType.Constant: return FormatConstant((ConstantExpression)expression);
                 case ExpressionType.Convert:
                     var convert = (UnaryExpression)expression;
@@ -85,6 +83,15 @@ namespace Cone
                 return constant.ToString();
             var type = (Type)constant.Value;
             return "typeof(" + type.Name + ")";
+        }
+
+        string FormatLambda(LambdaExpression lambda) {
+            var parameters = lambda.Parameters;
+            return string.Format("{0} => {1}",
+                    parameters.Count == 1 ?
+                        Format(parameters[0]) :
+                        FormatArgs(parameters),
+                    Format(lambda.Body));
         }
 
         string FormatArgs(IList<ParameterExpression> args) {
