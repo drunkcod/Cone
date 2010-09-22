@@ -29,6 +29,7 @@ namespace Cone
                 case ExpressionType.LessThan: return true;
                 case ExpressionType.LessThanOrEqual: return true;
                 case ExpressionType.MemberAccess: return true;
+                case ExpressionType.TypeIs: return true;
             }
             return false;
         }

@@ -44,7 +44,9 @@ namespace Cone
                 case ExpressionType.Convert:
                     var convert = (UnaryExpression)expression;
                     return string.Format("({0}){1}", FormatType(convert.Type), Format(convert.Operand));
-
+                case ExpressionType.TypeIs:
+                    var typeIs = (TypeBinaryExpression)expression;
+                    return string.Format("{0} is {1}", Format(typeIs.Expression), FormatType(typeIs.TypeOperand));
                 default:
                     var binary = expression as BinaryExpression;
                     if (binary == null)

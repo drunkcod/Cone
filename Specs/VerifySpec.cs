@@ -53,6 +53,11 @@ namespace Cone
             Verify.That(() => !(TheAnswer == 7));
         }
 
+        public void type_test() {
+
+            Verify.That(() => TheAnswer is Object);
+        }
+
         public class PossiblyGreen
         {
             public bool IsGreen { get { return true; } }

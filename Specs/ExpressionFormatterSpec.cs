@@ -58,6 +58,11 @@ namespace Cone
             VerifyFormat(() => date.Year, "date.Year");
         }
 
+        public void type_test()
+        {
+            VerifyFormat(() => 1 is Object, "1 is object");
+        }
+
         public void static_property_access() {
             VerifyFormat(() => DateTime.Now, "DateTime.Now");
         }
