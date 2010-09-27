@@ -63,7 +63,6 @@ namespace Cone.Addin
                 }
             }
 
-
             IEnumerable<ITest> Tests(ITest test) {
                 yield return test;
                 if(test.IsSuite) {
