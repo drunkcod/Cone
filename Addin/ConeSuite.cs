@@ -41,12 +41,12 @@ namespace Cone.Addin
 
         public void Before() {
             if (Fixture == null) {
-                Fixture = CreateFixture();
+                Fixture = NewFixture();
             }
             FixtureInvokeAll(setUpMethods, null);
         }
 
-        object CreateFixture() { 
+        object NewFixture() { 
             var ctor = FixtureType.GetConstructor(Type.EmptyTypes);
             if(ctor == null)
                 return null;
@@ -99,7 +99,7 @@ namespace Cone.Addin
         void CreateDynamicRowTests(MethodInfo[] rowSources) {
             if(rowSources == null || rowSources.Length == 0)
                 return;
-            var fixture = CreateFixture();
+            var fixture = NewFixture();
             var rows = new Dictionary<MethodInfo, List<IRowData>>();
             foreach(var item in rowSources) {
                 foreach(IRowTestData row in (IEnumerable<IRowTestData>)item.Invoke(fixture, null)) {

@@ -5,7 +5,7 @@ using System;
 
 namespace Cone.Addin
 {
-    [Describe(typeof(RowTestFixture))]
+   [Describe(typeof(RowTestFixture))]
     public class RowTestFixture
     {
         [Row(1, 1, 2)]
@@ -50,30 +50,22 @@ namespace Cone.Addin
                 public void create_test_per_input_row() { Verify.That(() => Suite.TestCount == 3); }            
 
                 public void rows_named_by_their_arguments() {
-                    var testNames = Suite.Tests.Cast<ITest>().SelectMany(x => x.Tests.Cast<ITest>()).Select(x => x.TestName.Name);
+                    var testNames = Suite.AllTests().Select(x => x.TestName.Name);
 
                     Verify.That(() => testNames.Contains("Add(1, 1, 2)"));
                     Verify.That(() => testNames.Contains("Add(4, 2, 42)"));
                 }
 
                 public void can_use_custom_name() {
-                    var testNames = Suite.Tests.Cast<ITest>().SelectMany(x => x.Tests.Cast<ITest>()).Select(x => x.TestName.Name);
+                    var testNames = Suite.AllTests().Select(x => x.TestName.Name);
 
                     Verify.That(() => testNames.Contains("One + One is Two"));                
                 }
             }
 
-            IEnumerable<ITest> Tests(ITest test) {
-                yield return test;
-                var children = test.Tests;
-                if(children != null)
-                    foreach(var child in children.Cast<ITest>().SelectMany(x => Tests(x)))
-                        yield return child;
-            }
-
             public void format_of_row_test_methods_should_equal_normal_test_methods() {
                 var suite = ConeSuite.For(typeof(RowTestWithDescriptiveName));
-                var testNames = suite.Tests.Cast<ITest>().SelectMany(x => Tests(x)).Select(x => x.TestName.Name);
+                var testNames = suite.AllTests().Select(x => x.TestName.Name);
                 Verify.That(() => testNames.Contains("when adding numbers"));
             }
 
