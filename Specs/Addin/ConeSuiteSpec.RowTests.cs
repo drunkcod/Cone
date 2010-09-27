@@ -65,17 +65,15 @@ namespace Cone.Addin
 
             IEnumerable<ITest> Tests(ITest test) {
                 yield return test;
-                if(test.IsSuite) {
-                    foreach(var child in test.Tests.Cast<ITest>().SelectMany(x => Tests(x)))
+                var children = test.Tests;
+                if(children != null)
+                    foreach(var child in children.Cast<ITest>().SelectMany(x => Tests(x)))
                         yield return child;
-                }
             }
 
             public void format_of_row_test_methods_should_equal_normal_test_methods() {
                 var suite = ConeSuite.For(typeof(RowTestWithDescriptiveName));
                 var testNames = suite.Tests.Cast<ITest>().SelectMany(x => Tests(x)).Select(x => x.TestName.Name);
-                foreach(var item in testNames)
-                    Console.WriteLine(item);
                 Verify.That(() => testNames.Contains("when adding numbers"));
             }
 
