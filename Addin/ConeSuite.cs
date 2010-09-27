@@ -111,7 +111,11 @@ namespace Cone.Addin
             }
             IConeSuite suite = this;
             foreach(var item in rows)
-                suite.AddRowTest(item.Key.Name, item.Key, item.Value);
+                suite.AddRowTest(NameFor(item.Key), item.Key, item.Value);
+        }
+
+        string NameFor(MethodInfo method) {
+            return testNamer.NameFor(method);
         }
 
         void AddCategories(ContextAttribute context) {

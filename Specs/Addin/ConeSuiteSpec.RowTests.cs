@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using NUnit.Core;
+using System;
 
 namespace Cone.Addin
 {
@@ -23,6 +24,17 @@ namespace Cone.Addin
                 .Add(x => x.Add(1, 1, 2))
                 .Pending(x => x.Add(4, 2, 42))
                 .Add("One + One is Two", x => x.Add(1, 1, 2));
+        }
+    }
+
+    [Describe(typeof(ConeSuite), "row-tests with descriptive name")]
+    public class RowTestWithDescriptiveName
+    {
+        public void when_adding_numbers(int a, int b, int r) { }
+
+        public IEnumerable<IRowTestData> Rows()
+        {
+            return new RowBuilder<RowTestWithDescriptiveName>().Add("1 + 1 == 2", x => x.when_adding_numbers(1, 1, 2));
         }
     }
 
@@ -49,6 +61,23 @@ namespace Cone.Addin
 
                     Verify.That(() => testNames.Contains("One + One is Two"));                
                 }
+            }
+
+
+            IEnumerable<ITest> Tests(ITest test) {
+                yield return test;
+                if(test.IsSuite) {
+                    foreach(var child in test.Tests.Cast<ITest>().SelectMany(x => Tests(x)))
+                        yield return child;
+                }
+            }
+
+            public void format_of_row_test_methods_should_equal_normal_test_methods() {
+                var suite = ConeSuite.For(typeof(RowTestWithDescriptiveName));
+                var testNames = suite.Tests.Cast<ITest>().SelectMany(x => Tests(x)).Select(x => x.TestName.Name);
+                foreach(var item in testNames)
+                    Console.WriteLine(item);
+                Verify.That(() => testNames.Contains("when adding numbers"));
             }
 
             [Context("static row fixture")]

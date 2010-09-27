@@ -15,7 +15,7 @@ namespace Cone
 
         public string Format(Expression expression) {
             switch (expression.NodeType) {
-                case ExpressionType.ArrayLength: return FormatUnary(expression) + ".Length";
+                case ExpressionType.ArrayLength: return FormatUnary((UnaryExpression)expression) + ".Length";
                 case ExpressionType.MemberAccess:
                     var member = (MemberExpression)expression;
                     if (member.Expression == null)
@@ -23,22 +23,8 @@ namespace Cone
                     if (member.Expression.NodeType == ExpressionType.Constant)
                         return member.Member.Name;
                     return Format(member.Expression) + "." + member.Member.Name;
-                case ExpressionType.Call:
-                    var call = (MethodCallExpression)expression;
-                    int firstArgumentOffset;
-                    var target = FormatCallTarget(call, out firstArgumentOffset);
-                    var method = call.Method;
-                    var invocation = string.Empty;
-                    var parameterFormat = "({0})";
-                    if(method.IsSpecialName && IndexerGet == method.Name)
-                        parameterFormat = "[{0}]";
-                    else if (call.Object != null && call.Object.NodeType == ExpressionType.Constant) {
-                        target = string.Empty;
-                        invocation = method.Name;
-                    } else
-                        invocation = "." + method.Name;
-                    return target + invocation + FormatArgs(call.Arguments, firstArgumentOffset, parameterFormat);
-                case ExpressionType.Quote: return FormatUnary(expression);
+                case ExpressionType.Call: return FormatCall((MethodCallExpression)expression);
+                case ExpressionType.Quote: return FormatUnary((UnaryExpression)expression);
                 case ExpressionType.Lambda: return FormatLambda((LambdaExpression)expression);
                 case ExpressionType.Constant: return FormatConstant((ConstantExpression)expression);
                 case ExpressionType.Convert:
@@ -54,6 +40,22 @@ namespace Cone
                     else
                         return FormatBinary(binary);
             }
+        }
+
+        string FormatCall(MethodCallExpression call) {
+            int firstArgumentOffset;
+            var target = FormatCallTarget(call, out firstArgumentOffset);
+            var method = call.Method;
+            var invocation = string.Empty;
+            var parameterFormat = "({0})";
+            if (method.IsSpecialName && IndexerGet == method.Name)
+                parameterFormat = "[{0}]";
+            else if (call.Object != null && call.Object.NodeType == ExpressionType.Constant) {
+                target = string.Empty;
+                invocation = method.Name;
+            } else
+                invocation = "." + method.Name;
+            return target + invocation + FormatArgs(call.Arguments, firstArgumentOffset, parameterFormat);
         }
 
         string FormatType(Type type) {
@@ -114,20 +116,6 @@ namespace Cone
             return string.Format(format, string.Join(", ", value));
         }
 
-        static string GetBinaryOp(ExpressionType nodeType) {
-            switch (nodeType) {
-                case ExpressionType.Add: return "{0} + {1}";
-                case ExpressionType.Equal: return "{0} == {1}";
-                case ExpressionType.NotEqual: return "{0} != {1}";
-                case ExpressionType.GreaterThan: return "{0} > {1}";
-                case ExpressionType.GreaterThanOrEqual: return "{0} >= {1}";
-                case ExpressionType.LessThan: return "{0} < {1}";
-                case ExpressionType.LessThanOrEqual: return "{0} <= {1}";
-                case ExpressionType.ArrayIndex: return "{0}[{1}]";
-                default: throw new NotSupportedException("Unsupported BinaryExression type " + nodeType);
-            }
-        }
-
         string FormatBinary(BinaryExpression binary) {
             Expression left = binary.Left, right = binary.Right;
             if (left.NodeType == ExpressionType.Convert) {
@@ -141,8 +129,22 @@ namespace Cone
             return string.Format(GetBinaryOp(binary.NodeType), Format(left), Format(right));
         }
 
-        string FormatUnary(Expression expr) {
-            return Format(((UnaryExpression)expr).Operand);
+        string FormatUnary(UnaryExpression expr) {
+            return Format(expr.Operand);
+        }
+        
+        static string GetBinaryOp(ExpressionType nodeType) {
+            switch (nodeType) {
+                case ExpressionType.Add: return "{0} + {1}";
+                case ExpressionType.Equal: return "{0} == {1}";
+                case ExpressionType.NotEqual: return "{0} != {1}";
+                case ExpressionType.GreaterThan: return "{0} > {1}";
+                case ExpressionType.GreaterThanOrEqual: return "{0} >= {1}";
+                case ExpressionType.LessThan: return "{0} < {1}";
+                case ExpressionType.LessThanOrEqual: return "{0} <= {1}";
+                case ExpressionType.ArrayIndex: return "{0}[{1}]";
+                default: throw new NotSupportedException("Unsupported BinaryExression type " + nodeType);
+            }
         }
     }
 }
