@@ -57,7 +57,7 @@
     <Compile Include="IRowTestData.cs" />
     <Compile Include="RowBuilder.cs" />
     <Compile Include="TestExecutor.cs" />
-    <Compile Include="TestNameAttribute.cs" />
+    <Compile Include="DisplayNameAttribute.cs" />
     <Compile Include="TypeExtensions.cs" />
     <Compile Include="Verify.cs" />
     <Compile Include="Version.cs" />

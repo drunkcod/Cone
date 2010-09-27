@@ -3,10 +3,10 @@
 namespace Cone
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public sealed class TestNameAttribute : Attribute
+    public sealed class DisplayNameAttribute : Attribute
     {
         public readonly string Name;
 
-        public TestNameAttribute(string name){ this.Name = name; } 
+        public DisplayNameAttribute(string name){ this.Name = name; } 
     }
 }
