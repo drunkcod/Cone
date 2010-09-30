@@ -42,6 +42,7 @@
     <Compile Include="ExceptionExpect.cs" />
     <Compile Include="Expect.cs" />
     <Compile Include="ExpectationFailedException.cs" />
+    <Compile Include="ExpectFactory.cs" />
     <Compile Include="ExpressionExtensions.cs" />
     <Compile Include="ExpressionFormatter.cs" />
     <Compile Include="CustomAttributeProviderExtensions.cs" />

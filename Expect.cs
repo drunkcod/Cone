@@ -32,23 +32,6 @@ namespace Cone
 
     public class Expect : ExpectBase
     {
-        static readonly ConstructorInfo ExpectCtor = typeof(Expect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object) });
-
-        public static Expect From(Expression body) {
-            return From(ExpectCtor, body, body, Expression.Constant(true));
-        }
-
-        internal static Expect From(ConstructorInfo ctor, Expression body, Expression left, Expression right) {
-            return Expression.Lambda<Func<Expect>>(
-                Expression.New(ctor,
-                        Expression.Constant(body),
-                        Box(left),
-                        Box(right)))
-                .Execute();
-        }
-
-        static Expression Box(Expression expression) { return Expression.TypeAs(expression, typeof(object)); }
-
         public Expect(Expression body, object actual, object expected)
             : base(body, actual, expected) {
         }

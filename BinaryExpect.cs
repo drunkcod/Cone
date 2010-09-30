@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Cone
 {
@@ -25,11 +24,6 @@ namespace Cone
         public const string NotEqualFormat = "  Didn't expect both to be {1}";
 
         static readonly ExpectNull ExpectNull = new ExpectNull();
-        static readonly ConstructorInfo BinaryExpectCtor = typeof(BinaryExpect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object) });
-
-        public static Expect From(BinaryExpression body) {
-            return Expect.From(BinaryExpectCtor, body, body.Left, body.Right);
-        }
 
         public BinaryExpect(Expression body, object actual, object expected)
             : base(body, actual, expected ?? ExpectNull) {
