@@ -4,11 +4,11 @@ using System.Reflection;
 
 namespace Cone
 {
-    class ExpectFactory
+    public class ExpectFactory
     {
         static readonly ConstructorInfo BinaryExpectCtor = typeof(BinaryExpect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object) });
         static readonly ConstructorInfo ExpectCtor = typeof(Expect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object) });
-        
+        static readonly ConstructorInfo StringEqualCtor = typeof(StringEqualExpect).GetConstructor(new[] { typeof(Expression), typeof(string), typeof(string) });
         public IExpect From(Expression body) {
             if(body.NodeType == ExpressionType.Not)
                 return new NotExpect(From(((UnaryExpression)body).Operand));
@@ -41,26 +41,27 @@ namespace Cone
             return FromSingle(body);
         }
 
-        public static Expect FromSingle(Expression body) {
-            return From(ExpectCtor, body, body, Expression.Constant(true));
+        static Expect FromSingle(Expression body) {
+            return From<object>(ExpectCtor, body, body, Expression.Constant(true));
         }
 
-        public static Expect FromBinary(BinaryExpression body) {
-            return From(BinaryExpectCtor, body, body.Left, body.Right);
+        static Expect FromBinary(BinaryExpression body) {
+            if(body.NodeType == ExpressionType.Equal && body.Left.Type == typeof(string) && body.Right.Type == typeof(string))
+                return From<string>(StringEqualCtor, body, body.Left, body.Right);
+            
+            return From<object>(BinaryExpectCtor, body, body.Left, body.Right);
         }
 
         
-        static Expect From(ConstructorInfo ctor, Expression body, Expression left, Expression right) {
+        static Expect From<T>(ConstructorInfo ctor, Expression body, Expression left, Expression right) {
             return Expression.Lambda<Func<Expect>>(
                 Expression.New(ctor,
                         Expression.Constant(body),
-                        Box(left),
-                        Box(right)))
+                        Cast<T>(left),
+                        Cast<T>(right)))
                 .Execute();
         }
 
-        static Expression Box(Expression expression) { return Expression.TypeAs(expression, typeof(object)); }
-
-
+        static Expression Cast<T>(Expression expression) { return Expression.TypeAs(expression, typeof(T)); }
     }
 }
