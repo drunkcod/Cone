@@ -44,7 +44,7 @@ namespace Cone
                         Expression.Constant(body),
                         Box(left),
                         Box(right)))
-                .Compile()();
+                .Execute();
         }
 
         static Expression Box(Expression expression) { return Expression.TypeAs(expression, typeof(object)); }

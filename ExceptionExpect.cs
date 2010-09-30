@@ -20,7 +20,7 @@ namespace Cone
 
         static object Invoke(Expression<Action> expr) {
             try {
-                expr.Compile()();
+                expr.Execute();
             } catch(Exception e) {
                 return e;
             }

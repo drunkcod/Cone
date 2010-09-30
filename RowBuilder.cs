@@ -74,7 +74,7 @@ namespace Cone
         object Collect(Expression expression) {
             if(expression.NodeType == ExpressionType.Constant)
                 return ((ConstantExpression)expression).Value;
-            return Expression.Lambda<Func<object>>(Expression.TypeAs(expression, typeof(object))).Compile()();
+            return Expression.Lambda<Func<object>>(Expression.TypeAs(expression, typeof(object))).Execute();
         }
 
         IEnumerator<IRowTestData> IEnumerable<IRowTestData>.GetEnumerator() { return rows.GetEnumerator(); }

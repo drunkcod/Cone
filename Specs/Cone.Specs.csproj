@@ -61,6 +61,7 @@
     <Compile Include="ConeTestNamerSpec.cs" />
     <Compile Include="ParameterFormatterSpec.cs" />
     <Compile Include="RowBuilderSpec.cs" />
+    <Compile Include="StringVerificationSpec.cs" />
     <Compile Include="TestExecutorSpec.cs" />
     <Compile Include="ExpressionFormatterSpec.cs" />
     <Compile Include="TestExtensions.cs" />

@@ -42,6 +42,7 @@
     <Compile Include="ExceptionExpect.cs" />
     <Compile Include="Expect.cs" />
     <Compile Include="ExpectationFailedException.cs" />
+    <Compile Include="ExpressionExtensions.cs" />
     <Compile Include="ExpressionFormatter.cs" />
     <Compile Include="CustomAttributeProviderExtensions.cs" />
     <Compile Include="IConeSuite.cs" />
@@ -56,6 +57,7 @@
     <Compile Include="RowAttribute.cs" />
     <Compile Include="IRowTestData.cs" />
     <Compile Include="RowBuilder.cs" />
+    <Compile Include="StringEqualExpect.cs" />
     <Compile Include="TestExecutor.cs" />
     <Compile Include="DisplayNameAttribute.cs" />
     <Compile Include="TypeExtensions.cs" />

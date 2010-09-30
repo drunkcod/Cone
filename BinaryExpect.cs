@@ -53,7 +53,7 @@ namespace Cone
                 return expected.Equals(actual);
             return Expression.Lambda<Func<bool>>(
                 Expression.MakeBinary(body.NodeType, Expression.Constant(actual), Expression.Constant(expected)))
-                .Compile()();
+                .Execute();
         }
     }
 }
