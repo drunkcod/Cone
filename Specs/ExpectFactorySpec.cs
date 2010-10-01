@@ -9,6 +9,8 @@ namespace Cone
     [Describe(typeof(ExpectFactory))]
     public class ExpectFactorySpec
     {
+        ExpectFactory Expectory = new ExpectFactory();
+
         public void treats_string_equality_specially() {
             string a = "a", b = "b";
 
@@ -16,7 +18,7 @@ namespace Cone
         }
 
         IExpect ExpectFrom(Expression<Func<bool>> expression) {
-            return new ExpectFactory().From(expression.Body);
+            return Expectory.From(expression.Body);
         }
     }
 }

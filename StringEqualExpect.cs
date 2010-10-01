@@ -5,6 +5,7 @@ namespace Cone
 {
     public class StringEqualExpect : BinaryExpect
     {
+        const int DisplayWidth = 62;
         public StringEqualExpect(Expression body, string actual, string expected) : base(body, actual, expected) { }
 
         public string Preamble { 
@@ -17,16 +18,6 @@ namespace Cone
             } 
         }
 
-        public int IndexOfFirstDifference {
-            get {
-                int i = 0, end = Math.Min(ActualString.Length, ExpectedString.Length);
-                for(; i != end; ++i)
-                    if(ActualString[i] != ExpectedString[i])
-                        return i;
-                return end;
-            }
-        }
-
         public static string Center(string input, int position, int width) {
             if(input.Length <= width)
                 return input;
@@ -35,23 +26,32 @@ namespace Cone
             var prefix = string.Empty;
             var postfix = string.Empty;
 
-            var start = Math.Max(0, position - left);
-            if(start > 0) {
+            var first = Math.Max(0, position - left);
+            if(first > 0) {
                 prefix = "...";
             }
             var end = position + 1 + left;
 
             if(end < input.Length)
                 postfix = "...";
-            var value = input.Substring(start + prefix.Length, width - prefix.Length - postfix.Length);
+            Console.WriteLine("{0} {1} {2}", input, position, width);
+            Console.WriteLine(width - prefix.Length - postfix.Length);
+
+            var start = first + prefix.Length;
+
+            var value = input.Substring(start, Math.Min(width - prefix.Length - postfix.Length, input.Length - start));
 
             return string.Format("{0}{1}{2}", prefix, value, postfix);      
         }
 
         public override string FormatMessage(IFormatter<object> formatter) {
+            var n = ActualString.IndexOfDifference(ExpectedString);
+            var displayActual = formatter.Format(Center(ActualString, n, DisplayWidth));
+            var displayExpected = formatter.Format(Center(ExpectedString, n, DisplayWidth));
+
             var format = string.Format("{0}\n{1}\n{2}^", Preamble, EqualFormat, 
-                new string('-', 1 + IndexOfFirstDifference + EqualFormat.IndexOf('{')));
-            return string.Format(format, formatter.Format(actual), formatter.Format(expected));
+                new string('-', displayActual.IndexOfDifference(displayExpected) + EqualFormat.IndexOf('{')));
+            return string.Format(format, displayActual, displayExpected);
         }
 
         string ActualString { get { return (string)actual; } }

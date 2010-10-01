@@ -62,6 +62,7 @@
     <Compile Include="ExpectFactorySpec.cs" />
     <Compile Include="ParameterFormatterSpec.cs" />
     <Compile Include="RowBuilderSpec.cs" />
+    <Compile Include="StringExtensionsSpec.cs" />
     <Compile Include="StringVerificationSpec.cs" />
     <Compile Include="TestExecutorSpec.cs" />
     <Compile Include="ExpressionFormatterSpec.cs" />

@@ -59,6 +59,7 @@
     <Compile Include="IRowTestData.cs" />
     <Compile Include="RowBuilder.cs" />
     <Compile Include="StringEqualExpect.cs" />
+    <Compile Include="StringExtensions.cs" />
     <Compile Include="TestExecutor.cs" />
     <Compile Include="DisplayAsAttribute.cs" />
     <Compile Include="TypeExtensions.cs" />
