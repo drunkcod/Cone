@@ -12,7 +12,7 @@ namespace Cone
 
         [Row(new[] { 1, 2, 3 }, "{ 1, 2, 3 }", Name="array elements")
         ,Row("Hello World", "\"Hello World\"", Name = "quote strings")
-        ,Row(null, "null", Name= "null"), DisplayName("special formatting")]
+        ,Row(null, "null", Name= "null"), DisplayAs("special formatting")]
         public void VerifyFormat(object obj, string expected) { Verify.That(() => formatter.Format(obj) == expected); }
     }
 }

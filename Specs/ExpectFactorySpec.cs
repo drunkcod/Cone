@@ -10,14 +10,13 @@ namespace Cone
     public class ExpectFactorySpec
     {
         public void treats_string_equality_specially() {
-            var a = "a";
-            var b = "b";
+            string a = "a", b = "b";
 
             Verify.That(() => ExpectFrom(() => a == b) is StringEqualExpect);
         }
 
-        IExpect ExpectFrom(Expression<Func<bool>> expr) {
-            return new ExpectFactory().From(expr.Body);
+        IExpect ExpectFrom(Expression<Func<bool>> expression) {
+            return new ExpectFactory().From(expression.Body);
         }
     }
 }

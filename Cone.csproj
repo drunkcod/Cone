@@ -60,7 +60,7 @@
     <Compile Include="RowBuilder.cs" />
     <Compile Include="StringEqualExpect.cs" />
     <Compile Include="TestExecutor.cs" />
-    <Compile Include="DisplayNameAttribute.cs" />
+    <Compile Include="DisplayAsAttribute.cs" />
     <Compile Include="TypeExtensions.cs" />
     <Compile Include="Verify.cs" />
     <Compile Include="Version.cs" />

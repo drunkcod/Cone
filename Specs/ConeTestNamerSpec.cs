@@ -16,7 +16,7 @@ namespace Cone
             Verify.That(() => TestNamer.NameFor(thisMethod) == "converts underscores to whitespace");
         }
 
-        [DisplayName("can be renamed via attribute")]
+        [DisplayAs("can be renamed via attribute")]
         public void Renamed() {
             var thisMethod = MethodInfo.GetCurrentMethod();
             Verify.That(() => TestNamer.NameFor(thisMethod) == "can be renamed via attribute");

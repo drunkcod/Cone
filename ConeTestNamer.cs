@@ -9,9 +9,9 @@ namespace Cone
         readonly IFormatter<object> formatter = new ParameterFormatter();
 
         public string NameFor(MethodBase method) {
-            var nameAttribute = method.GetCustomAttributes(typeof(DisplayNameAttribute), true);
+            var nameAttribute = method.GetCustomAttributes(typeof(DisplayAsAttribute), true);
             if(nameAttribute.Length != 0)
-                return ((DisplayNameAttribute)nameAttribute[0]).Name;
+                return ((DisplayAsAttribute)nameAttribute[0]).Name;
             return normalizeNamePattern.Replace(method.Name, " ");
         }
 
