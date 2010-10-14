@@ -11,10 +11,21 @@ namespace Cone
     {
         ExpectFactory Expectory = new ExpectFactory();
 
-        public void treats_string_equality_specially() {
+        public void special_case_string_equality() {
             string a = "a", b = "b";
 
             Verify.That(() => ExpectFrom(() => a == b) is StringEqualExpect);
+        }
+
+        [DisplayAs("special case \"is\" test")]
+        public void special_case_type_check() {
+            var obj = new object();
+
+            Verify.That(() => ExpectFrom(() => obj is string) is BinaryExpect);
+            
+            var expect = (BinaryExpect)ExpectFrom(() => obj is string);
+            Verify.That(() => expect.Actual == typeof(object));
+            Verify.That(() => expect.Expected == typeof(string));
         }
 
         IExpect ExpectFrom(Expression<Func<bool>> expression) {

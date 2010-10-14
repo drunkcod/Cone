@@ -55,7 +55,7 @@ namespace Cone
 
         public void type_test() {
 
-            Verify.That(() => TheAnswer is Object);
+            Verify.That(() => TheAnswer is Int32);
         }
 
         public class PossiblyGreen

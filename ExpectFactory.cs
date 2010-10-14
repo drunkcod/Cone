@@ -1,12 +1,14 @@
 ﻿using System.Linq.Expressions;
 using System;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace Cone
 {
     public class ExpectFactory
     {
         static readonly ConstructorInfo BinaryExpectCtor = typeof(BinaryExpect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object) });
+        static readonly ConstructorInfo BinaryExpectCtor2 = typeof(BinaryExpect).GetConstructor(new[] { typeof(Expression), typeof(ExpressionType), typeof(object), typeof(object) });
         static readonly ConstructorInfo ExpectCtor = typeof(Expect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object) });
         static readonly ConstructorInfo StringEqualCtor = typeof(StringEqualExpect).GetConstructor(new[] { typeof(Expression), typeof(string), typeof(string) });
         public IExpect From(Expression body) {
@@ -38,6 +40,8 @@ namespace Cone
             var binary = body as BinaryExpression;
             if (binary != null)
                 return FromBinary(binary);
+            if(body.NodeType == ExpressionType.TypeIs)
+                return FromTypeIs((TypeBinaryExpression)body);
             return FromSingle(body);
         }
 
@@ -51,7 +55,6 @@ namespace Cone
             
             return From<object>(BinaryExpectCtor, body, body.Left, body.Right);
         }
-
         
         static Expect From<T>(ConstructorInfo ctor, Expression body, Expression left, Expression right) {
             return Expression.Lambda<Func<Expect>>(
@@ -60,6 +63,21 @@ namespace Cone
                         Cast<T>(left),
                         Cast<T>(right)))
                 .Execute();
+        }
+
+        static Expect FromTypeIs(TypeBinaryExpression body) {
+            return Expression.Lambda<Func<Expect>>(
+                Expression.New(BinaryExpectCtor2,
+                        Expression.Constant(body),
+                        Expression.Constant(ExpressionType.Equal),
+                        Expression.Call(Cast<object>(body.Expression), "GetType", Type.EmptyTypes),
+                        Expression.Constant(body.TypeOperand)))
+                .Execute();
+
+            {
+                var typeIs = (TypeBinaryExpression)body;
+                return new BinaryExpect(body, ExpressionType.Equal, typeIs.Expression.Type, typeIs.TypeOperand);
+            }
         }
 
         static Expression Cast<T>(Expression expression) { return Expression.TypeAs(expression, typeof(T)); }

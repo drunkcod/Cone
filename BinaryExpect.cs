@@ -25,10 +25,14 @@ namespace Cone
 
         static readonly ExpectNull ExpectNull = new ExpectNull();
 
-        public BinaryExpect(Expression body, object actual, object expected)
-            : base(body, actual, expected ?? ExpectNull) {
-        }
+        ExpressionType nodeType;
 
+        public BinaryExpect(Expression body, object actual, object expected): this(body, body.NodeType, actual, expected) { }
+
+        public BinaryExpect(Expression body, ExpressionType nodeType, object actual, object expected)
+            : base(body, actual, expected ?? ExpectNull) {
+            this.nodeType = nodeType;
+        }
         public override string FormatMessage(IFormatter<object> formatter) {
             var format = GetBinaryFormat(body.NodeType);
             return string.Format(format, formatter.Format(actual), formatter.Format(expected));
@@ -43,10 +47,10 @@ namespace Cone
         }
 
         public override bool Check() {
-            if (body.NodeType == ExpressionType.Equal)
+            if (nodeType == ExpressionType.Equal)
                 return expected.Equals(actual);
             return Expression.Lambda<Func<bool>>(
-                Expression.MakeBinary(body.NodeType, Expression.Constant(actual), Expression.Constant(expected)))
+                Expression.MakeBinary(nodeType, Expression.Constant(actual), Expression.Constant(expected)))
                 .Execute();
         }
     }

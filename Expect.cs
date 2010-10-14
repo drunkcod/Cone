@@ -25,6 +25,8 @@ namespace Cone
         }
 
         public object Actual { get { return actual; } }
+        public object Expected { get { return expected; } }
+
         public virtual string FormatExpression(IFormatter<Expression> formatter){ return formatter.Format(body); }
         public virtual string FormatMessage(IFormatter<object> formatter){ return string.Empty; }
         public abstract bool Check();
