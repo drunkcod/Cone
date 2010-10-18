@@ -42,6 +42,7 @@
     <Compile Include="Expectations\BinaryExpect.cs" />
     <Compile Include="Expectations\ExceptionExpect.cs" />
     <Compile Include="Expectations\Expect.cs" />
+    <Compile Include="Expectations\ExpectedNull.cs" />
     <Compile Include="Expectations\ExpectFactory.cs" />
     <Compile Include="Expectations\ExpectMessages.cs" />
     <Compile Include="Expectations\NotExpect.cs" />

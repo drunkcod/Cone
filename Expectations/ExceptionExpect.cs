@@ -3,13 +3,13 @@ using System.Linq.Expressions;
 
 namespace Cone.Expectations
 {
-    public class ExceptionExpect : ExpectBase
+    public class ExceptionExpect : Expect
     {
         public ExceptionExpect(Expression<Action> expression, Type expected)
             : base(expression.Body, Invoke(expression), expected) {
         }
 
-        Type ExpectedExceptionType { get { return (Type)expected; } }
+        Type ExpectedExceptionType { get { return (Type)ExpectedResult; } }
 
         protected override bool CheckCore() {
             return actual != null && ExpectedExceptionType.IsAssignableFrom(actual.GetType());
@@ -28,7 +28,7 @@ namespace Cone.Expectations
             if(actual == null)
                 return string.Format(ExpectMessages.MissingExceptionFormat, formatter.Format(body));
             return string.Format(ExpectMessages.UnexpectedExceptionFormat,
-                formatter.Format(body), expected, actual.GetType());
+                formatter.Format(body), ExpectedResult, actual.GetType());
         }
     }
 }
