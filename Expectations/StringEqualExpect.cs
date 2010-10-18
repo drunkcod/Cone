@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace Cone.Expectations
 {
-    public class StringEqualExpect : BinaryExpect
+    public class StringEqualExpect : BinaryEqualExpect
     {
         const int DisplayWidth = 62;
 
@@ -48,7 +48,7 @@ namespace Cone.Expectations
             var displayActual = formatter.Format(Center(Actual, n, DisplayWidth));
             var displayExpected = formatter.Format(Center(Expected, n, DisplayWidth));
 
-            var format = string.Format("{0}\n{1}\n{2}^", Preamble, ExpectMessages.EqualFormat, 
+            var format = string.Format("{0}\n{1}\n{2}^", Preamble, MessageFormat, 
                 new string('-', displayActual.IndexOfDifference(displayExpected) + ExpectMessages.EqualFormat.IndexOf('{')));
             return string.Format(format, displayActual, displayExpected);
         }
