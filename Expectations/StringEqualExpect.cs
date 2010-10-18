@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Cone
+namespace Cone.Expectations
 {
     public class StringEqualExpect : BinaryExpect
     {
         const int DisplayWidth = 62;
+
         public StringEqualExpect(Expression body, string actual, string expected) : base(body, actual, expected) { }
 
         public string Preamble { 
             get {
-                var actualLength = ActualString.Length;
-                var expectedLength = ExpectedString.Length;
-                if(actualLength == expectedLength)
-                    return string.Format("String lengths are both {0}.", actualLength);
-                return string.Format("Expected string length {0} but was {1}.", expectedLength, actualLength); 
+                if(Actual.Length == Expected.Length)
+                    return string.Format("String lengths are both {0}.", Actual.Length);
+                return string.Format("Expected string length {0} but was {1}.", Expected.Length, Actual.Length); 
             } 
         }
 
@@ -45,16 +44,16 @@ namespace Cone
         }
 
         public override string FormatMessage(IFormatter<object> formatter) {
-            var n = ActualString.IndexOfDifference(ExpectedString);
-            var displayActual = formatter.Format(Center(ActualString, n, DisplayWidth));
-            var displayExpected = formatter.Format(Center(ExpectedString, n, DisplayWidth));
+            var n = Actual.IndexOfDifference(Expected);
+            var displayActual = formatter.Format(Center(Actual, n, DisplayWidth));
+            var displayExpected = formatter.Format(Center(Expected, n, DisplayWidth));
 
-            var format = string.Format("{0}\n{1}\n{2}^", Preamble, EqualFormat, 
-                new string('-', displayActual.IndexOfDifference(displayExpected) + EqualFormat.IndexOf('{')));
+            var format = string.Format("{0}\n{1}\n{2}^", Preamble, ExpectMessages.EqualFormat, 
+                new string('-', displayActual.IndexOfDifference(displayExpected) + ExpectMessages.EqualFormat.IndexOf('{')));
             return string.Format(format, displayActual, displayExpected);
         }
 
-        string ActualString { get { return (string)actual; } }
-        string ExpectedString { get { return (string)expected; } }
+        string Actual { get { return (string)actual; } }
+        string Expected { get { return (string)expected; } }
     }
 }

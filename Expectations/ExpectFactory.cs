@@ -2,11 +2,12 @@
 using System;
 using System.Reflection;
 
-namespace Cone
+namespace Cone.Expectations
 {
     public class ExpectFactory
     {
         static readonly ConstructorInfo BinaryExpectCtor = typeof(BinaryExpect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object) });
+        static readonly ConstructorInfo BinaryEqualExpectCtor = typeof(BinaryEqualExpect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object) });
         static readonly ConstructorInfo ExpectCtor = typeof(Expect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object) });
         static readonly ConstructorInfo StringEqualCtor = typeof(StringEqualExpect).GetConstructor(new[] { typeof(Expression), typeof(string), typeof(string) });
         public IExpect From(Expression body) {
@@ -46,9 +47,12 @@ namespace Cone
         }
 
         static Expect FromBinary(BinaryExpression body) {
-            if(body.NodeType == ExpressionType.Equal && body.Left.Type == typeof(string) && body.Right.Type == typeof(string))
-                return From<string>(StringEqualCtor, body, body.Left, body.Right);
-            
+            if(body.NodeType == ExpressionType.Equal) {
+                if(body.Left.Type == typeof(string) && body.Right.Type == typeof(string))
+                    return From<string>(StringEqualCtor, body, body.Left, body.Right);
+                else 
+                    return From<object>(BinaryEqualExpectCtor, body, body.Left, body.Right);
+            }            
             return From<object>(BinaryExpectCtor, body, body.Left, body.Right);
         }
 

@@ -2,12 +2,11 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Cone
+namespace Cone.Expectations
 {
     public interface IExpect
     {
-        object Actual { get; }
-        bool Check();
+        bool Check(out object actual);
         string FormatExpression(IFormatter<Expression> formatter);
         string FormatMessage(IFormatter<object> formatter);
     }
@@ -24,10 +23,14 @@ namespace Cone
             this.actual = actual;
         }
 
-        public object Actual { get { return actual; } }
         public virtual string FormatExpression(IFormatter<Expression> formatter){ return formatter.Format(body); }
         public virtual string FormatMessage(IFormatter<object> formatter){ return string.Empty; }
-        public abstract bool Check();
+        public bool Check(out object actual) {
+            actual = this.actual;
+            return CheckCore();
+        }
+
+        protected abstract bool CheckCore();
     }
 
     public class Expect : ExpectBase
@@ -36,7 +39,7 @@ namespace Cone
             : base(body, actual, expected) {
         }
 
-        public override bool Check() {
+        protected override bool CheckCore() {
             return expected.Equals(actual);
         }
     }

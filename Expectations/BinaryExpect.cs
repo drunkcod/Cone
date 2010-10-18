@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Cone
+namespace Cone.Expectations
 {
     class ExpectNull
     {
@@ -20,9 +20,6 @@ namespace Cone
 
     public class BinaryExpect : Expect
     {
-        public const string EqualFormat = "  Expected: {1}\n  But was:  {0}";
-        public const string NotEqualFormat = "  Didn't expect both to be {1}";
-
         static readonly ExpectNull ExpectNull = new ExpectNull();
 
         public BinaryExpect(Expression body, object actual, object expected)
@@ -30,24 +27,33 @@ namespace Cone
         }
 
         public override string FormatMessage(IFormatter<object> formatter) {
-            var format = GetBinaryFormat(body.NodeType);
-            return string.Format(format, formatter.Format(actual), formatter.Format(expected));
+            return string.Format(MessageFormat, formatter.Format(actual), formatter.Format(expected));
         }
 
-        internal static string GetBinaryFormat(ExpressionType nodeType) {
-            switch (nodeType) {
-                case ExpressionType.Equal: return BinaryExpect.EqualFormat;
-                case ExpressionType.NotEqual: return BinaryExpect.NotEqualFormat;
+        protected virtual string MessageFormat {
+            get {
+                if(body.NodeType == ExpressionType.NotEqual)
+                    return ExpectMessages.NotEqualFormat;
+                return string.Empty;
             }
-            return string.Empty;
         }
 
-        public override bool Check() {
-            if (body.NodeType == ExpressionType.Equal)
-                return expected.Equals(actual);
+        protected override bool CheckCore() {
             return Expression.Lambda<Func<bool>>(
                 Expression.MakeBinary(body.NodeType, Expression.Constant(actual), Expression.Constant(expected)))
                 .Execute();
         }
     }
+
+    public class BinaryEqualExpect : BinaryExpect
+    {
+        public BinaryEqualExpect(Expression body, object actual, object expected): base(body, actual, expected) { }
+
+        protected override string MessageFormat { get { return ExpectMessages.EqualFormat; } }        
+
+        protected override bool CheckCore() {
+            return expected.Equals(actual);
+        }
+    }
 }
+ 
