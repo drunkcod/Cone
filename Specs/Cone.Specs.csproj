@@ -60,6 +60,7 @@
     <Compile Include="BinaryExpectSpec.cs" />
     <Compile Include="ConeTestNamerSpec.cs" />
     <Compile Include="ExpectFactorySpec.cs" />
+    <Compile Include="ExpressionExtensionsSpec.cs" />
     <Compile Include="ParameterFormatterSpec.cs" />
     <Compile Include="RowBuilderSpec.cs" />
     <Compile Include="StringExtensionsSpec.cs" />

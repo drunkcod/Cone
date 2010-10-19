@@ -33,8 +33,6 @@ namespace Cone.Expectations
 
             if(end < input.Length)
                 postfix = "...";
-            Console.WriteLine("{0} {1} {2}", input, position, width);
-            Console.WriteLine(width - prefix.Length - postfix.Length);
 
             var start = first + prefix.Length;
 

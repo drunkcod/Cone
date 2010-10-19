@@ -50,6 +50,5 @@ namespace Cone.Expectations
         }
 
         public override object Expected { get { return expected; } }
-
     }
 }

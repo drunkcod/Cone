@@ -60,21 +60,18 @@ namespace Cone.Expectations
         }
         
         static Expect From<T>(ConstructorInfo ctor, Expression body, Expression left, Expression right) {
-            return Expression.Lambda<Func<Expect>>(
-                Expression.New(ctor,
+            return Expression.New(ctor,
                         Expression.Constant(body),
-                        Cast<T>(left),
-                        Cast<T>(right)))
-                .Execute();
+                        left.CastTo<T>(),
+                        right.CastTo<T>())
+                .Execute<Expect>();
         }
 
         static Expect FromTypeIs(TypeBinaryExpression body) {
             var typeIs = (TypeBinaryExpression)body;
             return new EqualExpect(body,
-                Expression.Lambda<Func<object>>(Cast<object>(typeIs.Expression)).Execute().GetType(), 
+                typeIs.Expression.CastTo<object>().Execute<object>().GetType(), 
                 typeIs.TypeOperand);
         }
-
-        static Expression Cast<T>(Expression expression) { return Expression.TypeAs(expression, typeof(T)); }
     }
 }
