@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using Cone.Expectations;
 
 namespace Cone
 {
@@ -23,9 +24,10 @@ namespace Cone
         }
 
         static object Check(IExpect expect) {
-            if (!expect.Check())
+            object actual;
+            if (!expect.Check(out actual))
                 ExpectationFailed(expect.FormatExpression(ExpressionFormatter) + "\n" + expect.FormatMessage(ParameterFormatter));
-            return expect.Actual;
+            return actual;
         }        
     }
 }

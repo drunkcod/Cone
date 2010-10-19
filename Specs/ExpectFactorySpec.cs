@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Linq.Expressions;
+using Cone.Expectations;
 
 namespace Cone
 {
@@ -21,9 +22,9 @@ namespace Cone
         public void special_case_type_check() {
             var obj = new object();
 
-            Verify.That(() => ExpectFrom(() => obj is string) is BinaryExpect);
+            Verify.That(() => ExpectFrom(() => obj is string) is EqualExpect);
             
-            var expect = (BinaryExpect)ExpectFrom(() => obj is string);
+            var expect = (EqualExpect)ExpectFrom(() => obj is string);
             Verify.That(() => expect.Actual == typeof(object));
             Verify.That(() => expect.Expected == typeof(string));
         }

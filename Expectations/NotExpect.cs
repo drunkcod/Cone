@@ -1,5 +1,5 @@
 ﻿using System.Linq.Expressions;
-namespace Cone
+namespace Cone.Expectations
 {
     class NotExpect : IExpect
     {
@@ -7,13 +7,8 @@ namespace Cone
 
         public NotExpect(IExpect inner) { this.inner = inner; }
 
-
-        public object Actual {
-            get { return inner.Actual; }
-        }
-
-        public bool Check() {
-            return !inner.Check();
+        public bool Check(out object actual) {
+            return !inner.Check(out actual);
         }
 
         public string FormatExpression(IFormatter<Expression> formatter) {
