@@ -11,9 +11,9 @@ namespace Cone.Expectations
 
         public string Preamble { 
             get {
-                if(Actual.Length == Expected.Length)
-                    return string.Format("String lengths are both {0}.", Actual.Length);
-                return string.Format("Expected string length {0} but was {1}.", Expected.Length, Actual.Length); 
+                if(ActualValue.Length == ExpectedValue.Length)
+                    return string.Format("String lengths are both {0}.", ActualValue.Length);
+                return string.Format("Expected string length {0} but was {1}.", ExpectedValue.Length, ActualValue.Length); 
             } 
         }
 
@@ -44,16 +44,16 @@ namespace Cone.Expectations
         }
 
         public override string FormatMessage(IFormatter<object> formatter) {
-            var n = Actual.IndexOfDifference(Expected);
-            var displayActual = formatter.Format(Center(Actual, n, DisplayWidth));
-            var displayExpected = formatter.Format(Center(Expected, n, DisplayWidth));
+            var n = ActualValue.IndexOfDifference(ExpectedValue);
+            var displayActual = formatter.Format(Center(ActualValue, n, DisplayWidth));
+            var displayExpected = formatter.Format(Center(ExpectedValue, n, DisplayWidth));
 
             var format = string.Format("{0}\n{1}\n{2}^", Preamble, MessageFormat, 
                 new string('-', displayActual.IndexOfDifference(displayExpected) + ExpectMessages.EqualFormat.IndexOf('{')));
             return string.Format(format, displayActual, displayExpected);
         }
 
-        string Actual { get { return actual.ToString(); } }
-        string Expected { get { return Expected.ToString(); } }
+        string ActualValue { get { return Actual.ToString(); } }
+        string ExpectedValue { get { return Expected.ToString(); } }
     }
 }
