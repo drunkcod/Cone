@@ -35,11 +35,6 @@ namespace Cone
             Verify.That(() => 1 + 2 == 3);
         }
 
-        public void supports_null_values_as_actual() {
-            Counter x = null;
-            Verify.That(() => x == null);
-        }
-
         public void support_identity_checking() {
             var obj = new Counter();
             Verify.That(() => object.ReferenceEquals(obj, obj) == true);
@@ -100,6 +95,40 @@ namespace Cone
 
             public void return_value_is_same_as_actual() {
                 Verify.That(() => Object.ReferenceEquals(Verify.That(() => obj == (object)b), obj));
+            }
+        }
+
+        [Context("null checks")]
+        public class NullChecks
+        {
+            public void expected_is_null() {
+                object obj = null;
+                Verify.That(() => obj == null);
+            }
+
+            public void actual_and_expected_is_null() {
+                Counter x = null;
+                Verify.That(() => x == null);
+            }
+            
+            public void expected_is_not_null() {
+                var obj = "";
+                Verify.That(() => obj != null);
+            }
+
+            public void actual_is_null_but_is_expected_not_to_be() {
+                string obj = null;
+                var e = Verify.Exception<Exception>(() => Verify.That(() => obj != null));
+                Verify.That(() => e.GetType() == GetAssertionExceptionType());
+            }
+
+            Type GetAssertionExceptionType() {
+                try {
+                    Verify.ExpectationFailed(string.Empty);
+                } catch(Exception e) {
+                    return e.GetType();
+                }
+                return null;
             }
         }
 

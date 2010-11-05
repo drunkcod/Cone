@@ -10,7 +10,7 @@ namespace Cone.Addin
     {
         [Row(1, 1, 2)]
         [Row(4, 2, 42, IsPending = true)]
-        [Row(1, 1, 2, Name = "One + One is Two")]
+        [Row(1, 1, 2, DisplayAs = "One + One is Two")]
         public void Add(int a, int b, int r) { Verify.That(() => a + b == r); }
     }
 

@@ -31,7 +31,7 @@ namespace Cone.Addin
         public void Add(IEnumerable<IRowData> rows, ConeTestNamer testNamer) {
             foreach (var row in rows) { 
                 var parameters = row.Parameters;
-                var rowName = row.Name ?? testNamer.NameFor(Method, parameters);
+                var rowName = row.DisplayAs ?? testNamer.NameFor(Method, parameters);
                 var rowTest = new ConeRowTest(parameters, this, rowName);
                 if (row.IsPending)
                     rowTest.RunState = RunState.Ignored;

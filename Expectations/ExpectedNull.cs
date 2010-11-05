@@ -7,6 +7,8 @@ namespace Cone.Expectations
 {
     class ExpectedNull
     {
+        public static readonly ExpectedNull IsNull = new ExpectedNull();
+        
         public override bool Equals(object obj) {
             return obj == null;
         }

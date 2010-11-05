@@ -24,7 +24,7 @@ namespace Cone.Expectations
 
     public class EqualExpect : Expect
     {
-        public EqualExpect(Expression body, object actual, object expected): base(body, actual, expected) { }
+        public EqualExpect(Expression body, object actual, object expected): base(body, actual, expected ?? ExpectedNull.IsNull) { }
 
         protected override string MessageFormat { get { return ExpectMessages.EqualFormat; } }
     }

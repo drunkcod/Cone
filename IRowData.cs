@@ -3,7 +3,7 @@
     public interface IRowData
     {
         bool IsPending { get; }
-        string Name { get; }
+        string DisplayAs { get; }
         object[] Parameters { get; }
     }
 }

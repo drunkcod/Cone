@@ -9,7 +9,7 @@ namespace Cone
 
         public RowAttribute(params object[] args) { this.args = args; }
 
-        public string Name { get; set; }
+        public string DisplayAs { get; set; }
         public object[] Parameters { get { return args; } } 
         public bool IsPending { get; set; }
     }
