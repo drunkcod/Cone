@@ -13,6 +13,8 @@ namespace Cone.Expectations
         static readonly ConstructorInfo NotEqualExpectCtor = typeof(NotEqualExpect).GetConstructor(new[]{ typeof(Expression), typeof(object), typeof(object) });     
         static readonly ConstructorInfo LessThanExpectCtor = typeof(LessThanExpect).GetConstructor(new[]{ typeof(Expression), typeof(object), typeof(object) });     
         static readonly ConstructorInfo LessThanOrEqualExpectCtor = typeof(LessThanOrEqualExpect).GetConstructor(new[]{ typeof(Expression), typeof(object), typeof(object) });     
+        static readonly ConstructorInfo GreaterThanExpectCtor = typeof(GreaterThanExpect).GetConstructor(new[]{ typeof(Expression), typeof(object), typeof(object) });     
+        static readonly ConstructorInfo GreaterThanOrEqualExpectCtor = typeof(GreaterThanOrEqualExpect).GetConstructor(new[]{ typeof(Expression), typeof(object), typeof(object) });     
         
         public IExpect From(Expression body) {
             if(body.NodeType == ExpressionType.Not)
@@ -64,7 +66,12 @@ namespace Cone.Expectations
                     return From<object>(LessThanExpectCtor, body, body.Left, body.Right);
             } else if(body.NodeType == ExpressionType.LessThanOrEqual) {
                     return From<object>(LessThanOrEqualExpectCtor, body, body.Left, body.Right);
+            } else if(body.NodeType == ExpressionType.GreaterThan) {
+                    return From<object>(GreaterThanExpectCtor, body, body.Left, body.Right);
+            } else if(body.NodeType == ExpressionType.GreaterThanOrEqual) {
+                    return From<object>(GreaterThanOrEqualExpectCtor, body, body.Left, body.Right);
             }
+
             return From<object>(BinaryExpectCtor, body, body.Left, body.Right);
         }
         

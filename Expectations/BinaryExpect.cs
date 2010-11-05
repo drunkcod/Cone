@@ -47,5 +47,20 @@ namespace Cone.Expectations
 
         protected override string MessageFormat { get { return ExpectMessages.LessThanOrEqualFormat; } }
     }
+
+    public class GreaterThanExpect : BinaryExpect
+    {
+        public GreaterThanExpect(Expression body, object actual, object expected): base(body, actual, expected) { }
+
+        protected override string MessageFormat { get { return ExpectMessages.GreaterThanFormat; } }
+    }
+
+    public class GreaterThanOrEqualExpect : BinaryExpect
+    {
+        public GreaterThanOrEqualExpect(Expression body, object actual, object expected): base(body, actual, expected) { }
+
+        protected override string MessageFormat { get { return ExpectMessages.GreaterThanOrEqualFormat; } }
+    }
+
 }
  

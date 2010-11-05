@@ -50,6 +50,16 @@ namespace Cone
             Verify.That(() => ExpectFrom(() => A <= B) is LessThanOrEqualExpect);
         }
 
+        [DisplayAs("A > B")]
+        public void GreaterThanExpect() {
+            Verify.That(() => ExpectFrom(() => A > B) is GreaterThanExpect);
+        }
+
+        [DisplayAs("A >= B")]
+        public void GreaterThanOrEqualExpect() {
+            Verify.That(() => ExpectFrom(() => A >= B) is GreaterThanOrEqualExpect);
+        }
+
         IExpect ExpectFrom(Expression<Func<bool>> expression) {
             return Expectory.From(expression.Body);
         }
