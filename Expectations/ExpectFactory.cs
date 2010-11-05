@@ -89,7 +89,7 @@ namespace Cone.Expectations
 
         static Expect FromTypeIs(TypeBinaryExpression body) {
             var typeIs = (TypeBinaryExpression)body;
-            return new EqualExpect(body,
+            return new TypeIsExpect(body,
                 typeIs.Expression.CastTo<object>().Execute<object>().GetType(), 
                 typeIs.TypeOperand);
         }

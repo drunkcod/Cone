@@ -23,11 +23,19 @@ namespace Cone
         public void special_case_type_check() {
             var obj = new object();
 
-            Verify.That(() => ExpectFrom(() => obj is string) is EqualExpect);
+            Verify.That(() => ExpectFrom(() => obj is string) is TypeIsExpect);
             
             var expect = (EqualExpect)ExpectFrom(() => obj is string);
             Verify.That(() => expect.Actual == typeof(object));
             Verify.That(() => expect.Expected == typeof(string));
+        }
+
+        class Base { }
+        class Derived : Base { }
+
+        [DisplayAs("\"is\" with inheritance")]
+        public void is_with_inheritance() {
+            Verify.That(() => new Derived() is Base);
         }
 
         [DisplayAs("A == B")]

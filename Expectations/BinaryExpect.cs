@@ -23,6 +23,17 @@ namespace Cone.Expectations
         protected override string MessageFormat { get { return ExpectMessages.EqualFormat; } }
     }
 
+    public class TypeIsExpect : EqualExpect
+    {
+        public TypeIsExpect(Expression body, Type actual, Type expected): base(body, actual, expected) { }
+
+        protected override bool CheckCore() {
+            return ((Type)Expected).IsAssignableFrom((Type)Actual);
+        }
+
+        protected override string MessageFormat { get { return ExpectMessages.EqualFormat; } }
+    }
+
     public class NotEqualExpect : Expect 
     {
         public NotEqualExpect(Expression body, object actual, object expected): base(body, actual, expected) { }
