@@ -7,15 +7,19 @@ namespace Cone.Expectations
 {
     public class ExpectFactory
     {
-        static readonly ConstructorInfo BinaryExpectCtor = typeof(BinaryExpect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object) });
-        static readonly ConstructorInfo StringEqualCtor = typeof(StringEqualExpect).GetConstructor(new[] { typeof(Expression), typeof(string), typeof(string) });
-        static readonly ConstructorInfo EqualExpectCtor = typeof(EqualExpect).GetConstructor(new[]{ typeof(Expression), typeof(object), typeof(object) });     
-        static readonly ConstructorInfo NotEqualExpectCtor = typeof(NotEqualExpect).GetConstructor(new[]{ typeof(Expression), typeof(object), typeof(object) });     
-        static readonly ConstructorInfo LessThanExpectCtor = typeof(LessThanExpect).GetConstructor(new[]{ typeof(Expression), typeof(object), typeof(object) });     
-        static readonly ConstructorInfo LessThanOrEqualExpectCtor = typeof(LessThanOrEqualExpect).GetConstructor(new[]{ typeof(Expression), typeof(object), typeof(object) });     
-        static readonly ConstructorInfo GreaterThanExpectCtor = typeof(GreaterThanExpect).GetConstructor(new[]{ typeof(Expression), typeof(object), typeof(object) });     
-        static readonly ConstructorInfo GreaterThanOrEqualExpectCtor = typeof(GreaterThanOrEqualExpect).GetConstructor(new[]{ typeof(Expression), typeof(object), typeof(object) });     
-        
+        static readonly ConstructorInfo BinaryExpectCtor = GetExpectCtor(typeof(BinaryExpect));
+        static readonly ConstructorInfo EqualExpectCtor = GetExpectCtor(typeof(EqualExpect));     
+        static readonly ConstructorInfo NotEqualExpectCtor = GetExpectCtor(typeof(NotEqualExpect));     
+        static readonly ConstructorInfo LessThanExpectCtor = GetExpectCtor(typeof(LessThanExpect));     
+        static readonly ConstructorInfo LessThanOrEqualExpectCtor = GetExpectCtor(typeof(LessThanOrEqualExpect));     
+        static readonly ConstructorInfo GreaterThanExpectCtor = GetExpectCtor(typeof(GreaterThanExpect));     
+        static readonly ConstructorInfo GreaterThanOrEqualExpectCtor = GetExpectCtor(typeof(GreaterThanOrEqualExpect));     
+        static readonly ConstructorInfo StringEqualCtor = typeof(StringEqualExpect).GetConstructor(new[]{ typeof(Expression), typeof(string), typeof(string) });
+
+        static ConstructorInfo GetExpectCtor(Type expectType) {
+            return expectType.GetConstructor(new[]{ typeof(Expression), typeof(object), typeof(object) });
+        }
+
         public IExpect From(Expression body) {
             if(body.NodeType == ExpressionType.Not)
                 return new NotExpect(From(((UnaryExpression)body).Operand));
