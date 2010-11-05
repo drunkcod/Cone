@@ -62,21 +62,21 @@ namespace Cone.Expectations
             if(body.NodeType == ExpressionType.Equal) {
                 if(body.Left.Type == typeof(string) && body.Right.Type == typeof(string))
                     return From<string>(StringEqualCtor, body, body.Left, body.Right);
-                else 
-                    return From<object>(EqualExpectCtor, body, body.Left, body.Right);
-            } else if(body.NodeType == ExpressionType.NotEqual) {
-                    return From<object>(NotEqualExpectCtor, body, body.Left, body.Right);
-            } else if(body.NodeType == ExpressionType.LessThan) {
-                    return From<object>(LessThanExpectCtor, body, body.Left, body.Right);
-            } else if(body.NodeType == ExpressionType.LessThanOrEqual) {
-                    return From<object>(LessThanOrEqualExpectCtor, body, body.Left, body.Right);
-            } else if(body.NodeType == ExpressionType.GreaterThan) {
-                    return From<object>(GreaterThanExpectCtor, body, body.Left, body.Right);
-            } else if(body.NodeType == ExpressionType.GreaterThanOrEqual) {
-                    return From<object>(GreaterThanOrEqualExpectCtor, body, body.Left, body.Right);
+            }
+            return From<object>(GetBinaryExpectCtor(body.NodeType), body, body.Left, body.Right);
+        }
+
+        static ConstructorInfo GetBinaryExpectCtor(ExpressionType op) {
+            switch(op) {
+                case ExpressionType.Equal: return EqualExpectCtor;
+                case ExpressionType.NotEqual: return NotEqualExpectCtor;
+                case ExpressionType.LessThan: return LessThanExpectCtor;
+                case ExpressionType.LessThanOrEqual: return LessThanOrEqualExpectCtor;
+                case ExpressionType.GreaterThan: return GreaterThanExpectCtor;
+                case ExpressionType.GreaterThanOrEqual: return GreaterThanOrEqualExpectCtor;
             }
 
-            return From<object>(BinaryExpectCtor, body, body.Left, body.Right);
+            return BinaryExpectCtor;
         }
         
         static Expect From<T>(ConstructorInfo ctor, Expression body, Expression left, Expression right) {
