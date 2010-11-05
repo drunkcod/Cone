@@ -46,7 +46,7 @@ namespace Cone.Expectations
         readonly object expected;
 
         public Expect(Expression body, object actual, object expected) : base(body, actual) {
-            this.expected = expected;
+            this.expected = expected ?? ExpectedNull.IsNull;
         }
 
         public override object Expected { get { return expected; } }

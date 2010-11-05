@@ -11,6 +11,7 @@ namespace Cone
     public class ExpectFactorySpec
     {
         ExpectFactory Expectory = new ExpectFactory();
+        int A = 1, B = 2;
 
         public void special_case_string_equality() {
             string a = "a", b = "b";
@@ -27,6 +28,26 @@ namespace Cone
             var expect = (EqualExpect)ExpectFrom(() => obj is string);
             Verify.That(() => expect.Actual == typeof(object));
             Verify.That(() => expect.Expected == typeof(string));
+        }
+
+        [DisplayAs("A == B")]
+        public void EqualExpect() {
+            Verify.That(() => ExpectFrom(() => A == B) is EqualExpect);
+        }
+
+        [DisplayAs("A != B")]
+        public void NotEqualExpect() {
+            Verify.That(() => ExpectFrom(() => A != B) is NotEqualExpect);
+        }
+
+        [DisplayAs("A < B")]
+        public void LessThanExpect() {
+            Verify.That(() => ExpectFrom(() => A < B) is LessThanExpect);
+        }
+
+        [DisplayAs("A <= B")]
+        public void LessThanOrEqualExpect() {
+            Verify.That(() => ExpectFrom(() => A <= B) is LessThanOrEqualExpect);
         }
 
         IExpect ExpectFrom(Expression<Func<bool>> expression) {

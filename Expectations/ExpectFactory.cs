@@ -10,7 +10,10 @@ namespace Cone.Expectations
         static readonly ConstructorInfo BinaryExpectCtor = typeof(BinaryExpect).GetConstructor(new[] { typeof(Expression), typeof(object), typeof(object) });
         static readonly ConstructorInfo StringEqualCtor = typeof(StringEqualExpect).GetConstructor(new[] { typeof(Expression), typeof(string), typeof(string) });
         static readonly ConstructorInfo EqualExpectCtor = typeof(EqualExpect).GetConstructor(new[]{ typeof(Expression), typeof(object), typeof(object) });     
-
+        static readonly ConstructorInfo NotEqualExpectCtor = typeof(NotEqualExpect).GetConstructor(new[]{ typeof(Expression), typeof(object), typeof(object) });     
+        static readonly ConstructorInfo LessThanExpectCtor = typeof(LessThanExpect).GetConstructor(new[]{ typeof(Expression), typeof(object), typeof(object) });     
+        static readonly ConstructorInfo LessThanOrEqualExpectCtor = typeof(LessThanOrEqualExpect).GetConstructor(new[]{ typeof(Expression), typeof(object), typeof(object) });     
+        
         public IExpect From(Expression body) {
             if(body.NodeType == ExpressionType.Not)
                 return new NotExpect(From(((UnaryExpression)body).Operand));
@@ -55,7 +58,13 @@ namespace Cone.Expectations
                     return From<string>(StringEqualCtor, body, body.Left, body.Right);
                 else 
                     return From<object>(EqualExpectCtor, body, body.Left, body.Right);
-            }            
+            } else if(body.NodeType == ExpressionType.NotEqual) {
+                    return From<object>(NotEqualExpectCtor, body, body.Left, body.Right);
+            } else if(body.NodeType == ExpressionType.LessThan) {
+                    return From<object>(LessThanExpectCtor, body, body.Left, body.Right);
+            } else if(body.NodeType == ExpressionType.LessThanOrEqual) {
+                    return From<object>(LessThanOrEqualExpectCtor, body, body.Left, body.Right);
+            }
             return From<object>(BinaryExpectCtor, body, body.Left, body.Right);
         }
         
