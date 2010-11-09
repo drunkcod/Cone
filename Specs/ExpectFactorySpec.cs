@@ -13,14 +13,14 @@ namespace Cone
         ExpectFactory Expectory = new ExpectFactory();
         int A = 1, B = 2;
 
-        public void special_case_string_equality() {
+        public void string_equality() {
             string a = "a", b = "b";
 
             Verify.That(() => ExpectFrom(() => a == b) is StringEqualExpect);
         }
 
-        [DisplayAs("special case \"is\" test")]
-        public void special_case_type_check() {
+        [DisplayAs("\"is\" test")]
+        public void type_check() {
             var obj = new object();
 
             Verify.That(() => ExpectFrom(() => obj is string) is TypeIsExpect);
@@ -34,7 +34,7 @@ namespace Cone
         class Derived : Base { }
 
         [DisplayAs("\"is\" with inheritance")]
-        public void is_with_inheritance() {
+        public void type_check_with_inheritance() {
             Verify.That(() => new Derived() is Base);
         }
 
