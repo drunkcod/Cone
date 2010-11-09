@@ -1,0 +1,23 @@
+using Cone;
+
+namespace My_Spec_Namespace 
+{
+    [Describe(typeof(Class_Under_Test))]
+    public class Some_kind_of_descriptive_name
+    {
+
+        [Context("Weah, we got context!")]
+        public class Does_not_matter_as_we_got_context
+        {
+            public void test_names_are_much_better_of_written_with_under_scores()
+            {
+                //TODO write test
+
+                Verify.That(() => something_whent_the_way_we_wanted);
+            }
+        }
+    }
+}
+
+//TODO Fill out with more examples :)
+
