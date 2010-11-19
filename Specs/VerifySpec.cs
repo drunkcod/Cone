@@ -147,6 +147,16 @@ namespace Cone
             public void passes_when_Exception_types_match() {
                 Verify.Exception<NotImplementedException>(() => NotImplemented());
             }
+
+            class Dummy 
+            {
+                public int NotImplemented { get { throw new NotImplementedException(); } }
+            }
+
+            public void supports_value_expressions() {
+                var obj = new Dummy();
+                Verify.Throws<NotImplementedException>.When(() => obj.NotImplemented);
+            }
            
             public void raises_expectation_failed_when_exception_missing() {
                 try {

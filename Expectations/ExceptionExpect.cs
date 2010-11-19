@@ -5,9 +5,15 @@ namespace Cone.Expectations
 {
     public class ExceptionExpect : Expect
     {
-        public ExceptionExpect(Expression<Action> expression, Type expected)
-            : base(expression.Body, Invoke(expression), expected) {
+        public static ExceptionExpect From(Expression<Action> expression, Type expected) {
+            return new ExceptionExpect(expression.Body, ExceptionOrNull(() => expression.Execute()), expected);
         }
+       
+        public static ExceptionExpect From<T>(Expression<Func<T>> expression, Type expected) {
+            return new ExceptionExpect(expression.Body, ExceptionOrNull(() => expression.Execute()), expected);
+        }
+       
+        ExceptionExpect(Expression body, object result, Type expected): base(body, result, expected) { }
 
         Type ExpectedExceptionType { get { return (Type)Expected; } }
 
@@ -15,9 +21,9 @@ namespace Cone.Expectations
             return actual != null && ExpectedExceptionType.IsAssignableFrom(actual.GetType());
         }
 
-        static object Invoke(Expression<Action> expr) {
+        static object ExceptionOrNull(Action action) {
             try {
-                expr.Execute();
+                action();
             } catch(Exception e) {
                 return e;
             }

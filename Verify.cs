@@ -19,8 +19,20 @@ namespace Cone
             return Check(From(expr.Body));
         }
 
+        public static class Throws<TException> where TException : Exception
+        {
+            public static TException When(Expression<Action> expr) {
+                return (TException)Check(ExceptionExpect.From(expr, typeof(TException)));
+            }
+
+            public static TException When<TValue>(Expression<Func<TValue>> expr) {
+                return (TException)Check(ExceptionExpect.From(expr, typeof(TException)));
+            }
+        }
+
+        [Obsolete("use Verify.Throws<TException>.When(() => ...) instead")]
         public static TException Exception<TException>(Expression<Action> expr) where TException : Exception {
-            return (TException)Check(new ExceptionExpect(expr, typeof(TException)));
+            return Throws<TException>.When(expr);
         }
 
         static object Check(IExpect expect) {
