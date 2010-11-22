@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Cone
 {
@@ -16,6 +17,7 @@ namespace Cone
         public string Format(Expression expression) {
             switch (expression.NodeType) {
                 case ExpressionType.ArrayLength: return FormatUnary((UnaryExpression)expression) + ".Length";
+                case ExpressionType.NewArrayInit: return FormatNewArray((NewArrayExpression)expression);
                 case ExpressionType.MemberAccess:
                     var member = (MemberExpression)expression;
                     if (member.Expression == null)
@@ -131,6 +133,17 @@ namespace Cone
 
         string FormatUnary(UnaryExpression expr) {
             return Format(expr.Operand);
+        }
+
+        string FormatNewArray(NewArrayExpression newArray) {
+            var result = new StringBuilder("new[] {");
+            var format = " {0}";
+            foreach(var item in newArray.Expressions) {
+                result.AppendFormat(format, Format(item));
+                format = ", {0}";
+            }
+
+            return result.Append(" }").ToString();
         }
         
         static string GetBinaryOp(ExpressionType nodeType) {
