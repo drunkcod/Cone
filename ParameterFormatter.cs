@@ -19,7 +19,7 @@ namespace Cone
         }
 
         string FormatCollection(IEnumerable collection) {
-            var result = new StringBuilder("{");
+            var result = new StringBuilder("new[] {");
             var format = " {0}";
             foreach (var item in collection) {
                 result.AppendFormat(format, item);

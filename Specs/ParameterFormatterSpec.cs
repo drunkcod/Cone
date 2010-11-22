@@ -10,7 +10,7 @@ namespace Cone
     {
         ParameterFormatter Formatter = new ParameterFormatter();
 
-        [Row(new[] { 1, 2, 3 }, "{ 1, 2, 3 }", DisplayAs="array elements")
+        [Row(new[] { 1, 2, 3 }, "new[] { 1, 2, 3 }", DisplayAs="array elements")
         ,Row("Hello World", "\"Hello World\"", DisplayAs = "quote strings")
         ,Row(null, "null", DisplayAs= "null"), DisplayAs("special formatting")]
         public void VerifyFormat(object obj, string expected) { Verify.That(() => Formatter.Format(obj) == expected); }
