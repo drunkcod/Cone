@@ -32,6 +32,7 @@
   <ItemGroup>
     <Compile Include="AfterAllAttribute.cs" />
     <Compile Include="AfterEachAttribute.cs" />
+    <Compile Include="ArrayExpressionStringBuilder.cs" />
     <Compile Include="BeforeAllAttribute.cs" />
     <Compile Include="BeforeEachAttribute.cs" />
     <Compile Include="ConeFixtureSetup.cs" />
