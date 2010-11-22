@@ -136,14 +136,8 @@ namespace Cone
         }
 
         string FormatNewArray(NewArrayExpression newArray) {
-            var result = new StringBuilder("new[] {");
-            var format = " {0}";
-            foreach(var item in newArray.Expressions) {
-                result.AppendFormat(format, Format(item));
-                format = ", {0}";
-            }
-
-            return result.Append(" }").ToString();
+            var arrayFormatter = new ArrayExpressionStringBuilder<Expression>(this);
+            return arrayFormatter.Format(newArray.Expressions);
         }
         
         static string GetBinaryOp(ExpressionType nodeType) {
