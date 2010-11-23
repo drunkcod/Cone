@@ -4,12 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace Cone
-{
-    public interface IFormatter<T>
-    {
-        string Format(T expression);
-    }
-
+{   
     public class ExpressionFormatter : IFormatter<Expression>
     {
         const string IndexerGet = "get_Item";

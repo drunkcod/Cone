@@ -14,12 +14,5 @@ namespace Cone
         ,Row("Hello World", "\"Hello World\"", DisplayAs = "quote strings")
         ,Row(null, "null", DisplayAs= "null"), DisplayAs("special formatting")]
         public void VerifyFormat(object obj, string expected) { Verify.That(() => Formatter.Format(obj) == expected); }
-    
-        string FixtureProperty { get { return "42"; } }
-        [Pending]
-        public void fixture_property() {
-            Verify.That(() => Formatter.Format(new { FixtureProperty.Length }) == "{ FixtureProperty.Length }");
-        }
-
     }
  }
