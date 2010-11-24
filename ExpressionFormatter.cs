@@ -126,8 +126,8 @@ namespace Cone
         }
 
         string FormatNewArray(NewArrayExpression newArray) {
-            var arrayFormatter = new ArrayExpressionStringBuilder<Expression>(this);
-            return arrayFormatter.Format(newArray.Expressions);
+            var arrayFormatter = new ArrayExpressionStringBuilder<Expression>();
+            return arrayFormatter.Format(newArray.Expressions, this);
         }
         
         static string GetBinaryOp(ExpressionType nodeType) {

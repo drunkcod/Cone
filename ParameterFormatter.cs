@@ -7,10 +7,10 @@ namespace Cone
 {
     public class ParameterFormatter : IFormatter<object>
     {
-        readonly IFormatter<IEnumerable> collectionFormatter;
+        readonly ICollectionFormatter<object> collectionFormatter;
 
         public ParameterFormatter() {
-            collectionFormatter = new ArrayExpressionStringBuilder<object>(this);
+            collectionFormatter = new ArrayExpressionStringBuilder<object>();
         }
 
         public string Format(object obj) {
@@ -32,7 +32,7 @@ namespace Cone
         }
 
         string FormatCollection(IEnumerable collection) {
-            return collectionFormatter.Format(collection);
+            return collectionFormatter.Format(collection, this);
         }
     }
 }
