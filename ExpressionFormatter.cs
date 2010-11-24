@@ -9,6 +9,9 @@ namespace Cone
     {
         const string IndexerGet = "get_Item";
 
+        readonly IFormatter<object> constantFormatter = new ParameterFormatter();
+
+
         public string Format(Expression expression) {
             switch (expression.NodeType) {
                 case ExpressionType.ArrayLength: return FormatUnary((UnaryExpression)expression) + ".Length";
@@ -77,14 +80,7 @@ namespace Cone
             return Format(target);
         }
 
-        string FormatConstant(ConstantExpression constant) {
-            if (constant.Type.IsEnum)
-                return constant.Type.Name + "." + constant.Value.ToString();
-            else if (constant.Type != typeof(Type))
-                return constant.ToString();
-            var type = (Type)constant.Value;
-            return "typeof(" + type.Name + ")";
-        }
+        string FormatConstant(ConstantExpression constant) { return constantFormatter.Format(constant.Value); }
 
         string FormatLambda(LambdaExpression lambda) {
             var parameters = lambda.Parameters;
