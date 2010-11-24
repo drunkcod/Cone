@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Cone
 {
+    enum DummyEnum { Value }
     [Describe(typeof(ParameterFormatter))]
     public class ParameterFormatterSpec
     {
@@ -17,7 +18,8 @@ namespace Cone
 
         public IEnumerable<IRowTestData> VerifyFormatRows() {
             return new RowBuilder<ParameterFormatterSpec>()
-                .Add(x => x.VerifyFormat(typeof(Int32), "typeof(Int32)"));
+                .Add(x => x.VerifyFormat(typeof(Int32), "typeof(Int32)"))
+                .Add(x => x.VerifyFormat(DummyEnum.Value, "DummyEnum.Value"));
         }
     }
  }
