@@ -11,7 +11,6 @@ namespace Cone
 
         readonly IFormatter<object> constantFormatter = new ParameterFormatter();
 
-
         public string Format(Expression expression) {
             switch (expression.NodeType) {
                 case ExpressionType.ArrayLength: return FormatUnary((UnaryExpression)expression) + ".Length";
