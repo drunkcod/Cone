@@ -14,5 +14,10 @@ namespace Cone
         ,Row("Hello World", "\"Hello World\"", DisplayAs = "quote strings")
         ,Row(null, "null", DisplayAs= "null"), DisplayAs("special formatting")]
         public void VerifyFormat(object obj, string expected) { Verify.That(() => Formatter.Format(obj) == expected); }
+
+        public IEnumerable<IRowTestData> VerifyFormatRows() {
+            return new RowBuilder<ParameterFormatterSpec>()
+                .Add(x => x.VerifyFormat(typeof(Int32), "typeof(Int32)"));
+        }
     }
  }

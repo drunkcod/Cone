@@ -16,6 +16,9 @@ namespace Cone
             var collection = obj as IEnumerable;
             if (collection != null)
                 return FormatCollection(collection);
+            var type = obj as Type;
+            if(type != null)
+                return string.Format("typeof({0})", type.Name);
             return obj.ToString(); 
         }
 
