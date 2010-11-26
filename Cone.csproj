@@ -42,10 +42,11 @@
     <Compile Include="ExpectationFailedException.cs" />
     <Compile Include="Expectations\BinaryExpect.cs" />
     <Compile Include="Expectations\ExceptionExpect.cs" />
-    <Compile Include="Expectations\Expect.cs" />
+    <Compile Include="Expectations\BooleanExpect.cs" />
     <Compile Include="Expectations\ExpectedNull.cs" />
     <Compile Include="Expectations\ExpectFactory.cs" />
     <Compile Include="Expectations\ExpectMessages.cs" />
+    <Compile Include="Expectations\IExpect.cs" />
     <Compile Include="Expectations\NotExpect.cs" />
     <Compile Include="Expectations\StringEqualExpect.cs" />
     <Compile Include="ExpressionExtensions.cs" />

@@ -58,6 +58,7 @@
     </Compile>
     <Compile Include="Addin\NUnitTestResultAdapterSpec.cs" />
     <Compile Include="BinaryExpectSpec.cs" />
+    <Compile Include="BooleanExpectSpec.cs" />
     <Compile Include="ConeTestNamerSpec.cs" />
     <Compile Include="ExpectFactorySpec.cs" />
     <Compile Include="ExpressionExtensionsSpec.cs" />

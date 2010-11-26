@@ -7,7 +7,7 @@ namespace Cone.Expectations
     {
         public BinaryExpect(Expression body, object actual, object expected) : base(body, actual, expected) { }
 
-        protected override string MessageFormat { get { return string.Empty; } }
+        public override string MessageFormat { get { return string.Empty; } }
 
         protected override bool CheckCore() {
             return Expression.Lambda<Func<bool>>(
@@ -20,7 +20,7 @@ namespace Cone.Expectations
     {
         public EqualExpect(Expression body, object actual, object expected): base(body, actual, expected) { }
 
-        protected override string MessageFormat { get { return ExpectMessages.EqualFormat; } }
+        public override string MessageFormat { get { return ExpectMessages.EqualFormat; } }
     }
 
     public class TypeIsExpect : EqualExpect
@@ -31,14 +31,14 @@ namespace Cone.Expectations
             return ((Type)Expected).IsAssignableFrom((Type)Actual);
         }
 
-        protected override string MessageFormat { get { return ExpectMessages.EqualFormat; } }
+        public override string MessageFormat { get { return ExpectMessages.EqualFormat; } }
     }
 
     public class NotEqualExpect : Expect 
     {
         public NotEqualExpect(Expression body, object actual, object expected): base(body, actual, expected) { }
 
-        protected override string MessageFormat { get { return ExpectMessages.NotEqualFormat; } }
+        public override string MessageFormat { get { return ExpectMessages.NotEqualFormat; } }
 
         protected override bool CheckCore() {
             return !base.CheckCore();
@@ -49,28 +49,28 @@ namespace Cone.Expectations
     {
         public LessThanExpect(Expression body, object actual, object expected): base(body, actual, expected) { }
 
-        protected override string MessageFormat { get { return ExpectMessages.LessThanFormat; } }
+        public override string MessageFormat { get { return ExpectMessages.LessThanFormat; } }
     }
        
     public class LessThanOrEqualExpect : BinaryExpect
     {
         public LessThanOrEqualExpect(Expression body, object actual, object expected): base(body, actual, expected) { }
 
-        protected override string MessageFormat { get { return ExpectMessages.LessThanOrEqualFormat; } }
+        public override string MessageFormat { get { return ExpectMessages.LessThanOrEqualFormat; } }
     }
 
     public class GreaterThanExpect : BinaryExpect
     {
         public GreaterThanExpect(Expression body, object actual, object expected): base(body, actual, expected) { }
 
-        protected override string MessageFormat { get { return ExpectMessages.GreaterThanFormat; } }
+        public override string MessageFormat { get { return ExpectMessages.GreaterThanFormat; } }
     }
 
     public class GreaterThanOrEqualExpect : BinaryExpect
     {
         public GreaterThanOrEqualExpect(Expression body, object actual, object expected): base(body, actual, expected) { }
 
-        protected override string MessageFormat { get { return ExpectMessages.GreaterThanOrEqualFormat; } }
+        public override string MessageFormat { get { return ExpectMessages.GreaterThanOrEqualFormat; } }
     }
 
 }

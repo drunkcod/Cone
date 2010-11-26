@@ -4,13 +4,6 @@ using System.Reflection;
 
 namespace Cone.Expectations
 {
-    public interface IExpect
-    {
-        bool Check(out object actual);
-        string FormatExpression(IFormatter<Expression> formatter);
-        string FormatMessage(IFormatter<object> formatter);
-    }
-
     public class BooleanExpect : IExpect
     {
         readonly protected Expression body;
@@ -34,7 +27,7 @@ namespace Cone.Expectations
         public object Actual { get { return actual; } }
         public virtual object Expected { get { return true; } }
 
-        protected virtual string MessageFormat { get { return string.Empty; } }
+        public virtual string MessageFormat { get { return ExpectMessages.EqualFormat; } }
         
         protected virtual bool CheckCore() {
             return Expected.Equals(actual);

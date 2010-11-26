@@ -16,13 +16,16 @@ namespace Cone
     [Describe(typeof(ExpressionFormatter))]
     public class ExpressionFormatterSpec
     {
-        readonly ExpressionFormatter Formatter = new ExpressionFormatter();
+        static readonly ExpressionFormatter Formatter = new ExpressionFormatter();
 
-        string FormatBody<T>(Expression<Func<T>> expression) { return Formatter.Format(expression.Body); }
+        static string FormatBody<T>(Expression<Func<T>> expression) { return Formatter.Format(expression.Body); }
 
-        void VerifyFormat<T>(Expression<Func<T>> expression, string result) {
+        static void VerifyFormat<T>(Expression<Func<T>> expression, string result) {
             Verify.That(() => FormatBody(expression) == result);
         }
+
+        string Format<T>(Expression<Func<T>> expression) { return ExpressionFormatterSpec.FormatBody(expression); }
+
 
         public void array_length() {
             var array = new int[0];
@@ -122,7 +125,7 @@ namespace Cone
         object Obj = new object();
         int A = 42, B = 7;
         public void fixture_member() {
-            VerifyFormat(() => FormatBody(() => A), "FormatBody(() => A)");
+            VerifyFormat(() => Format(() => A), "Format(() => A)");
         }
 
         public void greater() { VerifyFormat(() => A > B, "A > B"); }
@@ -132,5 +135,13 @@ namespace Cone
         public void less() { VerifyFormat(() => A < B, "A < B"); }
         
         public void less_or_equal() { VerifyFormat(() => A <= B, "A <= B"); }
+
+        [Context("nested expressions")]
+        public class NestedExpressions
+        {
+            public void boolean_constant() {
+                VerifyFormat(Expression.Lambda<Func<bool>>(Expression.Constant(true)), "true"); }
+        }
+
     }
 }
