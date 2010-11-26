@@ -139,8 +139,18 @@ namespace Cone
         [Context("nested expressions")]
         public class NestedExpressions
         {
-            public void boolean_constant() {
-                VerifyFormat(Expression.Lambda<Func<bool>>(Expression.Constant(true)), "true"); }
+            bool Foo(object obj) { return true; }
+
+            class Bar 
+            {
+                public Bar(object obj) { }
+            }
+
+            public void boolean_constant() { VerifyFormat(Expression.Lambda<Func<bool>>(Expression.Constant(true)), "true"); }
+
+            public void function_arguments() { VerifyFormat(() => Foo(true), "Foo((object)true)"); }
+
+            public void ctor_arguments() { VerifyFormat(() => new Bar(true), "new Bar((object)true)"); }
         }
 
     }

@@ -15,6 +15,7 @@ namespace Cone
             switch (expression.NodeType) {
                 case ExpressionType.ArrayLength: return FormatUnary((UnaryExpression)expression) + ".Length";
                 case ExpressionType.NewArrayInit: return FormatNewArray((NewArrayExpression)expression);
+                case ExpressionType.New: return FormatNew((NewExpression)expression);
                 case ExpressionType.MemberAccess:
                     var member = (MemberExpression)expression;
                     if (member.Expression == null)
@@ -128,6 +129,11 @@ namespace Cone
         string FormatNewArray(NewArrayExpression newArray) {
             var arrayFormatter = new ArrayExpressionStringBuilder<Expression>();
             return arrayFormatter.Format(newArray.Expressions, this);
+        }
+
+        string FormatNew(NewExpression newExpression) {
+            return "new " + newExpression.Type.Name + FormatArgs(newExpression.Arguments, 0, "({0})");
+            return newExpression.ToString();
         }
         
         static string GetBinaryOp(ExpressionType nodeType) {
