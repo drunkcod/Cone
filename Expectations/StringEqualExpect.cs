@@ -42,6 +42,8 @@ namespace Cone.Expectations
         }
 
         public override string FormatMessage(IFormatter<object> formatter) {
+            if(Actual == null)
+                return string.Format(ExpectMessages.EqualFormat, formatter.Format(null), formatter.Format(Expected));
             var n = ActualValue.IndexOfDifference(ExpectedValue);
             var displayActual = formatter.Format(Center(ActualValue, n, DisplayWidth));
             var displayExpected = formatter.Format(Center(ExpectedValue, n, DisplayWidth));

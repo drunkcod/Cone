@@ -122,6 +122,13 @@ namespace Cone
                 Verify.That(() => e.GetType() == GetAssertionExceptionType());
             }
 
+            public void actual_is_null_string() 
+            {
+                string obj = null;
+                var e = Verify.Exception<Exception>(() => Verify.That(() => obj == ""));
+                Verify.That(() => e.GetType() == GetAssertionExceptionType());
+            }
+            
             Type GetAssertionExceptionType() {
                 try {
                     Verify.ExpectationFailed(string.Empty);
