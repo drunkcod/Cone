@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using NUnit.Core;
+using System.Threading;
 
 namespace Cone.Addin
 {
@@ -9,10 +10,12 @@ namespace Cone.Addin
     {
         internal readonly TestExecutor testExecutor;
 
+        static int id = 0;
         static TestName BuildTestName(Test suite, string name) {
             var testName = new TestName();
             testName.FullName = suite.TestName.FullName + "." + name;
             testName.Name = name;
+            testName.TestID = new TestID(Interlocked.Increment(ref id));
             return testName;
         }
 

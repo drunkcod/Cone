@@ -16,4 +16,16 @@ namespace Cone
             public void same_old_same_old() { }
         }
     }
+
+    [Feature("ExampleFeature")]
+    public class ExampleFeatureFeature2
+    {
+        public void just_as_usual() { }
+
+        [Context("some context")]
+        public class SomeContext 
+        { 
+            public void same_old_same_old() { }
+        }
+    }
 }
