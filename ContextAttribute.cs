@@ -6,7 +6,7 @@ namespace Cone
     public class ContextAttribute : Attribute
     {
         public readonly string Context;
-        public string Category;
+        public string Category { get; set; }
 
         public ContextAttribute(string context) {
             Context = context;

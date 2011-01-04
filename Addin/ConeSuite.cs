@@ -16,18 +16,22 @@ namespace Cone.Addin
 
         public static TestSuite For(Type type) {
             var description = DescriptionOf(type);
-            return For(type, description, description.ParentSuiteName, description.TestName);
+            return For(type, description.Category, description.SuiteName, description.TestName);
         }
 
-        public static ConeSuite For(Type type, ContextAttribute context, string parentSuiteName, string name) {
+        public static ConeSuite For(Type type, string categories, string parentSuiteName, string name) {
             var suite = new ConeSuite(type, parentSuiteName, name);
             var setup = new ConeFixtureSetup(suite, suite.testNamer);
             setup.CollectFixtureMethods(type);
             suite.BindTo(setup.GetFixtureMethods());
             suite.AddNestedContexts();
-            suite.AddCategories(context);
+            suite.AddCategories(categories);
             return suite;
         }
+
+        public static bool SupportedType(Type type) { return type.IsPublic && (type.Has<DescribeAttribute>() || type.Has<FeatureAttribute>()); }
+
+        static int Id = 0;
 
         ConeSuite(Type type, string parentSuiteName, string name) : base(parentSuiteName, name) {
             this.type = type;
@@ -40,9 +44,8 @@ namespace Cone.Addin
         }
 
         public void Before() {
-            if (Fixture == null) {
+            if (Fixture == null)
                 Fixture = NewFixture();
-            }
             FixtureInvokeAll(setUpMethods, null);
         }
 
@@ -71,18 +74,19 @@ namespace Cone.Addin
             return subSuite;
         }
 
-        static DescribeAttribute DescriptionOf(Type type) {
-            DescribeAttribute desc;
-            if (!type.TryGetAttribute<DescribeAttribute>(out desc))
-                throw new NotSupportedException();
-            return desc;
+        static IFixtureDescription DescriptionOf(Type fixtureType) {
+            IFixtureDescription desc;
+            if (fixtureType.TryGetAttribute<DescribeAttribute, IFixtureDescription>(out desc)
+                || fixtureType.TryGetAttribute<FeatureAttribute, IFixtureDescription>(out desc))
+                return desc;
+            throw new NotSupportedException();
         }
 
         void AddNestedContexts() {
             foreach (var item in type.GetNestedTypes()) {
-                ContextAttribute context;
-                if (item.TryGetAttribute<ContextAttribute>(out context))
-                    Add(For(item, context, TestName.FullName, context.Context));
+                ContextAttribute description;
+                if (item.TryGetAttribute<ContextAttribute, ContextAttribute>(out description))
+                    Add(For(item, description.Category, TestName.FullName, description.Context));
             }
         }
 
@@ -92,7 +96,7 @@ namespace Cone.Addin
             tearDownMethods = setup.AfterEach;
             afterEachWithResult = setup.AfterEachWithResult;
             fixtureTearDownMethods = setup.AfterAll;
-
+            
             CreateDynamicRowTests(setup.RowSource);
         }
 
@@ -118,9 +122,9 @@ namespace Cone.Addin
             return testNamer.NameFor(method);
         }
 
-        void AddCategories(ContextAttribute context) {
-            if(!string.IsNullOrEmpty(context.Category))
-                foreach(var category in context.Category.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+        void AddCategories(string categories) {
+            if(!string.IsNullOrEmpty(categories))
+                foreach(var category in categories.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                     Categories.Add(category.Trim());
         }
 

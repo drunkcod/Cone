@@ -8,13 +8,13 @@ namespace Cone
             return type.GetCustomAttributes(typeof(T), true).Length == 1;
         }
 
-        public static bool TryGetAttribute<T>(this Type type, out T value) {
-            var attributes = type.GetCustomAttributes(typeof(T), true);
+        public static bool TryGetAttribute<TAttribute, TOut>(this Type type, out TOut value) where TAttribute : TOut {
+            var attributes = type.GetCustomAttributes(typeof(TAttribute), true);
             if (attributes.Length == 1) {
-                value = (T)attributes[0];
+                value = (TAttribute)attributes[0];
                 return true;
             }
-            value = default(T);
+            value = default(TOut);
             return false;
         }
     }

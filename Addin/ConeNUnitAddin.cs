@@ -17,13 +17,9 @@ namespace Cone.Addin
             return true;
         }
 
-        Test ISuiteBuilder.BuildFrom(Type type) {
-            return ConeSuite.For(type);
-        }
+        Test ISuiteBuilder.BuildFrom(Type type) { return ConeSuite.For(type); }
 
-        bool ISuiteBuilder.CanBuildFrom(Type type) {
-            return type.IsPublic && type.Has<DescribeAttribute>();
-        }
+        bool ISuiteBuilder.CanBuildFrom(Type type) { return ConeSuite.SupportedType(type); }
 
         static void AssertionFailed(string message) {
             throw new AssertionException(message);

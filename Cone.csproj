@@ -52,11 +52,13 @@
     <Compile Include="ExpressionExtensions.cs" />
     <Compile Include="ExpressionFormatter.cs" />
     <Compile Include="CustomAttributeProviderExtensions.cs" />
+    <Compile Include="FeatureAttribute.cs" />
     <Compile Include="IConeSuite.cs" />
     <Compile Include="IConeFixture.cs" />
     <Compile Include="IConeTest.cs" />
     <Compile Include="IFormatter.cs" />
     <Compile Include="IRowData.cs" />
+    <Compile Include="ITestDescription.cs" />
     <Compile Include="ITestName.cs" />
     <Compile Include="ITestResult.cs" />
     <Compile Include="ParameterFormatter.cs" />

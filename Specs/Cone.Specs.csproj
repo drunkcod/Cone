@@ -52,6 +52,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExampleFeatureFeature.cs" />
     <Compile Include="Addin\ConeSuiteSpec.cs" />
     <Compile Include="Addin\ConeSuiteSpec.RowTests.cs">
       <DependentUpon>ConeSuiteSpec.cs</DependentUpon>
