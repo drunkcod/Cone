@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using System.Collections.Generic;
 using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace Cone
 {   
@@ -9,7 +10,12 @@ namespace Cone
     {
         const string IndexerGet = "get_Item";
 
+        readonly Type context;
         readonly IFormatter<object> constantFormatter = new ParameterFormatter();
+
+        public ExpressionFormatter(Type context) {
+            this.context = context;
+        }
 
         public string Format(Expression expression) {
             switch (expression.NodeType) {
@@ -17,12 +23,13 @@ namespace Cone
                 case ExpressionType.NewArrayInit: return FormatNewArray((NewArrayExpression)expression);
                 case ExpressionType.New: return FormatNew((NewExpression)expression);
                 case ExpressionType.MemberAccess:
-                    var member = (MemberExpression)expression;
-                    if (member.Expression == null)
-                        return member.Member.DeclaringType.Name + "." + member.Member.Name;
-                    if (member.Expression.NodeType == ExpressionType.Constant)
-                        return member.Member.Name;
-                    return Format(member.Expression) + "." + member.Member.Name;
+                    var context = (Type)null;
+                    var memberAccess = (MemberExpression)expression;
+                    if (memberAccess.Expression == null)
+                        return memberAccess.Member.DeclaringType.Name + "." + memberAccess.Member.Name;
+                    if (IsAnonymousOrContextMember(memberAccess))
+                        return memberAccess.Member.Name;
+                    return Format(memberAccess.Expression) + "." + memberAccess.Member.Name;
                 case ExpressionType.Call: return FormatCall((MethodCallExpression)expression);
                 case ExpressionType.Quote: return FormatUnary((UnaryExpression)expression);
                 case ExpressionType.Lambda: return FormatLambda((LambdaExpression)expression);
@@ -40,6 +47,14 @@ namespace Cone
                     else
                         return FormatBinary(binary);
             }
+        }
+
+        bool IsAnonymousOrContextMember(MemberExpression memberAccess) {
+            var expression = memberAccess.Expression;
+            if(expression.NodeType != ExpressionType.Constant)
+                return false;
+            var valueType = (expression as ConstantExpression).Value.GetType();
+            return valueType == context || valueType.Has<CompilerGeneratedAttribute>();
         }
 
         string FormatCall(MethodCallExpression call) {

@@ -16,7 +16,7 @@ namespace Cone
     [Describe(typeof(ExpressionFormatter))]
     public class ExpressionFormatterSpec
     {
-        static readonly ExpressionFormatter Formatter = new ExpressionFormatter();
+        static readonly ExpressionFormatter Formatter = new ExpressionFormatter(typeof(ExpressionFormatterSpec));
 
         static string FormatBody<T>(Expression<Func<T>> expression) { return Formatter.Format(expression.Body); }
 
@@ -59,6 +59,10 @@ namespace Cone
         public void property_access() {
             var date = DateTime.Now;
             VerifyFormat(() => date.Year, "date.Year");
+        }
+
+        public void string_property_access() {
+            VerifyFormat(() => "String".Length, "\"String\".Length");
         }
 
         public void array_with_property_access() {

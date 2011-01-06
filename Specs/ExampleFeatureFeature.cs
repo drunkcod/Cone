@@ -15,17 +15,9 @@ namespace Cone
         { 
             public void same_old_same_old() { }
         }
-    }
 
-    [Feature("ExampleFeature")]
-    public class ExampleFeatureFeature2
-    {
-        public void just_as_usual() { }
+        public int TheAnswer { get { return 7; } }
 
-        [Context("some context")]
-        public class SomeContext 
-        { 
-            public void same_old_same_old() { }
-        }
+        public void foo() { Verify.That(() => TheAnswer == 42); }
     }
 }

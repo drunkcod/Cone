@@ -12,8 +12,7 @@ namespace Cone
         }
 
         public void Run(IConeTest test, ITestResult testResult) {
-            Maybe(fixture.Before, 
-                () => {
+            Maybe(fixture.Before, () => {
                     Maybe(() => test.Run(testResult), testResult.Success, testResult.TestFailure);
                     Maybe(() => fixture.After(testResult), () => { }, testResult.AfterFailure);               
                 }, testResult.BeforeFailure);

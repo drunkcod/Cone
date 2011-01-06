@@ -1,8 +1,6 @@
-﻿using System;
-using System.Diagnostics;
-using System.Reflection;
-using NUnit.Core;
+﻿using System.Diagnostics;
 using System.Threading;
+using NUnit.Core;
 
 namespace Cone.Addin
 {
