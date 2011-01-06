@@ -61,6 +61,20 @@ namespace Cone.NUnitIntegration
                     Verify.That(() => SamplesResult.Count("//test-suite[@type='Feature'][@name='ExampleFeature'][@executed='True']//test-suite[@type='Context']") == 1);
                 }
             }
+
+            [Context("Failures")]
+            public class Failures
+            {
+                public void member_access_failure() {
+                    var node = (XPathNavigator)Verify.That(() => SamplesResult.SelectSingleNode("//test-case[@name='Failure.member access example']") != null);
+                    Verify.That(() => node.Value.StartsWith("TheAnswer == 7"));
+                }
+
+                public void string_failure() {
+                    var node = (XPathNavigator)Verify.That(() => SamplesResult.SelectSingleNode("//test-case[@name='Failure.string example']") != null);
+                    Verify.That(() => node.Value.StartsWith("\"Hello World\".Length == 3"));
+                }
+            }
         }
     }
 }
