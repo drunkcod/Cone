@@ -50,9 +50,9 @@
       <HintPath>..\Tools\NUnit-$(NUnitVersion)\bin\net-2.0\framework\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExampleFeatureFeature.cs" />
     <Compile Include="Addin\ConeSuiteSpec.cs" />
     <Compile Include="Addin\ConeSuiteSpec.RowTests.cs">
       <DependentUpon>ConeSuiteSpec.cs</DependentUpon>
@@ -63,6 +63,7 @@
     <Compile Include="ConeTestNamerSpec.cs" />
     <Compile Include="ExpectFactorySpec.cs" />
     <Compile Include="ExpressionExtensionsSpec.cs" />
+    <Compile Include="NUnitIntegration\NUnitIntegrationFeature.cs" />
     <Compile Include="ParameterFormatterSpec.cs" />
     <Compile Include="RowBuilderSpec.cs" />
     <Compile Include="StringExtensionsSpec.cs" />
@@ -81,6 +82,10 @@
     <ProjectReference Include="..\Cone.csproj">
       <Project>{E557FD03-E249-4211-80CF-FB0923FD4C7D}</Project>
       <Name>Cone</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Samples\Cone.Samples.csproj">
+      <Project>{A277DEC5-9AE8-433A-ADF8-8B084ACD3CE9}</Project>
+      <Name>Cone.Samples</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

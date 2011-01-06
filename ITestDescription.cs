@@ -4,6 +4,7 @@
     {
         string Category { get; }
         string SuiteName { get; }
+        string SuiteType { get; }
         string TestName { get; }
     }
 }

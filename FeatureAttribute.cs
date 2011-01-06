@@ -9,7 +9,10 @@ namespace Cone
     public sealed class FeatureAttribute : ContextAttribute, IFixtureDescription
     {
         public FeatureAttribute(string featureName) : base(featureName) { }
+
         public string SuiteName { get { return string.Empty; } }
+
+        public string SuiteType { get { return "Feature"; } }
 
         public string TestName { get { return Context; } }
     }

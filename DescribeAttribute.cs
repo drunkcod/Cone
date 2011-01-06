@@ -15,6 +15,8 @@ namespace Cone
 
         public string SuiteName { get { return DescribedType.Namespace; } }
 
+        public string SuiteType { get { return "Description"; } }
+
         public string TestName {
             get {
                 if (string.IsNullOrEmpty(Context))
