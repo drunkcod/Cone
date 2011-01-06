@@ -15,9 +15,5 @@ namespace Cone
         { 
             public void same_old_same_old() { }
         }
-
-        public int TheAnswer { get { return 7; } }
-
-        public void foo() { Verify.That(() => TheAnswer == 42); }
     }
 }
