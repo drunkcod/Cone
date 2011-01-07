@@ -14,7 +14,7 @@ let build args =
     Process.Start(
       ProcessStartInfo(
         FileName = msBuild4,
-        Arguments = "Cone.sln /nologo /m /p:Configuration=Release " + args ,
+        Arguments = "Cone.sln /nologo /m /v:m /p:Configuration=Release " + args ,
         UseShellExecute = false))
   build.WaitForExit()
   build.ExitCode = 0

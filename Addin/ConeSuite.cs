@@ -33,8 +33,6 @@ namespace Cone.Addin
 
         public static bool SupportedType(Type type) { return type.IsPublic && (type.Has<DescribeAttribute>() || type.Has<FeatureAttribute>()); }
 
-        static int Id = 0;
-
         ConeSuite(Type type, string parentSuiteName, string name) : base(parentSuiteName, name) {
             this.type = type;
             this.testExecutor = new TestExecutor(this);

@@ -147,7 +147,6 @@ namespace Cone
 
         string FormatNew(NewExpression newExpression) {
             return "new " + newExpression.Type.Name + FormatArgs(newExpression.Arguments, 0, "({0})");
-            return newExpression.ToString();
         }
         
         static string GetBinaryOp(ExpressionType nodeType) {

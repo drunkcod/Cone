@@ -49,8 +49,8 @@ namespace Cone
         }
 
         public void type_test() {
-
-            Verify.That(() => TheAnswer is Int32);
+            var objAnswer = (object)TheAnswer;
+            Verify.That(() => objAnswer is Int32);
         }
 
         public class PossiblyGreen
@@ -70,7 +70,8 @@ namespace Cone
             object obj = 2;
 
             public void equal() {
-                Verify.That(() => a == a);
+                var a2 = a;
+                Verify.That(() => a == a2);
             }
 
             public void not_equal() {
@@ -82,7 +83,8 @@ namespace Cone
             }
 
             public void less_or_equal() {
-                Verify.That(() => a <= a);
+                var a2 = a;
+                Verify.That(() => a <= a2);
             }
 
             public void greater() {
@@ -118,14 +120,14 @@ namespace Cone
 
             public void actual_is_null_but_is_expected_not_to_be() {
                 string obj = null;
-                var e = Verify.Exception<Exception>(() => Verify.That(() => obj != null));
+                var e = Verify.Throws<Exception>.When(() => Verify.That(() => obj != null));
                 Verify.That(() => e.GetType() == GetAssertionExceptionType());
             }
 
             public void actual_is_null_string() 
             {
                 string obj = null;
-                var e = Verify.Exception<Exception>(() => Verify.That(() => obj == ""));
+                var e = Verify.Throws<Exception>.When(() => Verify.That(() => obj == ""));
                 Verify.That(() => e.GetType() == GetAssertionExceptionType());
             }
             
@@ -144,7 +146,7 @@ namespace Cone
         {
             public void raises_expectation_failed_when_wrong_type_of_excpetion_raised() {
                 try {
-                    Verify.Exception<NotSupportedException>(() => NotImplemented());
+                    Verify.Throws<NotSupportedException>.When(() => NotImplemented());
                     throw new NotSupportedException();
                 } catch (Exception e) {
                     Verify.That(() => e.GetType() == ExpectedExcpetionType());
@@ -152,7 +154,7 @@ namespace Cone
             }
 
             public void passes_when_Exception_types_match() {
-                Verify.Exception<NotImplementedException>(() => NotImplemented());
+                Verify.Throws<NotImplementedException>.When(() => NotImplemented());
             }
 
             class Dummy 
@@ -167,7 +169,7 @@ namespace Cone
            
             public void raises_expectation_failed_when_exception_missing() {
                 try {
-                    Verify.Exception<Exception>(() => Nothing());
+                    Verify.Throws<Exception>.When(() => Nothing());
                     throw new NotSupportedException();
                 } catch (Exception e) {
                     Verify.That(() => e.GetType() == ExpectedExcpetionType());
@@ -175,7 +177,7 @@ namespace Cone
             }
 
             public void verify_Exception_message() {
-                var e = Verify.Exception<NotImplementedException>(() => NotImplemented());
+                var e = Verify.Throws<NotImplementedException>.When(() => NotImplemented());
                 Verify.That(() => e.GetType() == typeof(NotImplementedException));
                 Verify.That(() => e.Message == new NotImplementedException().Message);
             }

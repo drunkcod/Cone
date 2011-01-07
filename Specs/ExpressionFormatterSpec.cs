@@ -72,7 +72,8 @@ namespace Cone
 
         public void type_test()
         {
-            VerifyFormat(() => 1 is Object, "1 is object");
+            var now = (object)DateTime.Now;
+            VerifyFormat(() => now is DateTime, "now is DateTime");
         }
 
         public void static_property_access() {
