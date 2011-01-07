@@ -31,10 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Cone, Version=0.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Bin\Cone.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\Tools\NUnit-2.5.7.10213\bin\net-2.0\nunit.framework.dll</HintPath>
     </Reference>
@@ -44,6 +40,12 @@
   <ItemGroup>
     <Compile Include="ExampleFeatureFeature.cs" />
     <Compile Include="Failures\FailureMessagesFeature.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Cone.csproj">
+      <Project>{E557FD03-E249-4211-80CF-FB0923FD4C7D}</Project>
+      <Name>Cone</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

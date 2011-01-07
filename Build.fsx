@@ -19,6 +19,16 @@ let build args =
   build.WaitForExit()
   build.ExitCode = 0
 
+let test() =
+  let nunit = 
+    Process.Start(
+      ProcessStartInfo(
+        FileName = @"Tools\NUnit-2.5.7.10213\bin\net-2.0\nunit-console.exe",
+        Arguments = @"Build\Cone.Specs.dll /nologo",
+        UseShellExecute = false))
+  nunit.WaitForExit()
+  nunit.ExitCode = 0
+
 let package() =
     let version = AssemblyName.GetAssemblyName("Bin\Cone.dll").Version.ToString()
 
@@ -36,4 +46,5 @@ clean ["Build";"Bin"]
 && build ""
 && build "/p:NUnitVersion=2.5.5.10112 /t:Cone_Addin:Rebuild"
 && build "/p:NUnitVersion=2.5.7.10213 /t:Cone_Addin:Rebuild"
+&& test()
 && package()

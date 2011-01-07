@@ -11,6 +11,7 @@ namespace Cone
         public static Action<string> ExpectationFailed = message => { throw new ExpectationFailedException(message); };
         static readonly ParameterFormatter ParameterFormatter = new ParameterFormatter();
         static readonly ExpectFactory Expect = new ExpectFactory();
+        static internal Type Context;
 
         static IExpect From(Expression body) {
             return Expect.From(body);
@@ -18,17 +19,17 @@ namespace Cone
 
         public static object That(Expression<Func<bool>> expr) {
             
-            return Check(From(expr.Body), 1);
+            return Check(From(expr.Body));
         }
 
         public static class Throws<TException> where TException : Exception
         {
             public static TException When(Expression<Action> expr) {
-                return (TException)Check(ExceptionExpect.From(expr, typeof(TException)), 1);
+                return (TException)Check(ExceptionExpect.From(expr, typeof(TException)));
             }
 
             public static TException When<TValue>(Expression<Func<TValue>> expr) {
-                return (TException)Check(ExceptionExpect.From(expr, typeof(TException)), 1);
+                return (TException)Check(ExceptionExpect.From(expr, typeof(TException)));
             }
         }
 
@@ -37,20 +38,16 @@ namespace Cone
             return Throws<TException>.When(expr);
         }
 
-        static object Check(IExpect expect, int skipFrames) {
+        static object Check(IExpect expect) {
             object actual;
             if (!expect.Check(out actual))
-                ExpectationFailed(expect.FormatExpression(GetExpressionFormatter(GetCallingType(1 + skipFrames))) + "\n" + expect.FormatMessage(ParameterFormatter));
+                ExpectationFailed(expect.FormatExpression(GetExpressionFormatter()) + "\n" + expect.FormatMessage(ParameterFormatter));
             return actual;
         }       
  
-        static Type GetCallingType(int skipFrames) {
-            return new StackFrame(1 + skipFrames).GetMethod().DeclaringType;
-        }
-
-        static ExpressionFormatter GetExpressionFormatter(Type context) {
+        static ExpressionFormatter GetExpressionFormatter() {
  
-            return new ExpressionFormatter(context); 
+            return new ExpressionFormatter(Context); 
         }
     }
 }

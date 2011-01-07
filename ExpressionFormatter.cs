@@ -23,7 +23,6 @@ namespace Cone
                 case ExpressionType.NewArrayInit: return FormatNewArray((NewArrayExpression)expression);
                 case ExpressionType.New: return FormatNew((NewExpression)expression);
                 case ExpressionType.MemberAccess:
-                    var context = (Type)null;
                     var memberAccess = (MemberExpression)expression;
                     if (memberAccess.Expression == null)
                         return memberAccess.Member.DeclaringType.Name + "." + memberAccess.Member.Name;
