@@ -22,13 +22,8 @@ namespace Cone
                 case ExpressionType.ArrayLength: return FormatUnary((UnaryExpression)expression) + ".Length";
                 case ExpressionType.NewArrayInit: return FormatNewArray((NewArrayExpression)expression);
                 case ExpressionType.New: return FormatNew((NewExpression)expression);
-                case ExpressionType.MemberAccess:
-                    var memberAccess = (MemberExpression)expression;
-                    if (memberAccess.Expression == null)
-                        return memberAccess.Member.DeclaringType.Name + "." + memberAccess.Member.Name;
-                    if (IsAnonymousOrContextMember(memberAccess))
-                        return memberAccess.Member.Name;
-                    return Format(memberAccess.Expression) + "." + memberAccess.Member.Name;
+                case ExpressionType.MemberAccess: return FormatMemberAccess((MemberExpression)expression);
+                case ExpressionType.MemberInit: return FormatMemberInit((MemberInitExpression)expression);
                 case ExpressionType.Call: return FormatCall((MethodCallExpression)expression);
                 case ExpressionType.Quote: return FormatUnary((UnaryExpression)expression);
                 case ExpressionType.Lambda: return FormatLambda((LambdaExpression)expression);
@@ -148,10 +143,42 @@ namespace Cone
         string FormatNew(NewExpression newExpression) {
             return "new " + newExpression.Type.Name + FormatArgs(newExpression.Arguments, 0, "({0})");
         }
+
+        string FormatMemberAccess(MemberExpression memberAccess) {
+            if (memberAccess.Expression == null)
+                return memberAccess.Member.DeclaringType.Name + "." + memberAccess.Member.Name;
+            if (IsAnonymousOrContextMember(memberAccess))
+                return memberAccess.Member.Name;
+            return Format(memberAccess.Expression) + "." + memberAccess.Member.Name;
+        }
         
+        string FormatMemberInit(MemberInitExpression memberInit) {
+            var result = new StringBuilder(FormatNew(memberInit.NewExpression));
+
+            result.Append("{ ");
+            var format = "{0}";
+            foreach(var item in memberInit.Bindings) {
+                result.AppendFormat(format, FormatMemberBinding(item));
+                format = ", {0}";
+            }
+            result.Append(" }");
+            return result.ToString();
+        }
+
+        string FormatMemberBinding(MemberBinding binding) {
+            switch(binding.BindingType) {
+                case MemberBindingType.Assignment:
+                    var assignment = (MemberAssignment)binding;
+                    return string.Format("{0} = {1}", assignment.Member.Name, Format(assignment.Expression));
+                default: throw new NotSupportedException(String.Format("Unsupported MemberBindingType '{0}'", binding.BindingType));
+            }
+        }
+
         static string GetBinaryOp(ExpressionType nodeType) {
             switch (nodeType) {
                 case ExpressionType.Add: return "{0} + {1}";
+                case ExpressionType.Subtract: return "{0} - {1}";
+                case ExpressionType.Multiply: return "{0} * {1}";
                 case ExpressionType.Equal: return "{0} == {1}";
                 case ExpressionType.NotEqual: return "{0} != {1}";
                 case ExpressionType.GreaterThan: return "{0} > {1}";

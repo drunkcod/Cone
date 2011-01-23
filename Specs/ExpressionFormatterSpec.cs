@@ -141,6 +141,10 @@ namespace Cone
         
         public void less_or_equal() { VerifyFormat(() => A <= B, "A <= B"); }
 
+        public void multiply() { VerifyFormat(() => A * B, "A * B"); }
+
+        public void subtract() { VerifyFormat(() => A - B, "A - B"); }
+
         [Context("nested expressions")]
         public class NestedExpressions
         {
@@ -149,6 +153,8 @@ namespace Cone
             class Bar 
             {
                 public Bar(object obj) { }
+                public int Value;
+                public int Answer;
             }
 
             public void boolean_constant() { VerifyFormat(Expression.Lambda<Func<bool>>(Expression.Constant(true)), "true"); }
@@ -156,6 +162,16 @@ namespace Cone
             public void function_arguments() { VerifyFormat(() => Foo(true), "Foo((object)true)"); }
 
             public void ctor_arguments() { VerifyFormat(() => new Bar(true), "new Bar((object)true)"); }
+
+            public void ctor_initializer() { 
+                var value = 42;
+                VerifyFormat(() => new Bar(null){ Value = value }, "new Bar(null){ Value = value }"); 
+            }
+
+            public void ctor_multi_initializer() { 
+                var value = 42;
+                VerifyFormat(() => new Bar(null){ Value = value, Answer = 42 }, "new Bar(null){ Value = value, Answer = 42 }"); 
+            }
         }
 
     }
