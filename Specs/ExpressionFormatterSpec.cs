@@ -145,6 +145,8 @@ namespace Cone
 
         public void subtract() { VerifyFormat(() => A - B, "A - B"); }
 
+        public void divide() { VerifyFormat(() => A / B, "A / B"); }
+
         [Context("nested expressions")]
         public class NestedExpressions
         {

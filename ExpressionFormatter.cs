@@ -179,6 +179,7 @@ namespace Cone
                 case ExpressionType.Add: return "{0} + {1}";
                 case ExpressionType.Subtract: return "{0} - {1}";
                 case ExpressionType.Multiply: return "{0} * {1}";
+                case ExpressionType.Divide: return "{0} / {1}";
                 case ExpressionType.Equal: return "{0} == {1}";
                 case ExpressionType.NotEqual: return "{0} != {1}";
                 case ExpressionType.GreaterThan: return "{0} > {1}";
