@@ -19,21 +19,17 @@ namespace Cone
 
         public string Format(Expression expression) {
             switch (expression.NodeType) {
-                case ExpressionType.ArrayLength: return FormatUnary((UnaryExpression)expression) + ".Length";
+                case ExpressionType.ArrayLength: return FormayArrayLength((UnaryExpression)expression);
                 case ExpressionType.NewArrayInit: return FormatNewArray((NewArrayExpression)expression);
                 case ExpressionType.New: return FormatNew((NewExpression)expression);
                 case ExpressionType.MemberAccess: return FormatMemberAccess((MemberExpression)expression);
                 case ExpressionType.MemberInit: return FormatMemberInit((MemberInitExpression)expression);
-                case ExpressionType.Call: return FormatCall((MethodCallExpression)expression);
                 case ExpressionType.Quote: return FormatUnary((UnaryExpression)expression);
                 case ExpressionType.Lambda: return FormatLambda((LambdaExpression)expression);
+                case ExpressionType.Call: return FormatCall((MethodCallExpression)expression);
                 case ExpressionType.Constant: return FormatConstant((ConstantExpression)expression);
-                case ExpressionType.Convert:
-                    var convert = (UnaryExpression)expression;
-                    return string.Format("({0}){1}", FormatType(convert.Type), Format(convert.Operand));
-                case ExpressionType.TypeIs:
-                    var typeIs = (TypeBinaryExpression)expression;
-                    return string.Format("{0} is {1}", Format(typeIs.Expression), FormatType(typeIs.TypeOperand));
+                case ExpressionType.Convert: return FormatConvert((UnaryExpression)expression);
+                case ExpressionType.TypeIs: return FormatTypeIs((TypeBinaryExpression)expression);
                 default:
                     var binary = expression as BinaryExpression;
                     if (binary == null)
@@ -43,28 +39,8 @@ namespace Cone
             }
         }
 
-        bool IsAnonymousOrContextMember(MemberExpression memberAccess) {
-            var expression = memberAccess.Expression;
-            if(expression.NodeType != ExpressionType.Constant)
-                return false;
-            var valueType = (expression as ConstantExpression).Value.GetType();
-            return valueType == context || valueType.Has<CompilerGeneratedAttribute>();
-        }
-
-        string FormatCall(MethodCallExpression call) {
-            int firstArgumentOffset;
-            var target = FormatCallTarget(call, out firstArgumentOffset);
-            var method = call.Method;
-            var invocation = string.Empty;
-            var parameterFormat = "({0})";
-            if (method.IsSpecialName && IndexerGet == method.Name)
-                parameterFormat = "[{0}]";
-            else if (call.Object != null && call.Object.NodeType == ExpressionType.Constant) {
-                target = string.Empty;
-                invocation = method.Name;
-            } else
-                invocation = "." + method.Name;
-            return target + invocation + FormatArgs(call.Arguments, firstArgumentOffset, parameterFormat);
+        string FormayArrayLength(UnaryExpression arrayLength) {
+            return FormatUnary(arrayLength) + ".Length";
         }
 
         string FormatType(Type type) {
@@ -89,7 +65,31 @@ namespace Cone
             return Format(target);
         }
 
+        string FormatCall(MethodCallExpression call) {
+            int firstArgumentOffset;
+            var target = FormatCallTarget(call, out firstArgumentOffset);
+            var method = call.Method;
+            var invocation = string.Empty;
+            var parameterFormat = "({0})";
+            if (method.IsSpecialName && IndexerGet == method.Name)
+                parameterFormat = "[{0}]";
+            else if (call.Object != null && call.Object.NodeType == ExpressionType.Constant) {
+                target = string.Empty;
+                invocation = method.Name;
+            } else
+                invocation = "." + method.Name;
+            return target + invocation + FormatArgs(call.Arguments, firstArgumentOffset, parameterFormat);
+        }
+
         string FormatConstant(ConstantExpression constant) { return constantFormatter.Format(constant.Value); }
+
+        string FormatConvert(UnaryExpression conversion) {
+            return string.Format("({0}){1}", FormatType(conversion.Type), Format(conversion.Operand));
+        }
+
+        string FormatTypeIs(TypeBinaryExpression typeIs) {
+            return string.Format("{0} is {1}", Format(typeIs.Expression), FormatType(typeIs.TypeOperand));
+        }
 
         string FormatLambda(LambdaExpression lambda) {
             var parameters = lambda.Parameters;
@@ -172,6 +172,14 @@ namespace Cone
                     return string.Format("{0} = {1}", assignment.Member.Name, Format(assignment.Expression));
                 default: throw new NotSupportedException(String.Format("Unsupported MemberBindingType '{0}'", binding.BindingType));
             }
+        }
+
+        bool IsAnonymousOrContextMember(MemberExpression memberAccess) {
+            var expression = memberAccess.Expression;
+            if(expression.NodeType != ExpressionType.Constant)
+                return false;
+            var valueType = (expression as ConstantExpression).Value.GetType();
+            return valueType == context || valueType.Has<CompilerGeneratedAttribute>();
         }
 
         static string GetBinaryOp(ExpressionType nodeType) {
