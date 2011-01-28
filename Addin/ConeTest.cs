@@ -35,7 +35,7 @@ namespace Cone.Addin
             listener.TestStarted(TestName);
             switch(RunState){
                 case RunState.Runnable: testExecutor.Run(this, testResult); break;
-                case RunState.Ignored: testResult.Pending("Pending"); break;
+                case RunState.Ignored: testResult.Pending(IgnoreReason); break;
             }
             
             time.Stop();

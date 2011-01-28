@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Cone
 {
-    [AttributeUsage(AttributeTargets.Method)]
-    public class PendingAttribute : Attribute { }
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    public class PendingAttribute : Attribute 
+    {
+        public string Reason;
+    }
 }

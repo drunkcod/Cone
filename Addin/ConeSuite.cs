@@ -149,7 +149,10 @@ namespace Cone.Addin
         }
 
         void AddMethod(MethodInfo method, Test test) {
-            method.Has<PendingAttribute>(x => test.RunState = RunState.Ignored);
+            method.Has<PendingAttribute>(x => {
+                test.RunState = RunState.Ignored;
+                test.IgnoreReason = x[0].Reason;
+            });
             Add(test);
         }
     }

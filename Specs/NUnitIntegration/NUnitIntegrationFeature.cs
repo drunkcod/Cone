@@ -75,6 +75,19 @@ namespace Cone.NUnitIntegration
                     Verify.That(() => node.Value.StartsWith("\"Hello World\".Length == 3"));
                 }
             }
+
+            [Context("Pending")]
+            public class Pending
+            {
+                public void without_reason() {
+                    var node = (XPathNavigator)Verify.That(() => SamplesResult.SelectSingleNode("//test-case[@name='Cone.PendingAttribute.without reason']") != null);
+                    Verify.That(() => node.Value == "");
+                }
+                public void for_some_reason() {
+                    var node = (XPathNavigator)Verify.That(() => SamplesResult.SelectSingleNode("//test-case[@name='Cone.PendingAttribute.for some reason']") != null);
+                    Verify.That(() => node.Value == "for some reason");
+                }
+            }
         }
     }
 }

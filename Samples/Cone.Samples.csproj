@@ -40,6 +40,7 @@
   <ItemGroup>
     <Compile Include="ExampleFeatureFeature.cs" />
     <Compile Include="Failures\FailureMessagesFeature.cs" />
+    <Compile Include="PendingAttributeSpec.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cone.csproj">
