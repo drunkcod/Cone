@@ -98,6 +98,28 @@ namespace Cone
             public void return_value_is_same_as_actual() {
                 Verify.That(() => Object.ReferenceEquals(Verify.That(() => obj == (object)b), obj));
             }
+            
+            class WithCustomEquality
+            {
+                readonly object value;
+
+                public WithCustomEquality(object value){ this.value = value; }
+
+                public override bool Equals(object obj) {
+                    return value.Equals(obj);
+                }
+
+                public static bool operator==(WithCustomEquality self, int value) {
+                    return self.Equals(value);
+                }
+
+                public static bool operator!=(WithCustomEquality self, int value) {  return !(self == value); }
+            }
+
+            public void custom_equality() {
+                Verify.That(() => new WithCustomEquality(42) == 42);
+            }
+
         }
 
         [Context("null checks")]

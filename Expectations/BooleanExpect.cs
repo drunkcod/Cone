@@ -30,6 +30,8 @@ namespace Cone.Expectations
         public virtual string MessageFormat { get { return ExpectMessages.EqualFormat; } }
         
         protected virtual bool CheckCore() {
+            if(actual != null)
+                return actual.Equals(Expected);
             return Expected.Equals(actual);
         }
     }
