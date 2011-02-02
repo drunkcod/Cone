@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using System.Reflection;
 using System.Linq;
+using System;
 
 namespace Cone
 {
@@ -12,9 +13,7 @@ namespace Cone
         public string NameFor(MethodBase method) {
             var baseName = GetNameOf(method);
             var parameters = method.GetParameters();
-            var displayParameters = new string[parameters.Length];
-            for(int i = 0; i != parameters.Length; ++i)
-                displayParameters[i] = parameters[i].Name;
+            var displayParameters = Array.ConvertAll(parameters, x => x.Name);
             return string.Format(baseName, displayParameters);
         }
 
@@ -29,22 +28,18 @@ namespace Cone
             var baseName = GetNameOf(method);
             if (arguments == null)
                 return baseName;
+            var displayArguments = DisplayArguments(arguments);
             if(IsFormatString(baseName))
-                return string.Format(baseName, DisplayArguments(arguments));
-            return string.Format("{0}({1})", baseName, FormatArguments(arguments));
+                return string.Format(baseName, displayArguments);
+            return string.Format("{0}({1})", baseName, FormatArguments(displayArguments));
         }
 
-        object[] DisplayArguments(object[] arguments) {
-            var displayArguments = new object[arguments.Length];
-            for (int i = 0; i != arguments.Length; ++i)
-                displayArguments[i] = Format(arguments[i]);
-            return displayArguments;
-        }
+        object[] DisplayArguments(object[] arguments) { return Array.ConvertAll(arguments, Format); }
 
         object Format(object obj) { return formatter.AsWritable(obj); }
 
         string FormatArguments(object[] arguments) {
-            return string.Join(", ", DisplayArguments(arguments).Select(x => x.ToString()).ToArray());
+            return string.Join(", ",  Array.ConvertAll(DisplayArguments(arguments), x => x.ToString()));
         }
 
         bool IsFormatString(string s) {
