@@ -14,6 +14,10 @@ namespace Cone
         }
 
         public string Format(object obj) {
+            return AsWritable(obj).ToString();
+        }
+
+        public object AsWritable(object obj) {
             if (obj == null)
                 return "null";
             var str = obj as string;
@@ -30,7 +34,7 @@ namespace Cone
                 return string.Format("{0}.{1}", typeOfObj.Name, obj);
             if(typeOfObj == typeof(bool))
                 return (bool)obj ? "true": "false";
-            return obj.ToString(); 
+            return obj; 
         }
 
         string FormatCollection(IEnumerable collection) {
