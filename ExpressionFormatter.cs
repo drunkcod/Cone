@@ -73,14 +73,9 @@ namespace Cone
             var parameterFormat = "({0})";
             if (method.IsSpecialName && IndexerGet == method.Name)
                 parameterFormat = "[{0}]";
-            else if (call.Object != null && call.Object.NodeType == ExpressionType.Constant) {
-                if(call.Object.Type == context) {
-                    target = string.Empty;
-                    invocation = method.Name;
-                } else {
-                    invocation = "." + method.Name;
-                }
-
+            else if (IsAnonymousOrContextMember(call.Object)) {
+                target = string.Empty;
+                invocation = method.Name;
             } else
                 invocation = "." + method.Name;
             return target + invocation + FormatArgs(call.Arguments, firstArgumentOffset, parameterFormat);
@@ -152,7 +147,7 @@ namespace Cone
         string FormatMemberAccess(MemberExpression memberAccess) {
             if (memberAccess.Expression == null)
                 return memberAccess.Member.DeclaringType.Name + "." + memberAccess.Member.Name;
-            if (IsAnonymousOrContextMember(memberAccess))
+            if (IsAnonymousOrContextMember(memberAccess.Expression))
                 return memberAccess.Member.Name;
             return Format(memberAccess.Expression) + "." + memberAccess.Member.Name;
         }
@@ -179,9 +174,8 @@ namespace Cone
             }
         }
 
-        bool IsAnonymousOrContextMember(MemberExpression memberAccess) {
-            var expression = memberAccess.Expression;
-            if(expression.NodeType != ExpressionType.Constant)
+        bool IsAnonymousOrContextMember(Expression expression) {
+            if(expression == null || expression.NodeType != ExpressionType.Constant)
                 return false;
             var valueType = (expression as ConstantExpression).Value.GetType();
             return valueType == context || valueType.Has<CompilerGeneratedAttribute>();
