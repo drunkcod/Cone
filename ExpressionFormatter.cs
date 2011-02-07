@@ -74,8 +74,13 @@ namespace Cone
             if (method.IsSpecialName && IndexerGet == method.Name)
                 parameterFormat = "[{0}]";
             else if (call.Object != null && call.Object.NodeType == ExpressionType.Constant) {
-                target = string.Empty;
-                invocation = method.Name;
+                if(call.Object.Type == context) {
+                    target = string.Empty;
+                    invocation = method.Name;
+                } else {
+                    invocation = "." + method.Name;
+                }
+
             } else
                 invocation = "." + method.Name;
             return target + invocation + FormatArgs(call.Arguments, firstArgumentOffset, parameterFormat);

@@ -2,6 +2,9 @@
 using System;
 using System.Reflection;
 using System.Diagnostics;
+using System.Collections;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Cone.Expectations
 {
@@ -18,6 +21,18 @@ namespace Cone.Expectations
 
         static ConstructorInfo GetExpectCtor(Type expectType) {
             return expectType.GetConstructor(new[]{ typeof(Expression), typeof(object), typeof(object) });
+        }
+
+        readonly IDictionary<MethodInfo, IMethodExpectProvider> methodExpects = new Dictionary<MethodInfo, IMethodExpectProvider>();
+
+        public ExpectFactory() {
+            var providers = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(x => x.GetTypes())
+                .Where(x => typeof(IMethodExpectProvider).IsAssignableFrom(x) && x.IsClass)
+                .Select(x => x.GetConstructor(Type.EmptyTypes).Invoke(null) as IMethodExpectProvider);
+            foreach(var provider in providers)
+                foreach(var method in provider.GetSupportedMethods())
+                    methodExpects[method] = provider;
         }
 
         public IExpect From(Expression body) {
@@ -45,7 +60,7 @@ namespace Cone.Expectations
             return false;
         }
 
-        static IExpect Lambda(Expression body) {
+        IExpect Lambda(Expression body) {
             var binary = body as BinaryExpression;
             if (binary != null)
                 return FromBinary(binary);
@@ -54,7 +69,12 @@ namespace Cone.Expectations
             return FromSingle(body);
         }
 
-        static IExpect FromSingle(Expression body) {
+        IExpect FromSingle(Expression body) {
+            IMethodExpectProvider provider;
+            if(body.NodeType == ExpressionType.Call && methodExpects.TryGetValue(((MethodCallExpression)body).Method, out provider)) {
+                var m = (MethodCallExpression)body;
+                return provider.GetExpectation(body, m.Method, Expression.Lambda<Func<object>>(m.Object).Execute(), m.Arguments.Select(x => Expression.Lambda<Func<object>>(x).Execute()).ToArray());
+            }
             return new BooleanExpect(body, Expression.Lambda<Func<bool>>(body).Execute());
         }
 
