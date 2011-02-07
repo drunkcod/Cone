@@ -9,6 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cone.Addin", "Addin\Cone.Ad
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cone.Samples", "Samples\Cone.Samples.csproj", "{A277DEC5-9AE8-433A-ADF8-8B084ACD3CE9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9F49969B-C9E7-4176-9538-40ADF6A36D82}"
+	ProjectSection(SolutionItems) = preProject
+		Build.fsx = Build.fsx
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

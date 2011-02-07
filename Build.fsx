@@ -4,6 +4,8 @@ open System.IO
 open System.Reflection
 open Ionic.Zip
 
+let NUnitPath = @"Tools\NUnit-2.5.7.10213\bin\net-2.0"
+
 let clean what =
     what |> Seq.map (fun p -> try Directory.Delete(p, true); true with | :? DirectoryNotFoundException -> true | _ -> false) |> Seq.reduce (&&)
 
@@ -19,11 +21,19 @@ let build args =
   build.WaitForExit()
   build.ExitCode = 0
 
+let copyAddin() =
+  let addins = Directory.CreateDirectory(Path.Combine(NUnitPath, "addins"))
+  let copyToAddins source = 
+      File.Copy(source, Path.Combine(addins.FullName, Path.GetFileName(source)), true)
+  copyToAddins "Bin\Cone.Addin.dll"
+  copyToAddins "Bin\Cone.dll"
+  true
+
 let test() =
   let nunit = 
     Process.Start(
       ProcessStartInfo(
-        FileName = @"Tools\NUnit-2.5.7.10213\bin\net-2.0\nunit-console.exe",
+        FileName = Path.Combine(NUnitPath, "nunit-console.exe"),
         Arguments = @"Build\Cone.Specs.dll /nologo",
         UseShellExecute = false))
   nunit.WaitForExit()
@@ -46,5 +56,6 @@ clean ["Build";"Bin"]
 && build ""
 && build "/p:NUnitVersion=2.5.5.10112 /t:Cone_Addin:Rebuild"
 && build "/p:NUnitVersion=2.5.7.10213 /t:Cone_Addin:Rebuild"
+&& copyAddin()
 && test()
 && package()
