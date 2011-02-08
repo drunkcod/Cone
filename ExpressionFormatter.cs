@@ -84,6 +84,8 @@ namespace Cone
         string FormatConstant(ConstantExpression constant) { return constantFormatter.Format(constant.Value); }
 
         string FormatConvert(UnaryExpression conversion) {
+            if(conversion.Type == typeof(object))
+                return Format(conversion.Operand);
             return string.Format("({0}){1}", FormatType(conversion.Type), Format(conversion.Operand));
         }
 

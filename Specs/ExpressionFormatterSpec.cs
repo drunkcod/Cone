@@ -114,7 +114,7 @@ namespace Cone
             VerifyFormat(() => stuff["Answer"], "stuff[\"Answer\"]");
         }
 
-        public void cast_object() { VerifyFormat(() => (object)A, "(object)A"); }
+        public void cast_object() { VerifyFormat(() => (object)A, "A"); }
 
         public void cast_string() { VerifyFormat(() => (string)Obj, "(string)Obj"); }
 
@@ -169,9 +169,9 @@ namespace Cone
 
             public void boolean_constant() { VerifyFormat(Expression.Lambda<Func<bool>>(Expression.Constant(true)), "true"); }
 
-            public void function_arguments() { VerifyFormat(() => Foo(true), "Foo((object)true)"); }
+            public void function_arguments() { VerifyFormat(() => Foo(true), "Foo(true)"); }
 
-            public void ctor_arguments() { VerifyFormat(() => new Bar(true), "new Bar((object)true)"); }
+            public void ctor_arguments() { VerifyFormat(() => new Bar(true), "new Bar(true)"); }
 
             public void ctor_initializer() { 
                 var value = 42;
