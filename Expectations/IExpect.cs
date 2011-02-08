@@ -2,9 +2,15 @@
 
 namespace Cone.Expectations
 {
+    public struct ExpectResult
+    {
+        public bool Success;
+        public object Actual;
+    }
+
     public interface IExpect
     {
-        bool Check(out object actual);
+        ExpectResult Check();
         string FormatExpression(IFormatter<Expression> formatter);
         string FormatMessage(IFormatter<object> formatter);
     }

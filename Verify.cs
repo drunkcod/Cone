@@ -39,10 +39,10 @@ namespace Cone
         }
 
         static object Check(IExpect expect) {
-            object actual;
-            if (!expect.Check(out actual))
+            var result = expect.Check();
+            if (!result.Success)
                 ExpectationFailed(expect.FormatExpression(GetExpressionFormatter()) + "\n" + expect.FormatMessage(ParameterFormatter));
-            return actual;
+            return result.Actual;
         }       
  
         static ExpressionFormatter GetExpressionFormatter() {

@@ -28,9 +28,11 @@ namespace Cone.Expectations
             this.value = value;
         }
 
-        bool IExpect.Check(out object actual) {
-            actual = this.actual;
-            return this.actual.Contains(value);
+        ExpectResult IExpect.Check() {
+            return new ExpectResult { 
+                Actual = actual, 
+                Success = actual.Contains(value)
+            };
         }
 
         string IExpect.FormatExpression(IFormatter<System.Linq.Expressions.Expression> formatter) {

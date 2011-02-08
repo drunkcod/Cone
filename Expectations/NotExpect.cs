@@ -7,8 +7,10 @@ namespace Cone.Expectations
 
         public NotExpect(IExpect inner) { this.inner = inner; }
 
-        public bool Check(out object actual) {
-            return !inner.Check(out actual);
+        public ExpectResult Check() {
+            var innerResult = inner.Check();
+            innerResult.Success = !innerResult.Success;
+            return innerResult;
         }
 
         public string FormatExpression(IFormatter<Expression> formatter) {

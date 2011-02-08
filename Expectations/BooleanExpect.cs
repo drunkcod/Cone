@@ -19,9 +19,11 @@ namespace Cone.Expectations
             return string.Format(MessageFormat, formatter.Format(actual), formatter.Format(Expected));
         }
 
-        public bool Check(out object actual) {
-            actual = this.actual;
-            return CheckCore();
+        public ExpectResult Check() {
+            return new ExpectResult {
+                Actual = actual, 
+                Success = CheckCore()
+            };
         }
 
         public object Actual { get { return actual; } }

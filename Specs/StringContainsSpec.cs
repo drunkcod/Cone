@@ -13,17 +13,17 @@ namespace Cone
         public void check_success() {
             Expression<Func<bool>> body = () => "Hello".Contains("ll");
             IExpect expect = new StringContainsExpect(body, "Hello", "ll");
-            object value = string.Empty;
-            Verify.That(() => expect.Check(out value) == true);
-            Verify.That(() => value.ToString() == "Hello");
+            var result = expect.Check();
+            Verify.That(() => result.Success == true);
+            Verify.That(() => result.Actual.ToString() == "Hello");
         }
 
         public void check_fail() {
             Expression<Func<bool>> body = () => "123".Contains("ABC");
             IExpect expect = new StringContainsExpect(body, "123", "ABC");
-            object value = string.Empty;
-            Verify.That(() => expect.Check(out value) == false);
-            Verify.That(() => value.ToString() == "123");
+            var result = expect.Check();
+            Verify.That(() => result.Success == false);
+            Verify.That(() => result.Actual.ToString() == "123");
         }
 
         public void message_formatting() {
