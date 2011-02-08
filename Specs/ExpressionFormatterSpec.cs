@@ -16,15 +16,13 @@ namespace Cone
     [Describe(typeof(ExpressionFormatter))]
     public class ExpressionFormatterSpec
     {
-        static readonly ExpressionFormatter Formatter = new ExpressionFormatter(typeof(ExpressionFormatterSpec));
+        string FormatBody<T>(Expression<Func<T>> expression) { return new ExpressionFormatter(GetType()).Format(expression.Body); }
 
-        static string FormatBody<T>(Expression<Func<T>> expression) { return Formatter.Format(expression.Body); }
-
-        static void VerifyFormat<T>(Expression<Func<T>> expression, string result) {
+        void VerifyFormat<T>(Expression<Func<T>> expression, string result) {
             Verify.That(() => FormatBody(expression) == result);
         }
 
-        string Format<T>(Expression<Func<T>> expression) { return ExpressionFormatterSpec.FormatBody(expression); }
+        string Format<T>(Expression<Func<T>> expression) { return FormatBody(expression); }
 
 
         public void array_length() {
@@ -63,6 +61,10 @@ namespace Cone
 
         public void string_property_access() {
             VerifyFormat(() => "String".Length, "\"String\".Length");
+        }
+
+        public void string_method() {
+            VerifyFormat(() => "String".Contains("Value"), "\"String\".Contains(\"Value\")");
         }
 
         public void array_with_property_access() {
@@ -150,6 +152,12 @@ namespace Cone
         [Context("nested expressions")]
         public class NestedExpressions
         {
+            string FormatBody<T>(Expression<Func<T>> expression) { return new ExpressionFormatter(GetType()).Format(expression.Body); }
+
+            void VerifyFormat<T>(Expression<Func<T>> expression, string result) {
+                Verify.That(() => FormatBody(expression) == result);
+            }
+
             bool Foo(object obj) { return true; }
 
             class Bar 

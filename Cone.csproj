@@ -50,7 +50,9 @@
     <Compile Include="Expectations\ExpectFactory.cs" />
     <Compile Include="Expectations\ExpectMessages.cs" />
     <Compile Include="Expectations\IExpect.cs" />
+    <Compile Include="Expectations\IMethodExpectProvider.cs" />
     <Compile Include="Expectations\NotExpect.cs" />
+    <Compile Include="Expectations\StringContainsExpect.cs" />
     <Compile Include="Expectations\StringEqualExpect.cs" />
     <Compile Include="ExpressionExtensions.cs" />
     <Compile Include="ExpressionFormatter.cs" />
@@ -78,7 +80,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>@copy $(TargetPath) "$(SolutionDir)\Tools\NUnit-2.5.7.10213\bin\net-2.0\addins"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

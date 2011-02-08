@@ -68,6 +68,11 @@ namespace Cone
             Verify.That(() => ExpectFrom(() => A >= B) is GreaterThanOrEqualExpect);
         }
 
+        [DisplayAs("String.Contains(\"Value\")")]
+        public void StringContains() {
+            Verify.That(() => ExpectFrom(() => "Hello".Contains("World")) is StringContainsExpect);
+        }
+
         IExpect ExpectFrom(Expression<Func<bool>> expression) {
             return Expectory.From(expression.Body);
         }

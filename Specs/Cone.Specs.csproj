@@ -66,6 +66,7 @@
     <Compile Include="NUnitIntegration\NUnitIntegrationFeature.cs" />
     <Compile Include="ParameterFormatterSpec.cs" />
     <Compile Include="RowBuilderSpec.cs" />
+    <Compile Include="StringContainsSpec.cs" />
     <Compile Include="StringExtensionsSpec.cs" />
     <Compile Include="StringVerificationSpec.cs" />
     <Compile Include="TestExecutorSpec.cs" />
