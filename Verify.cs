@@ -12,6 +12,7 @@ namespace Cone
         static readonly ParameterFormatter ParameterFormatter = new ParameterFormatter();
         static readonly ExpectFactory Expect = new ExpectFactory();
         static internal Type Context;
+        static ExpressionFormatter ExpressionFormatter = new ExpressionFormatter(typeof(Verify), ParameterFormatter);
 
         static IExpect From(Expression body) {
             return Expect.From(body);
@@ -45,9 +46,6 @@ namespace Cone
             return result.Actual;
         }       
  
-        static ExpressionFormatter GetExpressionFormatter() {
- 
-            return new ExpressionFormatter(Context); 
-        }
+        static ExpressionFormatter GetExpressionFormatter() { return ExpressionFormatter.Rebind(Context); }
     }
 }

@@ -11,10 +11,19 @@ namespace Cone
         const string IndexerGet = "get_Item";
 
         readonly Type context;
-        readonly IFormatter<object> constantFormatter = new ParameterFormatter();
+        readonly IFormatter<object> constantFormatter;
 
-        public ExpressionFormatter(Type context) {
+        public ExpressionFormatter(Type context, IFormatter<object> constantFormatter) {
             this.context = context;
+            this.constantFormatter = constantFormatter;
+        }
+
+        public ExpressionFormatter(Type context): this(context, new ParameterFormatter()) { }
+
+        public ExpressionFormatter Rebind(Type context) {
+            if(context == this.context)
+                return this;
+            return new ExpressionFormatter(context, constantFormatter);
         }
 
         public string Format(Expression expression) {
