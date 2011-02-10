@@ -22,5 +22,28 @@ namespace Cone
             var expectedMessage = string.Format(ExpectMessages.EqualFormat, "<actual>", "<expected>");
             Verify.That(() => expect.FormatMessage(formatter.Object) == expectedMessage);
         }
+
+        class MyClass
+        {
+            public object Value;
+
+            public static bool operator==(MyClass left, MyClass right) {
+                return left.Value.Equals(right.Value);
+            }
+
+            public static bool operator!=(MyClass left, MyClass right) {
+                return !(left == right);
+            }
+        }
+
+        public void operator_overloading_supported() {
+            var actual = new MyClass { Value = 42 };
+            var expected = new MyClass { Value = 42 };
+            Expression<Func<bool>> expression = () => actual == expected;
+            var expect = new BinaryExpect((BinaryExpression)expression.Body, actual, expected);
+
+            Verify.That(() => (actual == expected) == true);
+            Verify.That(() => expect.Check() == new ExpectResult { Actual = actual, Success = true });
+        }
     }
 }

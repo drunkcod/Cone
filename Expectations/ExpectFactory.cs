@@ -10,17 +10,17 @@ namespace Cone.Expectations
 {
     public class ExpectFactory
     {
-        static readonly ConstructorInfo BinaryExpectCtor = GetExpectCtor(typeof(BinaryExpect));
-        static readonly ConstructorInfo EqualExpectCtor = GetExpectCtor(typeof(EqualExpect));     
-        static readonly ConstructorInfo NotEqualExpectCtor = GetExpectCtor(typeof(NotEqualExpect));     
-        static readonly ConstructorInfo LessThanExpectCtor = GetExpectCtor(typeof(LessThanExpect));     
-        static readonly ConstructorInfo LessThanOrEqualExpectCtor = GetExpectCtor(typeof(LessThanOrEqualExpect));     
-        static readonly ConstructorInfo GreaterThanExpectCtor = GetExpectCtor(typeof(GreaterThanExpect));     
-        static readonly ConstructorInfo GreaterThanOrEqualExpectCtor = GetExpectCtor(typeof(GreaterThanOrEqualExpect));     
+        static readonly ConstructorInfo BinaryExpectCtor = GetExpectCtor<BinaryExpression>(typeof(BinaryExpect));
+        static readonly ConstructorInfo EqualExpectCtor = GetExpectCtor<Expression>(typeof(EqualExpect));     
+        static readonly ConstructorInfo NotEqualExpectCtor = GetExpectCtor<Expression>(typeof(NotEqualExpect));     
+        static readonly ConstructorInfo LessThanExpectCtor = GetExpectCtor<BinaryExpression>(typeof(LessThanExpect));     
+        static readonly ConstructorInfo LessThanOrEqualExpectCtor = GetExpectCtor<BinaryExpression>(typeof(LessThanOrEqualExpect));     
+        static readonly ConstructorInfo GreaterThanExpectCtor = GetExpectCtor<BinaryExpression>(typeof(GreaterThanExpect));     
+        static readonly ConstructorInfo GreaterThanOrEqualExpectCtor = GetExpectCtor<BinaryExpression>(typeof(GreaterThanOrEqualExpect));     
         static readonly ConstructorInfo StringEqualCtor = typeof(StringEqualExpect).GetConstructor(new[]{ typeof(Expression), typeof(string), typeof(string) });
 
-        static ConstructorInfo GetExpectCtor(Type expectType) {
-            return expectType.GetConstructor(new[]{ typeof(Expression), typeof(object), typeof(object) });
+        static ConstructorInfo GetExpectCtor<T>(Type expectType) {
+            return expectType.GetConstructor(new[]{ typeof(T), typeof(object), typeof(object) });
         }
 
         readonly IDictionary<MethodInfo, IMethodExpectProvider> methodExpects = new Dictionary<MethodInfo, IMethodExpectProvider>();
