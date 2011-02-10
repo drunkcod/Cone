@@ -51,7 +51,7 @@ namespace Cone
 
         public void addition() {
             int a = 1, b = 1;
-            VerifyFormat(() => a + b == 2, "a + b == 2");
+            VerifyFormat(() => a + b == 2, "(a + b) == 2");
         }
 
         public void property_access() {
@@ -182,6 +182,17 @@ namespace Cone
                 var value = 42;
                 VerifyFormat(() => new Bar(null){ Value = value, Answer = 42 }, "new Bar(null){ Value = value, Answer = 42 }"); 
             }
+
+            public void paraens_left() {
+                int a = 1, b = 2;
+                VerifyFormat(() => (a == b) == false, "(a == b) == false");
+            }
+
+            public void paraens_right() {
+                int a = 1, b = 2;
+                VerifyFormat(() => false == (a == b), "false == (a == b)");
+            }
+
         }
 
     }

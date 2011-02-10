@@ -139,7 +139,12 @@ namespace Cone
                     right = Expression.Constant(newValue);
                 }
             }
-            return string.Format(GetBinaryOp(binary.NodeType), Format(left), Format(right));
+            var format = string.Format(GetBinaryOp(binary.NodeType), BinaryFormat(left, 0), BinaryFormat(right, 1));
+            return string.Format(format, Format(left), Format(right));
+        }
+
+        string BinaryFormat(Expression expression, int index) {
+            return string.Format(expression is BinaryExpression ? "({{{0}}})" : "{{{0}}}", index);
         }
 
         string FormatUnary(UnaryExpression expr) {

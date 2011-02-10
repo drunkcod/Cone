@@ -12,7 +12,7 @@ namespace Cone.Expectations
         }
 
         public static bool operator!=(ExpectResult left, ExpectResult right) {
-            return !left.Equals(right);
+            return !(left == right);
         }
 
         public override string ToString() {

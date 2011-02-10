@@ -20,7 +20,7 @@ namespace Cone.Expectations
 
             return Expression.Lambda<Func<bool>>(Expression.MakeBinary(body.NodeType, 
                 Expression.Constant(actual), 
-                Expression.Constant(Expected))).Compile()();
+                Expression.Constant(Expected))).Execute();
         }
     }
 
