@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Threading;
 using NUnit.Core;
+using System;
 
 namespace Cone.Addin
 {
@@ -13,7 +14,8 @@ namespace Cone.Addin
             var testName = new TestName();
             testName.FullName = suite.TestName.FullName + "." + name;
             testName.Name = name;
-            testName.TestID = new TestID(Interlocked.Increment(ref id));
+            var testId = Interlocked.Increment(ref id);
+            testName.TestID = new TestID(testId);
             return testName;
         }
 

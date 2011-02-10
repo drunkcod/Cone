@@ -10,6 +10,8 @@ namespace Cone.Samples
     {
         public void just_as_usual() { }
 
+        public void moar_specs() { }
+
         [Context("some context")]
         public class SomeContext 
         { 

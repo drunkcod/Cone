@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Linq;
 using NUnit.Core;
 
 namespace Cone.Addin
@@ -44,7 +45,8 @@ namespace Cone.Addin
             var time = Stopwatch.StartNew();
             listener.SuiteStarted(TestName);
             try {
-                tests.ForEach(item  => testResult.AddResult(item.Run(listener, filter)));
+                foreach(var item in tests.Where(filter.Pass))
+                    testResult.AddResult(item.Run(listener, filter));
             } finally {
                 testResult.Time = time.Elapsed.TotalSeconds;
                 listener.SuiteFinished(testResult);
