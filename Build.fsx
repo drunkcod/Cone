@@ -34,7 +34,7 @@ let test() =
     Process.Start(
       ProcessStartInfo(
         FileName = Path.Combine(NUnitPath, "nunit-console.exe"),
-        Arguments = @"Build\Cone.Specs.dll /nologo",
+        Arguments = @"Build\Cone.Specs.dll /nologo /framework=v4.0",
         UseShellExecute = false))
   nunit.WaitForExit()
   nunit.ExitCode = 0

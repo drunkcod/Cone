@@ -38,16 +38,17 @@ namespace Cone.NUnitIntegration
 
                 var nunit = Process.Start(new ProcessStartInfo {
                     FileName = nunitPath,
-                    Arguments = "/nologo /xmlConsole " + SamplesPath,
+                    Arguments = "/domain=Single /process=Single /nologo /xmlConsole " + SamplesPath,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true
                 });
+                var output = nunit.StandardOutput;
+                output.ReadLine();
+                output.ReadLine();
+                output.ReadLine();
+                SamplesResult = new XPathDocument(output).CreateNavigator();
                 nunit.WaitForExit();
-                nunit.StandardOutput.ReadLine();
-                nunit.StandardOutput.ReadLine();
-                nunit.StandardOutput.ReadLine();
-                SamplesResult = new XPathDocument(nunit.StandardOutput).CreateNavigator();
             }
 
             [Context("ExampleFeature")]
