@@ -14,13 +14,8 @@ namespace Cone
         static internal Type Context;
         static ExpressionFormatter ExpressionFormatter = new ExpressionFormatter(typeof(Verify), ParameterFormatter);
 
-        static IExpect From(Expression body) {
-            return Expect.From(body);
-        }
-
         public static object That(Expression<Func<bool>> expr) {
-            
-            return Check(From(expr.Body));
+            return Check(Expect.From(expr.Body));
         }
 
         public static class Throws<TException> where TException : Exception
@@ -38,7 +33,7 @@ namespace Cone
         public static TException Exception<TException>(Expression<Action> expr) where TException : Exception {
             return Throws<TException>.When(expr);
         }
-
+        
         static object Check(IExpect expect) {
             var result = expect.Check();
             if (!result.Success)

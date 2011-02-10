@@ -41,6 +41,7 @@
     <Compile Include="ExampleFeatureFeature.cs" />
     <Compile Include="Failures\FailureMessagesFeature.cs" />
     <Compile Include="PendingAttributeSpec.cs" />
+    <Compile Include="RowBuilderSample.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cone.csproj">
