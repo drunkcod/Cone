@@ -35,9 +35,10 @@ namespace Cone.Addin
             var time = Stopwatch.StartNew();
             
             listener.TestStarted(TestName);
-            switch(RunState){
+            switch(RunState){               
                 case RunState.Runnable: testExecutor.Run(this, testResult); break;
                 case RunState.Ignored: testResult.Pending(IgnoreReason); break;
+                case RunState.Explicit: goto case RunState.Runnable;
             }
             
             time.Stop();

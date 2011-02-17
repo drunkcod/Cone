@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using NUnit.Core;
+using NUnit.Framework;
 
 namespace Cone.Addin
 {
@@ -152,6 +153,9 @@ namespace Cone.Addin
             method.Has<PendingAttribute>(x => {
                 test.RunState = RunState.Ignored;
                 test.IgnoreReason = x[0].Reason;
+            });
+            method.Has<ExplicitAttribute>(x => {
+                test.RunState = RunState.Explicit;
             });
             Add(test);
         }
