@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
 using System.IO;
-using Cone.Samples;
 using System.Xml.XPath;
+using Cone.Samples;
 
 namespace Cone.NUnitIntegration
 {
