@@ -144,7 +144,11 @@ namespace Cone
             return (marks[index] & mark) != 0;
         }
 
-        void AddTestMethod(MethodInfo method) { suite.AddTestMethod(testNamer.NameFor(method), method); }
+        void AddTestMethod(MethodInfo method) { 
+            
+            suite.AddTestMethod(new ConeMethodThunk(method, testNamer)); 
+        }
+        
         void AddRowTest(MethodInfo method, RowAttribute[] rows) { suite.AddRowTest(testNamer.NameFor(method), method, rows); }
     }
 }

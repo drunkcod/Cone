@@ -1,24 +1,16 @@
-﻿using System;
-using System.Diagnostics;
-using System.Reflection;
-using NUnit.Core;
-using System.Collections;
+﻿using NUnit.Core;
 
 namespace Cone.Addin
 {
     class ConeTestMethod : ConeTest
     {
-        readonly MethodInfo method;
+        readonly ConeMethodThunk thunk;
 
-        public ConeTestMethod(MethodInfo method, Test suite, TestExecutor testExecutor, string name)
+        public ConeTestMethod(ConeMethodThunk thunk, Test suite, TestExecutor testExecutor, string name)
             : base(suite, testExecutor, name) {
-            this.method = method;
+            this.thunk = thunk;
         }
        
-        internal void Invoke(object fixture, object[] parameters) { method.Invoke(fixture, parameters); }
-        
-        internal string NameFor(ConeTestNamer namer, object[] parameters) { return namer.NameFor(method, parameters); }
-
-        public override void Run(ITestResult testResult) { Invoke(Fixture, null); }
+        public override void Run(ITestResult testResult) { thunk.Invoke(Fixture, null); }
     }
 }

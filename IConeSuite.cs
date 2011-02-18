@@ -5,7 +5,7 @@ namespace Cone
 {
     public interface IConeSuite
     {
-        void AddTestMethod(string name, MethodInfo method);
+        void AddTestMethod(ConeMethodThunk testThunk);
         void AddRowTest(string name, MethodInfo method, IEnumerable<IRowData> rows);
     }
 }

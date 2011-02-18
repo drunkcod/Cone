@@ -24,22 +24,22 @@ namespace Cone
             return normalizeNamePattern.Replace(method.Name, " ");
         }
 
-        public string NameFor(MethodInfo method, object[] arguments) {
+        public string NameFor(MethodInfo method, object[] parameters) {
             var baseName = GetNameOf(method);
-            if (arguments == null)
+            if (parameters == null)
                 return baseName;
-            var displayArguments = DisplayArguments(arguments);
+            var displayArguments = DisplayParameters(parameters);
             if(IsFormatString(baseName))
                 return string.Format(baseName, displayArguments);
-            return string.Format("{0}({1})", baseName, FormatArguments(displayArguments));
+            return string.Format("{0}({1})", baseName, FormatParameters(displayArguments));
         }
 
-        object[] DisplayArguments(object[] arguments) { return Array.ConvertAll(arguments, Format); }
+        object[] DisplayParameters(object[] arguments) { return Array.ConvertAll(arguments, Format); }
 
         object Format(object obj) { return formatter.AsWritable(obj); }
 
-        string FormatArguments(object[] arguments) {
-            return string.Join(", ",  Array.ConvertAll(DisplayArguments(arguments), x => x.ToString()));
+        string FormatParameters(object[] arguments) {
+            return string.Join(", ",  Array.ConvertAll(DisplayParameters(arguments), x => x.ToString()));
         }
 
         bool IsFormatString(string s) {

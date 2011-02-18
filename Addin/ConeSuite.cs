@@ -130,8 +130,8 @@ namespace Cone.Addin
                     Categories.Add(category.Trim());
         }
 
-        void IConeSuite.AddTestMethod(string name, MethodInfo method) { 
-            AddMethod(method, new ConeTestMethod(method, this, testExecutor, name)); 
+        void IConeSuite.AddTestMethod(ConeMethodThunk thunk) { 
+            AddWithAttributes(thunk, new ConeTestMethod(thunk, this, testExecutor, thunk.NameFor(null))); 
         }
         
         void IConeSuite.AddRowTest(string name, MethodInfo method, IEnumerable<IRowData> rows) {
@@ -142,13 +142,13 @@ namespace Cone.Addin
             ConeRowSuite suite;
             var key = method.Name + "." + name;
             if(!rowSuites.TryGetValue(key, out suite)) {
-                rowSuites[key] = suite = new ConeRowSuite(method, this, testExecutor, name);
-                AddMethod(method, suite);
+                rowSuites[key] = suite = new ConeRowSuite(new ConeMethodThunk(method, testNamer), this, testExecutor, name);
+                AddWithAttributes(method, suite);
             }
             return suite;
         }
 
-        void AddMethod(MethodInfo method, Test test) {
+        void AddWithAttributes(ICustomAttributeProvider method, Test test) {
             method.Has<PendingAttribute>(x => {
                 test.RunState = RunState.Ignored;
                 test.IgnoreReason = x[0].Reason;
