@@ -156,6 +156,7 @@ namespace Cone.Addin
             });
             method.Has<ExplicitAttribute>(x => {
                 test.RunState = RunState.Explicit;
+                test.IgnoreReason = x[0].Reason;
             });
             Add(test);
         }
