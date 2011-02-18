@@ -14,9 +14,11 @@ namespace Cone.Addin
             : base(suite, testExecutor, name) {
             this.method = method;
         }
+       
+        internal void Invoke(object fixture, object[] parameters) { method.Invoke(fixture, parameters); }
+        
+        internal string NameFor(ConeTestNamer namer, object[] parameters) { return namer.NameFor(method, parameters); }
 
-        public MethodInfo Method { get { return method; } }
-
-        public override void Run(ITestResult testResult) { Method.Invoke(Fixture, null); }
+        public override void Run(ITestResult testResult) { Invoke(Fixture, null); }
     }
 }

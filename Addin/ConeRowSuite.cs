@@ -18,9 +18,9 @@ namespace Cone.Addin
                 this.parameters = parameters;
             }
 
-            public override void Run(ITestResult testResult) { Method.Invoke(Fixture, parameters); }
+            public override void Run(ITestResult testResult) { ParentSuite.Invoke(Fixture, parameters); }
 
-            MethodInfo Method { get { return ((ConeRowSuite)Parent).Method; } }
+            ConeRowSuite ParentSuite { get { return (ConeRowSuite)Parent; } }
         }
 
         readonly List<Test> tests = new List<Test>();
@@ -32,7 +32,7 @@ namespace Cone.Addin
         public void Add(IEnumerable<IRowData> rows, ConeTestNamer testNamer) {
             foreach (var row in rows) { 
                 var parameters = row.Parameters;
-                var rowName = row.DisplayAs ?? testNamer.NameFor(Method, parameters);
+                var rowName = row.DisplayAs ?? NameFor(testNamer, parameters);
                 var rowTest = new ConeRowTest(parameters, this, rowName);
                 if (row.IsPending)
                     rowTest.RunState = RunState.Ignored;

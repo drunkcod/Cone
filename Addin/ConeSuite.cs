@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using NUnit.Core;
 using NUnit.Framework;
 
@@ -144,7 +143,7 @@ namespace Cone.Addin
             var key = method.Name + "." + name;
             if(!rowSuites.TryGetValue(key, out suite)) {
                 rowSuites[key] = suite = new ConeRowSuite(method, this, testExecutor, name);
-                AddMethod(method, suite); 
+                AddMethod(method, suite);
             }
             return suite;
         }
