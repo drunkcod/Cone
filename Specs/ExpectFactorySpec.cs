@@ -25,7 +25,7 @@ namespace Cone
 
             Verify.That(() => ExpectFrom(() => obj is string) is TypeIsExpect);
             
-            var expect = (EqualExpect)ExpectFrom(() => obj is string);
+            var expect = (Expect)ExpectFrom(() => obj is string);
             Verify.That(() => (Type)expect.Actual == typeof(object));
             Verify.That(() => (Type)expect.Expected == typeof(string));
         }

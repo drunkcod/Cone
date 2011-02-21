@@ -26,12 +26,12 @@ namespace Cone.Expectations
 
     public class EqualExpect : Expect
     {
-        public EqualExpect(Expression body, object actual, object expected): base(body, actual, expected) { }
+        public EqualExpect(BinaryExpression body, object actual, object expected): base(body, actual, expected) { }
 
         public override string MessageFormat { get { return ExpectMessages.EqualFormat; } }
     }
 
-    public class TypeIsExpect : EqualExpect
+    public class TypeIsExpect : Expect
     {
         public TypeIsExpect(Expression body, Type actual, Type expected): base(body, actual, expected) { }
 
@@ -44,7 +44,7 @@ namespace Cone.Expectations
 
     public class NotEqualExpect : Expect 
     {
-        public NotEqualExpect(Expression body, object actual, object expected): base(body, actual, expected) { }
+        public NotEqualExpect(BinaryExpression body, object actual, object expected): base(body, actual, expected) { }
 
         public override string MessageFormat { get { return ExpectMessages.NotEqualFormat; } }
 

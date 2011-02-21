@@ -11,7 +11,7 @@ namespace Cone
     [Describe(typeof(StringEqualExpect))]
     public class StringVerificationSpec
     {
-        readonly Expression<Func<bool>> IgnoredBody = () => "a" == "b";
+        readonly BinaryExpression IgnoredBody = Expression.MakeBinary(ExpressionType.Equal, Expression.Constant("a"), Expression.Constant("b"));
 
         public void preamble_when_lengths_differ() {
             StringEqualExpect Expect = new StringEqualExpect(IgnoredBody, "Hello World", "Hello world!");

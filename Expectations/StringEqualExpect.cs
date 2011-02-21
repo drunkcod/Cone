@@ -7,7 +7,7 @@ namespace Cone.Expectations
     {
         const int DisplayWidth = 62;
 
-        public StringEqualExpect(Expression body, string actual, string expected) : base(body, actual, expected) { }
+        public StringEqualExpect(BinaryExpression body, string actual, string expected) : base(body, actual, expected) { }
 
         public string Preamble { 
             get {

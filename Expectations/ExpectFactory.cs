@@ -10,29 +10,25 @@ namespace Cone.Expectations
 {
     public class ExpectFactory
     {
-        delegate Expect Expector<TExpression, TValue>(TExpression expression, TValue left, TValue right);
+        delegate Expect Expector<TValue>(BinaryExpression expression, TValue left, TValue right);
 
-        static readonly Expector<Expression, object> EqualExpector = MakeExpector<Expression, object>(typeof(EqualExpect));     
-        static readonly Expector<Expression, object> NotEqualExpector = MakeExpector<Expression, object>(typeof(NotEqualExpect));     
-        static readonly Expector<BinaryExpression, object> BinaryExpector = MakeExpector<BinaryExpression, object>(typeof(BinaryExpect));
-        static readonly Expector<BinaryExpression, object> LessThanExpector = MakeExpector<BinaryExpression, object>(typeof(LessThanExpect));     
-        static readonly Expector<BinaryExpression, object> LessThanOrEqualExpector = MakeExpector<BinaryExpression, object>(typeof(LessThanOrEqualExpect));     
-        static readonly Expector<BinaryExpression, object> GreaterThanExpector = MakeExpector<BinaryExpression, object>(typeof(GreaterThanExpect));     
-        static readonly Expector<BinaryExpression, object> GreaterThanOrEqualExpector = MakeExpector<BinaryExpression, object>(typeof(GreaterThanOrEqualExpect));     
-        static readonly Expector<Expression, string> StringEqualExpector = MakeExpector<Expression, string>(typeof(StringEqualExpect));
+        static readonly Expector<object> EqualExpector = MakeExpector<object>(typeof(EqualExpect));     
+        static readonly Expector<object> NotEqualExpector = MakeExpector<object>(typeof(NotEqualExpect));     
+        static readonly Expector<object> BinaryExpector = MakeExpector<object>(typeof(BinaryExpect));
+        static readonly Expector<object> LessThanExpector = MakeExpector<object>(typeof(LessThanExpect));     
+        static readonly Expector<object> LessThanOrEqualExpector = MakeExpector<object>(typeof(LessThanOrEqualExpect));     
+        static readonly Expector<object> GreaterThanExpector = MakeExpector<object>(typeof(GreaterThanExpect));     
+        static readonly Expector<object> GreaterThanOrEqualExpector = MakeExpector<object>(typeof(GreaterThanOrEqualExpect));     
+        static readonly Expector<string> StringEqualExpector = MakeExpector<string>(typeof(StringEqualExpect));
 
-        static ConstructorInfo GetExpectCtor<T>(Type expectType) {
-            return expectType.GetConstructor(new[]{ typeof(T), typeof(object), typeof(object) });
-        }
-
-        static Expector<TExpression, TValue> MakeExpector<TExpression, TValue>(Type expectType) {
-            var arguments = new[] { typeof(TExpression), typeof(TValue), typeof(TValue) };
+        static Expector<TValue> MakeExpector<TValue>(Type expectType) {
+            var arguments = new[] { typeof(BinaryExpression), typeof(TValue), typeof(TValue) };
             var parameters = new[] {
                 Expression.Parameter(arguments[0], "body"),
                 Expression.Parameter(arguments[1], "left"),
                 Expression.Parameter(arguments[2], "right")
             };
-            return Expression.Lambda<Expector<TExpression, TValue>>(
+            return Expression.Lambda<Expector<TValue>>(
                 Expression.New(expectType.GetConstructor(arguments), parameters), parameters).Compile();
         }
 
@@ -86,7 +82,7 @@ namespace Cone.Expectations
             IMethodExpectProvider provider;
             if(body.NodeType == ExpressionType.Call && methodExpects.TryGetValue(((MethodCallExpression)body).Method, out provider)) {
                 var m = (MethodCallExpression)body;
-                return provider.GetExpectation(body, m.Method, Expression.Lambda<Func<object>>(m.Object).Execute(), m.Arguments.Select(x => Expression.Lambda<Func<object>>(x).Execute()).ToArray());
+                return provider.GetExpectation(body, m.Method, EvaluateAs<object>(m.Object), m.Arguments.Select(EvaluateAs<object>).ToArray());
             }
             return new BooleanExpect(body, EvaluateAs<bool>(body));
         }
@@ -96,19 +92,19 @@ namespace Cone.Expectations
                 if(body.Left.Type == typeof(string) && body.Right.Type == typeof(string))
                     return StringEqualExpector(body, EvaluateAs<string>(body.Left), EvaluateAs<string>(body.Right));
             }
-            return MakeExpect(body, EvaluateAs<object>(body.Left), EvaluateAs<object>(body.Right));
+            return GetExpector(body.NodeType)(body, EvaluateAs<object>(body.Left), EvaluateAs<object>(body.Right));
         }
 
-        static Expect MakeExpect(Expression body, object left, object right) {
-            switch(body.NodeType) {
-                case ExpressionType.Equal: return EqualExpector(body, left, right);
-                case ExpressionType.NotEqual: return NotEqualExpector(body, left, right);
-                case ExpressionType.LessThan: return LessThanExpector(body as BinaryExpression, left, right);
-                case ExpressionType.LessThanOrEqual: return LessThanOrEqualExpector(body as BinaryExpression, left, right);
-                case ExpressionType.GreaterThan: return GreaterThanExpector(body as BinaryExpression, left, right);
-                case ExpressionType.GreaterThanOrEqual: return GreaterThanOrEqualExpector(body as BinaryExpression, left, right);
+        static Expector<object> GetExpector(ExpressionType op) {
+            switch(op) {
+                case ExpressionType.Equal: return EqualExpector;
+                case ExpressionType.NotEqual: return NotEqualExpector;
+                case ExpressionType.LessThan: return LessThanExpector;
+                case ExpressionType.LessThanOrEqual: return LessThanOrEqualExpector;
+                case ExpressionType.GreaterThan: return GreaterThanExpector;
+                case ExpressionType.GreaterThanOrEqual: return GreaterThanOrEqualExpector;
             }
-            return BinaryExpector(body as BinaryExpression, left, right);
+            return BinaryExpector;
         }
         
         static T EvaluateAs<T>(Expression body) {
