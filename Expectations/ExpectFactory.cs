@@ -100,11 +100,14 @@ namespace Cone.Expectations
         }
         
         static Expect From<T>(ConstructorInfo ctor, Expression body, Expression left, Expression right) {
-            return Expression.New(ctor,
-                        Expression.Constant(body),
-                        left.CastTo<T>(),
-                        right.CastTo<T>())
-                .Execute<Expect>();
+            return (Expect)ctor.Invoke(new object[]{ body, EvaluateAs<T>(left), EvaluateAs<T>(right) });
+        }
+
+        static T EvaluateAs<T>(Expression body) {
+            switch(body.NodeType) {
+                case ExpressionType.Constant: return (T)(body as ConstantExpression).Value;
+                default: return body.ExecuteAs<T>();
+            }
         }
 
         static Expect FromTypeIs(TypeBinaryExpression body) {

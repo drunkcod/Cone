@@ -14,10 +14,14 @@ namespace Cone
 
         public static void Execute(this Expression<Action> expression) { expression.Compile()(); }
 
+        public static T ExecuteAs<T>(this Expression body) { return body.CastTo<T>().Execute<T>(); }
+
         public static Expression CastTo<T>(this Expression expression) {
             if(expression.Type == typeof(T))
                 return expression;
             return Expression.TypeAs(expression, typeof(T)); 
         }
+
+
     }
 }
