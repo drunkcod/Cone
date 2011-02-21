@@ -10,6 +10,8 @@ namespace Cone.Expectations
 {
     public class ExpectFactory
     {
+        delegate Expect Expector<TExpression, TValue>(TExpression expression, TValue left, TValue right);
+
         static readonly ConstructorInfo BinaryExpectCtor = GetExpectCtor<BinaryExpression>(typeof(BinaryExpect));
         static readonly ConstructorInfo EqualExpectCtor = GetExpectCtor<Expression>(typeof(EqualExpect));     
         static readonly ConstructorInfo NotEqualExpectCtor = GetExpectCtor<Expression>(typeof(NotEqualExpect));     
@@ -17,10 +19,21 @@ namespace Cone.Expectations
         static readonly ConstructorInfo LessThanOrEqualExpectCtor = GetExpectCtor<BinaryExpression>(typeof(LessThanOrEqualExpect));     
         static readonly ConstructorInfo GreaterThanExpectCtor = GetExpectCtor<BinaryExpression>(typeof(GreaterThanExpect));     
         static readonly ConstructorInfo GreaterThanOrEqualExpectCtor = GetExpectCtor<BinaryExpression>(typeof(GreaterThanOrEqualExpect));     
-        static readonly ConstructorInfo StringEqualCtor = typeof(StringEqualExpect).GetConstructor(new[]{ typeof(Expression), typeof(string), typeof(string) });
+        static readonly Expector<Expression, string> StringEqualExpector = MakeExpector<Expression, string>(typeof(StringEqualExpect));
 
         static ConstructorInfo GetExpectCtor<T>(Type expectType) {
             return expectType.GetConstructor(new[]{ typeof(T), typeof(object), typeof(object) });
+        }
+
+        static Expector<TExpression, TValue> MakeExpector<TExpression, TValue>(Type expectType) {
+            var arguments = new[] { typeof(TExpression), typeof(TValue), typeof(TValue) };
+            var parameters = new[] {
+                Expression.Parameter(arguments[0], "body"),
+                Expression.Parameter(arguments[1], "left"),
+                Expression.Parameter(arguments[2], "right")
+            };
+            return Expression.Lambda<Expector<TExpression, TValue>>(
+                Expression.New(expectType.GetConstructor(arguments), parameters), parameters).Compile();
         }
 
         readonly IDictionary<MethodInfo, IMethodExpectProvider> methodExpects = new Dictionary<MethodInfo, IMethodExpectProvider>();
@@ -75,13 +88,13 @@ namespace Cone.Expectations
                 var m = (MethodCallExpression)body;
                 return provider.GetExpectation(body, m.Method, Expression.Lambda<Func<object>>(m.Object).Execute(), m.Arguments.Select(x => Expression.Lambda<Func<object>>(x).Execute()).ToArray());
             }
-            return new BooleanExpect(body, Expression.Lambda<Func<bool>>(body).Execute());
+            return new BooleanExpect(body, EvaluateAs<bool>(body));
         }
 
         static Expect FromBinary(BinaryExpression body) {
             if(body.NodeType == ExpressionType.Equal) {
                 if(body.Left.Type == typeof(string) && body.Right.Type == typeof(string))
-                    return From<string>(StringEqualCtor, body, body.Left, body.Right);
+                    return StringEqualExpector(body, EvaluateAs<string>(body.Left), EvaluateAs<string>(body.Right));
             }
             return From<object>(GetBinaryExpectCtor(body.NodeType), body, body.Left, body.Right);
         }
