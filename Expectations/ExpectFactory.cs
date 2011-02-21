@@ -12,13 +12,13 @@ namespace Cone.Expectations
     {
         delegate Expect Expector<TExpression, TValue>(TExpression expression, TValue left, TValue right);
 
-        static readonly ConstructorInfo BinaryExpectCtor = GetExpectCtor<BinaryExpression>(typeof(BinaryExpect));
-        static readonly ConstructorInfo EqualExpectCtor = GetExpectCtor<Expression>(typeof(EqualExpect));     
-        static readonly ConstructorInfo NotEqualExpectCtor = GetExpectCtor<Expression>(typeof(NotEqualExpect));     
-        static readonly ConstructorInfo LessThanExpectCtor = GetExpectCtor<BinaryExpression>(typeof(LessThanExpect));     
-        static readonly ConstructorInfo LessThanOrEqualExpectCtor = GetExpectCtor<BinaryExpression>(typeof(LessThanOrEqualExpect));     
-        static readonly ConstructorInfo GreaterThanExpectCtor = GetExpectCtor<BinaryExpression>(typeof(GreaterThanExpect));     
-        static readonly ConstructorInfo GreaterThanOrEqualExpectCtor = GetExpectCtor<BinaryExpression>(typeof(GreaterThanOrEqualExpect));     
+        static readonly Expector<Expression, object> EqualExpector = MakeExpector<Expression, object>(typeof(EqualExpect));     
+        static readonly Expector<Expression, object> NotEqualExpector = MakeExpector<Expression, object>(typeof(NotEqualExpect));     
+        static readonly Expector<BinaryExpression, object> BinaryExpector = MakeExpector<BinaryExpression, object>(typeof(BinaryExpect));
+        static readonly Expector<BinaryExpression, object> LessThanExpector = MakeExpector<BinaryExpression, object>(typeof(LessThanExpect));     
+        static readonly Expector<BinaryExpression, object> LessThanOrEqualExpector = MakeExpector<BinaryExpression, object>(typeof(LessThanOrEqualExpect));     
+        static readonly Expector<BinaryExpression, object> GreaterThanExpector = MakeExpector<BinaryExpression, object>(typeof(GreaterThanExpect));     
+        static readonly Expector<BinaryExpression, object> GreaterThanOrEqualExpector = MakeExpector<BinaryExpression, object>(typeof(GreaterThanOrEqualExpect));     
         static readonly Expector<Expression, string> StringEqualExpector = MakeExpector<Expression, string>(typeof(StringEqualExpect));
 
         static ConstructorInfo GetExpectCtor<T>(Type expectType) {
@@ -96,26 +96,21 @@ namespace Cone.Expectations
                 if(body.Left.Type == typeof(string) && body.Right.Type == typeof(string))
                     return StringEqualExpector(body, EvaluateAs<string>(body.Left), EvaluateAs<string>(body.Right));
             }
-            return From<object>(GetBinaryExpectCtor(body.NodeType), body, body.Left, body.Right);
+            return MakeExpect(body, EvaluateAs<object>(body.Left), EvaluateAs<object>(body.Right));
         }
 
-        static ConstructorInfo GetBinaryExpectCtor(ExpressionType op) {
-            switch(op) {
-                case ExpressionType.Equal: return EqualExpectCtor;
-                case ExpressionType.NotEqual: return NotEqualExpectCtor;
-                case ExpressionType.LessThan: return LessThanExpectCtor;
-                case ExpressionType.LessThanOrEqual: return LessThanOrEqualExpectCtor;
-                case ExpressionType.GreaterThan: return GreaterThanExpectCtor;
-                case ExpressionType.GreaterThanOrEqual: return GreaterThanOrEqualExpectCtor;
+        static Expect MakeExpect(Expression body, object left, object right) {
+            switch(body.NodeType) {
+                case ExpressionType.Equal: return EqualExpector(body, left, right);
+                case ExpressionType.NotEqual: return NotEqualExpector(body, left, right);
+                case ExpressionType.LessThan: return LessThanExpector(body as BinaryExpression, left, right);
+                case ExpressionType.LessThanOrEqual: return LessThanOrEqualExpector(body as BinaryExpression, left, right);
+                case ExpressionType.GreaterThan: return GreaterThanExpector(body as BinaryExpression, left, right);
+                case ExpressionType.GreaterThanOrEqual: return GreaterThanOrEqualExpector(body as BinaryExpression, left, right);
             }
-
-            return BinaryExpectCtor;
+            return BinaryExpector(body as BinaryExpression, left, right);
         }
         
-        static Expect From<T>(ConstructorInfo ctor, Expression body, Expression left, Expression right) {
-            return (Expect)ctor.Invoke(new object[]{ body, EvaluateAs<T>(left), EvaluateAs<T>(right) });
-        }
-
         static T EvaluateAs<T>(Expression body) {
             switch(body.NodeType) {
                 case ExpressionType.Constant: return (T)(body as ConstantExpression).Value;
@@ -126,7 +121,7 @@ namespace Cone.Expectations
         static Expect FromTypeIs(TypeBinaryExpression body) {
             var typeIs = (TypeBinaryExpression)body;
             return new TypeIsExpect(body,
-                typeIs.Expression.CastTo<object>().Execute<object>().GetType(), 
+                EvaluateAs<object>(typeIs.Expression).GetType(), 
                 typeIs.TypeOperand);
         }
     }
