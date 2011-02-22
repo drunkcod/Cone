@@ -35,12 +35,7 @@ namespace Cone
         }
 
         public static object EvaluateCallTarget(MethodCallExpression expression, Expression context) {
-            if(expression.Object == null)
-                return null;
-            var target = EvaluateAs<object>(expression.Object);
-            if(target == null)
-                throw new NullSubexpressionException(context, expression.Object);
-            return target;
+            return EvaluateAsTarget(expression.Object, context);
         }
 
         static T EvaluateAs<T>(BinaryExpression binary) {
@@ -61,17 +56,20 @@ namespace Cone
         }
 
         static object EvaluateMemberAccess(MemberExpression expression, Expression context) {
-            object target = null;
-            if(expression.Expression != null) {
-                target = EvaluateAs<object>(expression.Expression);
-                if(target == null)
-                    throw new NullSubexpressionException(context, expression.Expression);
-            }
             try {
-                return GetValue(target, expression.Member);
+                return GetValue(EvaluateAsTarget(expression.Expression, context), expression.Member);
             } catch(TargetInvocationException e) {
                 throw e.InnerException;
             }
+        }
+
+        static object EvaluateAsTarget(Expression expression, Expression context) {
+            if(expression == null)
+                return null;
+            var target = EvaluateAs<object>(expression);
+            if(target == null)
+                throw new NullSubexpressionException(context, expression);
+            return target;
         }
 
         static object GetValue(object target, MemberInfo member) {
