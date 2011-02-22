@@ -113,6 +113,15 @@ namespace Cone
             return target;
         }
 
+        static object[] EvaluateAll(ICollection<Expression> expressions) {
+            var result = new object[expressions.Count];
+            var index = 0;
+            foreach(var item in expressions) {
+                result[index++] = EvaluateAs<object>(item);
+            }
+            return result;
+        }
+
         static object GetValue(object target, MemberInfo member) {
             switch(member.MemberType) {
                 case MemberTypes.Field: 
@@ -123,12 +132,5 @@ namespace Cone
             }
         }
 
-        static object[] EvaluateAll(ICollection<Expression> expressions) {
-            var result = new object[expressions.Count];
-            var index = 0;
-            foreach(var item in expressions)
-                result[index++] = EvaluateAs<object>(item);
-            return result;
-        }
     }
 }

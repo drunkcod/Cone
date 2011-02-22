@@ -53,6 +53,15 @@ namespace Cone
             Verify.That(() => new MyValueObject().Equals(new MyValueObject()));
         }
 
+        [Pending(Reason = "Got no clue how to handle this.")]
+        public void out_parameters() {
+            var item = new object();
+            var stuff = new Dictionary<string, object> { { "Key", item } };
+            object value = null;
+            Verify.That(() => stuff.TryGetValue("Key", out value));
+            Verify.That(() => value == item);
+        }
+
         public void subexpression_null_check_provides_proper_supexpression() {
             var foo = new { ThisValueIsNull = (string)null };
             var error = Verify.Throws<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Length == 0);
