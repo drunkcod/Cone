@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Cone
 {
@@ -23,14 +24,18 @@ namespace Cone
     {
         public static T Evaluate<T>(Expression<Func<T>> lambda) { return EvaluateAs<T>(lambda.Body); }
 
-        public static T EvaluateAs<T>(Expression body) {
+        public static T EvaluateAs<T>(Expression body) { return (T)Evaluate(body, body); }
+
+        static object Evaluate(Expression body, Expression context) {
             switch(body.NodeType) {
+                case ExpressionType.Call: return EvaluateCall(body as MethodCallExpression, context);
+                case ExpressionType.Constant: return (body as ConstantExpression).Value;
+                case ExpressionType.Convert: return EvaluateConvert(body as UnaryExpression, context);
                 case ExpressionType.Equal: goto case ExpressionType.NotEqual;
-                case ExpressionType.NotEqual: return EvaluateAs<T>((BinaryExpression)body);
-                case ExpressionType.Call: return (T)EvaluateCall(body as MethodCallExpression, body);
-                case ExpressionType.Constant: return (T)(body as ConstantExpression).Value;
-                case ExpressionType.MemberAccess: return (T)EvaluateMemberAccess(body as MemberExpression, body);
-                default: return ExecuteAs<T>(body);
+                case ExpressionType.NotEqual: return EvaluateBinary(body as BinaryExpression, context);
+                case ExpressionType.MemberAccess: return EvaluateMemberAccess(body as MemberExpression, context);
+                case ExpressionType.New: return EvaluateNew(body as NewExpression, context);
+                default: return ExecuteAs<object>(body);
             }
         }
 
@@ -38,13 +43,15 @@ namespace Cone
             return EvaluateAsTarget(expression.Object, context);
         }
 
-        static T EvaluateAs<T>(BinaryExpression binary) {
-            var left = EvaluateAs<object>(binary.Left);
-            var right = EvaluateAs<object>(binary.Right);
-            return (T)binary.Method.Invoke(null, new[]{ left, right });
+        static T ExecuteAs<T>(Expression body) {
+            return body.CastTo<T>().Execute<T>(); 
         }
 
-        static T ExecuteAs<T>(Expression body) { return body.CastTo<T>().Execute<T>(); }
+        static object EvaluateBinary(BinaryExpression binary, Expression context) {
+            return binary.Method.Invoke(null, new[]{ 
+                Evaluate(binary.Left, context), 
+                Evaluate(binary.Right, context) });
+        }
 
         static object EvaluateCall(MethodCallExpression expression, Expression context) {
             object target = EvaluateCallTarget(expression, context);
@@ -55,12 +62,30 @@ namespace Cone
             }
         }
 
+        static Dictionary<Type, Func<object, object>> converters = new Dictionary<Type,Func<object,object>>();
+
+        static object EvaluateConvert(UnaryExpression expression, Expression context) {
+            var source = Evaluate(expression.Operand, context);
+            Func<object, object> converter;
+            if(!converters.TryGetValue(expression.Type, out converter)) {
+                var input = Expression.Parameter(typeof(object), "input");
+                converters[expression.Type] = converter = Expression.Lambda<Func<object, object>>(
+                    Expression.Convert(Expression.Convert(input, expression.Type), typeof(object)), input).Compile();
+            }
+            
+            return converter(source);
+        }
+
         static object EvaluateMemberAccess(MemberExpression expression, Expression context) {
             try {
                 return GetValue(EvaluateAsTarget(expression.Expression, context), expression.Member);
             } catch(TargetInvocationException e) {
                 throw e.InnerException;
             }
+        }
+
+        static object EvaluateNew(NewExpression expression, Expression context) {
+            return expression.Constructor.Invoke(EvaluateAll(expression.Arguments));
         }
 
         static object EvaluateAsTarget(Expression expression, Expression context) {
