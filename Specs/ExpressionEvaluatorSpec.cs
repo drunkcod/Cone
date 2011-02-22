@@ -47,6 +47,12 @@ namespace Cone
             Verify.That(() => new MyValue<int>{ Value = 42 } == 42);
         }
 
+        struct MyValueObject { }
+
+        public void construct_value_object() {
+            Verify.That(() => new MyValueObject().Equals(new MyValueObject()));
+        }
+
         public void subexpression_null_check_provides_proper_supexpression() {
             var foo = new { ThisValueIsNull = (string)null };
             var error = Verify.Throws<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Length == 0);

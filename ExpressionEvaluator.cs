@@ -95,7 +95,10 @@ namespace Cone
 
         static object EvaluateNew(NewExpression expression, Expression context) {
             try {
-                return expression.Constructor.Invoke(EvaluateAll(expression.Arguments));
+                var args = EvaluateAll(expression.Arguments);
+                if(expression.Constructor != null)
+                    return expression.Constructor.Invoke(args);
+                return Activator.CreateInstance(expression.Type, args);
             } catch(TargetInvocationException e) {
                 throw e.InnerException;
             }
