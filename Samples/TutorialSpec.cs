@@ -14,9 +14,17 @@ namespace Cone.Samples
             Verify.That(() => false); 
         }
 
-        public void null_subexpression() {
-            var foo = new { ThisValueIsNull = (string)null };
-            Verify.That(() => foo.ThisValueIsNull.Length != 0); 
+        [Context("null subexpression detection")]
+        public class NullSubexpressionDetection
+        {
+            public void member_access_would_raise_NullReferenceException() {
+                var foo = new { ThisValueIsNull = (string)null };
+                Verify.That(() => foo.ThisValueIsNull.Length != 0); 
+            }
+            public void method_call_would_raise_NullReferenceException() {
+                var foo = new { ThisValueIsNull = (string)null };
+                Verify.That(() => foo.ThisValueIsNull.Contains("hello")); 
+            }
         }
     }
 }

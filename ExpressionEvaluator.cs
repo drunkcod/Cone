@@ -33,6 +33,15 @@ namespace Cone
             }
         }
 
+        public static object EvaluateCallTarget(Expression body, MethodCallExpression expression) {
+            if(expression.Object == null)
+                return null;
+            var target = EvaluateAs<object>(expression.Object);
+            if(target == null)
+                throw new NullSubexpressionException(body, expression.Object);
+            return target;
+        }
+
         static T EvaluateAs<T>(BinaryExpression binary) {
             var left = EvaluateAs<object>(binary.Left);
             var right = EvaluateAs<object>(binary.Right);
@@ -42,12 +51,7 @@ namespace Cone
         static T ExecuteAs<T>(Expression body) { return body.CastTo<T>().Execute<T>(); }
 
         static object EvaluateCall(Expression body, MethodCallExpression expression) {
-            object target = null;
-            if(expression.Object != null) {
-                target = EvaluateAs<object>(expression.Object);
-                if(target == null)
-                    throw new NullSubexpressionException(body, expression.Object);
-            }
+            object target = EvaluateCallTarget(body, expression);
             return ExecuteAs<object>(expression);
         }
 
