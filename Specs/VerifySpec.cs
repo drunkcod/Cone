@@ -216,11 +216,5 @@ namespace Cone
                 return null;
             }
         }
-
-        [Pending(Reason = "need to figure out how to handle this")]
-        public void subexpression_null_check() {
-            var foo = new { ThisValueIsNull = (string)null };
-            Verify.That(() => foo.ThisValueIsNull.Length != 0);
-        }
     }
 }

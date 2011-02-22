@@ -10,7 +10,7 @@ namespace Cone.Expectations
         }
        
         public static ExceptionExpect From<T>(Expression<Func<T>> expression, Type expected) {
-            return new ExceptionExpect(expression.Body, ExceptionOrNull(() => expression.Execute()), expected);
+            return new ExceptionExpect(expression.Body, ExceptionOrNull(() => ExpressionEvaluator.Evaluate(expression)), expected);
         }
        
         ExceptionExpect(Expression body, object result, Type expected): base(body, result, expected) { }

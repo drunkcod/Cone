@@ -11,5 +11,11 @@ namespace Cone
         public void constant_evaluation() {
             Verify.That(() => ExpressionEvaluator.Evaluate(() => 42) == 42);
         }
+
+        public void subexpression_null_check() {
+            var foo = new { ThisValueIsNull = (string)null };
+            Verify.Throws<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Length != 0);
+        }
+
     }
 }
