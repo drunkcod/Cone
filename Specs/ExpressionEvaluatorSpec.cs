@@ -12,10 +12,22 @@ namespace Cone
             Verify.That(() => ExpressionEvaluator.Evaluate(() => 42) == 42);
         }
 
-        public void subexpression_null_check() {
+        public void subexpression_null_check_not_equal() {
             var foo = new { ThisValueIsNull = (string)null };
             Verify.Throws<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Length != 0);
         }
 
+        public void subexpression_null_check_equal() {
+            var foo = new { ThisValueIsNull = (string)null };
+            Verify.Throws<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Length == 0);
+        }
+
+        public void subexpression_null_check_provides_proper_supexpression() {
+            var foo = new { ThisValueIsNull = (string)null };
+            var error = Verify.Throws<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Length == 0);
+            var formatter = new ExpressionFormatter(GetType());
+            Verify.That(() => formatter.Format(error.NullSubexpression) == "foo.ThisValueIsNull");
+            Verify.That(() => formatter.Format(error.Expression) == "foo.ThisValueIsNull.Length");
+        }
     }
 }

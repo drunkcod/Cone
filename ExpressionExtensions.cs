@@ -19,7 +19,5 @@ namespace Cone
                 return expression;
             return Expression.TypeAs(expression, typeof(T)); 
         }
-
-
     }
 }

@@ -4,7 +4,19 @@ using System.Reflection;
 
 namespace Cone
 {
-    public class NullSubexpressionException : ArgumentNullException { }
+    public class NullSubexpressionException : ArgumentNullException 
+    {
+        readonly Expression expression;
+        readonly Expression nullSubexpression;
+
+        public NullSubexpressionException(Expression expression, Expression nullSubexpression) {
+            this.expression = expression;
+            this.nullSubexpression = nullSubexpression;
+        }
+
+        public Expression Expression { get { return expression; } }
+        public Expression NullSubexpression { get { return nullSubexpression; } }
+    }
 
     public class ExpressionEvaluator
     {
@@ -12,7 +24,9 @@ namespace Cone
 
         public static T EvaluateAs<T>(Expression body) {
             switch(body.NodeType) {
+                case ExpressionType.Equal: goto case ExpressionType.NotEqual;
                 case ExpressionType.NotEqual: return EvaluateAs<T>((BinaryExpression)body);
+                
                 case ExpressionType.Constant: return (T)(body as ConstantExpression).Value;
                 case ExpressionType.MemberAccess:
                     var member = (MemberExpression)body;
@@ -20,7 +34,7 @@ namespace Cone
                         goto default;
                     var target = EvaluateAs<object>(member.Expression);
                     if(target == null)
-                        throw new NullSubexpressionException();
+                        throw new NullSubexpressionException(body, member.Expression);
                     try {
                         switch(member.Member.MemberType) {
                             case MemberTypes.Field: 
