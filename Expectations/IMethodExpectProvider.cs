@@ -7,9 +7,9 @@ using System.Linq.Expressions;
 
 namespace Cone.Expectations
 {
-    interface IMethodExpectProvider
+    public interface IMethodExpectProvider
     {
         IEnumerable<MethodInfo> GetSupportedMethods();
-        IExpect GetExpectation(Expression body, MethodInfo method, object target, object[] args);
+        IExpect GetExpectation(Expression body, MethodInfo method, object target, IEnumerable<object> args);
     }
 }

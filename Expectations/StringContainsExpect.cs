@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Cone.Expectations
 {
@@ -11,8 +11,8 @@ namespace Cone.Expectations
             return new[]{ typeof(string).GetMethod("Contains") };
         }
 
-        IExpect IMethodExpectProvider.GetExpectation(Expression body, MethodInfo method, object target, object[] args) {
-            return new StringContainsExpect(body, target.ToString(), args[0].ToString());
+        IExpect IMethodExpectProvider.GetExpectation(Expression body, MethodInfo method, object target, IEnumerable<object> args) {
+            return new StringContainsExpect(body, target.ToString(), args.First().ToString());
         }
     }
 

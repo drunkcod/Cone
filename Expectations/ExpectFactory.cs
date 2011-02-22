@@ -82,8 +82,8 @@ namespace Cone.Expectations
             IMethodExpectProvider provider;
             if(body.NodeType == ExpressionType.Call && methodExpects.TryGetValue(((MethodCallExpression)body).Method, out provider)) {
                 var m = (MethodCallExpression)body;
-                var target = ExpressionEvaluator.EvaluateCallTarget(body, m);
-                return provider.GetExpectation(body, m.Method, target, m.Arguments.Select(EvaluateAs<object>).ToArray());
+                var target = ExpressionEvaluator.EvaluateCallTarget(m, body);
+                return provider.GetExpectation(body, m.Method, target, m.Arguments.Select(EvaluateAs<object>));
             }
             return new BooleanExpect(body, EvaluateAs<bool>(body));
         }
