@@ -15,7 +15,7 @@ namespace Cone
         static ExpressionFormatter ExpressionFormatter = new ExpressionFormatter(typeof(Verify), ParameterFormatter);
 
         public static object That(Expression<Func<bool>> expr) {
-            return Check(Expect.From(expr.Body));
+            return Check(From(expr.Body));
         }
 
         public static class Throws<TException> where TException : Exception
@@ -32,6 +32,16 @@ namespace Cone
         [Obsolete("use Verify.Throws<TException>.When(() => ...) instead")]
         public static TException Exception<TException>(Expression<Action> expr) where TException : Exception {
             return Throws<TException>.When(expr);
+        }
+
+        static IExpect From(Expression body) {
+            try {
+                return Expect.From(body);
+            } catch(NullSubexpressionException e) {
+                var formatter = GetExpressionFormatter();
+                ExpectationFailed(string.Format("Null subexpression '{1}' in\n'{0}'", formatter.Format(e.Expression), formatter.Format(e.NullSubexpression)));
+                return null;
+            }
         }
         
         static object Check(IExpect expect) {

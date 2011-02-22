@@ -13,5 +13,10 @@ namespace Cone.Samples
         public void this_test_should_be_explicit() {          
             Verify.That(() => false); 
         }
+
+        public void null_subexpression() {
+            var foo = new { ThisValueIsNull = (string)null };
+            Verify.That(() => foo.ThisValueIsNull.Length != 0); 
+        }
     }
 }
