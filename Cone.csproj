@@ -55,6 +55,7 @@
     <Compile Include="Expectations\NotExpect.cs" />
     <Compile Include="Expectations\StringContainsExpect.cs" />
     <Compile Include="Expectations\StringEqualExpect.cs" />
+    <Compile Include="ExpressionEvaluator.cs" />
     <Compile Include="ExpressionExtensions.cs" />
     <Compile Include="ExpressionFormatter.cs" />
     <Compile Include="CustomAttributeProviderExtensions.cs" />

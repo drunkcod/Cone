@@ -107,12 +107,8 @@ namespace Cone.Expectations
             return BinaryExpector;
         }
         
-        static T EvaluateAs<T>(Expression body) {
-            switch(body.NodeType) {
-                case ExpressionType.Constant: return (T)(body as ConstantExpression).Value;
-                default: return body.ExecuteAs<T>();
-            }
-        }
+        static T EvaluateAs<T>(Expression body) { return ExpressionEvaluator.EvaluateAs<T>(body); }
+
 
         static Expect FromTypeIs(TypeBinaryExpression body) {
             var typeIs = (TypeBinaryExpression)body;
