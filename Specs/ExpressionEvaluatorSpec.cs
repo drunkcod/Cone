@@ -36,6 +36,17 @@ namespace Cone
             Verify.Throws<ArgumentNullException>.When(() => new List<object>(null));
         }
 
+        class MyValue<T> 
+        {
+            public T Value;
+
+            public static implicit operator T(MyValue<T> item){ return item.Value; }
+        }
+
+        public void implicit_convesion_operators() {
+            Verify.That(() => new MyValue<int>{ Value = 42 } == 42);
+        }
+
         public void subexpression_null_check_provides_proper_supexpression() {
             var foo = new { ThisValueIsNull = (string)null };
             var error = Verify.Throws<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Length == 0);

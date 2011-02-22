@@ -22,6 +22,8 @@ namespace Cone
 
     public class ExpressionEvaluator
     {
+        static readonly Dictionary<Type, Func<object, object>> converters = new Dictionary<Type,Func<object,object>>();
+
         public static T Evaluate<T>(Expression<Func<T>> lambda) { return EvaluateAs<T>(lambda.Body); }
 
         public static T EvaluateAs<T>(Expression body) { return (T)Evaluate(body, body); }
@@ -62,10 +64,17 @@ namespace Cone
             }
         }
 
-        static Dictionary<Type, Func<object, object>> converters = new Dictionary<Type,Func<object,object>>();
-
         static object EvaluateConvert(UnaryExpression expression, Expression context) {
             var source = Evaluate(expression.Operand, context);
+            var convertMethod = expression.Method;
+            if(convertMethod != null && convertMethod.IsStatic) {
+                try {
+                    return convertMethod.Invoke(null, new[] { source });
+                } catch(TargetInvocationException e) {
+                    throw e.InnerException;
+                }
+            }
+
             Func<object, object> converter;
             if(!converters.TryGetValue(expression.Type, out converter)) {
                 var input = Expression.Parameter(typeof(object), "input");
