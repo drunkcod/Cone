@@ -109,7 +109,6 @@ namespace Cone.Expectations
         
         static T EvaluateAs<T>(Expression body) { return ExpressionEvaluator.EvaluateAs<T>(body); }
 
-
         static Expect FromTypeIs(TypeBinaryExpression body) {
             var typeIs = (TypeBinaryExpression)body;
             return new TypeIsExpect(body,

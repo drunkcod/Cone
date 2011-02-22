@@ -25,29 +25,10 @@ namespace Cone
         public static T EvaluateAs<T>(Expression body) {
             switch(body.NodeType) {
                 case ExpressionType.Equal: goto case ExpressionType.NotEqual;
-                case ExpressionType.NotEqual: return EvaluateAs<T>((BinaryExpression)body);
-                
+                case ExpressionType.NotEqual: return EvaluateAs<T>((BinaryExpression)body);                
+                case ExpressionType.Call: return (T)EvaluateCall(body, body as MethodCallExpression);
                 case ExpressionType.Constant: return (T)(body as ConstantExpression).Value;
-                case ExpressionType.MemberAccess:
-                    var member = (MemberExpression)body;
-                    if(member.Expression == null)
-                        goto default;
-                    var target = EvaluateAs<object>(member.Expression);
-                    if(target == null)
-                        throw new NullSubexpressionException(body, member.Expression);
-                    try {
-                        switch(member.Member.MemberType) {
-                            case MemberTypes.Field: 
-                                var field = member.Member as FieldInfo;
-                                return (T)field.GetValue(target);
-                            case MemberTypes.Property:
-                                var prop = member.Member as PropertyInfo;
-                                return (T)prop.GetValue(target, null);
-                            default: throw new NotSupportedException();
-                        }
-                    } catch(TargetInvocationException invocationException) {
-                        throw invocationException.InnerException;
-                    }
+                case ExpressionType.MemberAccess: return (T)EvaluateMemberAccess(body, body as MemberExpression);
                 default: return ExecuteAs<T>(body);
             }
         }
@@ -59,5 +40,39 @@ namespace Cone
         }
 
         static T ExecuteAs<T>(Expression body) { return body.CastTo<T>().Execute<T>(); }
+
+        static object EvaluateCall(Expression body, MethodCallExpression expression) {
+            object target = null;
+            if(expression.Object != null) {
+                target = EvaluateAs<object>(expression.Object);
+                if(target == null)
+                    throw new NullSubexpressionException(body, expression.Object);
+            }
+            return ExecuteAs<object>(expression);
+        }
+
+        static object EvaluateMemberAccess(Expression body, MemberExpression expression) {
+            object target = null;
+            if(expression.Expression != null) {
+                target = EvaluateAs<object>(expression.Expression);
+                if(target == null)
+                    throw new NullSubexpressionException(body, expression.Expression);
+            }
+            try {
+                return GetValue(target, expression.Member);
+            } catch(TargetInvocationException e) {
+                throw e.InnerException;
+            }
+        }
+
+        static object GetValue(object target, MemberInfo member) {
+            switch(member.MemberType) {
+                case MemberTypes.Field: 
+                    return (member as FieldInfo).GetValue(target);
+                case MemberTypes.Property:
+                    return (member as PropertyInfo).GetValue(target, null);
+                default: throw new NotSupportedException();
+            }
+        }
     }
 }
