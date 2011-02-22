@@ -1,14 +1,19 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 
 namespace Cone
 {
-    class ExpressionEvaluator
+    public class ExpressionEvaluator
     {
+        public static T Evaluate<T>(Expression<Func<T>> lambda) { return EvaluateAs<T>(lambda.Body); }
+
         public static T EvaluateAs<T>(Expression body) {
             switch(body.NodeType) {
                 case ExpressionType.Constant: return (T)(body as ConstantExpression).Value;
-                default: return body.ExecuteAs<T>();
+                default: return ExecuteAs<T>(body);
             }
         }
+
+        static T ExecuteAs<T>(Expression body) { return body.CastTo<T>().Execute<T>(); }
     }
 }

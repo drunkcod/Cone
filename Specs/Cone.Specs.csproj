@@ -65,6 +65,7 @@
     <Compile Include="BooleanExpectSpec.cs" />
     <Compile Include="ConeTestNamerSpec.cs" />
     <Compile Include="ExpectFactorySpec.cs" />
+    <Compile Include="ExpressionEvaluatorSpec.cs" />
     <Compile Include="ExpressionExtensionsSpec.cs" />
     <Compile Include="NUnitIntegration\NUnitIntegrationFeature.cs" />
     <Compile Include="ParameterFormatterSpec.cs" />
