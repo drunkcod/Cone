@@ -32,6 +32,10 @@ namespace Cone
             Verify.Throws<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Contains("foo"));
         }
 
+        public void new_expression_propagates_correct_exception() {
+            Verify.Throws<ArgumentNullException>.When(() => new List<object>(null));
+        }
+
         public void subexpression_null_check_provides_proper_supexpression() {
             var foo = new { ThisValueIsNull = (string)null };
             var error = Verify.Throws<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Length == 0);
