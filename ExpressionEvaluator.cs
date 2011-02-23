@@ -56,15 +56,15 @@ namespace Cone
         }
 
         static object EvaluateCall(MethodCallExpression expression, Expression context) {
-            object target = EvaluateCallTarget(expression, context);
+            var target = EvaluateCallTarget(expression, context);
+            var input = EvaluateAll(expression.Arguments);
+            var method = expression.Method;
             try {
-                var method = expression.Method;
-                var input = EvaluateAll(expression.Arguments);
-                var result = method.Invoke(target, input);
-                AssignOutParameters(expression.Arguments, input, method.GetParameters());
-                return result;
+                return method.Invoke(target, input);
             } catch(TargetInvocationException e) {
                 throw e.InnerException;
+            } finally {
+                AssignOutParameters(expression.Arguments, input, method.GetParameters());
             }
         }
 
