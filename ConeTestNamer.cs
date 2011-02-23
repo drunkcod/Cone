@@ -25,7 +25,10 @@ namespace Cone
         }
 
         public string NameFor(MethodInfo method, object[] parameters) {
-            var baseName = GetNameOf(method);
+            return NameFor(method, parameters, GetNameOf(method));
+        }
+
+        public string NameFor(MethodInfo method, object[] parameters, string baseName) {
             if (parameters == null)
                 return baseName;
             var displayArguments = DisplayParameters(parameters);
@@ -43,7 +46,7 @@ namespace Cone
         }
 
         bool IsFormatString(string s) {
-            return Regex.IsMatch(s, @"\{(\d|\d:.+?)\}");
+            return Regex.IsMatch(s, @"\{(\d|\d([:,].+)+?)\}");
         }
     }
 }
