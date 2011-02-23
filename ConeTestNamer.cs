@@ -46,7 +46,7 @@ namespace Cone
         }
 
         bool IsFormatString(string s) {
-            return Regex.IsMatch(s, @"\{(\d|\d([:,].+)+?)\}");
+            return Regex.IsMatch(s, @"\{(\d(,.+?)?(:.+?)?)\}");
         }
     }
 }
