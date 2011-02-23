@@ -53,7 +53,6 @@ namespace Cone
             Verify.That(() => new MyValueObject().Equals(new MyValueObject()));
         }
 
-        [Pending(Reason = "Got no clue how to handle this.")]
         public void out_parameters() {
             var item = new object();
             var stuff = new Dictionary<string, object> { { "Key", item } };
