@@ -61,19 +61,22 @@ namespace Cone
                 var method = expression.Method;
                 var input = EvaluateAll(expression.Arguments);
                 var result = method.Invoke(target, input);
-                if(input.Length > 0) {
-                    var parameters = method.GetParameters();
-                    for(int i = 0; i != parameters.Length; ++i)
-                        if(parameters[i].IsOut) {
-                            var member = (expression.Arguments[i] as MemberExpression);
-                            var field = member.Member as FieldInfo;                            
-                            field.SetValue(Evaluate(member.Expression, context), input[i]);
-                        }
-                }
+                AssignOutParameters(expression.Arguments, input, method.GetParameters());
                 return result;
             } catch(TargetInvocationException e) {
                 throw e.InnerException;
             }
+        }
+
+        static void AssignOutParameters(IList<Expression> arguments, object[] results, ParameterInfo[] parameters) {
+            if(results.Length == 0)
+                return;
+            for(int i = 0; i != parameters.Length; ++i)
+                if(parameters[i].IsOut) {
+                    var member = (arguments[i] as MemberExpression);
+                    var field = member.Member as FieldInfo;                            
+                    field.SetValue(Evaluate(member.Expression, member.Expression), results[i]);
+                }
         }
 
         static object EvaluateConvert(UnaryExpression expression, Expression context) {
