@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="ExampleFeatureFeature.cs" />
     <Compile Include="Failures\FailureMessagesFeature.cs" />
+    <Compile Include="FreeDeliveryFeature.cs" />
     <Compile Include="PendingAttributeSpec.cs" />
     <Compile Include="RowBuilderSample.cs" />
     <Compile Include="TutorialSpec.cs" />

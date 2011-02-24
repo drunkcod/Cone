@@ -5,41 +5,41 @@ using System.Linq.Expressions;
 
 namespace Cone
 {
+    public class RowTestData : IRowTestData
+    {
+        readonly MethodInfo method;
+        readonly object[] parameters;
+        string name;
+        bool isPending;
+
+        public RowTestData(MethodInfo method, object[] parameters) {
+            this.method = method;
+            this.parameters = parameters;
+        }
+
+        public string DisplayAs  { get { return name ?? method.Name; } }
+
+        public MethodInfo Method { get { return method; } }
+
+        public object[] Parameters { get { return parameters;; } }
+
+        public bool IsPending { get { return isPending; } }
+
+        public RowTestData SetName(string name) {
+            this.name = name;
+            return this;
+        }
+
+        public RowTestData SetPending(bool isPending) {
+            this.isPending = isPending;
+            return this;
+        }
+    }
+
     public class RowBuilder<T> : IEnumerable<IRowTestData>
     {
         readonly ConeTestNamer testNamer = new ConeTestNamer();
         readonly List<IRowTestData> rows = new List<IRowTestData>();
-
-        class RowTestData : IRowTestData
-        {
-            readonly MethodInfo method;
-            readonly object[] parameters;
-            string name;
-            bool isPending;
-
-            public RowTestData(MethodInfo method, object[] parameters) {
-                this.method = method;
-                this.parameters = parameters;
-            }
-
-            public string DisplayAs  { get { return name ?? method.Name; } }
-
-            public MethodInfo Method { get { return method; } }
-
-            public object[] Parameters { get { return parameters;; } }
-
-            public bool IsPending { get { return isPending; } }
-
-            public RowTestData SetName(string name) {
-                this.name = name;
-                return this;
-            }
-
-            public RowTestData SetPending(bool isPending) {
-                this.isPending = isPending;
-                return this;
-            }
-        }
 
         public RowBuilder<T> Add(Expression<Action<T>> testCase) {
             return AddRow(testCase, row => { });
@@ -71,11 +71,7 @@ namespace Cone
                 .SetName(testNamer.NameFor(call.Method, parameters));
         }
 
-        object Collect(Expression expression) {
-            if(expression.NodeType == ExpressionType.Constant)
-                return ((ConstantExpression)expression).Value;
-            return Expression.Lambda<Func<object>>(Expression.TypeAs(expression, typeof(object))).Execute();
-        }
+        object Collect(Expression expression) { return ExpressionEvaluator.EvaluateAs<object>(expression); }
 
         IEnumerator<IRowTestData> IEnumerable<IRowTestData>.GetEnumerator() { return rows.GetEnumerator(); }
 
