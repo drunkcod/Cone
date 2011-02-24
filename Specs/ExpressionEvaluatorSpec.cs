@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace Cone
@@ -34,6 +35,12 @@ namespace Cone
 
         public void new_expression_propagates_correct_exception() {
             Verify.Throws<ArgumentNullException>.When(() => new List<object>(null));
+        }
+
+        public void binary_operators() {
+            int a = 2, b = 1;
+            Expression<Func<bool>> binaryOp = () => (a > b) == true;
+            Verify.That(() => ExpressionEvaluator.Evaluate(binaryOp) == true);
         }
 
         class MyValue<T> 

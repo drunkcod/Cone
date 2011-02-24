@@ -50,9 +50,15 @@ namespace Cone
         }
 
         static object EvaluateBinary(BinaryExpression binary, Expression context) {
-            return binary.Method.Invoke(null, new[]{ 
+            var parameters = new[]{ 
                 Evaluate(binary.Left, context), 
-                Evaluate(binary.Right, context) });
+                Evaluate(binary.Right, context) 
+            };
+
+            var op = binary.Method;
+            if(op != null)
+                return op.Invoke(null, parameters);
+            return ExecuteAs<object>(binary);
         }
 
         static object EvaluateCall(MethodCallExpression expression, Expression context) {

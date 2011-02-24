@@ -14,7 +14,7 @@ namespace Cone
         readonly ParameterFormatter formatter = new ParameterFormatter();
 
         public string NameFor(MethodBase method) {
-            return string.Format(GetBaseName(method), DisplayParameters(method.GetParameters()));
+             return string.Format(GetBaseName(method), DisplayParameters(method.GetParameters()));
         }
 
         public string GetBaseName(MethodBase method) {
