@@ -14,13 +14,10 @@ namespace Cone
         readonly ParameterFormatter formatter = new ParameterFormatter();
 
         public string NameFor(MethodBase method) {
-            var baseName = GetNameOf(method);
-            var parameters = method.GetParameters();
-            var displayParameters = Array.ConvertAll(parameters, x => x.Name);
-            return string.Format(baseName, displayParameters);
+            return string.Format(GetBaseName(method), DisplayParameters(method.GetParameters()));
         }
 
-        public string GetNameOf(MethodBase method) {
+        public string GetBaseName(MethodBase method) {
             var nameAttribute = method.GetCustomAttributes(typeof(DisplayAsAttribute), true);
             if(nameAttribute.Length != 0)
                 return ((DisplayAsAttribute)nameAttribute[0]).Name;
@@ -28,28 +25,29 @@ namespace Cone
         }
 
         public string NameFor(MethodInfo method, object[] parameters) {
-            return NameFor(method, parameters, GetNameOf(method));
+            return NameFor(method, parameters, GetBaseName(method));
         }
 
         public string NameFor(MethodInfo method, object[] parameters, string baseName) {
             if (parameters == null)
                 return baseName;
-            var displayArguments = DisplayParameters(parameters);
+            var displayParameters = DisplayParameters(parameters);
             if(IsFormatString(baseName))
-                return string.Format(baseName, displayArguments);
-            return string.Format("{0}({1})", baseName, FormatParameters(displayArguments));
+                return string.Format(baseName, displayParameters);
+            return string.Format("{0}({1})", baseName, FormatParameters(displayParameters));
         }
 
-        object[] DisplayParameters(object[] arguments) { return Array.ConvertAll(arguments, Format); }
+        object[] DisplayParameters(object[] parameters) { return Array.ConvertAll(parameters, Format); }
+        string[] DisplayParameters(ParameterInfo[] parameters) { return Array.ConvertAll(parameters, x => x.Name); }
 
         object Format(object obj) { return formatter.AsWritable(obj); }
 
-        string FormatParameters(object[] arguments) {
+        object FormatParameters(object[] arguments) {
             var result = new StringBuilder();
             var sep = "";
             for(var i = 0; i != arguments.Length; ++i, sep = ", ")
                 result.Append(sep).Append(arguments[i]);
-            return result.ToString();
+            return result;
         }
 
         bool IsFormatString(string s) {
