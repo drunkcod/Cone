@@ -7,7 +7,9 @@ namespace Cone
 {
     public class ConeTestNamer
     {
-        static readonly Regex normalizeNamePattern = new Regex(@"_|\+", RegexOptions.Compiled);
+        static readonly Regex NormalizeNamePattern = new Regex(@"_|\+", RegexOptions.Compiled);
+        static readonly Regex IsFormatStringPattern = new Regex(@"\{(\d(,.+?)?(:.+?)?)\}", RegexOptions.Compiled);
+
         readonly ParameterFormatter formatter = new ParameterFormatter();
 
         public string NameFor(MethodBase method) {
@@ -21,7 +23,7 @@ namespace Cone
             var nameAttribute = method.GetCustomAttributes(typeof(DisplayAsAttribute), true);
             if(nameAttribute.Length != 0)
                 return ((DisplayAsAttribute)nameAttribute[0]).Name;
-            return normalizeNamePattern.Replace(method.Name, " ");
+            return NormalizeNamePattern.Replace(method.Name, " ");
         }
 
         public string NameFor(MethodInfo method, object[] parameters) {
@@ -46,7 +48,7 @@ namespace Cone
         }
 
         bool IsFormatString(string s) {
-            return Regex.IsMatch(s, @"\{(\d(,.+?)?(:.+?)?)\}");
+            return IsFormatStringPattern.IsMatch(s);
         }
     }
 }

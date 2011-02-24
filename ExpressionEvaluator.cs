@@ -59,6 +59,7 @@ namespace Cone
             var target = EvaluateCallTarget(expression, context);
             var input = EvaluateAll(expression.Arguments);
             var method = expression.Method;
+
             try {
                 return method.Invoke(target, input);
             } catch(TargetInvocationException e) {
