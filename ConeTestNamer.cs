@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Linq;
 using System;
+using System.Text;
 
 namespace Cone
 {
@@ -44,7 +45,11 @@ namespace Cone
         object Format(object obj) { return formatter.AsWritable(obj); }
 
         string FormatParameters(object[] arguments) {
-            return string.Join(", ",  Array.ConvertAll(DisplayParameters(arguments), x => x.ToString()));
+            var result = new StringBuilder();
+            var sep = "";
+            for(var i = 0; i != arguments.Length; ++i, sep = ", ")
+                result.Append(sep).Append(arguments[i]);
+            return result.ToString();
         }
 
         bool IsFormatString(string s) {
