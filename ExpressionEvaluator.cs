@@ -15,6 +15,7 @@ namespace Cone
 
         static object Evaluate(Expression body, Expression context) {
             switch(body.NodeType) {
+                case ExpressionType.ArrayIndex: return EvaluateArrayIndex(body, context);
                 case ExpressionType.Call: return EvaluateCall(body as MethodCallExpression, context);
                 case ExpressionType.Constant: return (body as ConstantExpression).Value;
                 case ExpressionType.Convert: return EvaluateConvert(body as UnaryExpression, context);
@@ -35,6 +36,16 @@ namespace Cone
             return body.CastTo<T>().Execute<T>(); 
         }
 
+        static object EvaluateArrayIndex(Expression expression, Expression context) {
+            var rank1 = expression as BinaryExpression;
+            if(rank1 != null) {
+                var array = (Array)Evaluate(rank1.Left, context);
+                var index = (int)Evaluate(rank1.Right, context);
+                return array.GetValue(index);
+            }
+            return ExecuteAs<object>(expression);
+        }
+
         static object EvaluateBinary(BinaryExpression binary, Expression context) {
             var parameters = new[]{ 
                 Evaluate(binary.Left, context), 
@@ -44,7 +55,10 @@ namespace Cone
             var op = binary.Method;
             if(op != null)
                 return op.Invoke(null, parameters);
-            return ExecuteAs<object>(binary);
+            switch(binary.NodeType) {
+                case ExpressionType.Equal: return Object.Equals(parameters[0], parameters[1]);
+                default: return ExecuteAs<object>(binary);
+            }
         }
 
         static object EvaluateCall(MethodCallExpression expression, Expression context) {
