@@ -68,6 +68,7 @@
     <Compile Include="ITestDescription.cs" />
     <Compile Include="ITestName.cs" />
     <Compile Include="ITestResult.cs" />
+    <Compile Include="NullSubexpressionException.cs" />
     <Compile Include="ParameterFormatter.cs" />
     <Compile Include="PendingAttribute.cs" />
     <Compile Include="RowAttribute.cs" />

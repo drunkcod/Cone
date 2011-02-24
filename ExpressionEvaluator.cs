@@ -2,24 +2,9 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Emit;
 
 namespace Cone
 {
-    public class NullSubexpressionException : ArgumentNullException 
-    {
-        readonly Expression expression;
-        readonly Expression nullSubexpression;
-
-        public NullSubexpressionException(Expression expression, Expression nullSubexpression) {
-            this.expression = expression;
-            this.nullSubexpression = nullSubexpression;
-        }
-
-        public Expression Expression { get { return expression; } }
-        public Expression NullSubexpression { get { return nullSubexpression; } }
-    }
-
     public class ExpressionEvaluator
     {
         static readonly Dictionary<KeyValuePair<Type, Type>, Func<object, object>> converters = new Dictionary<KeyValuePair<Type, Type>,Func<object,object>>();
@@ -139,7 +124,7 @@ namespace Cone
         }
 
         static object EvaluateQuote(UnaryExpression expression, Expression context) {
-            return ExecuteAs<object>(expression);
+            return expression.Operand;
         }
 
         static object EvaluateAsTarget(Expression expression, Expression context) {

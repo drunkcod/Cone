@@ -32,7 +32,6 @@ namespace Cone.Addin
         }
 
         public void Add(IEnumerable<IRowData> rows, ConeTestNamer testNamer) {
-            
             foreach (var row in rows) { 
                 var parameters = row.Parameters;
                 var rowName = row.DisplayAs ?? thunk.NameFor(parameters);
