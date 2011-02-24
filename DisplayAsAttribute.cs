@@ -6,7 +6,11 @@ namespace Cone
     public sealed class DisplayAsAttribute : Attribute
     {
         public readonly string Name;
+        public string Heading;
 
-        public DisplayAsAttribute(string name){ this.Name = name; } 
+        public DisplayAsAttribute(string name) { 
+            this.Name = name;
+            this.Heading = name;
+        }
     }
 }

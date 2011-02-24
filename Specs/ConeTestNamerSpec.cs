@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Reflection;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Cone
 {
@@ -21,6 +18,12 @@ namespace Cone
         public void Renamed() {
             var thisMethod = MethodInfo.GetCurrentMethod();
             Verify.That(() => TestNamer.NameFor(thisMethod) == "can be renamed via attribute");
+        }
+
+        [DisplayAs("", Heading = "override heading")]
+        public void WithFunkyHeading() {
+            var thisMethod = MethodInfo.GetCurrentMethod();
+            Verify.That(() => TestNamer.NameFor(thisMethod) == "override heading");       
         }
 
         [Row("0x{0:x4}", 10)

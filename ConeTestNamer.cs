@@ -14,18 +14,18 @@ namespace Cone
         readonly ParameterFormatter formatter = new ParameterFormatter();
 
         public string NameFor(MethodBase method) {
-             return string.Format(GetBaseName(method), DisplayParameters(method.GetParameters()));
+             return string.Format(GetBaseName(method, x => x.Heading), DisplayParameters(method.GetParameters()));
         }
 
-        public string GetBaseName(MethodBase method) {
+        public string GetBaseName(MethodBase method, Func<DisplayAsAttribute, string> selectName) {
             var nameAttribute = method.GetCustomAttributes(typeof(DisplayAsAttribute), true);
             if(nameAttribute.Length != 0)
-                return ((DisplayAsAttribute)nameAttribute[0]).Name;
+                return selectName(((DisplayAsAttribute)nameAttribute[0]));
             return NormalizeNamePattern.Replace(method.Name, " ");
         }
 
         public string NameFor(MethodInfo method, object[] parameters) {
-            return NameFor(method, parameters, GetBaseName(method));
+            return NameFor(method, parameters, GetBaseName(method, x => x.Name));
         }
 
         public string NameFor(MethodInfo method, object[] parameters, string baseName) {

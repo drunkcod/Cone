@@ -26,5 +26,22 @@ namespace Cone.Samples
                 Verify.That(() => foo.ThisValueIsNull.Contains("hello")); 
             }
         }
+
+        [Context("DisplayAs")]
+        public class DisplayAs
+        {
+            [DisplayAs("{0} + {1} == {2}")
+            ,Row(1, 2, 3)]
+            public void Add(int a, int b, int result) {
+                Verify.That(() => a + b == result);
+            }
+
+            [DisplayAs("{0} - {1} == {2}", Heading = "When subtracting {1} from {0} the we get {2}")
+            ,Row(3, 2, 1)]
+            public void Subtract(int a, int b, int result) {
+                Verify.That(() => a - b == result);
+            }
+
+        }
     }
 }
