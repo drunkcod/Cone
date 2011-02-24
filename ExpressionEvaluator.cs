@@ -22,7 +22,7 @@ namespace Cone
 
     public class ExpressionEvaluator
     {
-        static readonly Dictionary<Type, Func<object, object>> converters = new Dictionary<Type,Func<object,object>>();
+        static readonly Dictionary<KeyValuePair<Type, Type>, Func<object, object>> converters = new Dictionary<KeyValuePair<Type, Type>,Func<object,object>>();
 
         public static T Evaluate<T>(Expression<Func<T>> lambda) { return EvaluateAs<T>(lambda.Body); }
 
@@ -37,6 +37,7 @@ namespace Cone
                 case ExpressionType.NotEqual: return EvaluateBinary(body as BinaryExpression, context);
                 case ExpressionType.MemberAccess: return EvaluateMemberAccess(body as MemberExpression, context);
                 case ExpressionType.New: return EvaluateNew(body as NewExpression, context);
+                case ExpressionType.Quote: return EvaluateQuote(body as UnaryExpression, context);
                 default: return ExecuteAs<object>(body);
             }
         }
@@ -63,7 +64,7 @@ namespace Cone
 
         static object EvaluateCall(MethodCallExpression expression, Expression context) {
             var target = EvaluateCallTarget(expression, context);
-            var input = EvaluateAll(expression.Arguments);
+            var input = EvaluateAll(expression.Arguments, context);
             var method = expression.Method;
 
             try {
@@ -97,14 +98,22 @@ namespace Cone
                 }
             }
 
+            if(expression.Type.IsAssignableFrom(source.GetType()))
+                return source;
+
+            var key = ConverterKey(expression);
             Func<object, object> converter;
-            if(!converters.TryGetValue(expression.Type, out converter)) {
+            if(!converters.TryGetValue(key, out converter)) {
                 var input = Expression.Parameter(typeof(object), "input");
-                converters[expression.Type] = converter = Expression.Lambda<Func<object, object>>(
-                    Expression.Convert(Expression.Convert(input, expression.Type), typeof(object)), input).Compile();
+                converters[key] = converter = Expression.Lambda<Func<object, object>>(
+                    Expression.Convert(Expression.Convert(Expression.Convert(input, expression.Operand.Type), expression.Type), typeof(object)), input).Compile();
             }
             
             return converter(source);
+        }
+
+        static KeyValuePair<Type, Type> ConverterKey(UnaryExpression conversion) {
+            return new KeyValuePair<Type,Type>(conversion.Operand.Type, conversion.Type);
         }
 
         static object EvaluateMemberAccess(MemberExpression expression, Expression context) {
@@ -117,13 +126,17 @@ namespace Cone
 
         static object EvaluateNew(NewExpression expression, Expression context) {
             try {
-                var args = EvaluateAll(expression.Arguments);
+                var args = EvaluateAll(expression.Arguments, context);
                 if(expression.Constructor != null)
                     return expression.Constructor.Invoke(args);
                 return Activator.CreateInstance(expression.Type, args);
             } catch(TargetInvocationException e) {
                 throw e.InnerException;
             }
+        }
+
+        static object EvaluateQuote(UnaryExpression expression, Expression context) {
+            return ExecuteAs<object>(expression);
         }
 
         static object EvaluateAsTarget(Expression expression, Expression context) {
@@ -135,11 +148,11 @@ namespace Cone
             return target;
         }
 
-        static object[] EvaluateAll(ICollection<Expression> expressions) {
+        static object[] EvaluateAll(ICollection<Expression> expressions, Expression context) {
             var result = new object[expressions.Count];
             var index = 0;
             foreach(var item in expressions) {
-                result[index++] = EvaluateAs<object>(item);
+                result[index++] = Evaluate(item, context);
             }
             return result;
         }

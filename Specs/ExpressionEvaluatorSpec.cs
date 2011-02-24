@@ -43,6 +43,13 @@ namespace Cone
             Verify.That(() => ExpressionEvaluator.Evaluate(binaryOp) == true);
         }
 
+        public void byte_comparrision() {
+            var a = new byte[]{ 1 };
+            var b = a;
+            var result = ExpressionEvaluator.Evaluate(() => a[0] == b[0]);
+            Verify.That(() => result);
+        }
+
         class MyValue<T> 
         {
             public T Value;
