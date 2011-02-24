@@ -98,18 +98,21 @@ namespace Cone
                 }
             }
 
-            if(expression.Type.IsAssignableFrom(source.GetType()))
-                return source;
+            return GetConverter(expression)(source);
+        }
 
-            var key = ConverterKey(expression);
+        static Func<object, object> GetConverter(UnaryExpression conversion) {
+            var key = ConverterKey(conversion);
             Func<object, object> converter;
-            if(!converters.TryGetValue(key, out converter)) {
-                var input = Expression.Parameter(typeof(object), "input");
-                converters[key] = converter = Expression.Lambda<Func<object, object>>(
-                    Expression.Convert(Expression.Convert(Expression.Convert(input, expression.Operand.Type), expression.Type), typeof(object)), input).Compile();
-            }
-            
-            return converter(source);
+            if(converters.TryGetValue(key, out converter)) 
+                return converter;
+
+            var input = Expression.Parameter(typeof(object), "input");
+            return converters[key] = 
+                    Expression.Lambda<Func<object, object>>(
+                        Expression.Convert(
+                            Expression.Convert(
+                                Expression.Convert(input, key.Key), key.Value), typeof(object)), input).Compile();
         }
 
         static KeyValuePair<Type, Type> ConverterKey(UnaryExpression conversion) {
