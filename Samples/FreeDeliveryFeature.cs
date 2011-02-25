@@ -13,7 +13,7 @@ namespace Cone.Samples
 
         readonly List<IRowTestData> rows = new List<IRowTestData>();
 
-        public Examples(MethodInfo method) {
+        protected Examples(MethodInfo method) {
             this.method = method;
         }
 
@@ -29,26 +29,22 @@ namespace Cone.Samples
     public class Examples<TArg0, TArg1, TArg2> : Examples
     {
         public Examples(Action<TArg0, TArg1, TArg2> action): base(action.Method) { }
-
-        public Examples<TArg0, TArg1, TArg2> Add(TArg0 arg0, TArg1 arg1, TArg2 arg2) {
-            AddRow(arg0, arg1, arg2);
-            return this;
-        }
+        public void Add(TArg0 arg0, TArg1 arg1, TArg2 arg2) { AddRow(arg0, arg1, arg2); }
     }
 
     [Feature("Free Delivery")]
     public class FreeDeliveryFeature
     {
         [Context("is offered to VIP customers with more than 5 books in the cart")]
-        public class Examples
+        public class OfferedToVIPCustomers
         {
-            [DisplayAs("{0,-13} {1,-8} {2}"), Row("Regular", 10, false)]
-            public void Example(string customerType, int bookCount, bool freeDelivery) {
-            }
+            [DisplayAs("{0,-13} {1,-8} {2}")]
+            public void Example(string customerType, int bookCount, bool freeDelivery) { }
 
-            public IEnumerable<IRowTestData> Rows2() {
-                return new Examples<string, int, bool>(Example) {
-                    {"Regular", 10, false }
+            public Examples Rows() { return new Examples<string, int, bool>(Example) {
+                    { "Regular" , 10, false },
+                    {  "VIP"    ,  5, false },
+                    {  "VIP"    ,  6, true  }
                 };
             }
         }
