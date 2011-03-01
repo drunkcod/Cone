@@ -58,7 +58,10 @@ namespace Cone
                 case "System.String": return "string";
                 case "System.Boolean": return "bool";
                 case "System.Int32": return "int";
-                default: return type.Name;
+                default: 
+                    if(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                        return string.Format("{0}?", FormatType(type.GetGenericArguments()[0]));
+                    return type.Name;
             }
         }
 

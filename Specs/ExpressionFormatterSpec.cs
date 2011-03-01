@@ -24,7 +24,6 @@ namespace Cone
 
         string Format<T>(Expression<Func<T>> expression) { return FormatBody(expression); }
 
-
         public void array_length() {
             var array = new int[0];
             VerifyFormat(() => array.Length, "array.Length");
@@ -148,6 +147,8 @@ namespace Cone
         public void subtract() { VerifyFormat(() => A - B, "A - B"); }
 
         public void divide() { VerifyFormat(() => A / B, "A / B"); }
+
+        public void nullable() { VerifyFormat(() => 4 == (int?)5, "4 == (int?)5"); }
 
         [Context("nested expressions")]
         public class NestedExpressions
