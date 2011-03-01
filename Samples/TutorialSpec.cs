@@ -41,7 +41,12 @@ namespace Cone.Samples
             public void Subtract(int a, int b, int result) {
                 Verify.That(() => a - b == result);
             }
+        }
 
+        public void foo() {
+            Func<int> throws = () => { throw new InvalidOperationException(); }; 
+
+            Verify.Throws<ArgumentException>.When(() => throws() == 42); 
         }
     }
 }

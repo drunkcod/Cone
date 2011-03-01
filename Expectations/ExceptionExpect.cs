@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Cone.Expectations
 {
     public class ExceptionExpect : Expect
     {
         public static ExceptionExpect From(Expression<Action> expression, Type expected) {
-            return new ExceptionExpect(expression.Body, ExceptionOrNull(() => expression.Execute()), expected);
+            return new ExceptionExpect(expression.Body, ExceptionOrNull(expression), expected);
         }
        
         public static ExceptionExpect From<T>(Expression<Func<T>> expression, Type expected) {
-            return new ExceptionExpect(expression.Body, ExceptionOrNull(() => ExpressionEvaluator.Evaluate(expression)), expected);
+            return new ExceptionExpect(expression.Body, ExceptionOrNull(expression.Body), expected);
         }
        
         ExceptionExpect(Expression body, object result, Type expected): base(body, result, expected) { }
@@ -21,9 +22,9 @@ namespace Cone.Expectations
             return actual != null && ExpectedExceptionType.IsAssignableFrom(actual.GetType());
         }
 
-        static object ExceptionOrNull(Action action) {
+        static object ExceptionOrNull(Expression expression) {
             try {
-                action();
+                ExpressionEvaluator.EvaluateAs<object>(expression);
             } catch(Exception e) {
                 return e;
             }

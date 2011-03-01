@@ -6,16 +6,40 @@ using System.Reflection;
 
 namespace Cone
 {
+    public class UnsupportedExpressionException : Exception
+    {
+        public readonly Expression Expression;
+
+        public UnsupportedExpressionException(Expression expression) {
+            this.Expression = expression;
+        }
+    }
+
     public class ExpressionEvaluator
     {
         static readonly Dictionary<KeyValuePair<Type, Type>, Func<object, object>> converters = new Dictionary<KeyValuePair<Type, Type>,Func<object,object>>();
 
-        public static T Evaluate<T>(Expression<Func<T>> lambda) { return EvaluateAs<T>(lambda.Body); }
+        public static T Evaluate<T>(Expression<Func<T>> lambda) { 
+            try {
+                return (T)Evaluate(lambda, lambda);
+            } catch(UnsupportedExpressionException e) {
+                //inline to cut down the stack trace
+                return lambda.Compile()();
+            }
+        }
 
-        public static T EvaluateAs<T>(Expression body) { return (T)Evaluate(body, body); }
+        public static T EvaluateAs<T>(Expression body) { 
+            try {
+                return (T)Evaluate(body, body); 
+            } catch(UnsupportedExpressionException e) {
+                //inline to cut down the stack trace
+                return Expression.Lambda<Func<T>>(Expression.Convert(body, typeof(T))).Compile()();
+            }
+        }
 
         static object Evaluate(Expression body, Expression context) {
             switch(body.NodeType) {
+                case ExpressionType.Lambda: return EvaluateLambda(body as LambdaExpression, context);
                 case ExpressionType.ArrayIndex: return EvaluateArrayIndex(body, context);
                 case ExpressionType.Call: return EvaluateCall(body as MethodCallExpression, context);
                 case ExpressionType.Constant: return (body as ConstantExpression).Value;
@@ -25,7 +49,7 @@ namespace Cone
                 case ExpressionType.MemberAccess: return EvaluateMemberAccess(body as MemberExpression, context);
                 case ExpressionType.New: return EvaluateNew(body as NewExpression, context);
                 case ExpressionType.Quote: return EvaluateQuote(body as UnaryExpression, context);
-                default: return ExecuteAs<object>(body);
+                default: throw new UnsupportedExpressionException(body);
             }
         }
 
@@ -33,8 +57,10 @@ namespace Cone
             return EvaluateAsTarget(expression.Object, context);
         }
 
-        static T ExecuteAs<T>(Expression body) {
-            return body.CastTo<T>().Execute<T>(); 
+        static object EvaluateLambda(LambdaExpression expression, Expression context) {
+            if(expression.Parameters.Count != 0)
+                throw new UnsupportedExpressionException(expression);
+            return Evaluate(expression.Body, context);
         }
 
         static object EvaluateArrayIndex(Expression expression, Expression context) {
@@ -44,7 +70,7 @@ namespace Cone
                 var index = (int)Evaluate(rank1.Right, context);
                 return array.GetValue(index);
             }
-            return ExecuteAs<object>(expression);
+            throw new UnsupportedExpressionException(expression);
         }
 
         static object EvaluateBinary(BinaryExpression binary, Expression context) {
@@ -58,7 +84,7 @@ namespace Cone
                 return op.Invoke(null, parameters);
             switch(binary.NodeType) {
                 case ExpressionType.Equal: return Object.Equals(parameters[0], parameters[1]);
-                default: return ExecuteAs<object>(binary);
+                default: throw new UnsupportedExpressionException(binary);
             }
         }
 
