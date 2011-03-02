@@ -93,7 +93,7 @@ namespace Cone.Expectations
                 if(body.Left.Type == typeof(string) && body.Right.Type == typeof(string))
                     return StringEqualExpector(body, EvaluateAs<string>(body.Left), EvaluateAs<string>(body.Right));
             }
-            return GetExpector(body.NodeType)(body, EvaluateAs<object>(body.Left), EvaluateAs<object>(body.Right));
+            return GetExpector(body.NodeType)(body, EvaluateAs<object>(body.Left, body), EvaluateAs<object>(body.Right, body));
         }
 
         static Expector<object> GetExpector(ExpressionType op) {
@@ -109,6 +109,7 @@ namespace Cone.Expectations
         }
         
         static T EvaluateAs<T>(Expression body) { return ExpressionEvaluator.EvaluateAs<T>(body); }
+        static T EvaluateAs<T>(Expression body, Expression context) { return ExpressionEvaluator.EvaluateAs<T>(body, context); }
 
         static Expect FromTypeIs(TypeBinaryExpression body) {
             var typeIs = (TypeBinaryExpression)body;

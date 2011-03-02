@@ -48,5 +48,20 @@ namespace Cone.Samples
 
             Verify.Throws<ArgumentException>.When(() => throws() == 42); 
         }
+
+        public void report_failing_subexpression()
+        {
+            Func<int> throws = () => { throw new InvalidOperationException(); }; 
+            Verify.That(() => throws() == 42); 
+        }
+
+
+        int Throws() { throw new NotImplementedException(); }
+        
+        public void report_failing_subexpression_call()
+        {
+            Verify.That(() => Throws() == 42); 
+        }
+
     }
 }

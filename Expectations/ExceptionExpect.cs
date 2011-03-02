@@ -23,12 +23,9 @@ namespace Cone.Expectations
         }
 
         static object ExceptionOrNull(Expression expression) {
-            try {
-                ExpressionEvaluator.EvaluateAs<object>(expression);
-            } catch(Exception e) {
-                return e;
-            }
-            return null;
+            Exception error = null;
+            ExpressionEvaluator.EvaluateAs<object>(expression, expression, x => { error = x; });
+            return error;
         }
 
         public override string FormatExpression(IFormatter<Expression> formatter) {

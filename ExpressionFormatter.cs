@@ -9,6 +9,7 @@ namespace Cone
     public class ExpressionFormatter : IFormatter<Expression>
     {
         const string IndexerGet = "get_Item";
+        const string MethodArgumentsFormat = "({0})";
 
         readonly Type context;
         readonly IFormatter<object> constantFormatter;
@@ -39,6 +40,8 @@ namespace Cone
                 case ExpressionType.Constant: return FormatConstant((ConstantExpression)expression);
                 case ExpressionType.Convert: return FormatConvert((UnaryExpression)expression);
                 case ExpressionType.TypeIs: return FormatTypeIs((TypeBinaryExpression)expression);
+                case ExpressionType.Invoke: return FormatInvoke((InvocationExpression)expression);
+                    
                 default:
                     var binary = expression as BinaryExpression;
                     if (binary == null)
@@ -82,7 +85,7 @@ namespace Cone
             var target = FormatCallTarget(call, out firstArgumentOffset);
             var method = call.Method;
             var invocation = string.Empty;
-            var parameterFormat = "({0})";
+            var parameterFormat = MethodArgumentsFormat;
             if (method.IsSpecialName && IndexerGet == method.Name)
                 parameterFormat = "[{0}]";
             else if (IsAnonymousOrContextMember(call.Object)) {
@@ -118,7 +121,7 @@ namespace Cone
             var items = new string[args.Count];
             for (int i = 0; i != items.Length; ++i)
                 items[i] = Format(args[i]);
-            return FormatArgs(items, "({0})");
+            return FormatArgs(items, MethodArgumentsFormat);
         }
 
         string FormatArgs(IList<Expression> args, int first, string format) {
@@ -160,7 +163,7 @@ namespace Cone
         }
 
         string FormatNew(NewExpression newExpression) {
-            return "new " + newExpression.Type.Name + FormatArgs(newExpression.Arguments, 0, "({0})");
+            return "new " + newExpression.Type.Name + FormatArgs(newExpression.Arguments, 0, MethodArgumentsFormat);
         }
 
         string FormatMemberAccess(MemberExpression memberAccess) {
@@ -191,6 +194,10 @@ namespace Cone
                     return string.Format("{0} = {1}", assignment.Member.Name, Format(assignment.Expression));
                 default: throw new NotSupportedException(String.Format("Unsupported MemberBindingType '{0}'", binding.BindingType));
             }
+        }
+
+        string FormatInvoke(InvocationExpression invocation) {
+            return Format(invocation.Expression) + FormatArgs(invocation.Arguments, 0, MethodArgumentsFormat);
         }
 
         bool IsAnonymousOrContextMember(Expression expression) {

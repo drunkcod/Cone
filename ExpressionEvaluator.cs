@@ -15,25 +15,40 @@ namespace Cone
         }
     }
 
+    public class ExceptionExpressionException : Exception
+    {
+        public readonly Expression Expression;
+        public readonly Expression Subexpression;
+
+        public ExceptionExpressionException(Expression expression, Expression subexpression, Exception innerException) : base("", innerException) {
+            this.Expression = expression;
+            this.Subexpression = subexpression;
+        }
+    }
+
     public class ExpressionEvaluator
     {
         static readonly Dictionary<KeyValuePair<Type, Type>, Func<object, object>> converters = new Dictionary<KeyValuePair<Type, Type>,Func<object,object>>();
 
-        public static T Evaluate<T>(Expression<Func<T>> lambda) { 
-            try {
-                return (T)Evaluate(lambda, lambda);
-            } catch(UnsupportedExpressionException e) {
-                //inline to cut down the stack trace
-                return lambda.Compile()();
-            }
+        public static T Evaluate<T>(Expression<Func<T>> lambda) { return EvaluateAs<T>(lambda.Body); }
+
+        public static T EvaluateAs<T>(Expression body) { return EvaluateAs<T>(body, body); } 
+
+        public static T EvaluateAs<T>(Expression body, Expression context) { 
+            return EvaluateAs<T>(body, context, x => { throw new ExceptionExpressionException(body, context, x); });
         }
 
-        public static T EvaluateAs<T>(Expression body) { 
+        public static T EvaluateAs<T>(Expression body, Expression context, Action<Exception> onError) { 
             try {
-                return (T)Evaluate(body, body); 
-            } catch(UnsupportedExpressionException e) {
-                //inline to cut down the stack trace
-                return Expression.Lambda<Func<T>>(Expression.Convert(body, typeof(T))).Compile()();
+                try {
+                    return (T)Evaluate(body, context); 
+                } catch(UnsupportedExpressionException) {
+                    //inline to cut down the stack trace
+                    return Expression.Lambda<Func<T>>(Expression.Convert(body, typeof(T))).Compile()();
+                }
+            } catch(Exception e) {
+                onError(e);
+                return default(T);
             }
         }
 

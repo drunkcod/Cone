@@ -150,6 +150,11 @@ namespace Cone
 
         public void nullable() { VerifyFormat(() => 4 == (int?)5, "4 == (int?)5"); }
 
+        public void invoke_niladic() { 
+            Func<int> getAnswer = () => 42;
+            VerifyFormat(() => getAnswer(), "getAnswer()");
+        }
+
         [Context("nested expressions")]
         public class NestedExpressions
         {
