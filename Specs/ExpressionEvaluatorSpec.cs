@@ -9,6 +9,12 @@ namespace Cone
     [Describe(typeof(ExpressionEvaluator))]
     public class ExpressionEvaluatorSpec
     {
+        ExpressionEvaluator evaluator = new ExpressionEvaluator {
+            Unsupported = x => { throw new NotSupportedException("Unsupported expression type:" + x.NodeType.ToString()); }
+        };
+
+        T Evaluate<T>(Expression<Func<T>> lambda){ return evaluator.EvaluateCore<T>(lambda.Body, lambda, x => { throw x; }); }
+
         public void constant_evaluation() {
             Verify.That(() => ExpressionEvaluator.Evaluate(() => 42) == 42);
         }
@@ -62,6 +68,18 @@ namespace Cone
 
         public void implicit_convesion_operators() {
             Verify.That(() => new MyValue<int>{ Value = 42 } == 42);
+        }
+
+        public void invoke_niladic() {
+            Func<int> getAnswer = () => 42;
+
+            Verify.That(() => Evaluate(() => getAnswer()) == 42);
+        }
+
+        public void invoke_target_raises_exception() {
+            Func<int> getAnswer = () => { throw new NotImplementedException(); };
+
+            Verify.Throws<NotImplementedException>.When(() => Evaluate(() => getAnswer()));
         }
 
         struct MyValueObject { }
