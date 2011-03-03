@@ -64,7 +64,11 @@ namespace Cone
             return e;
         }
 
-        public Func<Expression,EvaluationResult> Unsupported = x => EvaluationResult.Success(Expression.Lambda<Func<object>>(Expression.Convert(x, typeof(object))).Compile()()); 
+        public ExpressionEvaluator() {
+            Unsupported = x => EvaluateUnsupported(x); 
+        }
+
+        public Func<Expression,EvaluationResult> Unsupported; 
         
         public static T Evaluate<T>(Expression<Func<T>> lambda) { return (T)defaultEvaluator.Evaluate(lambda.Body, lambda).Value; }
 
@@ -248,6 +252,14 @@ namespace Cone
                 result[index++] = EvaluateCore(item, context).Value;
             }
             return Success(result);
+        }
+
+        EvaluationResult EvaluateUnsupported(Expression expression) {
+            try {
+                return Success(Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object))).Compile()());
+            } catch(Exception e) {
+                return Failure(e);
+            }
         }
 
         static object GetValue(object target, MemberInfo member) {

@@ -71,7 +71,12 @@ namespace Cone
                 .SetName(testNamer.NameFor(call.Method, parameters));
         }
 
-        object Collect(Expression expression) { return ExpressionEvaluator.EvaluateAs<object>(expression); }
+        object Collect(Expression expression) {
+            var lambda = expression as LambdaExpression;
+            if(lambda != null)
+                return lambda.Compile();
+            return ExpressionEvaluator.EvaluateAs<object>(expression); 
+        }
 
         IEnumerator<IRowTestData> IEnumerable<IRowTestData>.GetEnumerator() { return rows.GetEnumerator(); }
 
