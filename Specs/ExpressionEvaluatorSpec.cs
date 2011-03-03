@@ -13,7 +13,7 @@ namespace Cone
             Unsupported = x => { throw new NotSupportedException("Unsupported expression type:" + x.NodeType.ToString()); }
         };
 
-        T Evaluate<T>(Expression<Func<T>> lambda){ return (T)evaluator.Evaluate(lambda.Body, lambda, x => { throw x; }).Value; }
+        T Evaluate<T>(Expression<Func<T>> lambda){ return (T)evaluator.Evaluate(lambda.Body, lambda, x => { throw x.Error; }).Value; }
 
         public void constant_evaluation() {
             Verify.That(() => ExpressionEvaluator.Evaluate(() => 42) == 42);

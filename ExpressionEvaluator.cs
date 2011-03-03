@@ -66,26 +66,22 @@ namespace Cone
 
         public Func<Expression,EvaluationResult> Unsupported = x => EvaluationResult.Success(Expression.Lambda<Func<object>>(Expression.Convert(x, typeof(object))).Compile()()); 
         
-        public static T Evaluate<T>(Expression<Func<T>> lambda) { return EvaluateAs<T>(lambda.Body); }
+        public static T Evaluate<T>(Expression<Func<T>> lambda) { return (T)defaultEvaluator.Evaluate(lambda.Body, lambda).Value; }
 
-        public static T EvaluateAs<T>(Expression body) { return EvaluateAs<T>(body, body); } 
+        public static T EvaluateAs<T>(Expression body) { return (T)defaultEvaluator.Evaluate(body, body).Value; } 
 
-        public static T EvaluateAs<T>(Expression body, Expression context) { 
-            return EvaluateAs<T>(body, context, x => { throw new ExceptionExpressionException(body, context, x); });
+        public EvaluationResult Evaluate(Expression body, Expression context) { 
+            return Evaluate(body, context, x => { throw new ExceptionExpressionException(body, context, x.Error); });
         }
 
-        public static T EvaluateAs<T>(Expression body, Expression context, Func<Exception, object> onError) { 
-            return (T)defaultEvaluator.Evaluate(body, context, onError).Value;
-        }
-
-        public EvaluationResult Evaluate(Expression body, Expression context, Func<Exception, object> onError) {
-            var result = Evaluate(body, context);
+        public EvaluationResult Evaluate(Expression body, Expression context, Func<EvaluationResult, EvaluationResult> onError) {
+            var result = EvaluateCore(body, context);
             if(result.IsError)
-                onError(result.Error);
+                return onError(result);
             return result;
         }
 
-        EvaluationResult Evaluate(Expression body, Expression context) {
+        EvaluationResult EvaluateCore(Expression body, Expression context) {
             switch(body.NodeType) {
                 case ExpressionType.Lambda: return EvaluateLambda(body as LambdaExpression, context);
                 case ExpressionType.ArrayIndex: return EvaluateArrayIndex(body, context);
@@ -105,25 +101,25 @@ namespace Cone
         EvaluationResult EvaluateLambda(LambdaExpression expression, Expression context) {
             if(expression.Parameters.Count != 0)
                 return Unsupported(expression);
-            return Evaluate(expression.Body, context);
+            return EvaluateCore(expression.Body, context);
         }
 
         EvaluationResult EvaluateArrayIndex(Expression expression, Expression context) {
             var rank1 = expression as BinaryExpression;
             if(rank1 != null) {
-                var array = (Array)Evaluate(rank1.Left, context).Value;
-                var index = (int)Evaluate(rank1.Right, context).Value;
+                var array = (Array)EvaluateCore(rank1.Left, context).Value;
+                var index = (int)EvaluateCore(rank1.Right, context).Value;
                 return Success(array.GetValue(index));
             }
             return Unsupported(expression);
         }
 
         EvaluationResult EvaluateBinary(BinaryExpression binary, Expression context) {
-            var left = Evaluate(binary.Left, context);
+            var left = EvaluateCore(binary.Left, context);
             if(left.IsError)
                 return left;
 
-            var right = Evaluate(binary.Right, context);
+            var right = EvaluateCore(binary.Right, context);
             if(right.IsError)
                 return right;
 
@@ -164,12 +160,12 @@ namespace Cone
                 if(parameters[i].IsOut) {
                     var member = (arguments[i] as MemberExpression);
                     var field = member.Member as FieldInfo;                            
-                    field.SetValue(Evaluate(member.Expression, member.Expression).Value, results[i]);
+                    field.SetValue(EvaluateCore(member.Expression, member.Expression).Value, results[i]);
                 }
         }
 
         EvaluationResult EvaluateConvert(UnaryExpression expression, Expression context) {
-            var source = Evaluate(expression.Operand, context).Value;
+            var source = EvaluateCore(expression.Operand, context).Value;
             var convertMethod = expression.Method;
             if(convertMethod != null && convertMethod.IsStatic) {
                 try {
@@ -227,7 +223,7 @@ namespace Cone
         }
 
         EvaluationResult EvaluateInvoke(InvocationExpression expression, Expression context) {
-            var target = Evaluate(expression.Expression, context).Value as Delegate;
+            var target = EvaluateCore(expression.Expression, context).Value as Delegate;
             try {
                 var args = EvaluateAll(expression.Arguments, context).Value as object[];
                 return Success(target.DynamicInvoke(args));
@@ -239,7 +235,7 @@ namespace Cone
         public EvaluationResult EvaluateAsTarget(Expression expression, Expression context) {
             if(expression == null)
                 return Success(null);
-            var target = Evaluate(expression, context);
+            var target = EvaluateCore(expression, context);
             if(target.IsError || target.Value == null)
                 return Failure(new NullSubexpressionException(context, expression));
             return target;
@@ -249,7 +245,7 @@ namespace Cone
             var result = new object[expressions.Count];
             var index = 0;
             foreach(var item in expressions) {
-                result[index++] = Evaluate(item, context).Value;
+                result[index++] = EvaluateCore(item, context).Value;
             }
             return Success(result);
         }

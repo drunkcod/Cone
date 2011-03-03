@@ -20,6 +20,7 @@ namespace Cone.Expectations
         static readonly Expector<object> GreaterThanExpector = MakeExpector<object>(typeof(GreaterThanExpect));     
         static readonly Expector<object> GreaterThanOrEqualExpector = MakeExpector<object>(typeof(GreaterThanOrEqualExpect));     
         static readonly Expector<string> StringEqualExpector = MakeExpector<string>(typeof(StringEqualExpect));
+        static readonly ExpressionEvaluator Evaluator = new ExpressionEvaluator();
 
         static Expector<TValue> MakeExpector<TValue>(Type expectType) {
             var arguments = new[] { typeof(BinaryExpression), typeof(TValue), typeof(TValue) };
@@ -82,8 +83,7 @@ namespace Cone.Expectations
             IMethodExpectProvider provider;
             if(body.NodeType == ExpressionType.Call && methodExpects.TryGetValue(((MethodCallExpression)body).Method, out provider)) {
                 var m = (MethodCallExpression)body;
-                var eval = new ExpressionEvaluator();
-                var target = eval.EvaluateAsTarget(m, body).Value;
+                var target = Evaluator.EvaluateAsTarget(m, body).Value;
                 return provider.GetExpectation(body, m.Method, target, m.Arguments.Select(EvaluateAs<object>));
             }
             return new BooleanExpect(body, EvaluateAs<bool>(body));
@@ -109,8 +109,8 @@ namespace Cone.Expectations
             return BinaryExpector;
         }
         
-        static T EvaluateAs<T>(Expression body) { return ExpressionEvaluator.EvaluateAs<T>(body); }
-        static T EvaluateAs<T>(Expression body, Expression context) { return ExpressionEvaluator.EvaluateAs<T>(body, context); }
+        static T EvaluateAs<T>(Expression body) { return (T)Evaluator.Evaluate(body, body).Value; }
+        static T EvaluateAs<T>(Expression body, Expression context) { return (T)Evaluator.Evaluate(body, context).Value; }
 
         static Expect FromTypeIs(TypeBinaryExpression body) {
             var typeIs = (TypeBinaryExpression)body;
