@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace Cone
 {
@@ -31,6 +32,18 @@ namespace Cone
         static readonly Dictionary<KeyValuePair<Type, Type>, Func<object, object>> converters = new Dictionary<KeyValuePair<Type, Type>,Func<object,object>>();
 
         static readonly ExpressionEvaluator defaultEvaluator = new ExpressionEvaluator();
+
+        static Exception PreserveStackTrace(Exception e) {
+            var context = new StreamingContext(StreamingContextStates.CrossAppDomain);
+            var mgr = new ObjectManager(null, context) ;
+            var si  = new SerializationInfo(e.GetType (), new FormatterConverter ());
+
+            e.GetObjectData(si, context) ;
+            mgr.RegisterObject(e, 1, si);
+            mgr.DoFixups();
+
+            return e;
+        }
 
         public Func<Expression,object> Unsupported = x => Expression.Lambda<Func<object>>(Expression.Convert(x, typeof(object))).Compile()(); 
         
@@ -114,7 +127,7 @@ namespace Cone
             try {
                 return method.Invoke(target, input);
             } catch(TargetInvocationException e) {
-                throw e.InnerException;
+                throw PreserveStackTrace(e.InnerException);
             } finally {
                 AssignOutParameters(expression.Arguments, input, method.GetParameters());
             }
@@ -138,7 +151,7 @@ namespace Cone
                 try {
                     return convertMethod.Invoke(null, new[] { source });
                 } catch(TargetInvocationException e) {
-                    throw e.InnerException;
+                    throw PreserveStackTrace(e.InnerException);
                 }
             }
 
@@ -167,7 +180,7 @@ namespace Cone
             try {
                 return GetValue(EvaluateAsTarget(expression.Expression, context), expression.Member);
             } catch(TargetInvocationException e) {
-                throw e.InnerException;
+                throw PreserveStackTrace(e.InnerException);
             }
         }
 
@@ -178,7 +191,7 @@ namespace Cone
                     return expression.Constructor.Invoke(args);
                 return Activator.CreateInstance(expression.Type, args);
             } catch(TargetInvocationException e) {
-                throw e.InnerException;
+                throw PreserveStackTrace(e.InnerException);
             }
         }
 
@@ -191,7 +204,7 @@ namespace Cone
             try {
                 return target.DynamicInvoke(EvaluateAll(expression.Arguments, context));
             } catch(TargetInvocationException e) {
-                throw e.InnerException;
+                throw PreserveStackTrace(e.InnerException);
             }
         }
 
