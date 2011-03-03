@@ -42,16 +42,15 @@ namespace Cone
             return EvaluateAs<T>(body, context, x => { throw new ExceptionExpressionException(body, context, x); });
         }
 
-        public static T EvaluateAs<T>(Expression body, Expression context, Action<Exception> onError) { 
-            return defaultEvaluator.EvaluateCore<T>(body, context, onError);
+        public static T EvaluateAs<T>(Expression body, Expression context, Func<Exception, object> onError) { 
+            return (T)defaultEvaluator.Evaluate(body, context, onError);
         }
 
-        public T EvaluateCore<T>(Expression body, Expression context, Action<Exception> onError) { 
+        public object Evaluate(Expression body, Expression context, Func<Exception, object> onError) { 
             try {
-                return (T)Evaluate(body, context); 
+                return Evaluate(body, context); 
             } catch(Exception e) {
-                onError(e);
-                return default(T);
+                return onError(e);
             }
         }
 

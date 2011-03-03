@@ -24,7 +24,10 @@ namespace Cone.Expectations
 
         static object ExceptionOrNull(Expression expression) {
             Exception error = null;
-            ExpressionEvaluator.EvaluateAs<object>(expression, expression, x => { error = x; });
+            ExpressionEvaluator.EvaluateAs<object>(expression, expression, x => { 
+                error = x;
+                return null;
+            });
             return error;
         }
 
