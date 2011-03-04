@@ -16,7 +16,7 @@ namespace Cone
         T Evaluate<T>(Expression<Func<T>> lambda){ return (T)evaluator.Evaluate(lambda.Body, lambda, x => { throw x.Error; }).Value; }
 
         public void constant_evaluation() {
-            Verify.That(() => ExpressionEvaluator.Evaluate(() => 42) == 42);
+            Verify.That(() => Evaluate(() => 42) == 42);
         }
 
         public void subexpression_null_check_not_equal() {
@@ -43,20 +43,20 @@ namespace Cone
             Verify.Throws<ArgumentNullException>.When(() => new List<object>(null));
         }
 
-        public void binary_operators() {
+        public void not_equals() {
             int a = 2, b = 1;
-            Expression<Func<bool>> binaryOp = () => (a > b) == true;
-            Verify.That(() => ExpressionEvaluator.Evaluate(binaryOp) == true);
+            Expression<Func<bool>> binaryOp = () => (a != b) == true;
+            Verify.That(() => Evaluate(binaryOp) == true);
         }
 
         public void value_type_promotion() {
             var a = new byte[]{ 1 };
             var b = a;
-            Verify.That(() => ExpressionEvaluator.Evaluate(() => a[0] == b[0]));
+            Verify.That(() => Evaluate(() => a[0] == b[0]));
         }
 
         public void null_equality() {
-            Verify.That(() => ExpressionEvaluator.Evaluate(() => (DateTime?)null) == null);
+            Verify.That(() => Evaluate(() => (DateTime?)null) == null);
         }
 
         class MyValue<T> 

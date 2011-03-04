@@ -50,8 +50,6 @@ namespace Cone
     {
         static readonly Dictionary<KeyValuePair<Type, Type>, Func<object, object>> converters = new Dictionary<KeyValuePair<Type, Type>,Func<object,object>>();
 
-        static readonly ExpressionEvaluator defaultEvaluator = new ExpressionEvaluator();
-
         static Exception PreserveStackTrace(Exception e) {
             var context = new StreamingContext(StreamingContextStates.CrossAppDomain);
             var mgr = new ObjectManager(null, context) ;
@@ -70,10 +68,6 @@ namespace Cone
 
         public Func<Expression,EvaluationResult> Unsupported; 
         
-        public static T Evaluate<T>(Expression<Func<T>> lambda) { return (T)defaultEvaluator.Evaluate(lambda.Body, lambda).Value; }
-
-        public static T EvaluateAs<T>(Expression body) { return (T)defaultEvaluator.Evaluate(body, body).Value; } 
-
         public EvaluationResult Evaluate(Expression body, Expression context) { 
             return Evaluate(body, context, x => { throw new ExceptionExpressionException(body, context, x.Error); });
         }
@@ -137,6 +131,7 @@ namespace Cone
                 return Success(op.Invoke(null, parameters));
             switch(binary.NodeType) {
                 case ExpressionType.Equal: return Success(Object.Equals(parameters[0], parameters[1]));
+                case ExpressionType.NotEqual: return Success(!Object.Equals(parameters[0], parameters[1]));
                 default: return Unsupported(binary);
             }
         }
