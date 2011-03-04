@@ -30,5 +30,9 @@ namespace Cone
             var expected = string.Format(ExpectMessages.EqualFormat, "\"123\"", "string containing \"ABC\"");
             Verify.That(() => expect.FormatMessage(formatter) == expected);
         }
+
+        public void example() {
+            Verify.That(() => "Hello World".Contains("World"));
+        }
     }
 }
