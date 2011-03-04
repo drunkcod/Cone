@@ -34,5 +34,12 @@ namespace Cone
         public void example() {
             Verify.That(() => "Hello World".Contains("World"));
         }
+
+        public void property_example() {
+            var foo = this;
+            Verify.That(() => foo.HelloWorld.Contains("World"));
+        }
+
+        string HelloWorld { get { return "Hello World"; } }
     }
 }

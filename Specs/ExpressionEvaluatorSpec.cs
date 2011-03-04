@@ -82,6 +82,12 @@ namespace Cone
             Verify.Throws<NotImplementedException>.When(() => Evaluate(() => getAnswer()));
         }
 
+        public void lambda_parameters() {
+            Func<Func<int>, int> addOne = f => f() + 1;
+
+            Verify.That(() => Evaluate(() => addOne(() => 1)) == 2);
+        }
+
         struct MyValueObject { }
 
         public void construct_value_object() {

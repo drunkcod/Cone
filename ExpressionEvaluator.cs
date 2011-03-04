@@ -103,9 +103,9 @@ namespace Cone
         }
 
         EvaluationResult EvaluateLambda(LambdaExpression expression, Expression context) {
-            if(expression.Parameters.Count != 0)
-                return Unsupported(expression);
-            return EvaluateCore(expression.Body, context);
+            if(expression == context && expression.Parameters.Count == 0)
+                return EvaluateCore(expression.Body, context);
+            return Success(expression.Compile());
         }
 
         EvaluationResult EvaluateArrayIndex(Expression expression, Expression context) {

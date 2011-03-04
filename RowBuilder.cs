@@ -40,6 +40,7 @@ namespace Cone
     {
         readonly ConeTestNamer testNamer = new ConeTestNamer();
         readonly List<IRowTestData> rows = new List<IRowTestData>();
+        readonly ExpressionEvaluator evaluator = new ExpressionEvaluator();
 
         public RowBuilder<T> Add(Expression<Action<T>> testCase) {
             return AddRow(testCase, row => { });
@@ -66,17 +67,12 @@ namespace Cone
             var arguments = call.Arguments;
             var parameters = new object[arguments.Count];
             for(var i = 0; i != arguments.Count; ++i)
-                parameters[i] = Collect(arguments[i]);
+                parameters[i] = Collect(arguments[i], call);
             return new RowTestData(call.Method, parameters)
                 .SetName(testNamer.NameFor(call.Method, parameters));
         }
 
-        object Collect(Expression expression) {
-            var lambda = expression as LambdaExpression;
-            if(lambda != null)
-                return lambda.Compile();
-            return ExpressionEvaluator.EvaluateAs<object>(expression); 
-        }
+        object Collect(Expression expression, Expression context) { return evaluator.Evaluate(expression, context).Value; }
 
         IEnumerator<IRowTestData> IEnumerable<IRowTestData>.GetEnumerator() { return rows.GetEnumerator(); }
 
