@@ -81,7 +81,8 @@ namespace Cone.Expectations
 
         IExpect FromSingle(Expression body) {
             IMethodExpectProvider provider;
-            if(body.NodeType == ExpressionType.Call && methodExpects.TryGetValue(((MethodCallExpression)body).Method, out provider)) {
+            if(body.NodeType == ExpressionType.Call 
+            && methodExpects.TryGetValue(((MethodCallExpression)body).Method, out provider)) {
                 var m = (MethodCallExpression)body;
                 var target = Evaluator.EvaluateAsTarget(m.Object, body).Value;
                 return provider.GetExpectation(body, m.Method, target, m.Arguments.Select(EvaluateAs<object>));
@@ -93,9 +94,10 @@ namespace Cone.Expectations
             var left = Evaluate(body.Left, body);
             var right = Evaluate(body.Right, body);
 
-            if(body.NodeType == ExpressionType.Equal) {
-                if(body.Left.Type == typeof(string) && body.Right.Type == typeof(string))
-                    return StringEqualExpector(body, (string)left, (string)right);
+            if(body.NodeType == ExpressionType.Equal
+            && body.Left.Type == typeof(string) 
+            && body.Right.Type == typeof(string)) {
+                return StringEqualExpector(body, (string)left, (string)right);
             }
             return GetExpector(body.NodeType)(body, left, right);
         }
