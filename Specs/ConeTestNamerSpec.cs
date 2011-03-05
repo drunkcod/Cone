@@ -4,6 +4,19 @@ using System.Reflection;
 
 namespace Cone
 {
+    public class ValidDisplay
+    {
+        string value;
+
+        public ValidDisplay(bool value) {
+            this.value = value ? "Valid" : "Invalid";
+        }
+
+        public override string ToString() {
+            return this.value;
+        }
+    }
+
     [Describe(typeof(ConeTestNamer))]
     public class ConeTestNamerSpec
     {
@@ -26,6 +39,8 @@ namespace Cone
             Verify.That(() => TestNamer.NameFor(thisMethod) == "override heading");       
         }
 
+        void MyMethod(int arg){}
+
         [Row("0x{0:x4}", 10)
         ,Row("{0,3}", 10)
         ,Row("{0,3:x2}", 10)]
@@ -36,6 +51,15 @@ namespace Cone
             Verify.That(() => TestNamer.NameFor(myMethod, new object[]{ value }, format) == string.Format(format, value));
         }
 
-        void MyMethod(int arg){}
+        void MyMethodWithDisplayClass([DisplayClass(typeof(ValidDisplay), "Valid", "Invalid")]  bool isValid) { }
+
+        public void obeys_DisplayClassAttribute() {
+            Expression<Action<bool>> e = x => MyMethodWithDisplayClass(x);
+            var target = ((MethodCallExpression)(e.Body)).Method;
+
+            Verify.That(() => TestNamer.NameFor(target , new object[]{ true }, "{0}") == "Valid");
+            Verify.That(() => TestNamer.NameFor(target , new object[]{ false }, "{0}") == "Invalid");
+        }
+
     }
 }
