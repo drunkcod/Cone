@@ -106,8 +106,8 @@ namespace Cone
             var foo = new { ThisValueIsNull = (string)null };
             var error = Verify.Throws<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Length == 0);
             var formatter = new ExpressionFormatter(GetType());
-            Verify.That(() => formatter.Format(error.NullSubexpression) == "foo.ThisValueIsNull");
-            Verify.That(() => formatter.Format(error.Expression) == "foo.ThisValueIsNull.Length == 0");
+            Verify.That(() => formatter.Format(error.Expression) == "foo.ThisValueIsNull");
+            Verify.That(() => formatter.Format(error.Context) == "foo.ThisValueIsNull.Length == 0");
         }
     }
 }

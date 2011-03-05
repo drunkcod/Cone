@@ -34,10 +34,12 @@ namespace Cone
             return e;
         }
 
-        public Func<Expression,EvaluationResult> Unsupported; 
+        public Func<Expression,EvaluationResult> Unsupported;
+        public Func<Expression, Expression, EvaluationResult> NullSubexpression;
 
         public ExpressionEvaluator() {
-            Unsupported = EvaluateUnsupported; 
+            Unsupported = EvaluateUnsupported;
+            NullSubexpression = EvaluateNullSubexpression;
         }
        
         public EvaluationResult Evaluate(Expression body, Expression context) { 
@@ -208,7 +210,7 @@ namespace Cone
                 return Success(null);
             var target = EvaluateCore(expression, context);
             if(target.IsError || target.Value == null)
-                return EvaluateNullSubexpression(expression, context);
+                return NullSubexpression(expression, context);
             return target;
         }
 
