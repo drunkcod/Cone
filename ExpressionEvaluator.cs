@@ -7,15 +7,6 @@ using System.Runtime.Serialization;
 
 namespace Cone
 {
-    public class UnsupportedExpressionException : Exception
-    {
-        public readonly Expression Expression;
-
-        public UnsupportedExpressionException(Expression expression) {
-            this.Expression = expression;
-        }
-    }
-
     public class ExceptionExpressionException : Exception
     {
         public readonly Expression Expression;
