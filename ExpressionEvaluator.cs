@@ -34,12 +34,12 @@ namespace Cone
             return e;
         }
 
-        public ExpressionEvaluator() {
-            Unsupported = x => EvaluateUnsupported(x); 
-        }
-
         public Func<Expression,EvaluationResult> Unsupported; 
-        
+
+        public ExpressionEvaluator() {
+            Unsupported = EvaluateUnsupported; 
+        }
+       
         public EvaluationResult Evaluate(Expression body, Expression context) { 
             return Evaluate(body, context, x => { throw new ExceptionExpressionException(body, context, x.Error); });
         }
