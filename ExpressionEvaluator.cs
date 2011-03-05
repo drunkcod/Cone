@@ -227,7 +227,7 @@ namespace Cone
                 return Success(null);
             var target = EvaluateCore(expression, context);
             if(target.IsError || target.Value == null)
-                return Failure(new NullSubexpressionException(context, expression));
+                return EvaluateNullSubexpression(expression, context);
             return target;
         }
 
@@ -246,6 +246,10 @@ namespace Cone
             } catch(Exception e) {
                 return Failure(e);
             }
+        }
+
+        EvaluationResult EvaluateNullSubexpression(Expression expression, Expression context) {
+                return Failure(new NullSubexpressionException(context, expression));
         }
 
         static object GetValue(object target, MemberInfo member) {
