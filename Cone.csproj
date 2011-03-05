@@ -43,6 +43,7 @@
     <Compile Include="ConeTestNamer.cs" />
     <Compile Include="ContextAttribute.cs" />
     <Compile Include="DescribeAttribute.cs" />
+    <Compile Include="EvaluationResult.cs" />
     <Compile Include="ExpectationFailedException.cs" />
     <Compile Include="Expectations\BinaryExpect.cs" />
     <Compile Include="Expectations\ExceptionExpect.cs" />
