@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Cone.Addin
 {
-    public abstract class ConeSuiteBuilder
+    public abstract class ConeSuiteBuilder<TSuite> where TSuite : IConeSuite
     {
         class FixtureDescription : IFixtureDescription
         {
@@ -15,9 +15,14 @@ namespace Cone.Addin
 
         public bool SupportedType(Type type) { return type.IsPublic && (type.Has<DescribeAttribute>() || type.Has<FeatureAttribute>()); } 
 
-        protected abstract IConeSuite NewSuite(Type type, IFixtureDescription description, ConeTestNamer testNamer);
+        public TSuite BuildSuite(Type suiteType) {
+            var description = DescriptionOf(suiteType);
+            return BuildSuite(suiteType, description);
+        }
 
-        protected IConeSuite BuildSuite(Type type, IFixtureDescription description) {
+        protected abstract TSuite NewSuite(Type type, IFixtureDescription description, ConeTestNamer testNamer);
+
+        protected TSuite BuildSuite(Type type, IFixtureDescription description) {
             var testNamer = new ConeTestNamer();
             var suite = NewSuite(type, description, testNamer);
             var setup = new ConeFixtureSetup(suite, testNamer);
@@ -50,6 +55,5 @@ namespace Cone.Addin
                 return desc;
             throw new NotSupportedException();
         }
-
     }
 }
