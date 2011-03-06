@@ -3,10 +3,10 @@ using NUnit.Core;
 
 namespace Cone.Addin
 {
-    public class AddinSuiteBuilder : ConeSuiteBuilder<ConeSuite>
+    public class AddinSuiteBuilder : ConeSuiteBuilder<AddinSuite>
     {
-       protected override ConeSuite NewSuite(Type type, IFixtureDescription description, ConeTestNamer testNamer) {
-            return new ConeSuite(type, description.SuiteName, description.TestName, description.SuiteType, testNamer);
+       protected override AddinSuite NewSuite(Type type, IFixtureDescription description, ConeTestNamer testNamer) {
+            return new AddinSuite(type, description.SuiteName, description.TestName, description.SuiteType, testNamer);
         }
     }
 }

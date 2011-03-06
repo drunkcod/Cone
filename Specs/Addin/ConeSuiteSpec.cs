@@ -7,7 +7,7 @@ using NUnit.Core;
 
 namespace Cone.Addin
 {
-    [Describe(typeof(ConeSuite))]
+    [Describe(typeof(AddinSuite))]
     public partial class ConeSuiteSpec
     {
         static TestSuite BuildSuite(Type type){ return new AddinSuiteBuilder().BuildSuite(type); }
@@ -118,7 +118,7 @@ namespace Cone.Addin
         }
 
         public void multiple_categories_can_be_comma_seperated() {
-            var suite = BuildSuite(typeof(EmptySpec)).Tests[0] as ConeSuite;
+            var suite = BuildSuite(typeof(EmptySpec)).Tests[0] as AddinSuite;
             Verify.That(() => suite.Categories.Contains("Empty"));
             Verify.That(() => suite.Categories.Contains("Context"));
         }

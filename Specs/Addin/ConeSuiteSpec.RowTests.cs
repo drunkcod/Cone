@@ -27,7 +27,7 @@ namespace Cone.Addin
         }
     }
 
-    [Describe(typeof(ConeSuite), "row-tests with descriptive name")]
+    [Describe(typeof(AddinSuite), "row-tests with descriptive name")]
     public class RowTestWithDescriptiveName
     {
         public void when_adding_numbers(int a, int b, int r) { }

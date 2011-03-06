@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace Cone.Addin
 {
-    public class ConeSuite : TestSuite, IConeFixture, IConeSuite
+    public class AddinSuite : TestSuite, IConeFixture, IConeSuite
     {
         readonly Type type;
         readonly TestExecutor testExecutor;
@@ -15,7 +15,7 @@ namespace Cone.Addin
         readonly string suiteType;
         MethodInfo[] afterEachWithResult;
 
-        internal ConeSuite(Type type, string parentSuiteName, string name, string suiteType, ConeTestNamer testNamer) : base(parentSuiteName, name) {
+        internal AddinSuite(Type type, string parentSuiteName, string name, string suiteType, ConeTestNamer testNamer) : base(parentSuiteName, name) {
             this.type = type;
             this.testExecutor = new TestExecutor(this);
             this.suiteType = suiteType;
