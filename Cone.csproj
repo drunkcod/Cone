@@ -38,6 +38,7 @@
     <Compile Include="ArrayExpressionStringBuilder.cs" />
     <Compile Include="BeforeAllAttribute.cs" />
     <Compile Include="BeforeEachAttribute.cs" />
+    <Compile Include="BoolDisplay.cs" />
     <Compile Include="ConeFixtureSetup.cs" />
     <Compile Include="ConeMethodThunk.cs" />
     <Compile Include="ConeTestNamer.cs" />

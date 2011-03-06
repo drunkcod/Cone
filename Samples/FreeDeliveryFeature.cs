@@ -39,7 +39,7 @@ namespace Cone.Samples
         public class OfferedToVIPCustomers
         {
             [DisplayAs("{0,-13} {1,-8} {2}")]
-            public void Example(string customerType, int bookCount, bool freeDelivery) { }
+            public void Example(string customerType, int bookCount, [DisplayClass(typeof(BoolDisplay), "Yes!", "No.")]bool freeDelivery) { }
 
             public Examples Rows() { return new Examples<string, int, bool>(Example) {
                     { "Regular" , 10, false },

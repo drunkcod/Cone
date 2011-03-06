@@ -51,7 +51,7 @@ namespace Cone
             Verify.That(() => TestNamer.NameFor(myMethod, new object[]{ value }, format) == string.Format(format, value));
         }
 
-        void MyMethodWithDisplayClass([DisplayClass(typeof(ValidDisplay), "Valid", "Invalid")]  bool isValid) { }
+        void MyMethodWithDisplayClass([DisplayClass(typeof(ValidDisplay))]  bool isValid) { }
 
         public void obeys_DisplayClassAttribute() {
             Expression<Action<bool>> e = x => MyMethodWithDisplayClass(x);

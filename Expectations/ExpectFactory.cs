@@ -38,11 +38,16 @@ namespace Cone.Expectations
         public ExpectFactory() {
             var providers = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(x => x.GetTypes())
-                .Where(x => typeof(IMethodExpectProvider).IsAssignableFrom(x) && x.IsClass)
+                .Where(IsMethodExpectProvider)
                 .Select(x => x.GetConstructor(Type.EmptyTypes).Invoke(null) as IMethodExpectProvider);
             foreach(var provider in providers)
                 foreach(var method in provider.GetSupportedMethods())
                     methodExpects[method] = provider;
+        }
+
+        static Func<Type, bool> ImplementsIMethodExpectProvider = typeof(IMethodExpectProvider).IsAssignableFrom;
+        static bool IsMethodExpectProvider(Type type) {
+            return type.IsPublic && type.IsClass && ImplementsIMethodExpectProvider(type);
         }
 
         public IExpect From(Expression body) {

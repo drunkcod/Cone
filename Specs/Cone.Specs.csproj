@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Cone</RootNamespace>
     <AssemblyName>Cone.Specs</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <OutputPath>$(SolutionDir)\Build</OutputPath>
     <IntermediateOutputPath>$(OutputPath)\obj\$(MSBuildProjectName)</IntermediateOutputPath>
@@ -64,6 +64,7 @@
     <Compile Include="BinaryExpectSpec.cs" />
     <Compile Include="BooleanExpectSpec.cs" />
     <Compile Include="ConeTestNamerSpec.cs" />
+    <Compile Include="DisplayClassAttributeSpec.cs" />
     <Compile Include="ExpectFactorySpec.cs" />
     <Compile Include="ExpressionEvaluatorSpec.cs" />
     <Compile Include="ExpressionExtensionsSpec.cs" />
