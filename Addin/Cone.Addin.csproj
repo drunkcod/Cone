@@ -62,6 +62,7 @@
     <Compile Include="ConeNUnitAddin.cs" />
     <Compile Include="ConeRowSuite.cs" />
     <Compile Include="ConeSuite.cs" />
+    <Compile Include="ConeSuiteBuilder.cs" />
     <Compile Include="ConeTest.cs" />
     <Compile Include="ConeTestMethod.cs" />
     <Compile Include="NUnitTestResultAdapter.cs" />

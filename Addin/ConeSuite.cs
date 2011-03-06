@@ -10,32 +10,15 @@ namespace Cone.Addin
     {
         readonly Type type;
         readonly TestExecutor testExecutor;
-        readonly ConeTestNamer testNamer = new ConeTestNamer();
+        internal readonly ConeTestNamer testNamer = new ConeTestNamer();
         readonly Dictionary<string,ConeRowSuite> rowSuites = new Dictionary<string,ConeRowSuite>();
-        string suiteType;
+        readonly string suiteType;
         MethodInfo[] afterEachWithResult;
 
-        public static TestSuite For(Type type) {
-            var description = DescriptionOf(type);
-            return For(type, description.Category, description.SuiteName, description.SuiteType, description.TestName);
-        }
-
-        public static ConeSuite For(Type type, string categories, string parentSuiteName, string suiteType, string name) {
-            var suite = new ConeSuite(type, parentSuiteName, name);
-            var setup = new ConeFixtureSetup(suite, suite.testNamer);
-            setup.CollectFixtureMethods(type);
-            suite.BindTo(setup.GetFixtureMethods());
-            suite.AddNestedContexts();
-            suite.AddCategories(categories);
-            suite.suiteType = suiteType;
-            return suite;
-        }
-
-        public static bool SupportedType(Type type) { return type.IsPublic && (type.Has<DescribeAttribute>() || type.Has<FeatureAttribute>()); }
-
-        ConeSuite(Type type, string parentSuiteName, string name) : base(parentSuiteName, name) {
+        internal ConeSuite(Type type, string parentSuiteName, string name, string suiteType) : base(parentSuiteName, name) {
             this.type = type;
             this.testExecutor = new TestExecutor(this);
+            this.suiteType = suiteType;
         }
 
         public void After(ITestResult testResult) {
@@ -67,32 +50,7 @@ namespace Cone.Addin
 
         public override string TestType { get { return suiteType; } }
 
-        public ConeSuite AddSubSuite(Type fixtureType, string name) {
-            var subSuite = new ConeSuite(fixtureType, TestName.FullName, name);
-            subSuite.setUpMethods = setUpMethods;
-            subSuite.tearDownMethods = tearDownMethods;
-            subSuite.afterEachWithResult = afterEachWithResult;
-            Add(subSuite);
-            return subSuite;
-        }
-
-        static IFixtureDescription DescriptionOf(Type fixtureType) {
-            IFixtureDescription desc;
-            if (fixtureType.TryGetAttribute<DescribeAttribute, IFixtureDescription>(out desc)
-                || fixtureType.TryGetAttribute<FeatureAttribute, IFixtureDescription>(out desc))
-                return desc;
-            throw new NotSupportedException();
-        }
-
-        void AddNestedContexts() {
-            foreach (var item in type.GetNestedTypes()) {
-                ContextAttribute description;
-                if (item.TryGetAttribute<ContextAttribute, ContextAttribute>(out description))
-                    Add(For(item, description.Category, TestName.FullName, "Context", description.Context));
-            }
-        }
-
-        void BindTo(ConeFixtureMethods setup) {
+        public void BindTo(ConeFixtureMethods setup) {
             fixtureSetUpMethods = setup.BeforeAll;
             setUpMethods = setup.BeforeEach;
             tearDownMethods = setup.AfterEach;
@@ -124,7 +82,7 @@ namespace Cone.Addin
             return testNamer.NameFor(method);
         }
 
-        void AddCategories(string categories) {
+        public void AddCategories(string categories) {
             if(!string.IsNullOrEmpty(categories))
                 foreach(var category in categories.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                     Categories.Add(category.Trim());

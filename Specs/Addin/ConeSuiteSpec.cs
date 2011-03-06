@@ -111,12 +111,12 @@ namespace Cone.Addin
         }
 
         public void attaches_Category_to_described_suite() {
-            var suite = ConeSuite.For(typeof(EmptySpec));
+            var suite = ConeSuiteBuilder.BuildSuite(typeof(EmptySpec));
             Verify.That(() => suite.Categories.Contains("Empty"));
         }
 
         public void multiple_categories_can_be_comma_seperated() {
-            var suite = ConeSuite.For(typeof(EmptySpec)).Tests[0] as ConeSuite;
+            var suite = ConeSuiteBuilder.BuildSuite(typeof(EmptySpec)).Tests[0] as ConeSuite;
             Verify.That(() => suite.Categories.Contains("Empty"));
             Verify.That(() => suite.Categories.Contains("Context"));
         }
