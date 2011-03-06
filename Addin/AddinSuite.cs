@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace Cone.Addin
 {
-    public class AddinSuite : TestSuite, IConeFixture, IConeSuite
+    public class AddinSuite : TestSuite, IConeSuite, IFixtureHolder
     {
         readonly Type type;
         readonly TestExecutor testExecutor;
@@ -14,42 +14,23 @@ namespace Cone.Addin
         readonly Dictionary<string,ConeRowSuite> rowSuites = new Dictionary<string,ConeRowSuite>();
         readonly string suiteType;
         MethodInfo[] afterEachWithResult;
+        readonly ConeFixture fixtureProvider;
 
         internal AddinSuite(Type type, string parentSuiteName, string name, string suiteType, ConeTestNamer testNamer) : base(parentSuiteName, name) {
             this.type = type;
-            this.testExecutor = new TestExecutor(this);
             this.suiteType = suiteType;
             this.testNamer = testNamer;
+            this.fixtureProvider = new ConeFixture(this);
+            this.testExecutor = new TestExecutor(this.fixtureProvider);
         }
 
         public string Name { get { return TestName.FullName; } }
 
-        public void After(ITestResult testResult) {
-            FixtureInvokeAll(afterEachWithResult, new[] { testResult });
-            FixtureInvokeAll(tearDownMethods, null);
-        }
+        MethodInfo[] IFixtureHolder.SetupMethods { get { return setUpMethods; } }
+        MethodInfo[] IFixtureHolder.TeardownMethods { get { return tearDownMethods; } }
+        MethodInfo[] IFixtureHolder.AfterEachWithResult { get { return afterEachWithResult; } }
 
-        public void Before() {
-            if (Fixture == null)
-                Fixture = NewFixture();
-            FixtureInvokeAll(setUpMethods, null);
-        }
-
-        object NewFixture() { 
-            var ctor = FixtureType.GetConstructor(Type.EmptyTypes);
-            if(ctor == null)
-                return null;
-            return ctor.Invoke(null);
-        }
-
-        void FixtureInvokeAll(MethodInfo[] methods, object[] parameters) {
-            for (int i = 0; i != methods.Length; ++i)
-                methods[i].Invoke(Fixture, parameters);
-        }
-
-        public override Type FixtureType {
-            get { return type; }
-        }
+        public override Type FixtureType { get { return type; } }
 
         public override string TestType { get { return suiteType; } }
 
@@ -66,8 +47,8 @@ namespace Cone.Addin
         void CreateDynamicRowTests(MethodInfo[] rowSources) {
             if(rowSources == null || rowSources.Length == 0)
                 return;
-            var fixture = NewFixture();
             var rows = new Dictionary<MethodInfo, List<IRowData>>();
+            var fixture = fixtureProvider.Fixture;
             foreach(var item in rowSources) {
                 foreach(IRowTestData row in (IEnumerable<IRowTestData>)item.Invoke(fixture, null)) {
                     List<IRowData> parameters;

@@ -39,6 +39,7 @@
     <Compile Include="BeforeAllAttribute.cs" />
     <Compile Include="BeforeEachAttribute.cs" />
     <Compile Include="BoolDisplay.cs" />
+    <Compile Include="ConeFixture.cs" />
     <Compile Include="ConeFixtureSetup.cs" />
     <Compile Include="ConeMethodThunk.cs" />
     <Compile Include="ConeSuiteBuilder.cs" />
