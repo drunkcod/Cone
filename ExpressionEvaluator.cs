@@ -7,15 +7,6 @@ using System.Runtime.Serialization;
 
 namespace Cone
 {
-    public class UnsupportedExpressionException : Exception
-    {
-        public readonly Expression Expression;
-
-        public UnsupportedExpressionException(Expression expression) {
-            this.Expression = expression;
-        }
-    }
-
     public class ExceptionExpressionException : Exception
     {
         public readonly Expression Expression;
@@ -25,25 +16,6 @@ namespace Cone
             this.Expression = expression;
             this.Subexpression = subexpression;
         }
-    }
-
-    public struct EvaluationResult 
-    {
-        object value;
-        bool isError;
-
-        public static EvaluationResult Failure(Exception e){ return new EvaluationResult { value = e, isError = true }; }
-        public static EvaluationResult Success(object result){ return new EvaluationResult { value = result, isError = false }; }
-
-        public object Value { 
-            get {
-                if(IsError)
-                    throw (Exception)value;
-                return value; 
-            } 
-        }
-        public Exception Error { get { return (Exception)value; } }
-        public bool IsError { get { return isError; } }
     }
 
     public class ExpressionEvaluator
@@ -62,12 +34,14 @@ namespace Cone
             return e;
         }
 
-        public ExpressionEvaluator() {
-            Unsupported = x => EvaluateUnsupported(x); 
-        }
+        public Func<Expression,EvaluationResult> Unsupported;
+        public Func<Expression, Expression, EvaluationResult> NullSubexpression;
 
-        public Func<Expression,EvaluationResult> Unsupported; 
-        
+        public ExpressionEvaluator() {
+            Unsupported = EvaluateUnsupported;
+            NullSubexpression = EvaluateNullSubexpression;
+        }
+       
         public EvaluationResult Evaluate(Expression body, Expression context) { 
             return Evaluate(body, context, x => { throw new ExceptionExpressionException(body, context, x.Error); });
         }
@@ -236,7 +210,7 @@ namespace Cone
                 return Success(null);
             var target = EvaluateCore(expression, context);
             if(target.IsError || target.Value == null)
-                return Failure(new NullSubexpressionException(context, expression));
+                return NullSubexpression(expression, context);
             return target;
         }
 
@@ -255,6 +229,10 @@ namespace Cone
             } catch(Exception e) {
                 return Failure(e);
             }
+        }
+
+        EvaluationResult EvaluateNullSubexpression(Expression expression, Expression context) {
+            return Failure(new NullSubexpressionException(context, expression));
         }
 
         static object GetValue(object target, MemberInfo member) {

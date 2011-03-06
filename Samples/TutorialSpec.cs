@@ -55,9 +55,13 @@ namespace Cone.Samples
             Verify.That(() => throws() == 42); 
         }
 
-
         int Throws() { throw new NotImplementedException(); }
         
+        public void wrong_subexpression_raises_exception() {
+            Func<TutorialSpec> getTarget = () => { throw new InvalidOperationException(); };
+            Verify.Throws<NotImplementedException>.When(() => getTarget().Throws());
+        }
+
         public void report_failing_subexpression_call()
         {
             Verify.That(() => Throws() == 42); 

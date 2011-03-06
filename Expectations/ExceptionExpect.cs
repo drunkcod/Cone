@@ -7,11 +7,11 @@ namespace Cone.Expectations
     public class ExceptionExpect : Expect
     {
         public static ExceptionExpect From(Expression<Action> expression, Type expected) {
-            return new ExceptionExpect(expression.Body, ExceptionOrNull(expression), expected);
+            return new ExceptionExpect(expression.Body, ExceptionOrNull(expression, expected), expected);
         }
        
         public static ExceptionExpect From<T>(Expression<Func<T>> expression, Type expected) {
-            return new ExceptionExpect(expression.Body, ExceptionOrNull(expression.Body), expected);
+            return new ExceptionExpect(expression.Body, ExceptionOrNull(expression.Body, expected), expected);
         }
        
         ExceptionExpect(Expression body, object result, Type expected): base(body, result, expected) { }
@@ -22,8 +22,10 @@ namespace Cone.Expectations
             return actual != null && ExpectedExceptionType.IsAssignableFrom(actual.GetType());
         }
 
-        static object ExceptionOrNull(Expression expression) {
+        static object ExceptionOrNull(Expression expression, Type expected) {
             var eval = new ExpressionEvaluator();
+            if(expected != typeof(NullSubexpressionException))
+                eval.NullSubexpression = (e, c) => { throw new NullSubexpressionException(e, c); };
             var result = eval.Evaluate(expression, expression, x => x);
             if(result.IsError)
                 return result.Error;

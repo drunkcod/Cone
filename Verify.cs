@@ -21,11 +21,11 @@ namespace Cone
         public static class Throws<TException> where TException : Exception
         {
             public static TException When(Expression<Action> expr) {
-                return (TException)Check(ExceptionExpect.From(expr, typeof(TException)));
+                return (TException)Check(From(() => ExceptionExpect.From(expr, typeof(TException))));
             }
 
             public static TException When<TValue>(Expression<Func<TValue>> expr) {
-                return (TException)Check(ExceptionExpect.From(expr, typeof(TException)));
+                return (TException)Check(From(() => ExceptionExpect.From(expr, typeof(TException))));
             }
         }
 
@@ -35,14 +35,18 @@ namespace Cone
         }
 
         static IExpect From(Expression body) {
+            return From(() => Expect.From(body));
+        }
+
+        static IExpect From(Func<IExpect> build) {
             try {
-                return Expect.From(body);
+                return build();
             } catch(ExceptionExpressionException e) {
                 var formatter = GetExpressionFormatter();
                 ExpectationFailed(string.Format("{0}\nraised by '{1}' in\n'{2}'", e.InnerException, formatter.Format(e.Expression), formatter.Format(e.Subexpression)));
             } catch(NullSubexpressionException e) {
                 var formatter = GetExpressionFormatter();
-                ExpectationFailed(string.Format("Null subexpression '{1}' in\n'{0}'", formatter.Format(e.Expression), formatter.Format(e.NullSubexpression)));
+                ExpectationFailed(string.Format("Null subexpression '{1}' in\n'{0}'", formatter.Format(e.Expression), formatter.Format(e.Context)));
             }
             return null;
         }

@@ -38,11 +38,16 @@ namespace Cone.Expectations
         public ExpectFactory() {
             var providers = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(x => x.GetTypes())
-                .Where(x => typeof(IMethodExpectProvider).IsAssignableFrom(x) && x.IsClass)
+                .Where(IsMethodExpectProvider)
                 .Select(x => x.GetConstructor(Type.EmptyTypes).Invoke(null) as IMethodExpectProvider);
             foreach(var provider in providers)
                 foreach(var method in provider.GetSupportedMethods())
                     methodExpects[method] = provider;
+        }
+
+        static Func<Type, bool> ImplementsIMethodExpectProvider = typeof(IMethodExpectProvider).IsAssignableFrom;
+        static bool IsMethodExpectProvider(Type type) {
+            return type.IsPublic && type.IsClass && ImplementsIMethodExpectProvider(type);
         }
 
         public IExpect From(Expression body) {
@@ -81,7 +86,8 @@ namespace Cone.Expectations
 
         IExpect FromSingle(Expression body) {
             IMethodExpectProvider provider;
-            if(body.NodeType == ExpressionType.Call && methodExpects.TryGetValue(((MethodCallExpression)body).Method, out provider)) {
+            if(body.NodeType == ExpressionType.Call 
+            && methodExpects.TryGetValue(((MethodCallExpression)body).Method, out provider)) {
                 var m = (MethodCallExpression)body;
                 var target = Evaluator.EvaluateAsTarget(m.Object, body).Value;
                 return provider.GetExpectation(body, m.Method, target, m.Arguments.Select(EvaluateAs<object>));
@@ -90,11 +96,15 @@ namespace Cone.Expectations
         }
 
         static Expect FromBinary(BinaryExpression body) {
-            if(body.NodeType == ExpressionType.Equal) {
-                if(body.Left.Type == typeof(string) && body.Right.Type == typeof(string))
-                    return StringEqualExpector(body, EvaluateAs<string>(body.Left), EvaluateAs<string>(body.Right));
+            var left = Evaluate(body.Left, body);
+            var right = Evaluate(body.Right, body);
+
+            if(body.NodeType == ExpressionType.Equal
+            && body.Left.Type == typeof(string) 
+            && body.Right.Type == typeof(string)) {
+                return StringEqualExpector(body, (string)left, (string)right);
             }
-            return GetExpector(body.NodeType)(body, EvaluateAs<object>(body.Left, body), EvaluateAs<object>(body.Right, body));
+            return GetExpector(body.NodeType)(body, left, right);
         }
 
         static Expector<object> GetExpector(ExpressionType op) {
@@ -109,14 +119,13 @@ namespace Cone.Expectations
             return BinaryExpector;
         }
         
-        static T EvaluateAs<T>(Expression body) { return (T)Evaluator.Evaluate(body, body).Value; }
-        static T EvaluateAs<T>(Expression body, Expression context) { return (T)Evaluator.Evaluate(body, context).Value; }
+        static T EvaluateAs<T>(Expression body) { return (T)Evaluate(body, body); }
+        static object Evaluate(Expression body, Expression context) { return Evaluator.Evaluate(body, context).Value; }
 
         static Expect FromTypeIs(TypeBinaryExpression body) {
-            var typeIs = (TypeBinaryExpression)body;
             return new TypeIsExpect(body,
-                EvaluateAs<object>(typeIs.Expression).GetType(), 
-                typeIs.TypeOperand);
+                Evaluate(body.Expression, body).GetType(), 
+                body.TypeOperand);
         }
     }
 }

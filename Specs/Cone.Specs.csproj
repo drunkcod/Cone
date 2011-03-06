@@ -64,6 +64,7 @@
     <Compile Include="BinaryExpectSpec.cs" />
     <Compile Include="BooleanExpectSpec.cs" />
     <Compile Include="ConeTestNamerSpec.cs" />
+    <Compile Include="DisplayClassAttributeSpec.cs" />
     <Compile Include="ExpectFactorySpec.cs" />
     <Compile Include="ExpressionEvaluatorSpec.cs" />
     <Compile Include="ExpressionExtensionsSpec.cs" />
