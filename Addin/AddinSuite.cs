@@ -14,14 +14,14 @@ namespace Cone.Addin
         readonly Dictionary<string,ConeRowSuite> rowSuites = new Dictionary<string,ConeRowSuite>();
         readonly string suiteType;
         MethodInfo[] afterEachWithResult;
-        readonly ConeFixture fixtureProvider;
+        readonly ConeFixture fixture;
 
         internal AddinSuite(Type type, string parentSuiteName, string name, string suiteType, ConeTestNamer testNamer) : base(parentSuiteName, name) {
             this.type = type;
             this.suiteType = suiteType;
             this.testNamer = testNamer;
-            this.fixtureProvider = new ConeFixture(this);
-            this.testExecutor = new TestExecutor(this.fixtureProvider);
+            this.fixture = new ConeFixture(this);
+            this.testExecutor = new TestExecutor(this.fixture);
         }
 
         public string Name { get { return TestName.FullName; } }
@@ -48,9 +48,8 @@ namespace Cone.Addin
             if(rowSources == null || rowSources.Length == 0)
                 return;
             var rows = new Dictionary<MethodInfo, List<IRowData>>();
-            var fixture = fixtureProvider.Fixture;
             foreach(var item in rowSources) {
-                foreach(IRowTestData row in (IEnumerable<IRowTestData>)item.Invoke(fixture, null)) {
+                foreach(IRowTestData row in (IEnumerable<IRowTestData>)fixture.Invoke(item)) {
                     List<IRowData> parameters;
                     if(!rows.TryGetValue(row.Method, out parameters))
                         rows[row.Method] = parameters = new List<IRowData>();

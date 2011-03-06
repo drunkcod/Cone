@@ -29,6 +29,10 @@ namespace Cone
             FixtureInvokeAll(TearDownMethods, null);
         }
 
+        public object Invoke(MethodInfo method, params object[] parameters) {
+            return method.Invoke(Fixture, parameters);
+        }
+
         object NewFixture() { 
             var ctor = (this as IConeFixture).FixtureType.GetConstructor(Type.EmptyTypes);
             if(ctor == null)
@@ -43,7 +47,7 @@ namespace Cone
 
         Type IConeFixture.FixtureType { get { return fixtureHolder.FixtureType; } }
 
-        public object Fixture { 
+        object Fixture { 
             get { return fixtureHolder.Fixture ?? (Fixture = NewFixture()); }
             set { fixtureHolder.Fixture = value; }
         }
