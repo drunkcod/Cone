@@ -8,6 +8,8 @@ namespace Cone.Addin
     [NUnitAddin(Name= "Cone")]
     public class ConeNUnitAddin : IAddin, ISuiteBuilder
     {
+        readonly AddinSuiteBuilder suiteBuilder = new AddinSuiteBuilder();
+
         bool IAddin.Install(IExtensionHost host) {
             var suiteBuilders = host.GetExtensionPoint("SuiteBuilders");
             if (suiteBuilders == null)
@@ -17,9 +19,9 @@ namespace Cone.Addin
             return true;
         }
 
-        Test ISuiteBuilder.BuildFrom(Type type) { return ConeSuiteBuilder.BuildSuite(type); }
+        Test ISuiteBuilder.BuildFrom(Type type) { return suiteBuilder.BuildSuite(type); }
 
-        bool ISuiteBuilder.CanBuildFrom(Type type) { return ConeSuiteBuilder.SupportedType(type); }
+        bool ISuiteBuilder.CanBuildFrom(Type type) { return suiteBuilder.SupportedType(type); }
 
         static void AssertionFailed(string message) {
             throw new AssertionException(message);

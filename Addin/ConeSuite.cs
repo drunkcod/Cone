@@ -10,16 +10,19 @@ namespace Cone.Addin
     {
         readonly Type type;
         readonly TestExecutor testExecutor;
-        internal readonly ConeTestNamer testNamer = new ConeTestNamer();
+        readonly ConeTestNamer testNamer;
         readonly Dictionary<string,ConeRowSuite> rowSuites = new Dictionary<string,ConeRowSuite>();
         readonly string suiteType;
         MethodInfo[] afterEachWithResult;
 
-        internal ConeSuite(Type type, string parentSuiteName, string name, string suiteType) : base(parentSuiteName, name) {
+        internal ConeSuite(Type type, string parentSuiteName, string name, string suiteType, ConeTestNamer testNamer) : base(parentSuiteName, name) {
             this.type = type;
             this.testExecutor = new TestExecutor(this);
             this.suiteType = suiteType;
+            this.testNamer = testNamer;
         }
+
+        public string Name { get { return TestName.FullName; } }
 
         public void After(ITestResult testResult) {
             FixtureInvokeAll(afterEachWithResult, new[] { testResult });
@@ -92,6 +95,10 @@ namespace Cone.Addin
             AddWithAttributes(thunk, new ConeTestMethod(thunk, this, testExecutor, thunk.NameFor(null))); 
         }
         
+        void IConeSuite.AddSubsuite(IConeSuite suite) {
+            Add((Test)suite);
+        }
+
         void IConeSuite.AddRowTest(string name, MethodInfo method, IEnumerable<IRowData> rows) {
             GetSuite(method, name).Add(rows, testNamer);
         }

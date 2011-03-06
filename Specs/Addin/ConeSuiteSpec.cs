@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
+using NUnit.Core;
 
 namespace Cone.Addin
 {
     [Describe(typeof(ConeSuite))]
     public partial class ConeSuiteSpec
     {
+        static TestSuite BuildSuite(Type type){ return new AddinSuiteBuilder().BuildSuite(type); }
         [Context("Before")]
         public class Before
         {
@@ -111,12 +113,12 @@ namespace Cone.Addin
         }
 
         public void attaches_Category_to_described_suite() {
-            var suite = ConeSuiteBuilder.BuildSuite(typeof(EmptySpec));
+            var suite = BuildSuite(typeof(EmptySpec));
             Verify.That(() => suite.Categories.Contains("Empty"));
         }
 
         public void multiple_categories_can_be_comma_seperated() {
-            var suite = ConeSuiteBuilder.BuildSuite(typeof(EmptySpec)).Tests[0] as ConeSuite;
+            var suite = BuildSuite(typeof(EmptySpec)).Tests[0] as ConeSuite;
             Verify.That(() => suite.Categories.Contains("Empty"));
             Verify.That(() => suite.Categories.Contains("Context"));
         }

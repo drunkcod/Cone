@@ -43,9 +43,11 @@ namespace Cone.Addin
         [Context("row based tests")]
         public class RowTests
         {
+            static readonly AddinSuiteBuilder suiteBuilder = new AddinSuiteBuilder();
+            static TestSuite BuildSuite(Type type) { return suiteBuilder.BuildSuite(type); }
             public class RowTestFixtureSpec<T>
             {
-                protected TestSuite Suite { get { return ConeSuiteBuilder.BuildSuite(typeof(T)); } }
+                protected TestSuite Suite { get { return BuildSuite(typeof(T)); } }
 
                 public void create_test_per_input_row() { Verify.That(() => Suite.TestCount == 3); }            
 
@@ -64,7 +66,7 @@ namespace Cone.Addin
             }
 
             public void format_of_row_test_methods_should_equal_normal_test_methods() {
-                var suite = ConeSuiteBuilder.BuildSuite(typeof(RowTestWithDescriptiveName));
+                var suite = BuildSuite(typeof(RowTestWithDescriptiveName));
                 var testNames = suite.AllTests().Select(x => x.TestName.Name);
                 Verify.That(() => testNames.Contains("when adding numbers"));
             }

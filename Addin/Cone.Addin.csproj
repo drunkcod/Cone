@@ -59,6 +59,7 @@
     <Compile Include="..\Version.cs">
       <Link>Version.cs</Link>
     </Compile>
+    <Compile Include="AddinSuiteBuilder.cs" />
     <Compile Include="ConeNUnitAddin.cs" />
     <Compile Include="ConeRowSuite.cs" />
     <Compile Include="ConeSuite.cs" />
