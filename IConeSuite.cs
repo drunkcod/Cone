@@ -10,6 +10,6 @@ namespace Cone
         void AddRowTest(string name, MethodInfo method, IEnumerable<IRowData> rows);
         void AddSubsuite(IConeSuite suite);
         void BindTo(ConeFixtureMethods setup);
-        void AddCategories(string categories);
+        void AddCategories(IEnumerable<string> categories);
     }
 }

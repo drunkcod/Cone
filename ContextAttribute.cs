@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Cone
 {
@@ -10,6 +11,14 @@ namespace Cone
 
         public ContextAttribute(string context) {
             Context = context;
+        }
+
+        public IEnumerable<string> Categories {
+            get {
+                if(!string.IsNullOrEmpty(Category))
+                    foreach(var item in Category.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                        yield return item.Trim();
+            }
         }
     }
 }

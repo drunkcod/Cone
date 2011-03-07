@@ -65,10 +65,9 @@ namespace Cone.Addin
             return testNamer.NameFor(method);
         }
 
-        public void AddCategories(string categories) {
-            if(!string.IsNullOrEmpty(categories))
-                foreach(var category in categories.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                    Categories.Add(category.Trim());
+        public void AddCategories(IEnumerable<string> categories) {
+            foreach(var item in categories)
+                Categories.Add(item);
         }
 
         void IConeSuite.AddTestMethod(ConeMethodThunk thunk) { 
