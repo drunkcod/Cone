@@ -54,6 +54,9 @@ namespace Cone.Expectations
             if(body.NodeType == ExpressionType.Not)
                 return new NotExpect(From(((UnaryExpression)body).Operand));
 
+            if(body.NodeType == ExpressionType.AndAlso)
+                return new BooleanExpect(body, Evaluate(body, body));
+
             if (SupportedExpressionType(body.NodeType))
                 return Lambda(body);
             throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
