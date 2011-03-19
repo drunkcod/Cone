@@ -142,6 +142,11 @@ namespace Cone
         
         public void less_or_equal() { VerifyFormat(() => A <= B, "A <= B"); }
 
+        public void and_also() { 
+            var isTrue = true;
+            VerifyFormat(() => isTrue && !isTrue, "isTrue && !isTrue"); 
+        }
+
         public void multiply() { VerifyFormat(() => A * B, "A * B"); }
 
         public void subtract() { VerifyFormat(() => A - B, "A - B"); }

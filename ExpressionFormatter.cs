@@ -32,6 +32,7 @@ namespace Cone
                 case ExpressionType.ArrayLength: return FormayArrayLength((UnaryExpression)expression);
                 case ExpressionType.NewArrayInit: return FormatNewArray((NewArrayExpression)expression);
                 case ExpressionType.New: return FormatNew((NewExpression)expression);
+                case ExpressionType.Not: return FormatNot((UnaryExpression)expression);
                 case ExpressionType.MemberAccess: return FormatMemberAccess((MemberExpression)expression);
                 case ExpressionType.MemberInit: return FormatMemberInit((MemberInitExpression)expression);
                 case ExpressionType.Quote: return FormatUnary((UnaryExpression)expression);
@@ -166,6 +167,10 @@ namespace Cone
             return "new " + newExpression.Type.Name + FormatArgs(newExpression.Arguments, 0, MethodArgumentsFormat);
         }
 
+        string FormatNot(UnaryExpression expression) {
+            return "!" + Format(expression.Operand);
+        }
+
         string FormatMemberAccess(MemberExpression memberAccess) {
             if (memberAccess.Expression == null)
                 return memberAccess.Member.DeclaringType.Name + "." + memberAccess.Member.Name;
@@ -220,6 +225,7 @@ namespace Cone
                 case ExpressionType.LessThan: return "{0} < {1}";
                 case ExpressionType.LessThanOrEqual: return "{0} <= {1}";
                 case ExpressionType.ArrayIndex: return "{0}[{1}]";
+                case ExpressionType.AndAlso: return "{0} && {1}";
                 default: throw new NotSupportedException("Unsupported BinaryExression type " + nodeType);
             }
         }
