@@ -226,6 +226,8 @@ namespace Cone
                 case ExpressionType.LessThanOrEqual: return "{0} <= {1}";
                 case ExpressionType.ArrayIndex: return "{0}[{1}]";
                 case ExpressionType.AndAlso: return "{0} && {1}";
+                case ExpressionType.OrElse: return "{0} || {1}";
+                case ExpressionType.ExclusiveOr: return "{0} ^ {1}";
                 default: throw new NotSupportedException("Unsupported BinaryExression type " + nodeType);
             }
         }

@@ -147,6 +147,16 @@ namespace Cone
             VerifyFormat(() => isTrue && !isTrue, "isTrue && !isTrue"); 
         }
 
+        public void or_else() {
+            var toBe = true;
+            VerifyFormat(() => toBe || !toBe, "toBe || !toBe"); 
+        }
+
+        public void xor() {
+            var toBe = true;
+            VerifyFormat(() => toBe ^ !toBe, "toBe ^ !toBe"); 
+        }
+
         public void multiply() { VerifyFormat(() => A * B, "A * B"); }
 
         public void subtract() { VerifyFormat(() => A - B, "A - B"); }
