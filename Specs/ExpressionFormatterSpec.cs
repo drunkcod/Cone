@@ -142,6 +142,21 @@ namespace Cone
         
         public void less_or_equal() { VerifyFormat(() => A <= B, "A <= B"); }
 
+        public void and_also() { 
+            var isTrue = true;
+            VerifyFormat(() => isTrue && !isTrue, "isTrue && !isTrue"); 
+        }
+
+        public void or_else() {
+            var toBe = true;
+            VerifyFormat(() => toBe || !toBe, "toBe || !toBe"); 
+        }
+
+        public void xor() {
+            var toBe = true;
+            VerifyFormat(() => toBe ^ !toBe, "toBe ^ !toBe"); 
+        }
+
         public void multiply() { VerifyFormat(() => A * B, "A * B"); }
 
         public void subtract() { VerifyFormat(() => A - B, "A - B"); }
@@ -179,6 +194,8 @@ namespace Cone
 
             public void ctor_arguments() { VerifyFormat(() => new Bar(true), "new Bar(true)"); }
 
+            public void anonymous_type() { VerifyFormat(() => new { A = 1 }, "new { A = 1 }"); }
+
             public void ctor_initializer() { 
                 var value = 42;
                 VerifyFormat(() => new Bar(null){ Value = value }, "new Bar(null){ Value = value }"); 
@@ -189,12 +206,12 @@ namespace Cone
                 VerifyFormat(() => new Bar(null){ Value = value, Answer = 42 }, "new Bar(null){ Value = value, Answer = 42 }"); 
             }
 
-            public void paraens_left() {
+            public void parens_left() {
                 int a = 1, b = 2;
                 VerifyFormat(() => (a == b) == false, "(a == b) == false");
             }
 
-            public void paraens_right() {
+            public void parens_right() {
                 int a = 1, b = 2;
                 VerifyFormat(() => false == (a == b), "false == (a == b)");
             }

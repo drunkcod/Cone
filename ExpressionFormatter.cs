@@ -32,6 +32,7 @@ namespace Cone
                 case ExpressionType.ArrayLength: return FormayArrayLength((UnaryExpression)expression);
                 case ExpressionType.NewArrayInit: return FormatNewArray((NewArrayExpression)expression);
                 case ExpressionType.New: return FormatNew((NewExpression)expression);
+                case ExpressionType.Not: return FormatNot((UnaryExpression)expression);
                 case ExpressionType.MemberAccess: return FormatMemberAccess((MemberExpression)expression);
                 case ExpressionType.MemberInit: return FormatMemberInit((MemberInitExpression)expression);
                 case ExpressionType.Quote: return FormatUnary((UnaryExpression)expression);
@@ -121,17 +122,17 @@ namespace Cone
             var items = new string[args.Count];
             for (int i = 0; i != items.Length; ++i)
                 items[i] = Format(args[i]);
-            return FormatArgs(items, MethodArgumentsFormat);
+            return FormatJoin(items, MethodArgumentsFormat);
         }
 
         string FormatArgs(IList<Expression> args, int first, string format) {
             var items = new string[args.Count - first];
             for (int i = 0; i != items.Length; ++i)
                 items[i] = Format(args[first +  i]);
-            return FormatArgs(items, format);
+            return FormatJoin(items, format);
         }
 
-        string FormatArgs(string[] value, string format) {
+        string FormatJoin(string[] value, string format) {
             return string.Format(format, string.Join(", ", value));
         }
 
@@ -162,8 +163,22 @@ namespace Cone
             return arrayFormatter.Format(newArray.Expressions, this);
         }
 
-        string FormatNew(NewExpression newExpression) {
-            return "new " + newExpression.Type.Name + FormatArgs(newExpression.Arguments, 0, MethodArgumentsFormat);
+        string FormatNew(NewExpression expression) {
+            var type = expression.Type;
+            if(!type.Has<CompilerGeneratedAttribute>())
+                return "new " + FormatType(expression.Type) + FormatArgs(expression.Arguments, 0, MethodArgumentsFormat);
+            var result = new StringBuilder("new {");
+            var sep = " ";
+            var parameters = expression.Constructor.GetParameters();
+            for(int i = 0; i != parameters.Length; ++i) {
+                result.AppendFormat("{0}{1} = {2}", sep, parameters[i].Name, Format(expression.Arguments[i]));
+                sep = ", ";
+            }
+            return result.Append(" }").ToString();
+        }
+
+        string FormatNot(UnaryExpression expression) {
+            return "!" + Format(expression.Operand);
         }
 
         string FormatMemberAccess(MemberExpression memberAccess) {
@@ -220,6 +235,9 @@ namespace Cone
                 case ExpressionType.LessThan: return "{0} < {1}";
                 case ExpressionType.LessThanOrEqual: return "{0} <= {1}";
                 case ExpressionType.ArrayIndex: return "{0}[{1}]";
+                case ExpressionType.AndAlso: return "{0} && {1}";
+                case ExpressionType.OrElse: return "{0} || {1}";
+                case ExpressionType.ExclusiveOr: return "{0} ^ {1}";
                 default: throw new NotSupportedException("Unsupported BinaryExression type " + nodeType);
             }
         }

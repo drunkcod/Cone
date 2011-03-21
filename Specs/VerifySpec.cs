@@ -95,6 +95,20 @@ namespace Cone
                 Verify.That(() => b >= a);
             }
 
+            public void and_also() {
+                Verify.That(() => (a == 1) && (b == 2));
+            }
+
+            public void and_also_short_circuit_eval() {
+                var rightEvaled = false;
+                Func<bool> right = () => { rightEvaled = true; return true; };
+                var notTrue = false;
+                try {
+                    Verify.That(() => notTrue && right());
+                } catch { }
+                Verify.That(() => rightEvaled == false);
+            }
+
             public void return_value_is_same_as_actual() {
                 Verify.That(() => Object.ReferenceEquals(Verify.That(() => obj == (object)b), obj));
             }

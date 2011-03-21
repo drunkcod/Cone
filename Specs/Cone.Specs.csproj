@@ -69,6 +69,7 @@
     <Compile Include="ExpressionEvaluatorSpec.cs" />
     <Compile Include="ExpressionExtensionsSpec.cs" />
     <Compile Include="NUnitIntegration\NUnitIntegrationFeature.cs" />
+    <Compile Include="ObjectInspectionFeature.cs" />
     <Compile Include="ParameterFormatterSpec.cs" />
     <Compile Include="RowBuilderSpec.cs" />
     <Compile Include="StringContainsSpec.cs" />
