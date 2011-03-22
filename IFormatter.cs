@@ -2,6 +2,6 @@
 {
     public interface IFormatter<T>
     {
-        string Format(T expression);
+        string Format(T value);
     }
 }

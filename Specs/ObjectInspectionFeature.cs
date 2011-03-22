@@ -20,5 +20,9 @@ namespace Cone
         public void quote_strings() {
             Verify.That(() => "Hello".Inspect() == "\"Hello\"");
         }
+
+        public void sequence_formatting() {
+            Verify.That(() => new[]{1, 2, 3}.Inspect() == "new[] { 1, 2, 3 }");
+        }
     }
 }
