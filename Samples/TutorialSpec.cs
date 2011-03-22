@@ -67,5 +67,16 @@ namespace Cone.Samples
             Verify.That(() => Throws() == 42); 
         }
 
+        public void funky(Func<int, int> fun, int input, int result) {
+            if(fun != null)
+                Verify.That(() => fun(input) == result);
+        }
+
+        public IEnumerable<IRowTestData> FunkyRows() {
+            return new RowBuilder<TutorialSpec>()
+                .Add(x => x.funky(input => input + 1, 1, 2))
+                .Add(x => x.funky(null, 0, 0));
+        }
+
     }
 }
