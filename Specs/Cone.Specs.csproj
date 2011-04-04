@@ -81,12 +81,12 @@
     <Compile Include="VerifySpec.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Addin\Cone.Addin.csproj">
+    <ProjectReference Include="..\Source\Addin\Cone.Addin.csproj">
       <Project>{C1B2EAD0-140C-4D5F-A757-1092CB39AECE}</Project>
       <Name>Cone.Addin</Name>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Cone.csproj">
+    <ProjectReference Include="..\Source\Cone.csproj">
       <Project>{E557FD03-E249-4211-80CF-FB0923FD4C7D}</Project>
       <Name>Cone</Name>
     </ProjectReference>
