@@ -33,6 +33,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Action.cs" />
     <Compile Include="AfterAllAttribute.cs" />
     <Compile Include="AfterEachAttribute.cs" />
     <Compile Include="ArrayExpressionStringBuilder.cs" />
@@ -48,6 +49,7 @@
     <Compile Include="DescribeAttribute.cs" />
     <Compile Include="DisplayClassAttribute.cs" />
     <Compile Include="EvaluationResult.cs" />
+    <Compile Include="Examples.cs" />
     <Compile Include="ExpectationFailedException.cs" />
     <Compile Include="Expectations\BinaryExpect.cs" />
     <Compile Include="Expectations\ExceptionExpect.cs" />
