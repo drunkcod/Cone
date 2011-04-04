@@ -56,6 +56,7 @@ clean ["Build";"Bin"]
 && build ""
 && build "/p:NUnitVersion=2.5.5.10112 /t:Cone_Addin:Rebuild"
 && build "/p:NUnitVersion=2.5.7.10213 /t:Cone_Addin:Rebuild"
+&& build "/p:NUnitVersion=2.5.10.11092 /t:Cone_Addin:Rebuild"
 && copyAddin()
 && test()
 && package()
