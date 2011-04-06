@@ -1,0 +1,11 @@
+.:[ 0.0.2.19 ]:.
+
+New Features
+[x] DisplayClass attribute
+[x] Examples row builders
+[ ] Inherited Before/After actions
+
+.:[ Undecided ]:.
+[ ] R# integration
+[ ] Standalone console runner
+[ ] Standalone UI runner
