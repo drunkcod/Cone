@@ -63,6 +63,7 @@
     <Compile Include="Addin\NUnitTestResultAdapterSpec.cs" />
     <Compile Include="BinaryExpectSpec.cs" />
     <Compile Include="BooleanExpectSpec.cs" />
+    <Compile Include="ConeFixtureSetupSpec.cs" />
     <Compile Include="ConeMethodClassifierSpec.cs" />
     <Compile Include="ConeTestNamerSpec.cs" />
     <Compile Include="DisplayClassAttributeSpec.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="ObjectInspectionFeature.cs" />
     <Compile Include="ParameterFormatterSpec.cs" />
     <Compile Include="RowBuilderSpec.cs" />
+    <Compile Include="SampleFixture.cs" />
     <Compile Include="StringContainsSpec.cs" />
     <Compile Include="StringExtensionsSpec.cs" />
     <Compile Include="StringVerificationSpec.cs" />

@@ -3,7 +3,9 @@
 New Features
 [x] DisplayClass attribute
 [x] Examples row builders
-[ ] Inherited Before/After actions
+
+Bug Fixes
+[x] Inherited Before/After action execution order
 
 .:[ Undecided ]:.
 [ ] R# integration
