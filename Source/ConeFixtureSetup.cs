@@ -16,21 +16,9 @@ namespace Cone
 
     public class ConeFixtureSetup
     {
-        [Flags]
-        enum MethodMarks
-        {
-            None,
-            Test = 1,
-            BeforeAll = 1 << 2,
-            BeforeEach = 1 << 3,
-            AfterEach = 1 << 4,
-            AfterAll = 1 << 5,
-            AfterEachWithResult = 1 << 6,
-            RowSource = 1 << 7
-        }
-
+        readonly ConeMethodClassifier classifier;
         MethodInfo[] methods;
-        MethodMarks[] marks;
+        ConeMethodClass[] marks;
         int beforeAllCount, beforeEachCount, afterEachCount, afterEachWithResultCount, afterAllCount, rowSourceCount;
         readonly IConeSuite suite;
         readonly ConeTestNamer testNamer;
@@ -38,11 +26,13 @@ namespace Cone
         public ConeFixtureSetup(IConeSuite suite, ConeTestNamer testNamer) {
             this.suite = suite;
             this.testNamer = testNamer;
+            this.classifier = new ConeMethodClassifier();
+            classifier.Test += (_, e) => AddTestMethod(e.Method);
         }
 
         public void CollectFixtureMethods(Type type) {
             methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
-            marks = new MethodMarks[methods.Length];
+            marks = new ConeMethodClass[methods.Length];
             ResetCounts();
 
             for (int i = 0; i != methods.Length; ++i)
@@ -63,92 +53,69 @@ namespace Cone
             for (int i = 0; i != methods.Length; ++i) {
                 var method = methods[i];
 
-                if (MarkedAs(MethodMarks.BeforeAll, i))
+                if (MarkedAs(ConeMethodClass.BeforeAll, i))
                     x.BeforeAll[beforeAllCount++] = method;
-                if (MarkedAs(MethodMarks.BeforeEach, i))
+                if (MarkedAs(ConeMethodClass.BeforeEach, i))
                     x.BeforeEach[beforeEachCount++] = method;
-                if (MarkedAs(MethodMarks.AfterEach, i))
+                if (MarkedAs(ConeMethodClass.AfterEach, i))
                     x.AfterEach[afterEachCount++] = method;
-                if (MarkedAs(MethodMarks.AfterEachWithResult, i))
+                if (MarkedAs(ConeMethodClass.AfterEachWithResult, i))
                     x.AfterEachWithResult[afterEachWithResultCount++] = method;
-                if (MarkedAs(MethodMarks.AfterAll, i))
+                if (MarkedAs(ConeMethodClass.AfterAll, i))
                     x.AfterAll[afterAllCount++] = method;
-                if (MarkedAs(MethodMarks.RowSource, i))
+                if (MarkedAs(ConeMethodClass.RowSource, i))
                     x.RowSource[rowSourceCount++] = method;
             }
 
             return x;
         }
 
-        void ClassifyMethod(int index) {
+        void ClassifyMethod(int index) {            
             var method = methods[index];
-            if (method.DeclaringType == typeof(object))
-                return;
-            var parms = method.GetParameters();
-            if (parms.Length == 0)
-                marks[index] = ClassifyNiladic(method);
-            else
-                marks[index] = ClassifyWithArguments(method, parms);
-        }
-
-        MethodMarks ClassifyNiladic(MethodInfo method) {
-            var attributes = method.GetCustomAttributes(true);
-            var marks = MethodMarks.None;
-            for (int i = 0; i != attributes.Length; ++i) {
-                var x = attributes[i];
-                if (x is BeforeEachAttribute) {
-                    marks |= MethodMarks.BeforeEach;
-                    ++beforeEachCount;
-                } else if (x is AfterEachAttribute) {
-                    marks |= MethodMarks.AfterEach;
-                    ++afterEachCount;
-                } else if (x is BeforeAllAttribute) {
-                    marks |= MethodMarks.BeforeAll;
-                    ++beforeAllCount;
-                } else if (x is AfterAllAttribute) {
-                    marks |= MethodMarks.AfterAll;
-                    ++afterAllCount;
+            var mark = Classify(method);            
+            for(var x = (int)mark; x != 0; x = x & (x - 1)) {
+                switch(x & ~(x - 1)) {
+                    case (int)ConeMethodClass.RowTest:
+                        method.Has<RowAttribute>(rows => AddRowTest(method, rows));
+                        break;
+                    case (int)ConeMethodClass.RowSource:
+                        ++rowSourceCount;
+                        break;
+                    case (int)ConeMethodClass.BeforeAll:
+                        ++beforeAllCount;
+                        break;
+                    case (int)ConeMethodClass.BeforeEach:
+                        ++beforeEachCount;
+                        break;
+                    case (int)ConeMethodClass.AfterEach: 
+                        ++afterEachCount;
+                        break;
+                    case (int)ConeMethodClass.AfterEachWithResult:
+                        ++afterEachWithResultCount;
+                        break;
+                    case (int)ConeMethodClass.AfterAll:
+                        ++afterAllCount;
+                        break;
                 }
-            }
-            if (marks != MethodMarks.None)
-                return marks;
-            if(method.ReturnType != typeof(void))
-                return ClassifyRowSource(method);
+            }            
 
-            AddTestMethod(method);
-            return MethodMarks.Test;
+            marks[index] = mark;
         }
 
         void ResetCounts() {
             beforeAllCount = beforeEachCount = afterEachCount = afterEachWithResultCount = afterAllCount = rowSourceCount = 0;
         }
 
-        MethodMarks ClassifyWithArguments(MethodInfo method, ParameterInfo[] parms) {
-            if (!method.Has<RowAttribute>(rows => AddRowTest(method, rows))
-            && parms.Length == 1
-            && typeof(ITestResult).IsAssignableFrom(parms[0].ParameterType)
-            && method.Has<AfterEachAttribute>()) {
-                ++afterEachWithResultCount;
-                return MethodMarks.AfterEachWithResult;
-            } else return MethodMarks.None;
-        }
-
-        MethodMarks ClassifyRowSource(MethodInfo method){
-            if(!typeof(IEnumerable<IRowTestData>).IsAssignableFrom(method.ReturnType))
-                return MethodMarks.None;
-            ++rowSourceCount;
-            return MethodMarks.RowSource;
-        }
-
-        bool MarkedAs(MethodMarks mark, int index) {
+        bool MarkedAs(ConeMethodClass mark, int index) {
             return (marks[index] & mark) != 0;
         }
 
-        void AddTestMethod(MethodInfo method) { 
-            
+        void AddTestMethod(MethodInfo method) {
             suite.AddTestMethod(new ConeMethodThunk(method, testNamer)); 
         }
         
         void AddRowTest(MethodInfo method, RowAttribute[] rows) { suite.AddRowTest(testNamer.NameFor(method), method, rows); }
+        
+        ConeMethodClass Classify(MethodInfo method) { return classifier.Classify(method); }
     }
 }
