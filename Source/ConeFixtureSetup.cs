@@ -17,8 +17,6 @@ namespace Cone
     public class ConeFixtureSetup
     {
         readonly ConeMethodClassifier classifier;
-        readonly IConeSuite suite;
-        readonly ConeTestNamer testNamer;
 
         readonly List<MethodInfo> beforeAll = new List<MethodInfo>();
         readonly List<MethodInfo> beforeEach = new List<MethodInfo>();
@@ -27,18 +25,24 @@ namespace Cone
         readonly List<MethodInfo> afterAll = new List<MethodInfo>();
         readonly List<MethodInfo> rowSources = new List<MethodInfo>(); 
 
-        public ConeFixtureSetup(IConeSuite suite, ConeTestNamer testNamer) {
-            this.suite = suite;
-            this.testNamer = testNamer;
+        public ConeFixtureSetup() {
             this.classifier = new ConeMethodClassifier();
-            classifier.Test += (_, e) => AddTestMethod(e.Method);
-            classifier.RowTest += (_, e) => AddRowTest(e.Method, e.Rows);
             classifier.BeforeAll += (_, e) => beforeAll.Add(e.Method);
             classifier.BeforeEach += (_,e) => beforeEach.Add(e.Method);
             classifier.AfterEach += (_, e) => afterEach.Add(e.Method);
             classifier.AfterEachWithResult += (_, e) => afterEachWithResult.Add(e.Method);
             classifier.AfterAll += (_, e) => afterAll.Add(e.Method);
             classifier.RowSource += (_, e) => rowSources.Add(e.Method);            
+        }
+
+        public event EventHandler<MethodClassEventArgs> Test {
+            add { classifier.Test += value; }
+            remove { classifier.Test -= value; }
+        }
+
+        public event EventHandler<RowTestClassEventArgs> RowTest {
+            add { classifier.RowTest += value; }
+            remove { classifier.RowTest -= value; }
         }
 
         public void CollectFixtureMethods(Type type) {
@@ -59,12 +63,6 @@ namespace Cone
             return x;
         }
 
-        void AddTestMethod(MethodInfo method) {
-            suite.AddTestMethod(new ConeMethodThunk(method, testNamer)); 
-        }
-        
-        void AddRowTest(MethodInfo method, RowAttribute[] rows) { suite.AddRowTest(testNamer.NameFor(method), method, rows); }
-        
         ConeMethodClass Classify(MethodInfo method) { return classifier.Classify(method); }
     }
 }

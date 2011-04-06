@@ -26,7 +26,11 @@ namespace Cone.Addin
         protected TSuite BuildSuite(Type type, IFixtureDescription description) {
             var testNamer = new ConeTestNamer();
             var suite = NewSuite(type, description, testNamer);
-            var setup = new ConeFixtureSetup(suite, testNamer);
+            var setup = new ConeFixtureSetup();
+            
+            setup.Test += (_, e) => suite.AddTestMethod(new ConeMethodThunk(e.Method, testNamer)); 
+            setup.RowTest += (_, e) => suite.AddRowTest(testNamer.NameFor(e.Method), e.Method, e.Rows);      
+
             setup.CollectFixtureMethods(type);
             suite.BindTo(setup.GetFixtureMethods());
             AddNestedContexts(type, suite);
