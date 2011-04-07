@@ -11,3 +11,4 @@ Bug Fixes
 [ ] R# integration
 [ ] Standalone console runner
 [ ] Standalone UI runner
+    [ ] Randomize exectuion order of tests
