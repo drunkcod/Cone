@@ -6,7 +6,7 @@ namespace Cone
     public static class CustomAttributeProviderExtensions
     {
         public static bool Has<T>(this ICustomAttributeProvider self) {
-            return self.GetCustomAttributes(typeof(T), true).Length > 0;
+            return self.IsDefined(typeof(T), true);
         }
 
         public static bool Has<T>(this ICustomAttributeProvider self, Action<T[]> with) {

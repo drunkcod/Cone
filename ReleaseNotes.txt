@@ -1,4 +1,4 @@
-.:[ 0.0.2.19 ]:.
+.:[ Next - 0.0.2.19 ]:.
 
 New Features
 [x] DisplayClass attribute
