@@ -3,6 +3,7 @@
 New Features
 [x] DisplayClass attribute
 [x] Examples row builders
+[x] NUnit 2.5.10.11092 support added
 
 Bug Fixes
 [x] Inherited Before/After action execution order
