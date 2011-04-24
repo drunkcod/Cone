@@ -52,6 +52,7 @@
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="EvaluationResult.cs" />
     <Compile Include="Examples.cs" />
+    <Compile Include="ExceptionExpressionException.cs" />
     <Compile Include="ExpectationFailedException.cs" />
     <Compile Include="Expectations\BinaryExpect.cs" />
     <Compile Include="Expectations\ExceptionExpect.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Expectations\StringContainsExpect.cs" />
     <Compile Include="Expectations\StringEqualExpect.cs" />
     <Compile Include="ExpressionEvaluator.cs" />
+    <Compile Include="ExpressionEvaluatorContext.cs" />
     <Compile Include="ExpressionExtensions.cs" />
     <Compile Include="ExpressionFormatter.cs" />
     <Compile Include="CustomAttributeProviderExtensions.cs" />
