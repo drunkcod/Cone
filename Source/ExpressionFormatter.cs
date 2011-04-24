@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Linq.Expressions;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Cone
 {   
@@ -29,19 +29,19 @@ namespace Cone
 
         public string Format(Expression expression) {
             switch (expression.NodeType) {
-                case ExpressionType.ArrayLength: return FormayArrayLength((UnaryExpression)expression);
-                case ExpressionType.NewArrayInit: return FormatNewArray((NewArrayExpression)expression);
-                case ExpressionType.New: return FormatNew((NewExpression)expression);
-                case ExpressionType.Not: return FormatNot((UnaryExpression)expression);
-                case ExpressionType.MemberAccess: return FormatMemberAccess((MemberExpression)expression);
-                case ExpressionType.MemberInit: return FormatMemberInit((MemberInitExpression)expression);
-                case ExpressionType.Quote: return FormatUnary((UnaryExpression)expression);
-                case ExpressionType.Lambda: return FormatLambda((LambdaExpression)expression);
-                case ExpressionType.Call: return FormatCall((MethodCallExpression)expression);
-                case ExpressionType.Constant: return FormatConstant((ConstantExpression)expression);
-                case ExpressionType.Convert: return FormatConvert((UnaryExpression)expression);
-                case ExpressionType.TypeIs: return FormatTypeIs((TypeBinaryExpression)expression);
-                case ExpressionType.Invoke: return FormatInvoke((InvocationExpression)expression);
+                case ExpressionType.ArrayLength: return FormatArrayLength(expression);
+                case ExpressionType.NewArrayInit: return FormatNewArray(expression);
+                case ExpressionType.New: return FormatNew(expression);
+                case ExpressionType.Not: return FormatNot(expression);
+                case ExpressionType.MemberAccess: return FormatMemberAccess(expression);
+                case ExpressionType.MemberInit: return FormatMemberInit(expression);
+                case ExpressionType.Quote: return FormatUnary(expression);
+                case ExpressionType.Lambda: return FormatLambda(expression);
+                case ExpressionType.Call: return FormatCall(expression);
+                case ExpressionType.Constant: return FormatConstant(expression);
+                case ExpressionType.Convert: return FormatConvert(expression);
+                case ExpressionType.TypeIs: return FormatTypeIs(expression);
+                case ExpressionType.Invoke: return FormatInvoke(expression);
                     
                 default:
                     var binary = expression as BinaryExpression;
@@ -52,7 +52,8 @@ namespace Cone
             }
         }
 
-        string FormayArrayLength(UnaryExpression arrayLength) {
+        string FormatArrayLength(Expression expression){ return FormatArrayLength((UnaryExpression)expression); }
+        string FormatArrayLength(UnaryExpression arrayLength) {
             return FormatUnary(arrayLength) + ".Length";
         }
 
@@ -81,6 +82,7 @@ namespace Cone
             return Format(target);
         }
 
+        string FormatCall(Expression expression) { return FormatCall((MethodCallExpression)expression); }
         string FormatCall(MethodCallExpression call) {
             int firstArgumentOffset;
             var target = FormatCallTarget(call, out firstArgumentOffset);
@@ -97,18 +99,22 @@ namespace Cone
             return target + invocation + FormatArgs(call.Arguments, firstArgumentOffset, parameterFormat);
         }
 
+        string FormatConstant(Expression expression) { return FormatConstant((ConstantExpression)expression); }
         string FormatConstant(ConstantExpression constant) { return constantFormatter.Format(constant.Value); }
 
+        string FormatConvert(Expression expression) { return FormatConvert((UnaryExpression)expression); }
         string FormatConvert(UnaryExpression conversion) {
             if(conversion.Type == typeof(object))
                 return Format(conversion.Operand);
             return string.Format("({0}){1}", FormatType(conversion.Type), Format(conversion.Operand));
         }
 
+        string FormatTypeIs(Expression expression) { return FormatTypeIs((TypeBinaryExpression)expression); }
         string FormatTypeIs(TypeBinaryExpression typeIs) {
             return string.Format("{0} is {1}", Format(typeIs.Expression), FormatType(typeIs.TypeOperand));
         }
 
+        string FormatLambda(Expression expression) { return FormatLambda((LambdaExpression)expression); }
         string FormatLambda(LambdaExpression lambda) {
             var parameters = lambda.Parameters;
             return string.Format("{0} => {1}",
@@ -154,15 +160,18 @@ namespace Cone
             return string.Format(expression is BinaryExpression ? "({{{0}}})" : "{{{0}}}", index);
         }
 
-        string FormatUnary(UnaryExpression expr) {
-            return Format(expr.Operand);
+        string FormatUnary(Expression expression) { return FormatUnary((UnaryExpression)expression); }
+        string FormatUnary(UnaryExpression expression) {
+            return Format(expression.Operand);
         }
 
+        string FormatNewArray(Expression expression) { return FormatNewArray((NewArrayExpression)expression); }
         string FormatNewArray(NewArrayExpression newArray) {
             var arrayFormatter = new ArrayExpressionStringBuilder<Expression>();
             return arrayFormatter.Format(newArray.Expressions, this);
         }
 
+        string FormatNew(Expression expression){ return FormatNew((NewExpression)expression); }
         string FormatNew(NewExpression expression) {
             var type = expression.Type;
             if(!type.Has<CompilerGeneratedAttribute>())
@@ -177,10 +186,12 @@ namespace Cone
             return result.Append(" }").ToString();
         }
 
+        string FormatNot(Expression expression){ return FormatNot((UnaryExpression)expression); }
         string FormatNot(UnaryExpression expression) {
             return "!" + Format(expression.Operand);
         }
 
+        string FormatMemberAccess(Expression expression){ return FormatMemberAccess((MemberExpression)expression); }
         string FormatMemberAccess(MemberExpression memberAccess) {
             if (memberAccess.Expression == null)
                 return memberAccess.Member.DeclaringType.Name + "." + memberAccess.Member.Name;
@@ -189,6 +200,7 @@ namespace Cone
             return Format(memberAccess.Expression) + "." + memberAccess.Member.Name;
         }
         
+        string FormatMemberInit(Expression expression){ return FormatMemberInit((MemberInitExpression)expression); }
         string FormatMemberInit(MemberInitExpression memberInit) {
             var result = new StringBuilder(FormatNew(memberInit.NewExpression));
 
@@ -211,6 +223,7 @@ namespace Cone
             }
         }
 
+        string FormatInvoke(Expression expression) { return FormatInvoke((InvocationExpression)expression); }
         string FormatInvoke(InvocationExpression invocation) {
             return Format(invocation.Expression) + FormatArgs(invocation.Arguments, 0, MethodArgumentsFormat);
         }
