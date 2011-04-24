@@ -1,8 +1,9 @@
-.:[ 0.0.2.19 ]:.
+.:[ Next - 0.0.2.19 ]:.
 
 New Features
 [x] DisplayClass attribute
 [x] Examples row builders
+[x] NUnit 2.5.10.11092 support added
 
 Bug Fixes
 [x] Inherited Before/After action execution order
@@ -11,3 +12,4 @@ Bug Fixes
 [ ] R# integration
 [ ] Standalone console runner
 [ ] Standalone UI runner
+    [ ] Randomize exectuion order of tests
