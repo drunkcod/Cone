@@ -69,7 +69,7 @@ namespace Cone
 
         [DisplayAs("String.Contains(\"Value\")")]
         public void StringContains() {
-            Verify.That(() => ExpectFrom(() => "Hello".Contains("World")) is StringContainsExpect);
+            Verify.That(() => ExpectFrom(() => "Hello".Contains("World")) is StringMethodExpect);
         }
 
         IExpect ExpectFrom(Expression<Func<bool>> expression) {
@@ -89,6 +89,7 @@ namespace Cone
                     throw new NotImplementedException();
                 }
             }
+
             public void public_nested_provider_is_detected() {
                 Verify.That(() => ExpectFactory.IsMethodExpectProvider(typeof(NestedProvider)));
             }
