@@ -4,14 +4,25 @@ using System.Reflection;
 
 namespace Cone.Expectations
 {
-    public class StringContainsProvider : IMethodExpectProvider
+    public class StringMethodsProvider : IMethodExpectProvider
     {
+        readonly Dictionary<MethodInfo, string> methodDisplay;
+
+        public StringMethodsProvider() {
+            var s = typeof(string);
+            methodDisplay = new Dictionary<MethodInfo,string>()
+            {
+                { s.GetMethod("Contains"), "string containing" },
+                { s.GetMethod("EndsWith", new[]{ s }), "a string ending with" }
+            };
+        }
+
         IEnumerable<MethodInfo> IMethodExpectProvider.GetSupportedMethods() {
-            return new[]{ typeof(string).GetMethod("Contains") };
+            return methodDisplay.Keys;
         }
 
         IExpect IMethodExpectProvider.GetExpectation(Expression body, MethodInfo method, object target, object[] args) {
-            return new StringMethodExpect("string containing", body, method, target, args);
+            return new StringMethodExpect(methodDisplay[method], body, method, target, args);
         }
     }
 
