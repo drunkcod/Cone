@@ -11,8 +11,8 @@ namespace Cone.Expectations
             return new[]{ typeof(string).GetMethod("Contains") };
         }
 
-        IExpect IMethodExpectProvider.GetExpectation(Expression body, MethodInfo method, object target, IEnumerable<object> args) {
-            return new StringContainsExpect(body, target.ToString(), args.First().ToString());
+        IExpect IMethodExpectProvider.GetExpectation(Expression body, MethodInfo method, object target, object[] args) {
+            return new StringContainsExpect(body, target.ToString(), args[0].ToString());
         }
     }
 

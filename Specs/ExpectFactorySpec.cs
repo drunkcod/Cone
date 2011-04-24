@@ -85,7 +85,7 @@ namespace Cone
                     return new MethodInfo[0];
                 }
 
-                IExpect IMethodExpectProvider.GetExpectation(Expression body, System.Reflection.MethodInfo method, object target, IEnumerable<object> args) {
+                IExpect IMethodExpectProvider.GetExpectation(Expression body, System.Reflection.MethodInfo method, object target, object[] args) {
                     throw new NotImplementedException();
                 }
             }

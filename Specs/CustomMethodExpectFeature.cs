@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Cone.Expectations;
-using System.Linq.Expressions;
 
 namespace Cone
 {
@@ -17,16 +18,18 @@ namespace Cone
                 this.value = value;
             }
 
+            public static bool IsEven(int value) { return new MyInteger(value).IsEven(); }
+
             public bool IsEven() { return true; }
         }
 
         public class MyIntegerMethodExpectProvider : IMethodExpectProvider
         {
             public IEnumerable<MethodInfo> GetSupportedMethods() {
-                return new[]{ typeof(MyInteger).GetMethod("IsEven") };
+                return typeof(MyInteger).GetMethods().Where(x => x.Name == "IsEven");
             }
 
-            public IExpect GetExpectation(Expression body, MethodInfo method, object target, IEnumerable<object> args) {
+            public IExpect GetExpectation(Expression body, MethodInfo method, object target, object[] args) {
                 return new MyIntegerExpect();
             }
         }
@@ -53,8 +56,13 @@ namespace Cone
             Verify.That(() => ExpectFactory.IsMethodExpectProvider(typeof(MyIntegerMethodExpectProvider)));
         }
 
-        public void obeys_result_and_formatting_from_exepct() {
+        public void obeys_result_and_formatting_from_expect() {
             var e = Verify.Throws<Exception>.When(() => Verify.That(() => new MyInteger(42).IsEven()));
+            Verify.That(() => e.Message == "<expr>\n<message>");
+        }
+
+        public void supports_static_method() {
+            var e = Verify.Throws<Exception>.When(() => Verify.That(() => MyInteger.IsEven(42)));
             Verify.That(() => e.Message == "<expr>\n<message>");
         }
     }

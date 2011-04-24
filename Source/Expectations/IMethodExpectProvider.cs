@@ -10,6 +10,6 @@ namespace Cone.Expectations
     public interface IMethodExpectProvider
     {
         IEnumerable<MethodInfo> GetSupportedMethods();
-        IExpect GetExpectation(Expression body, MethodInfo method, object target, IEnumerable<object> args);
+        IExpect GetExpectation(Expression body, MethodInfo method, object target, object[] args);
     }
 }

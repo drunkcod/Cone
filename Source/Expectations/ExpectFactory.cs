@@ -98,7 +98,10 @@ namespace Cone.Expectations
             var method = body.Method;
             if(methodExpects.TryGetValue(method, out provider)) {
                 var target = Evaluator.EvaluateAsTarget(body.Object, body).Value;
-                return provider.GetExpectation(body, method, target, body.Arguments.Select(EvaluateAs<object>));
+                var args = new object[body.Arguments.Count];
+                for(int i = 0; i != args.Length; ++i)
+                    args[i] = EvaluateAs<object>(body.Arguments[i]);
+                return provider.GetExpectation(body, method, target, args);
             }
             return Boolean(body);;
         }
