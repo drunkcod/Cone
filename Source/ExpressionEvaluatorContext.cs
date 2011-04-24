@@ -20,17 +20,17 @@ namespace Cone
 
         public EvaluationResult Evaluate(Expression body) {
             switch(body.NodeType) {
-                case ExpressionType.Lambda: return EvaluateLambda(body as LambdaExpression);
+                case ExpressionType.Lambda: return EvaluateLambda(body);
                 case ExpressionType.ArrayIndex: return EvaluateArrayIndex(body);
-                case ExpressionType.Call: return EvaluateCall(body as MethodCallExpression);
-                case ExpressionType.Constant: return Success((body as ConstantExpression).Value);
-                case ExpressionType.Convert: return EvaluateConvert(body as UnaryExpression);
+                case ExpressionType.Call: return EvaluateCall(body);
+                case ExpressionType.Constant: return Success(((ConstantExpression)body).Value);
+                case ExpressionType.Convert: return EvaluateConvert(body);
                 case ExpressionType.Equal: goto case ExpressionType.NotEqual;
-                case ExpressionType.NotEqual: return EvaluateBinary(body as BinaryExpression);
-                case ExpressionType.MemberAccess: return EvaluateMemberAccess(body as MemberExpression);
-                case ExpressionType.New: return EvaluateNew(body as NewExpression);
-                case ExpressionType.Quote: return EvaluateQuote(body as UnaryExpression);
-                case ExpressionType.Invoke: return EvaluateInvoke(body as InvocationExpression);
+                case ExpressionType.NotEqual: return EvaluateBinary(body);
+                case ExpressionType.MemberAccess: return EvaluateMemberAccess(body);
+                case ExpressionType.New: return EvaluateNew(body);
+                case ExpressionType.Quote: return EvaluateQuote(body);
+                case ExpressionType.Invoke: return EvaluateInvoke(body);
                 default: return Unsupported(body);
             }
         }
@@ -44,6 +44,7 @@ namespace Cone
             return target;
         }
 
+        EvaluationResult EvaluateLambda(Expression expression) { return EvaluateLambda((LambdaExpression)expression); }
         EvaluationResult EvaluateLambda(LambdaExpression expression) {
             if(expression == context && expression.Parameters.Count == 0)
                 return Evaluate(expression.Body);
@@ -63,6 +64,7 @@ namespace Cone
             return Success(array.GetValue(index));
         }
 
+        EvaluationResult EvaluateBinary(Expression expression) { return EvaluateBinary((BinaryExpression)expression); }
         EvaluationResult EvaluateBinary(BinaryExpression binary) {
             var left = Evaluate(binary.Left);
             if(left.IsError)
@@ -87,6 +89,7 @@ namespace Cone
             }
         }
 
+        EvaluationResult EvaluateCall(Expression expression) { return EvaluateCall((MethodCallExpression)expression); }
         EvaluationResult EvaluateCall(MethodCallExpression expression) {
             var target = EvaluateAsTarget(expression.Object);
             if(target.IsError)
@@ -115,6 +118,7 @@ namespace Cone
                 }
         }
         
+        EvaluationResult EvaluateConvert(Expression expression) { return EvaluateConvert((UnaryExpression)expression); }
         EvaluationResult EvaluateConvert(UnaryExpression expression) {
             var source = Evaluate(expression.Operand).Value;
             var convertMethod = expression.Method;
@@ -129,6 +133,7 @@ namespace Cone
             return Success(value);
         }
 
+        EvaluationResult EvaluateMemberAccess(Expression expression) { return EvaluateMemberAccess((MemberExpression)expression); }
         EvaluationResult EvaluateMemberAccess(MemberExpression expression) {
             try {
                 var target = EvaluateAsTarget(expression.Expression);
@@ -140,6 +145,7 @@ namespace Cone
             }
         }
 
+        EvaluationResult EvaluateNew(Expression expression) { return EvaluateNew((NewExpression)expression); }
         EvaluationResult EvaluateNew(NewExpression expression) {
             try {
                 var args = EvaluateAll(expression.Arguments).Value as object[];
@@ -160,10 +166,12 @@ namespace Cone
             return Success(result);
         }
 
+        EvaluationResult EvaluateQuote(Expression expression) { return EvaluateQuote((UnaryExpression)expression); }
         EvaluationResult EvaluateQuote(UnaryExpression expression) {
             return Success(expression.Operand);
         }
 
+        EvaluationResult EvaluateInvoke(Expression expression) { return EvaluateInvoke((InvocationExpression)expression); }
         EvaluationResult EvaluateInvoke(InvocationExpression expression) {
             var target = Evaluate(expression.Expression).Value as Delegate;
             try {
