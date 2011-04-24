@@ -88,13 +88,22 @@ namespace Cone.Expectations
         }
 
         IExpect FromSingle(Expression body) {
+            if(body.NodeType == ExpressionType.Call)
+                return FromCall((MethodCallExpression)body);
+            return Boolean(body);
+        }
+
+        IExpect FromCall(MethodCallExpression body) {
             IMethodExpectProvider provider;
-            if(body.NodeType == ExpressionType.Call 
-            && methodExpects.TryGetValue(((MethodCallExpression)body).Method, out provider)) {
-                var m = (MethodCallExpression)body;
-                var target = Evaluator.EvaluateAsTarget(m.Object, body).Value;
-                return provider.GetExpectation(body, m.Method, target, m.Arguments.Select(EvaluateAs<object>));
+            var method = body.Method;
+            if(methodExpects.TryGetValue(method, out provider)) {
+                var target = Evaluator.EvaluateAsTarget(body.Object, body).Value;
+                return provider.GetExpectation(body, method, target, body.Arguments.Select(EvaluateAs<object>));
             }
+            return Boolean(body);;
+        }
+
+        IExpect Boolean(Expression body) {
             return new BooleanExpect(body, EvaluateAs<bool>(body));
         }
 

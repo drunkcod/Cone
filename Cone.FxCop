@@ -20,7 +20,9 @@
   <DeadlockDetectionTimeout>120</DeadlockDetectionTimeout>
   <IgnoreGeneratedCode>True</IgnoreGeneratedCode>
  </ProjectOptions>
- <Targets />
+ <Targets>
+  <Target Name="$(ProjectDir)/Build/Cone.dll" Analyze="True" AnalyzeAllChildren="True" />
+ </Targets>
  <Rules>
   <RuleFiles>
    <RuleFile Name="$(FxCopDir)\Rules\DesignRules.dll" Enabled="False" AllRulesEnabled="False" />
@@ -28,7 +30,10 @@
    <RuleFile Name="$(FxCopDir)\Rules\InteroperabilityRules.dll" Enabled="False" AllRulesEnabled="False" />
    <RuleFile Name="$(FxCopDir)\Rules\MobilityRules.dll" Enabled="False" AllRulesEnabled="False" />
    <RuleFile Name="$(FxCopDir)\Rules\NamingRules.dll" Enabled="False" AllRulesEnabled="False" />
-   <RuleFile Name="$(FxCopDir)\Rules\PerformanceRules.dll" Enabled="False" AllRulesEnabled="False" />
+   <RuleFile Name="$(FxCopDir)\Rules\PerformanceRules.dll" Enabled="False" AllRulesEnabled="False">
+    <Rule Name="AvoidUncalledPrivateCode" Enabled="True" />
+    <Rule Name="DoNotCastUnnecessarily" Enabled="True" />
+   </RuleFile>
    <RuleFile Name="$(FxCopDir)\Rules\PortabilityRules.dll" Enabled="False" AllRulesEnabled="False" />
    <RuleFile Name="$(FxCopDir)\Rules\SecurityRules.dll" Enabled="False" AllRulesEnabled="False" />
    <RuleFile Name="$(FxCopDir)\Rules\SecurityTransparencyRules.dll" Enabled="False" AllRulesEnabled="False" />
@@ -37,5 +42,69 @@
   <Groups />
   <Settings />
  </Rules>
- <FxCopReport Version="10.0" />
+ <FxCopReport Version="10.0">
+  <Targets>
+   <Target Name="$(ProjectDir)/Build/Cone.dll">
+    <Modules>
+     <Module Name="cone.dll">
+      <Namespaces>
+       <Namespace Name="Cone">
+        <Types>
+         <Type Name="ExpressionEvaluatorContext">
+          <Members>
+           <Member Name="#Evaluate(System.Linq.Expressions.Expression)">
+            <Messages>
+             <Message TypeName="DoNotCastUnnecessarily" Category="Microsoft.Performance" CheckId="CA1800" Created="2011-04-24 19:18:32Z">
+              <Issue Name="Parameter">
+               <Item>'body'</Item>
+               <Item>'UnaryExpression'</Item>
+               <Item>'ExpressionEvaluatorContext.Evaluate(Expression)'</Item>
+               <Item>isint</Item>
+              </Issue>
+             </Message>
+            </Messages>
+           </Member>
+          </Members>
+         </Type>
+         <Type Name="ExpressionFormatter">
+          <Members>
+           <Member Name="#Format(System.Linq.Expressions.Expression)">
+            <Messages>
+             <Message TypeName="DoNotCastUnnecessarily" Category="Microsoft.Performance" CheckId="CA1800" Created="2011-04-24 19:18:32Z">
+              <Issue Name="Parameter">
+               <Item>'expression'</Item>
+               <Item>'UnaryExpression'</Item>
+               <Item>'ExpressionFormatter.Format(Expression)'</Item>
+               <Item>castclass</Item>
+              </Issue>
+              <Issue Name="Parameter">
+               <Item>'expression'</Item>
+               <Item>'UnaryExpression'</Item>
+               <Item>'ExpressionFormatter.Format(Expression)'</Item>
+               <Item>castclass</Item>
+              </Issue>
+              <Issue Name="Parameter">
+               <Item>'expression'</Item>
+               <Item>'UnaryExpression'</Item>
+               <Item>'ExpressionFormatter.Format(Expression)'</Item>
+               <Item>castclass</Item>
+              </Issue>
+             </Message>
+            </Messages>
+           </Member>
+          </Members>
+         </Type>
+        </Types>
+       </Namespace>
+      </Namespaces>
+     </Module>
+    </Modules>
+   </Target>
+  </Targets>
+  <Rules>
+   <Rule TypeName="DoNotCastUnnecessarily" Category="Microsoft.Performance" CheckId="CA1800">
+    <Resolution Name="Parameter">{0}, a parameter, is cast to type {1} multiple times in method {2}. Cache the result of the 'as' operator or direct cast in order to eliminate the redundant {3} instruction.</Resolution>
+   </Rule>
+  </Rules>
+ </FxCopReport>
 </FxCopProject>
