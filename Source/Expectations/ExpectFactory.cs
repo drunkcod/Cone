@@ -46,8 +46,8 @@ namespace Cone.Expectations
         }
 
         static Func<Type, bool> ImplementsIMethodExpectProvider = typeof(IMethodExpectProvider).IsAssignableFrom;
-        static bool IsMethodExpectProvider(Type type) {
-            return type.IsPublic && type.IsClass && ImplementsIMethodExpectProvider(type);
+        public static bool IsMethodExpectProvider(Type type) {
+            return type.IsVisible && type.IsClass && ImplementsIMethodExpectProvider(type);
         }
 
         public IExpect From(Expression body) {

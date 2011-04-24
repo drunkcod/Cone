@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Linq.Expressions;
+using System.Reflection;
 using Cone.Expectations;
 
 namespace Cone
@@ -75,6 +74,24 @@ namespace Cone
 
         IExpect ExpectFrom(Expression<Func<bool>> expression) {
             return Expectory.From(expression.Body);
+        }
+
+        [Context("detecting custom IMethodExpect providers")]
+        public class CustomMethodExpectProviders 
+        {
+            public class NestedProvider : IMethodExpectProvider 
+            {
+                IEnumerable<MethodInfo> IMethodExpectProvider.GetSupportedMethods() {
+                    return new MethodInfo[0];
+                }
+
+                IExpect IMethodExpectProvider.GetExpectation(Expression body, System.Reflection.MethodInfo method, object target, IEnumerable<object> args) {
+                    throw new NotImplementedException();
+                }
+            }
+            public void public_nested_provider_is_detected() {
+                Verify.That(() => ExpectFactory.IsMethodExpectProvider(typeof(NestedProvider)));
+            }
         }
     }
 }

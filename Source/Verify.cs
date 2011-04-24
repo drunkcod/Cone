@@ -10,9 +10,11 @@ namespace Cone
     {
         public static Action<string> ExpectationFailed = message => { throw new ExpectationFailedException(message); };
         static readonly ParameterFormatter ParameterFormatter = new ParameterFormatter();
-        static readonly ExpectFactory Expect = new ExpectFactory();
+        static ExpectFactory expect;
         static internal Type Context;
         static ExpressionFormatter ExpressionFormatter = new ExpressionFormatter(typeof(Verify), ParameterFormatter);
+
+        static ExpectFactory Expect { get { return expect ?? (expect = new ExpectFactory()); } }
 
         public static object That(Expression<Func<bool>> expr) {
             return Check(From(expr.Body));
