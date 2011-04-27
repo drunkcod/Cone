@@ -16,5 +16,15 @@ namespace Cone
             with(Array.ConvertAll(values, x => (T)x));
             return true;
         }
+
+        public static T FirstOrDefault<T>(this ICustomAttributeProvider self, Func<T, bool> predicate) {
+            var values = Array.ConvertAll(self.GetCustomAttributes(typeof(T), true), x => (T)x);
+            for(var i = 0; i != values.Length; ++i) {
+                var item = values[i];
+                if(predicate(item))
+                    return item;
+            }
+            return default(T);
+        }
     }
 }

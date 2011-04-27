@@ -1,4 +1,12 @@
-.:[ Next - 0.0.2.19 ]:.
+.:[ 0.0.2.20 ]:.
+
+New Features
+[x] Flexible pending attributes
+
+Bug Fixes
+[x] Custom IMethodExpectProvider detection faile for user code
+
+.:[ 0.0.2.19 ]:.
 
 New Features
 [x] DisplayClass attribute
@@ -12,4 +20,4 @@ Bug Fixes
 [ ] R# integration
 [ ] Standalone console runner
 [ ] Standalone UI runner
-    [ ] Randomize exectuion order of tests
+    [ ] Randomize execution order of tests

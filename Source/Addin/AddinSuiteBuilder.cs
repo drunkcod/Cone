@@ -7,7 +7,7 @@ namespace Cone.Addin
     {
         protected override AddinSuite NewSuite(Type type, IFixtureDescription description, ConeTestNamer testNamer) {
             var suite = new AddinSuite(type, description.SuiteName, description.TestName, description.SuiteType, testNamer);
-            suite.Has<IPendingAttribute>(x => suite.Ignore(x[0].Reason));
+            suite.ProcessPendingAttributes(suite);
             return suite;
         }
     }
