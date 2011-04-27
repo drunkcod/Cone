@@ -1,7 +1,7 @@
 ﻿namespace Cone.Samples
 {
     [Describe(typeof(PendingAttribute))]
-    public class PendingAttributeSpec
+    public class PendingAttributeSamples
     {
         [Pending]
         public void without_reason() { }
@@ -15,9 +15,13 @@
         }
     }
 
-    [Describe(typeof(PendingSpecExample)), Pending]
-    public class PendingSpecExample 
-    {
+    [Describe(typeof(PendingSpecSample)), Pending]
+    public class PendingSpecSample {
+        public void this_is_pending() { }
+    }
+
+    [Feature("pending feature"), Pending]
+    public class PendingFeatureSample {
         public void this_is_pending() { }
     }
 }
