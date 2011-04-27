@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Cone.Samples
+﻿namespace Cone.Samples
 {
     [Describe(typeof(PendingAttribute))]
     public class PendingAttributeSpec
@@ -13,5 +8,10 @@ namespace Cone.Samples
 
         [Pending(Reason = "for some reason")]
         public void for_some_reason() { }
+
+        [Context("work in process context"), Pending]
+        public class WipContext {
+            public void children_will_be_pending() { }
+        }
     }
 }

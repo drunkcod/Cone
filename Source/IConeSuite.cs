@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Cone
 {
-    public interface IConeSuite
+    public interface IConeSuite : ICustomAttributeProvider
     {
         string Name { get; }
         void AddTestMethod(ConeMethodThunk testThunk);

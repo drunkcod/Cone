@@ -1,13 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Cone
 {
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class PendingAttribute : Attribute 
+    public interface IPendingAttribute 
     {
-        public string Reason;
+        bool IsPending { get; }
+        string Reason { get; }
+    }
+
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
+    public sealed class PendingAttribute : Attribute, IPendingAttribute
+    {
+        bool IPendingAttribute.IsPending { get { return true; } }
+
+        public string Reason { get; set; }
     }
 }

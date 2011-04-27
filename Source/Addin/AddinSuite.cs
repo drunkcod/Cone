@@ -75,7 +75,7 @@ namespace Cone.Addin
         }
         
         void IConeSuite.AddSubsuite(IConeSuite suite) {
-            Add((Test)suite);
+            AddWithAttributes(suite, (Test)suite);
         }
 
         void IConeSuite.AddRowTest(string name, MethodInfo method, IEnumerable<IRowData> rows) {
@@ -93,7 +93,7 @@ namespace Cone.Addin
         }
 
         void AddWithAttributes(ICustomAttributeProvider method, Test test) {
-            method.Has<PendingAttribute>(x => {
+            method.Has<IPendingAttribute>(x => {
                 test.RunState = RunState.Ignored;
                 test.IgnoreReason = x[0].Reason;
             });
@@ -102,6 +102,18 @@ namespace Cone.Addin
                 test.IgnoreReason = x[0].Reason;
             });
             Add(test);
+        }
+
+        object[] ICustomAttributeProvider.GetCustomAttributes(bool inherit) {
+            return type.GetCustomAttributes(inherit);
+        }
+
+        object[] ICustomAttributeProvider.GetCustomAttributes(Type attributeType, bool inherit) {
+            return type.GetCustomAttributes(attributeType, inherit);
+        }
+
+        bool ICustomAttributeProvider.IsDefined(Type attributeType, bool inherit) {
+            return type.IsDefined(attributeType, inherit);
         }
     }
 }
