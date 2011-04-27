@@ -14,4 +14,10 @@
             public void children_will_be_pending() { }
         }
     }
+
+    [Describe(typeof(PendingSpecExample)), Pending]
+    public class PendingSpecExample 
+    {
+        public void this_is_pending() { }
+    }
 }

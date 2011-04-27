@@ -93,10 +93,7 @@ namespace Cone.Addin
         }
 
         void AddWithAttributes(ICustomAttributeProvider method, Test test) {
-            method.Has<IPendingAttribute>(x => {
-                test.RunState = RunState.Ignored;
-                test.IgnoreReason = x[0].Reason;
-            });
+            method.Has<IPendingAttribute>(x => test.Ignore(x[0].Reason));
             method.Has<ExplicitAttribute>(x => {
                 test.RunState = RunState.Explicit;
                 test.IgnoreReason = x[0].Reason;

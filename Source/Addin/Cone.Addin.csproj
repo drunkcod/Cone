@@ -68,6 +68,7 @@
     <Compile Include="AddinSuite.cs" />
     <Compile Include="ConeTest.cs" />
     <Compile Include="ConeTestMethod.cs" />
+    <Compile Include="NUnitTestExtensions.cs" />
     <Compile Include="NUnitTestResultAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
