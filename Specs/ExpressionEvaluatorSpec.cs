@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace Cone
 {
@@ -13,7 +11,8 @@ namespace Cone
             Unsupported = x => { throw new NotSupportedException("Unsupported expression type:" + x.NodeType.ToString()); }
         };
 
-        T Evaluate<T>(Expression<Func<T>> lambda){ return (T)evaluator.Evaluate(lambda.Body, lambda, x => { throw x.Error; }).Value; }
+        T Evaluate<T>(Expression<Func<T>> lambda){ return Evaluate(lambda, x => { throw x.Exception; }); }
+        T Evaluate<T>(Expression<Func<T>> lambda, Func<EvaluationResult, EvaluationResult> onError){ return (T)evaluator.Evaluate(lambda.Body, lambda, onError).Value; }
 
         public void constant_evaluation() {
             Verify.That(() => Evaluate(() => 42) == 42);
@@ -109,5 +108,19 @@ namespace Cone
             Verify.That(() => formatter.Format(error.Expression) == "foo.ThisValueIsNull");
             Verify.That(() => formatter.Format(error.Context) == "foo.ThisValueIsNull.Length == 0");
         }
+
+        public void detect_errors_during_member_access() {
+            var formatter = new ExpressionFormatter(GetType());
+
+            try {
+                Evaluate(() => Throws<string>().Length, x => {
+                    Verify.That(() => formatter.Format(x.Expression) == "Throws!()");
+                    return x;
+                });
+                Verify.ExpectationFailed("should have raised exception");
+            } catch { }
+        }
+
+        T Throws<T>() { throw new NotImplementedException(); }
     }
 }

@@ -28,7 +28,7 @@ namespace Cone.Expectations
                 eval.NullSubexpression = (e, c) => { throw new NullSubexpressionException(e, c); };
             var result = eval.Evaluate(expression, expression, x => x);
             if(result.IsError)
-                return result.Error;
+                return result.Exception;
             return null;
         }
 

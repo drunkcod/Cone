@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NUnit.Framework;
 
 namespace Cone.Samples
@@ -43,16 +41,16 @@ namespace Cone.Samples
             }
         }
 
-        public void foo() {
-            Func<int> throws = () => { throw new InvalidOperationException(); }; 
-
-            Verify.Throws<ArgumentException>.When(() => throws() == 42); 
-        }
-
         public void report_failing_subexpression()
         {
             Func<int> throws = () => { throw new InvalidOperationException(); }; 
             Verify.That(() => throws() == 42); 
+        }
+
+        public void report_failing_subexpression_member_access() {
+            Func<string> throws = () => { throw new InvalidOperationException(); }; 
+
+            Verify.Throws<ArgumentException>.When(() => throws().Length == 42); 
         }
 
         int Throws() { throw new NotImplementedException(); }
@@ -76,6 +74,30 @@ namespace Cone.Samples
             return new RowBuilder<TutorialSpec>()
                 .Add(x => x.funky(input => input + 1, 1, 2))
                 .Add(x => x.funky(null, 0, 0));
+        }
+
+        [Context("when using fluent interfaces")]
+        public class FluentInterfaces 
+        {
+            public class MyDsl 
+            {
+                public class Stuff {
+                    public string ThisPropertyThrows { get { throw new NotImplementedException(); } }
+                    public string ThisThrows() { throw new NotImplementedException(); }
+                }
+
+                public Stuff TakeItToAnohterLevel { get { return new Stuff(); } }
+            }
+
+            public void when_things_throw() {
+                Verify.That(() => new MyDsl.Stuff().ThisThrows().Length == 0);
+
+            }
+
+            public void when_nested_things_throw() {
+                Verify.That(() => new MyDsl().TakeItToAnohterLevel.ThisThrows() == "");
+
+            }
         }
 
     }

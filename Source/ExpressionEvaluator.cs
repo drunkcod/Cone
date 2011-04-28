@@ -14,7 +14,7 @@ namespace Cone
         }
        
         public EvaluationResult Evaluate(Expression body, Expression context) { 
-            return Evaluate(body, context, x => { throw new ExceptionExpressionException(body, context, x.Error); });
+            return Evaluate(body, context, x => { throw new ExceptionExpressionException(x.Expression, context, x.Exception); });
         }
 
         public EvaluationResult Evaluate(Expression body, Expression context, Func<EvaluationResult, EvaluationResult> onError) {
@@ -43,12 +43,12 @@ namespace Cone
             try {
                 return EvaluationResult.Success(Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object))).Compile()());
             } catch(Exception e) {
-                return EvaluationResult.Failure(e);
+                return EvaluationResult.Failure(expression, e);
             }
         }
 
         EvaluationResult EvaluateNullSubexpression(Expression expression, Expression context) {
-            return EvaluationResult.Failure(new NullSubexpressionException(context, expression));
+            return EvaluationResult.Failure(expression, new NullSubexpressionException(context, expression));
         }
     }
 }

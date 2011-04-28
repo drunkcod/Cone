@@ -39,7 +39,7 @@ namespace Cone
             if(expression == null)
                 return Success(null);
             var target = Evaluate(expression);
-            if(target.IsError || target.Value == null)
+            if(!target.IsError && target.Value == null)
                 return NullSubexpression(expression, context);
             return target;
         }
@@ -100,7 +100,7 @@ namespace Cone
             try {
                 return Success(method.Invoke(target.Value, input));
             } catch(TargetInvocationException e) {
-                return Failure(e.InnerException);
+                return Failure(expression, e.InnerException);
             } finally {
                 AssignOutParameters(expression.Arguments, input, method.GetParameters());
             }
@@ -126,7 +126,7 @@ namespace Cone
                 try {
                     return Success(convertMethod.Invoke(null, new[] { source }));
                 } catch(TargetInvocationException e) {
-                    return Failure(e.InnerException);
+                    return Failure(expression, e.InnerException);
                 }
             }
             var value = GetConverter(expression)(source);
@@ -141,7 +141,7 @@ namespace Cone
                     return target;
                 return Success(GetValue(target.Value, expression.Member));
             } catch(TargetInvocationException e) {
-                return Failure(e.InnerException);
+                return Failure(expression, e.InnerException);
             }
         }
 
@@ -153,7 +153,7 @@ namespace Cone
                     return Success(expression.Constructor.Invoke(args));
                 return Success(Activator.CreateInstance(expression.Type, args));
             } catch(TargetInvocationException e) {
-                return Failure(e.InnerException);
+                return Failure(expression, e.InnerException);
             }
         }
 
@@ -178,7 +178,7 @@ namespace Cone
                 var args = EvaluateAll(expression.Arguments).Value as object[];
                 return Success(target.DynamicInvoke(args));
             } catch(TargetInvocationException e) {
-                return Failure(e.InnerException);
+                return Failure(expression, e.InnerException);
             }
         }
 
@@ -218,6 +218,6 @@ namespace Cone
         }
 
         EvaluationResult Success(object value){ return EvaluationResult.Success(value); }
-        EvaluationResult Failure(Exception e){ return EvaluationResult.Failure(e); } 
+        EvaluationResult Failure(Expression expression, Exception e){ return EvaluationResult.Failure(expression, e); } 
     }
 }

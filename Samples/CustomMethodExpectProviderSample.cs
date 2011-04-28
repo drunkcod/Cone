@@ -38,7 +38,7 @@ namespace Cone.Samples
             Verify.That(() => browser.AtUrl("/"));
         }
 
-        //here's how to modify it
+        //here's one way to modify it
 
         //Step 1 - create a IMethodExpectProvider
         public class BrowserExtensionsMethodExpectProvider : IMethodExpectProvider
