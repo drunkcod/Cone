@@ -62,8 +62,9 @@
     <Compile Include="Expectations\ExpectMessages.cs" />
     <Compile Include="Expectations\IExpect.cs" />
     <Compile Include="Expectations\IMethodExpectProvider.cs" />
-    <Compile Include="Expectations\MethodExpect.cs" />
+    <Compile Include="Expectations\MemberMethodExpect.cs" />
     <Compile Include="Expectations\NotExpect.cs" />
+    <Compile Include="Expectations\StaticMethodExpect.cs" />
     <Compile Include="Expectations\StringMethodExpect.cs" />
     <Compile Include="Expectations\StringEqualExpect.cs" />
     <Compile Include="ExpressionEvaluator.cs" />

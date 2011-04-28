@@ -10,8 +10,7 @@ namespace Cone.Expectations
 
         public StringMethodsProvider() {
             var s = typeof(string);
-            methodDisplay = new Dictionary<MethodInfo,string>()
-            {
+            methodDisplay = new Dictionary<MethodInfo,string> {
                 { s.GetMethod("Contains"), "string containing" },
                 { s.GetMethod("EndsWith", new[]{ s }), "a string ending with" }
             };
@@ -26,7 +25,7 @@ namespace Cone.Expectations
         }
     }
 
-    public class StringMethodExpect : MethodExpect
+    public class StringMethodExpect : MemberMethodExpect
     {
         readonly string methodDisplay;
 

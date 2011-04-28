@@ -3,21 +3,25 @@ using System.Reflection;
 
 namespace Cone.Expectations
 {
-    public class MethodExpect : IExpect 
+    public abstract class MethodExpect : IExpect
     {
         readonly Expression body;
         readonly MethodInfo method;
-        protected readonly object target;
         protected readonly object[] arguments;
 
-        public MethodExpect(Expression body, MethodInfo method, object target, object[] arguments) {
+        protected MethodExpect(Expression body, MethodInfo method, object[] arguments) {
             this.body = body;
             this.method = method;
-            this.target = target;
             this.arguments = arguments;
         }
 
-        protected virtual object Actual { get { return target; } }
+        protected abstract object Target { get; }
+        protected abstract object Actual { get ; }
+
+        protected virtual string FormatActual(IFormatter<object> formatter) {
+            return formatter.Format(Actual);
+        }
+
         protected virtual string FormatExpected(IFormatter<object> formatter) { 
             return method.Name; 
         }
@@ -25,7 +29,7 @@ namespace Cone.Expectations
         ExpectResult IExpect.Check() {
             return new ExpectResult {
                 Actual = Actual,
-                Success = (bool)method.Invoke(target, arguments)
+                Success = (bool)method.Invoke(Target, arguments)
             };
         }
 
@@ -36,8 +40,20 @@ namespace Cone.Expectations
         public virtual string FormatMessage(IFormatter<object> formatter) {
             return string.Format(
                 ExpectMessages.EqualFormat,
-                formatter.Format(Actual),
+                FormatActual(formatter),
                 FormatExpected(formatter));
         }
+    }
+
+    public class MemberMethodExpect : MethodExpect
+    {
+        readonly object target;
+
+        public MemberMethodExpect(Expression body, MethodInfo method, object target, object[] arguments): base(body, method, arguments) {
+            this.target = target;
+        }
+
+        protected override object Target { get { return target; } }
+        protected override object Actual { get { return Target; } }
     }
 }
