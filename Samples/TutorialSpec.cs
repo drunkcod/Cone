@@ -50,7 +50,7 @@ namespace Cone.Samples
         public void report_failing_subexpression_member_access() {
             Func<string> throws = () => { throw new InvalidOperationException(); }; 
 
-            Verify.Throws<ArgumentException>.When(() => throws().Length == 42); 
+            Verify.That(() => throws().Length == 42); 
         }
 
         int Throws() { throw new NotImplementedException(); }
