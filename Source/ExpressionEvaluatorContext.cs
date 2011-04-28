@@ -123,11 +123,7 @@ namespace Cone
             var source = Evaluate(expression.Operand).Value;
             var convertMethod = expression.Method;
             if(convertMethod != null && convertMethod.IsStatic) {
-                try {
-                    return Success(convertMethod.Invoke(null, new[] { source }));
-                } catch(TargetInvocationException e) {
-                    return Failure(expression, e.InnerException);
-                }
+                return GuardedInvocation(expression, () => Success(convertMethod.Invoke(null, new[] { source })));
             }
             var value = GetConverter(expression)(source);
             return Success(value);
@@ -135,26 +131,31 @@ namespace Cone
 
         EvaluationResult EvaluateMemberAccess(Expression expression) { return EvaluateMemberAccess((MemberExpression)expression); }
         EvaluationResult EvaluateMemberAccess(MemberExpression expression) {
-            try {
+            return GuardedInvocation(expression, () => {
                 var target = EvaluateAsTarget(expression.Expression);
                 if(target.IsError)
                     return target;
                 return Success(GetValue(target.Value, expression.Member));
-            } catch(TargetInvocationException e) {
-                return Failure(expression, e.InnerException);
-            }
+            });
         }
 
         EvaluationResult EvaluateNew(Expression expression) { return EvaluateNew((NewExpression)expression); }
         EvaluationResult EvaluateNew(NewExpression expression) {
-            try {
+            return GuardedInvocation(expression, () => {
                 var args = EvaluateAll(expression.Arguments).Value as object[];
                 if(expression.Constructor != null)
                     return Success(expression.Constructor.Invoke(args));
                 return Success(Activator.CreateInstance(expression.Type, args));
+            });
+        }
+
+        EvaluationResult GuardedInvocation(Expression expression, Func<EvaluationResult> action) {
+            try {
+                return action();
             } catch(TargetInvocationException e) {
                 return Failure(expression, e.InnerException);
             }
+        
         }
 
         EvaluationResult EvaluateAll(ICollection<Expression> expressions) {
@@ -174,12 +175,7 @@ namespace Cone
         EvaluationResult EvaluateInvoke(Expression expression) { return EvaluateInvoke((InvocationExpression)expression); }
         EvaluationResult EvaluateInvoke(InvocationExpression expression) {
             var target = Evaluate(expression.Expression).Value as Delegate;
-            try {
-                var args = EvaluateAll(expression.Arguments).Value as object[];
-                return Success(target.DynamicInvoke(args));
-            } catch(TargetInvocationException e) {
-                return Failure(expression, e.InnerException);
-            }
+            return GuardedInvocation(expression, () => Success(target.DynamicInvoke(EvaluateAll(expression.Arguments).Value as object[])));
         }
 
         ExpressionEvaluatorContext Rebind(Expression context) {

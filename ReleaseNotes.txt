@@ -5,6 +5,7 @@ New Features
 
 Bug Fixes
 [x] Custom IMethodExpectProvider detection faile for user code
+[x] Subexpression exceptions was wrongly reported as NullSubexpressions leading to much confusion. 
 
 .:[ 0.0.2.19 ]:.
 
