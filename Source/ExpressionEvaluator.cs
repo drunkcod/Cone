@@ -18,7 +18,7 @@ namespace Cone
         }
 
         public EvaluationResult Evaluate(Expression body, Expression context, Func<EvaluationResult, EvaluationResult> onError) {
-            var result = EvaluateCore(body, CreateContext(context));
+            var result = CreateContext(context).Evaluate(body);
             if(result.IsError)
                 return onError(result);
             return result;
@@ -35,13 +35,9 @@ namespace Cone
             };
         }
 
-        EvaluationResult EvaluateCore(Expression body, ExpressionEvaluatorContext context) {
-            return context.Evaluate(body);
-        }
-
         EvaluationResult EvaluateUnsupported(Expression expression) {
             try {
-                return EvaluationResult.Success(Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object))).Compile()());
+                return EvaluationResult.Success(Expression.Lambda<Func<object>>(expression.Box()).Compile()());
             } catch(Exception e) {
                 return EvaluationResult.Failure(expression, e);
             }

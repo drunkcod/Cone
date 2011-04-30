@@ -1,53 +1,48 @@
-﻿using System.Linq.Expressions;
-using System;
-using System.Reflection;
-using System.Diagnostics;
-using System.Collections;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Cone.Expectations
 {
     public class ExpectFactory
     {
-        delegate Expect Expector<TValue>(BinaryExpression expression, TValue left, TValue right);
+        delegate Expect Expector(BinaryExpression body, object left, object right);
 
-        static readonly Expector<object> EqualExpector = MakeExpector<object>(typeof(EqualExpect));     
-        static readonly Expector<object> NotEqualExpector = MakeExpector<object>(typeof(NotEqualExpect));     
-        static readonly Expector<object> BinaryExpector = MakeExpector<object>(typeof(BinaryExpect));
-        static readonly Expector<object> LessThanExpector = MakeExpector<object>(typeof(LessThanExpect));     
-        static readonly Expector<object> LessThanOrEqualExpector = MakeExpector<object>(typeof(LessThanOrEqualExpect));     
-        static readonly Expector<object> GreaterThanExpector = MakeExpector<object>(typeof(GreaterThanExpect));     
-        static readonly Expector<object> GreaterThanOrEqualExpector = MakeExpector<object>(typeof(GreaterThanOrEqualExpect));     
-        static readonly Expector<string> StringEqualExpector = MakeExpector<string>(typeof(StringEqualExpect));
+        static readonly Expector EqualExpector = MakeExpector(typeof(EqualExpect));     
+        static readonly Expector NotEqualExpector = MakeExpector(typeof(NotEqualExpect));     
+        static readonly Expector BinaryExpector = MakeExpector(typeof(BinaryExpect));
+        static readonly Expector LessThanExpector = MakeExpector(typeof(LessThanExpect));     
+        static readonly Expector LessThanOrEqualExpector = MakeExpector(typeof(LessThanOrEqualExpect));     
+        static readonly Expector GreaterThanExpector = MakeExpector(typeof(GreaterThanExpect));     
+        static readonly Expector GreaterThanOrEqualExpector = MakeExpector(typeof(GreaterThanOrEqualExpect));
         static readonly ExpressionEvaluator Evaluator = new ExpressionEvaluator();
 
-        static Expector<TValue> MakeExpector<TValue>(Type expectType) {
-            var arguments = new[] { typeof(BinaryExpression), typeof(TValue), typeof(TValue) };
+        static Expector MakeExpector(Type expectType) {
+            var arguments = new[] { typeof(BinaryExpression), typeof(object), typeof(object) };
             var parameters = new[] {
                 Expression.Parameter(arguments[0], "body"),
                 Expression.Parameter(arguments[1], "left"),
                 Expression.Parameter(arguments[2], "right")
             };
-            return Expression.Lambda<Expector<TValue>>(
-                Expression.New(expectType.GetConstructor(arguments), parameters), parameters).Compile();
+            return Expression.Lambda<Expector>(Expression.New(expectType.GetConstructor(arguments), parameters), parameters).Compile();
         }
 
         readonly IDictionary<MethodInfo, IMethodExpectProvider> methodExpects = new Dictionary<MethodInfo, IMethodExpectProvider>();
 
         public ExpectFactory() {
-            var providers = AppDomain.CurrentDomain.GetAssemblies()
+            var providers = AppDomain.CurrentDomain.GetAssemblies()                
                 .SelectMany(x => x.GetTypes())
                 .Where(IsMethodExpectProvider)
-                .Select(x => x.GetConstructor(Type.EmptyTypes).Invoke(null) as IMethodExpectProvider);
+                .Select(x => x.New() as IMethodExpectProvider);
             foreach(var provider in providers)
                 foreach(var method in provider.GetSupportedMethods())
                     methodExpects[method] = provider;
         }
 
-        static Func<Type, bool> ImplementsIMethodExpectProvider = typeof(IMethodExpectProvider).IsAssignableFrom;
         public static bool IsMethodExpectProvider(Type type) {
-            return type.IsVisible && type.IsClass && ImplementsIMethodExpectProvider(type);
+            return type.IsVisible && type.IsClass && type.Implements<IMethodExpectProvider>();
         }
 
         public IExpect From(Expression body) {
@@ -81,48 +76,46 @@ namespace Cone.Expectations
         IExpect Lambda(Expression body) {
             var binary = body as BinaryExpression;
             if (binary != null)
-                return FromBinary(binary);
+                return Binary(binary);
             if(body.NodeType == ExpressionType.TypeIs)
-                return FromTypeIs((TypeBinaryExpression)body);
-            return FromSingle(body);
+                return TypeIs((TypeBinaryExpression)body);
+            return Unary(body);
         }
 
-        IExpect FromSingle(Expression body) {
+        IExpect Unary(Expression body) {
             if(body.NodeType == ExpressionType.Call)
-                return FromCall((MethodCallExpression)body);
+                return Method((MethodCallExpression)body);
             return Boolean(body);
         }
 
-        IExpect FromCall(MethodCallExpression body) {
+        IExpect Method(MethodCallExpression body) {
             IMethodExpectProvider provider;
             var method = body.Method;
             if(methodExpects.TryGetValue(method, out provider)) {
                 var target = Evaluator.EvaluateAsTarget(body.Object, body).Value;
-                var args = new object[body.Arguments.Count];
-                for(int i = 0; i != args.Length; ++i)
-                    args[i] = EvaluateAs<object>(body.Arguments[i]);
+                var args = body.Arguments.ConvertAll(EvaluateAs<object>);
                 return provider.GetExpectation(body, method, target, args);
             }
-            return Boolean(body);;
+            return Boolean(body);
         }
 
         IExpect Boolean(Expression body) {
             return new BooleanExpect(body, EvaluateAs<bool>(body));
         }
 
-        static Expect FromBinary(BinaryExpression body) {
+        static Expect Binary(BinaryExpression body) {
             var left = Evaluate(body.Left, body);
             var right = Evaluate(body.Right, body);
 
             if(body.NodeType == ExpressionType.Equal
             && body.Left.Type == typeof(string) 
             && body.Right.Type == typeof(string)) {
-                return StringEqualExpector(body, (string)left, (string)right);
+                return new StringEqualExpect(body, (string)left, (string)right);
             }
             return GetExpector(body.NodeType)(body, left, right);
         }
 
-        static Expector<object> GetExpector(ExpressionType op) {
+        static Expector GetExpector(ExpressionType op) {
             switch(op) {
                 case ExpressionType.Equal: return EqualExpector;
                 case ExpressionType.NotEqual: return NotEqualExpector;
@@ -137,7 +130,7 @@ namespace Cone.Expectations
         static T EvaluateAs<T>(Expression body) { return (T)Evaluate(body, body); }
         static object Evaluate(Expression body, Expression context) { return Evaluator.Evaluate(body, context).Value; }
 
-        static Expect FromTypeIs(TypeBinaryExpression body) {
+        static Expect TypeIs(TypeBinaryExpression body) {
             return new TypeIsExpect(body,
                 Evaluate(body.Expression, body).GetType(), 
                 body.TypeOperand);

@@ -17,5 +17,13 @@ namespace Cone
             value = default(TOut);
             return false;
         }
+
+        public static object New(this Type self) {
+            return self.GetConstructor(Type.EmptyTypes).Invoke(null);
+        }
+
+        public static bool Implements<T>(this Type self) {
+            return typeof(T).IsAssignableFrom(self);
+        }
     }
 }
