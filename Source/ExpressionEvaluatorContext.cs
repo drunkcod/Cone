@@ -36,10 +36,8 @@ namespace Cone
         public EvaluationResult EvaluateAsTarget(Expression expression) {
             if(expression == null)
                 return Success(null);
-            var target = Evaluate(expression);
-            if(!target.IsError && target.Value == null)
-                return NullSubexpression(expression, context);
-            return target;
+            return Evaluate(expression)
+                .Maybe(result => result.Value == null ? NullSubexpression(expression, context) : result);
         }
 
         EvaluationResult EvaluateLambda(Expression expression) { return EvaluateLambda((LambdaExpression)expression); }
@@ -64,40 +62,34 @@ namespace Cone
 
         EvaluationResult EvaluateBinary(Expression expression) { return EvaluateBinary((BinaryExpression)expression); }
         EvaluationResult EvaluateBinary(BinaryExpression binary) {
-            var left = Evaluate(binary.Left);
-            if(left.IsError)
-                return left;
+            return Evaluate(binary.Left).Maybe(
+                left => Evaluate(binary.Right).Maybe(right => {
+                    var parameters = new[] { 
+                        left.Value, 
+                        right.Value
+                    };
 
-            var right = Evaluate(binary.Right);
-            if(right.IsError)
-                return right;
-
-            var parameters = new[] { 
-                left.Value, 
-                right.Value
-            };
-
-            var op = binary.Method;
-            if(op != null)
-                return Success(op.Invoke(null, parameters));
-            switch(binary.NodeType) {
-                case ExpressionType.Equal: return Success(Object.Equals(parameters[0], parameters[1]));
-                case ExpressionType.NotEqual: return Success(!Object.Equals(parameters[0], parameters[1]));
-                default: return Unsupported(binary);
-            }
+                    var op = binary.Method;
+                    if(op != null)
+                        return Success(op.Invoke(null, parameters));
+                    switch(binary.NodeType) {
+                        case ExpressionType.Equal: return Success(Object.Equals(parameters[0], parameters[1]));
+                        case ExpressionType.NotEqual: return Success(!Object.Equals(parameters[0], parameters[1]));
+                        default: return Unsupported(binary);
+                    }
+                }));
         }
 
         EvaluationResult EvaluateCall(Expression expression) { return EvaluateCall((MethodCallExpression)expression); }
         EvaluationResult EvaluateCall(MethodCallExpression expression) {
-            var target = EvaluateAsTarget(expression.Object);
-            if(target.IsError)
-                return target;
-            var input = EvaluateAll(expression.Arguments).Value as object[];
-            var method = expression.Method;
+            return EvaluateAsTarget(expression.Object).Maybe(target => {
+                var input = EvaluateAll(expression.Arguments).Value as object[];
+                var method = expression.Method;
 
-            return GuardedInvocation(expression, 
-                () => Success(method.Invoke(target.Value, input)), 
-                () => AssignOutParameters(expression.Arguments, input, method.GetParameters()));
+                return GuardedInvocation(expression, 
+                    () => Success(method.Invoke(target.Value, input)), 
+                    () => AssignOutParameters(expression.Arguments, input, method.GetParameters()));
+            });
         }
 
         void AssignOutParameters(IList<Expression> arguments, object[] results, ParameterInfo[] parameters) {
@@ -128,12 +120,9 @@ namespace Cone
 
         EvaluationResult EvaluateMemberAccess(Expression expression) { return EvaluateMemberAccess((MemberExpression)expression); }
         EvaluationResult EvaluateMemberAccess(MemberExpression expression) {
-            return GuardedInvocation(expression, () => {
-                var target = EvaluateAsTarget(expression.Expression);
-                if(target.IsError)
-                    return target;
-                return Success(GetValue(target.Value, expression.Member));
-            });
+            return GuardedInvocation(expression, () =>
+                EvaluateAsTarget(expression.Expression)
+                    .Maybe(x => Success(GetValue(x.Value, expression.Member))));
         }
 
         EvaluationResult EvaluateNew(Expression expression) { return EvaluateNew((NewExpression)expression); }

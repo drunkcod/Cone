@@ -19,7 +19,7 @@ namespace Cone
 
         public object Value { 
             get {
-                if(IsError)
+                if(isError)
                     throw Exception;
                 return value; 
             } 
@@ -31,5 +31,11 @@ namespace Cone
         public bool IsError { get { return isError; } }
 
         EvaluationError Error { get { return (EvaluationError)value; } }
+
+        public EvaluationResult Maybe(Func<EvaluationResult, EvaluationResult> next) {
+            if(isError)
+                return this;
+            return next(this);
+        }
     }
 }
