@@ -79,7 +79,7 @@ namespace Cone.Addin
         }
 
         void IConeSuite.AddRowTest(string name, MethodInfo method, IEnumerable<IRowData> rows) {
-            GetSuite(method, name).Add(rows, testNamer);
+            GetSuite(method, name).Add(rows);
         }
 
         ConeRowSuite GetSuite(MethodInfo method, string name) {
@@ -94,10 +94,7 @@ namespace Cone.Addin
 
         void AddWithAttributes(ICustomAttributeProvider method, Test test) {
             test.ProcessPendingAttributes(method);           
-            method.Has<ExplicitAttribute>(x => {
-                test.RunState = RunState.Explicit;
-                test.IgnoreReason = x[0].Reason;
-            });
+            test.ProcessExplicitAttributes(method);
             Add(test);
         }
 
