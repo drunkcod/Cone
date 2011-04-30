@@ -38,7 +38,7 @@ namespace Cone.Addin
         }
     }
 
-    public partial class ConeSuiteSpec
+    public partial class AddinSuiteSpec
     {
         [Context("row based tests")]
         public class RowTests

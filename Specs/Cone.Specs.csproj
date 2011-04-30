@@ -56,9 +56,9 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Addin\ConeSuiteSpec.cs" />
+    <Compile Include="Addin\AddinSuiteSpec.cs" />
     <Compile Include="Addin\ConeSuiteSpec.RowTests.cs">
-      <DependentUpon>ConeSuiteSpec.cs</DependentUpon>
+      <DependentUpon>AddinSuiteSpec.cs</DependentUpon>
     </Compile>
     <Compile Include="Addin\NUnitTestResultAdapterSpec.cs" />
     <Compile Include="BinaryExpectSpec.cs" />
