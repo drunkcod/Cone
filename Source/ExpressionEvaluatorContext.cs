@@ -82,14 +82,14 @@ namespace Cone
 
         EvaluationResult EvaluateCall(Expression expression) { return EvaluateCall((MethodCallExpression)expression); }
         EvaluationResult EvaluateCall(MethodCallExpression expression) {
-            return EvaluateAsTarget(expression.Object).Maybe(target => {
-                var input = EvaluateAll(expression.Arguments).Value as object[];
-                var method = expression.Method;
-
-                return GuardedInvocation(expression, 
-                    () => Success(method.Invoke(target.Value, input)), 
-                    () => AssignOutParameters(expression.Arguments, input, method.GetParameters()));
-            });
+            return EvaluateAsTarget(expression.Object).Maybe(target => 
+                EvaluateAll(expression.Arguments).Maybe(arguments => {
+                    var method = expression.Method;
+                    var input = (object[])arguments.Value;
+                    return GuardedInvocation(expression, 
+                        () => Success(method.Invoke(target.Value, input)), 
+                        () => AssignOutParameters(expression.Arguments, input, method.GetParameters()));
+                }));
         }
 
         void AssignOutParameters(IList<Expression> arguments, object[] results, ParameterInfo[] parameters) {
@@ -141,7 +141,13 @@ namespace Cone
 
         EvaluationResult EvaluateAll(ICollection<Expression> expressions) {
             var result = new object[expressions.Count];
-            expressions.ForEach((index, item) => result[index] = Evaluate(item).Value);
+            var index = 0;
+            foreach(var item in expressions) {
+                var x = Evaluate(item);
+                if(x.IsError)
+                    return x;
+                result[index++] = x.Value;
+            }
             return Success(result);
         }
 

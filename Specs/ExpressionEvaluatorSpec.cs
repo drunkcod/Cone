@@ -13,6 +13,10 @@ namespace Cone
 
         T Evaluate<T>(Expression<Func<T>> lambda){ return Evaluate(lambda, x => { throw x.Exception; }); }
         T Evaluate<T>(Expression<Func<T>> lambda, Func<EvaluationResult, EvaluationResult> onError){ return (T)evaluator.Evaluate(lambda.Body, lambda, onError).Value; }
+        void EvaluateError<T>(Expression<Func<T>> lambda, Func<EvaluationResult, EvaluationResult> onError) { 
+            var result = evaluator.Evaluate(lambda.Body, lambda, onError);
+            Verify.That(() => result.IsError);
+        }
 
         public void constant_evaluation() {
             Verify.That(() => Evaluate(() => 42) == 42);
@@ -112,13 +116,19 @@ namespace Cone
         public void detect_errors_during_member_access() {
             var formatter = new ExpressionFormatter(GetType());
 
-            try {
-                Evaluate(() => Throws<string>().Length, x => {
-                    Verify.That(() => formatter.Format(x.Expression) == "Throws!()");
-                    return x;
-                });
-                Verify.ExpectationFailed("should have raised exception");
-            } catch { }
+            EvaluateError(() => Throws<string>().Length, x => {
+                Verify.That(() => formatter.Format(x.Expression) == "Throws()");
+                return x; 
+            });
+        }
+
+        public void detect_errors_when_computing_arguments() {
+            var formatter = new ExpressionFormatter(GetType());
+
+            EvaluateError(() => Object.Equals(Throws<string>(), ""), x => {
+                Verify.That(() => formatter.Format(x.Expression) == "Throws()");
+                return x; 
+            });
         }
 
         T Throws<T>() { throw new NotImplementedException(); }
