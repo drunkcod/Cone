@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Linq.Expressions;
 
 namespace Cone
@@ -14,10 +11,20 @@ namespace Cone
 
         public static void Execute(this Expression<Action> expression) { expression.Compile()(); }
 
+        public static Expression Box(this Expression self) {
+            if(self.Type.IsValueType)
+                return self.Convert(typeof(object));
+            return self;
+        }
+
         public static Expression CastTo<T>(this Expression expression) {
             if(expression.Type == typeof(T))
                 return expression;
             return Expression.TypeAs(expression, typeof(T)); 
+        }
+
+        public static Expression Convert(this Expression self, Type type) {
+            return Expression.Convert(self, type);
         }
     }
 }

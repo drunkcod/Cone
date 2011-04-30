@@ -82,6 +82,7 @@
     <Compile Include="ITestName.cs" />
     <Compile Include="ITestResult.cs" />
     <Compile Include="NullSubexpressionException.cs" />
+    <Compile Include="ObjectConverter.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="ObjectInspector.cs" />
     <Compile Include="ParameterFormatter.cs" />

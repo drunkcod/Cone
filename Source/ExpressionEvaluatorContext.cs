@@ -7,8 +7,6 @@ namespace Cone
 {
     class ExpressionEvaluatorContext 
     {
-        static readonly Dictionary<KeyValuePair<Type, Type>, Func<object, object>> converters = new Dictionary<KeyValuePair<Type, Type>,Func<object,object>>();
-
         readonly Expression context;
 
         public Func<Expression,EvaluationResult> Unsupported;
@@ -97,13 +95,9 @@ namespace Cone
             var input = EvaluateAll(expression.Arguments).Value as object[];
             var method = expression.Method;
 
-            try {
-                return Success(method.Invoke(target.Value, input));
-            } catch(TargetInvocationException e) {
-                return Failure(expression, e.InnerException);
-            } finally {
-                AssignOutParameters(expression.Arguments, input, method.GetParameters());
-            }
+            return GuardedInvocation(expression, 
+                () => Success(method.Invoke(target.Value, input)), 
+                () => AssignOutParameters(expression.Arguments, input, method.GetParameters()));
         }
 
         void AssignOutParameters(IList<Expression> arguments, object[] results, ParameterInfo[] parameters) {
@@ -125,8 +119,11 @@ namespace Cone
             if(convertMethod != null && convertMethod.IsStatic) {
                 return GuardedInvocation(expression, () => Success(convertMethod.Invoke(null, new[] { source })));
             }
-            var value = GetConverter(expression)(source);
-            return Success(value);
+            return Success(ChangeType(source, expression.Type));
+        }
+
+        object ChangeType(object value, Type to) {
+            return ObjectConverter.ChangeType(value, to);
         }
 
         EvaluationResult EvaluateMemberAccess(Expression expression) { return EvaluateMemberAccess((MemberExpression)expression); }
@@ -149,13 +146,13 @@ namespace Cone
             });
         }
 
-        EvaluationResult GuardedInvocation(Expression expression, Func<EvaluationResult> action) {
+        EvaluationResult GuardedInvocation(Expression expression, Func<EvaluationResult> action) { return GuardedInvocation(expression, action, () => {}); }
+        EvaluationResult GuardedInvocation(Expression expression, Func<EvaluationResult> action, Action @finally) {
             try {
                 return action();
             } catch(TargetInvocationException e) {
                 return Failure(expression, e.InnerException);
-            }
-        
+            } finally { @finally(); }
         }
 
         EvaluationResult EvaluateAll(ICollection<Expression> expressions) {
@@ -193,24 +190,6 @@ namespace Cone
                     return (member as PropertyInfo).GetValue(target, null);
                 default: throw new NotSupportedException();
             }
-        }
-
-        static Func<object, object> GetConverter(UnaryExpression conversion) {
-            var key = ConverterKey(conversion);
-            Func<object, object> converter;
-            if(converters.TryGetValue(key, out converter)) 
-                return converter;
-
-            var input = Expression.Parameter(typeof(object), "input");
-            return converters[key] = 
-                    Expression.Lambda<Func<object, object>>(
-                        Expression.Convert(
-                            Expression.Convert(
-                                Expression.Convert(input, key.Key), key.Value), typeof(object)), input).Compile();
-        }
-
-        static KeyValuePair<Type, Type> ConverterKey(UnaryExpression conversion) {
-            return new KeyValuePair<Type,Type>(conversion.Operand.Type, conversion.Type);
         }
 
         EvaluationResult Success(object value){ return EvaluationResult.Success(value); }
