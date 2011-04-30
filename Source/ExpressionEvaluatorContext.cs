@@ -99,8 +99,7 @@ namespace Cone
                 if(parameters[i].IsOut) {
                     var member = (arguments[i] as MemberExpression);
                     var field = member.Member as FieldInfo;
-                    var memberContext = Rebind(member.Expression);
-                    field.SetValue(memberContext.Evaluate(member.Expression).Value, results[i]);
+                    field.SetValue(Rebind(member.Expression).Evaluate(member.Expression).Value, results[i]);
                 }
         }
         
@@ -114,15 +113,11 @@ namespace Cone
             return Success(ChangeType(source, expression.Type));
         }
 
-        object ChangeType(object value, Type to) {
-            return ObjectConverter.ChangeType(value, to);
-        }
-
         EvaluationResult EvaluateMemberAccess(Expression expression) { return EvaluateMemberAccess((MemberExpression)expression); }
         EvaluationResult EvaluateMemberAccess(MemberExpression expression) {
             return GuardedInvocation(expression, () =>
                 EvaluateAsTarget(expression.Expression)
-                    .Maybe(x => Success(GetValue(x.Value, expression.Member))));
+                    .Maybe(x => Success(expression.Member.GetValue(x.Value))));
         }
 
         EvaluationResult EvaluateNew(Expression expression) { return EvaluateNew((NewExpression)expression); }
@@ -171,14 +166,8 @@ namespace Cone
             };
         }
 
-        static object GetValue(object target, MemberInfo member) {
-            switch(member.MemberType) {
-                case MemberTypes.Field: 
-                    return (member as FieldInfo).GetValue(target);
-                case MemberTypes.Property:
-                    return (member as PropertyInfo).GetValue(target, null);
-                default: throw new NotSupportedException();
-            }
+        object ChangeType(object value, Type to) {
+            return ObjectConverter.ChangeType(value, to);
         }
 
         EvaluationResult Success(object value){ return EvaluationResult.Success(value); }
