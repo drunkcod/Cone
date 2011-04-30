@@ -141,10 +141,7 @@ namespace Cone
 
         EvaluationResult EvaluateAll(ICollection<Expression> expressions) {
             var result = new object[expressions.Count];
-            var index = 0;
-            foreach(var item in expressions) {
-                result[index++] = Evaluate(item).Value;
-            }
+            expressions.ForEach((index, item) => result[index] = Evaluate(item).Value);
             return Success(result);
         }
 

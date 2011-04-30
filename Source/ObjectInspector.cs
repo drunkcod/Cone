@@ -28,15 +28,17 @@ namespace Cone
 
             var result = new StringBuilder("{");
             var sep = " ";
-            foreach(var item in type.GetMembers(BindingFlags.Public | BindingFlags.Instance).OrderBy(x => x.Name)) {
-                object value;
-                if(!TryGetValue(obj, item, out value))
-                    continue;
-                if(value == obj)
-                    value = "this";
-                result.AppendFormat(formatProvider, "{0}{1} = {2}", sep, item.Name, Inspect(value));
-                sep = ", ";
-            }
+            type.GetMembers(BindingFlags.Public | BindingFlags.Instance)
+                .OrderBy(x => x.Name)
+                .ForEach(item => {
+                    object value;
+                    if(!TryGetValue(obj, item, out value))
+                        return;
+                    if(value == obj)
+                        value = "this";
+                    result.AppendFormat(formatProvider, "{0}{1} = {2}", sep, item.Name, Inspect(value));
+                    sep = ", ";
+                });
             return result.Append(" }").ToString();
         }
 

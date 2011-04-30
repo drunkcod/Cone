@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Reflection;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Cone.Addin
 {
@@ -43,22 +43,20 @@ namespace Cone.Addin
                 SuiteType = "Context",
                 SuiteName = suite.Name
             };
-            foreach (var item in suiteType.GetNestedTypes(BindingFlags.Public)) {
+            suiteType.GetNestedTypes(BindingFlags.Public).ForEach(item => {
                 ContextAttribute contextDescription;
                 if (item.TryGetAttribute<ContextAttribute, ContextAttribute>(out contextDescription)) {
                     description.Categories = contextDescription.Categories;
                     description.TestName = contextDescription.Context;
                     suite.AddSubsuite(BuildSuite(item, description));
                 }
-            }
+            });
         }
 
         protected static IFixtureDescription DescriptionOf(Type fixtureType) {
-            IFixtureDescription desc;
-            if (fixtureType.TryGetAttribute<DescribeAttribute, IFixtureDescription>(out desc)
-                || fixtureType.TryGetAttribute<FeatureAttribute, IFixtureDescription>(out desc))
-                return desc;
-            throw new NotSupportedException();
+            return fixtureType.WithAttributes(
+                (IFixtureDescription[] x) => x[0], 
+                () => { throw new NotSupportedException(); });
         }
     }
 }

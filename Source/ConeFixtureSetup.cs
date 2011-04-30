@@ -55,8 +55,8 @@ namespace Cone
         }
 
         public void CollectFixtureMethods(Type type) {
-            foreach(var item in methodProvider.GetMethods(type, BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
-                Classify(item);
+            methodProvider.GetMethods(type, BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)
+            .ForEach(Classify);
         }
 
         public ConeFixtureMethods GetFixtureMethods() {
@@ -93,7 +93,7 @@ namespace Cone
             return -BaseBeforeDerived(x, y);
         }
 
-        ConeMethodClass Classify(MethodInfo method) { return classifier.Classify(method); }
+        void Classify(MethodInfo method) { classifier.Classify(method); }
 
         public IEnumerable<MethodInfo> GetMethods(Type type, BindingFlags bindingFlags) {
             return type.GetMethods(bindingFlags);
