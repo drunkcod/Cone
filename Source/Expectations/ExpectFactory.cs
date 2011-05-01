@@ -50,7 +50,13 @@ namespace Cone.Expectations
                 return new NotExpect(From(((UnaryExpression)body).Operand));
 
             if(body.NodeType == ExpressionType.AndAlso)
-                return new BooleanExpect(body, Evaluate(body, body));
+                return Boolean(body);
+
+            if(body.NodeType == ExpressionType.Convert) {
+                var conversion = (UnaryExpression)body;
+                if(conversion.Type == typeof(bool))
+                    return Boolean(body);
+            }
 
             if (SupportedExpressionType(body.NodeType))
                 return Lambda(body);

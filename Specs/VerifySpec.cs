@@ -56,11 +56,16 @@ namespace Cone
         public class PossiblyGreen
         {
             public bool IsGreen { get { return true; } }
+            public static implicit operator bool(PossiblyGreen thing) { return true; }
         }
 
         public void bool_member_access() {
             var obj = new PossiblyGreen();
             Verify.That(() => obj.IsGreen);
+        }
+
+        public void supports_implicit_bool_conversion() {
+            Verify.That(() => new PossiblyGreen());
         }
 
         [Context("binary expressions")]
