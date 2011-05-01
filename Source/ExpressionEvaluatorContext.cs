@@ -105,12 +105,14 @@ namespace Cone
         
         EvaluationResult EvaluateConvert(Expression expression) { return EvaluateConvert((UnaryExpression)expression); }
         EvaluationResult EvaluateConvert(UnaryExpression expression) {
-            var source = Evaluate(expression.Operand).Value;
-            var convertMethod = expression.Method;
-            if(convertMethod != null && convertMethod.IsStatic) {
-                return GuardedInvocation(expression, () => Success(convertMethod.Invoke(null, new[] { source })));
-            }
-            return Success(ChangeType(source, expression.Type));
+            return Evaluate(expression.Operand).Maybe(source => {
+                var value = source.Value;
+                var convertMethod = expression.Method;
+                if(convertMethod != null && convertMethod.IsStatic) {
+                    return GuardedInvocation(expression, () => Success(convertMethod.Invoke(null, new[] { value })));
+                }
+                return Success(ChangeType(value, expression.Type));
+            });
         }
 
         EvaluationResult EvaluateMemberAccess(Expression expression) { return EvaluateMemberAccess((MemberExpression)expression); }

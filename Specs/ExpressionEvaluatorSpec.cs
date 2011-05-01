@@ -124,11 +124,23 @@ namespace Cone
 
         public void detect_errors_when_computing_arguments() {
             var formatter = new ExpressionFormatter(GetType());
-
             EvaluateError(() => Object.Equals(Throws<string>(), ""), x => {
                 Verify.That(() => formatter.Format(x.Expression) == "Throws()");
                 return x; 
             });
+        }
+
+        class MyDsl
+        {
+            public MyDsl DoStuff() { return this; }
+            public MyDsl NotImplemented() { throw new NotImplementedException(); }
+            public static implicit operator bool(MyDsl value){ return true; }
+        }
+
+        public void detect_errors_during_conversion() {
+            var formatter = new ExpressionFormatter(GetType());
+            var dsl = new MyDsl();
+            EvaluateError(() => (bool)(dsl.DoStuff().NotImplemented().DoStuff()), x => x);
         }
 
         T Throws<T>() { throw new NotImplementedException(); }
