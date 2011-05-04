@@ -4,7 +4,7 @@ namespace Cone
 {
     public enum TestStatus
     {
-        Success, Pending, Failure
+        Success, Pending, Failure, SetupFailure
     }
 
     public interface ITestResult

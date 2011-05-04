@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Moq;
 
 namespace Cone
@@ -31,6 +28,16 @@ namespace Cone
             testMock.Verify(x => x.Run(TestResult));
             contextMock.Verify(x => x.After(TestResult));
             testResultMock.Verify(x => x.Success());
+        }
+
+        public void run_after_when_before_throws() {
+            contextMock.Setup(x => x.Before()).Throws(new NotImplementedException());
+
+            RunTest();
+
+            contextMock.Verify(x => x.Before());
+            testMock.Verify(x => x.Run(TestResult), Times.Never());
+            contextMock.Verify(x => x.After(TestResult));
         }
 
         public void report_BeforeFailure_if_exception_raised_when_establishing_context() {

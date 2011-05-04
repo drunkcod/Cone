@@ -15,8 +15,8 @@ namespace Cone
             Verify.Context = fixture.FixtureType;
             Maybe(fixture.Before, () => {
                     Maybe(() => test.Run(testResult), testResult.Success, testResult.TestFailure);
-                    Maybe(() => fixture.After(testResult), () => { }, testResult.AfterFailure);               
                 }, testResult.BeforeFailure);
+            Maybe(() => fixture.After(testResult), () => { }, testResult.AfterFailure);
         }
 
         static void Maybe(Action action, Action then, Action<Exception> fail) {
