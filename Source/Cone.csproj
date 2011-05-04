@@ -74,6 +74,7 @@
     <Compile Include="ExpressionFormatter.cs" />
     <Compile Include="CustomAttributeProviderExtensions.cs" />
     <Compile Include="FeatureAttribute.cs" />
+    <Compile Include="FieldTestInterceptor.cs" />
     <Compile Include="IConeSuite.cs" />
     <Compile Include="IConeFixture.cs" />
     <Compile Include="IConeTest.cs" />

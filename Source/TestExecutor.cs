@@ -13,19 +13,27 @@ namespace Cone
             this.context = fixture.FixtureType;
             interceptors.Add(fixture);
 
-            var fixtureInstance = fixture.Fixture;
-            fixture.FixtureType.GetFields()
+            var interceptorFields = new FieldTestInterceptor(fixture.Fixture);
+            context.GetFields()
                 .ForEachIf(
                     x => x.FieldType.Implements<ITestInterceptor>(),
-                    x => interceptors.Add((ITestInterceptor)x.GetValue(fixtureInstance)));
+                    interceptorFields.Add);
+            if(!interceptorFields.IsEmpty)
+                interceptors.Add(interceptorFields);
         }
 
         public void Run(IConeTest test, ITestResult testResult) {
-            Verify.Context = context;
+            EstablishContext();
             Maybe(Before, () => {
-                    Maybe(() => test.Run(testResult), testResult.Success, testResult.TestFailure);
+                    Maybe(() => test.Run(testResult), 
+                        testResult.Success, 
+                        testResult.TestFailure);
                 }, testResult.BeforeFailure);
             Maybe(() => After(testResult), () => { }, testResult.AfterFailure);
+        }
+
+        void EstablishContext() {
+            Verify.Context = context;
         }
 
         void Before() {
