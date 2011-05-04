@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Reflection;
 
 namespace Cone
@@ -47,7 +44,7 @@ namespace Cone
 
         Type IConeFixture.FixtureType { get { return fixtureHolder.FixtureType; } }
 
-        object Fixture { 
+        public object Fixture { 
             get { return fixtureHolder.Fixture ?? (Fixture = NewFixture()); }
             set { fixtureHolder.Fixture = value; }
         }

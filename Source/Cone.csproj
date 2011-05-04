@@ -80,6 +80,7 @@
     <Compile Include="IFormatter.cs" />
     <Compile Include="IRowData.cs" />
     <Compile Include="ITestDescription.cs" />
+    <Compile Include="ITestInterceptor.cs" />
     <Compile Include="ITestName.cs" />
     <Compile Include="ITestResult.cs" />
     <Compile Include="MemberInfoExtensions.cs" />

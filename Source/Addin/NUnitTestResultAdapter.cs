@@ -29,7 +29,11 @@ namespace Cone.Addin
             get {
                 switch (result.ResultState) {
                     case ResultState.Ignored: return TestStatus.Pending;
-                    case ResultState.Failure: return TestStatus.Failure;
+                    case ResultState.Failure: 
+                        switch(result.FailureSite) {
+                            case FailureSite.SetUp: return TestStatus.SetupFailure;
+                            default: return TestStatus.Failure;
+                        }
                     default: return TestStatus.Success;
                 }
             }

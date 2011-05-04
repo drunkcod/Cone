@@ -1,12 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NUnit.Framework;
 using NUnit.Core;
+using NUnit.Framework;
 
 namespace Cone.Addin
 {
+    public class SampleFixture 
+    {
+        public static int AfterEachCalled = 0;
+
+        [AfterEach]
+        public void AfterEach(ITestResult result) {
+            ++AfterEachCalled;
+        }
+    }
+
     [Describe(typeof(AddinSuite))]
     public partial class AddinSuiteSpec
     {
@@ -88,9 +95,14 @@ namespace Cone.Addin
         public class Nesting
         {
             [Context("Contexts")]
-            public class Contexts
+            public class Contexts : SampleFixture
             {
+                public const int  TestCount = 1;
                 public void works_as_expected() { }
+            }
+
+            public void zzz_inherited_after_each_in_context() {
+                Verify.That(() => SampleFixture.AfterEachCalled == Contexts.TestCount);
             }
         }
 
