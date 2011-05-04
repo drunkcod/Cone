@@ -2,10 +2,9 @@
 
 namespace Cone
 {
-    public interface IConeFixture
+    public interface IConeFixture : ITestInterceptor
     {
+        object Fixture { get; }
         Type FixtureType { get; }
-        void Before();
-        void After(ITestResult testResult);
     }
 }

@@ -16,6 +16,9 @@ namespace Cone
         [BeforeEach]
         public void CreateMocks() {
             contextMock = new Mock<IConeFixture>();
+
+            contextMock.Setup(x => x.FixtureType).Returns(typeof(object));
+
             testResultMock = new Mock<ITestResult>();
             testMock = new Mock<IConeTest>();
             testExecutor = new TestExecutor(contextMock.Object);
@@ -74,6 +77,30 @@ namespace Cone
             RunTest();
 
             testMock.Verify(x => x.Run(TestResult), Times.Never());     
+        }
+
+        [Context("when fixture contains interceptor")]
+        public class FixtureWithRules 
+        {
+            public class MyInterceptor : ITestInterceptor
+            {
+                public int BeforeCalls = 0;
+                public int AfterCalls = 0;
+
+                public void Before() { ++BeforeCalls; }
+
+                public void After(ITestResult result) { ++AfterCalls; }
+            }
+
+            public MyInterceptor Interceptor = new MyInterceptor();
+
+            public void before_is_called() {
+                Verify.That(() => Interceptor.BeforeCalls == 1);
+            }
+
+            public void zzz_after_is_called() {
+                Verify.That(() => Interceptor.AfterCalls == 1);
+            }
         }
 
         void RunTest() { testExecutor.Run(testMock.Object, TestResult); }
