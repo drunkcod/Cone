@@ -1,3 +1,14 @@
+.:[ 0.0.2.21 ]:.
+
+Changes
+[x] run after steps even when before raises an exception.
+
+New Features
+[x] Support for verification of objects imblicitly convertable to bool
+
+Bug Fixes
+[x] Repport failing subexpression when evaluation paramters
+
 .:[ 0.0.2.20 ]:.
 
 New Features
