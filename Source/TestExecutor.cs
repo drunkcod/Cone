@@ -12,9 +12,12 @@ namespace Cone
         public TestExecutor(IConeFixture fixture) {
             this.context = fixture.FixtureType;
             interceptors.Add(fixture);
-            foreach(var field in fixture.FixtureType.GetFields())
-                if(typeof(ITestInterceptor).IsAssignableFrom(field.FieldType))
-                    interceptors.Add((ITestInterceptor)field.GetValue(fixture.Fixture));
+
+            var fixtureInstance = fixture.Fixture;
+            fixture.FixtureType.GetFields()
+                .ForEachIf(
+                    x => x.FieldType.Implements<ITestInterceptor>(),
+                    x => interceptors.Add((ITestInterceptor)x.GetValue(fixtureInstance)));
         }
 
         public void Run(IConeTest test, ITestResult testResult) {

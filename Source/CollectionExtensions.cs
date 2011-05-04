@@ -12,6 +12,14 @@ namespace Cone
             return result;
         }
 
+        public static void ForEachIf<T>(this T[] self, Func<T, bool> predicate, Action<T> @do) {
+            for(var i = 0; i != self.Length; ++i) {
+                var x = self[i];
+                if(predicate(x))
+                    @do(x);
+            }        
+        }
+
         public static void ForEach<T>(this T[] self, Action<T> @do) {
             for(var i = 0; i != self.Length; ++i)
                 @do(self[i]);
