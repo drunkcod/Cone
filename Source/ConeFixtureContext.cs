@@ -18,11 +18,7 @@ namespace Cone
                             result.Success, 
                             result.TestFailure);
                     }, result.BeforeFailure);
-                try {
-                    fixture.After(result);
-                } catch(Exception ex) {
-                    result.AfterFailure(ex);
-                }
+                Maybe(() => fixture.After(result), () => { }, result.AfterFailure);
             };
         }
 
