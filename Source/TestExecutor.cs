@@ -13,12 +13,15 @@ namespace Cone
     public class TestExecutor
     {
         readonly Type typeContext;
-        readonly List<ITestContext> context = new List<ITestContext>();
+        readonly List<ITestContext> context;
 
         public TestExecutor(IConeFixture fixture) {
             this.typeContext = fixture.FixtureType;
-            
-            context.Add(new ConeFixtureContext(fixture));
+            this.context = new List<ITestContext> {
+                new TestMethodContext(),
+                new FixtureBeforeContext(fixture), 
+                new FixtureAfterContext(fixture)
+            };
 
             var interceptorContext = InterceptorContext.For(typeContext, () => fixture.Fixture);
             if(!interceptorContext.IsEmpty)

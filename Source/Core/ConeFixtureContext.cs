@@ -1,36 +1,62 @@
 ﻿using System;
-using System.Reflection;
 
 namespace Cone.Core
 {
-    class ConeFixtureContext : ITestContext
+    class FixtureAfterContext : ITestContext 
     {
         readonly IConeFixture fixture;
 
-        public ConeFixtureContext(IConeFixture fixture) {
+        public FixtureAfterContext(IConeFixture fixture) {
             this.fixture = fixture;
         }
 
         public Action<ITestResult> Establish(Action<ITestResult> next) {
             return result => {
-                Maybe(fixture.Before, () => {
-                        Maybe(() => next(result), 
-                            result.Success, 
-                            result.TestFailure);
-                    }, result.BeforeFailure);
-                Maybe(() => fixture.After(result), () => { }, result.AfterFailure);
+                try {
+                    next(result);
+                } finally {
+                    try {
+                        fixture.After(result);
+                    } catch (Exception ex) {
+                        result.AfterFailure(ex);
+                    }
+                }
             };
         }
+    }
 
-        static void Maybe(Action action, Action then, Action<Exception> fail) {
-            try {
-                action();
-                then();
-            } catch (TargetInvocationException ex) {
-                fail(ex.InnerException);
-            } catch (Exception ex) {
-                fail(ex);
-            }
+    class FixtureBeforeContext : ITestContext
+    {
+        readonly IConeFixture fixture;
+
+        public FixtureBeforeContext(IConeFixture fixture) {
+            this.fixture = fixture;
+        }
+
+        public Action<ITestResult> Establish(Action<ITestResult> next) {
+            return result => {
+                try {
+                    fixture.Before();
+                } catch(Exception ex) {
+                    result.BeforeFailure(ex);
+                    return;
+                }
+                next(result);
+            };
+        }
+    }
+
+    class TestMethodContext : ITestContext 
+    {
+        public Action<ITestResult> Establish(Action<ITestResult> next) {
+            return result => {
+                try {
+                    next(result);
+                    result.Success();
+                } catch(Exception ex) {
+                    result.TestFailure(ex);                        
+                }
+            };
         }
     }
 }

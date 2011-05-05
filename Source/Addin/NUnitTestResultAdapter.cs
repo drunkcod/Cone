@@ -1,5 +1,6 @@
 ﻿using System;
 using NUnit.Core;
+using System.Reflection;
 
 namespace Cone.Addin
 {
@@ -41,8 +42,16 @@ namespace Cone.Addin
 
         void ITestResult.Success() { result.Success(); }
         void ITestResult.Pending(string reason) { result.Ignore(reason); }
-        void ITestResult.BeforeFailure(Exception ex) { result.SetResult(ResultState.Failure, ex.Message, ex.StackTrace, FailureSite.SetUp); }
-        void ITestResult.TestFailure(Exception ex) { result.SetResult(ResultState.Failure, ex.Message, ex.StackTrace, FailureSite.Test); }
-        void ITestResult.AfterFailure(Exception ex) { result.SetResult(ResultState.Failure, ex.Message, ex.StackTrace, FailureSite.TearDown); }
+        void ITestResult.BeforeFailure(Exception ex) { Failure(ex, FailureSite.SetUp); }
+        void ITestResult.TestFailure(Exception ex) { Failure(ex, FailureSite.Test); }
+        void ITestResult.AfterFailure(Exception ex) { Failure(ex, FailureSite.TearDown); }
+
+        void Failure(Exception ex, FailureSite site) {
+            var invocationException = ex as TargetInvocationException;
+            if(invocationException != null)
+                ex = invocationException.InnerException;
+            result.SetResult(ResultState.Failure, ex.Message, ex.StackTrace, site);
+        }
+
     }
 }
