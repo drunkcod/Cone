@@ -6,11 +6,11 @@ namespace Cone
 {
     class FieldTestInterceptor : ITestInterceptor
     {
-        readonly object fixture; 
+        readonly Func<object> getFixture; 
         readonly List<FieldInfo> interceptors = new List<FieldInfo>();
  
-        public FieldTestInterceptor(object fixture) {
-            this.fixture = fixture;
+        public FieldTestInterceptor(Func<object> fixture) {
+            this.getFixture = fixture;
         }
 
         public bool IsEmpty { get { return interceptors.Count == 0; } }
@@ -23,12 +23,13 @@ namespace Cone
             interceptors.Add(item);
         }
 
-        ITestInterceptor GetInterceptor(FieldInfo field) {
+        ITestInterceptor GetInterceptor(object fixture, FieldInfo field) {
             return (ITestInterceptor)field.GetValue(fixture);
         }
 
         void ForEachInterceptor(Action<ITestInterceptor> @do) {
-            interceptors.ForEach(x => @do(GetInterceptor(x)));
+            var fixture = getFixture();
+            interceptors.ForEach(x => @do(GetInterceptor(fixture, x)));
         }
     }
 }

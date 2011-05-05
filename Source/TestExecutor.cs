@@ -12,7 +12,7 @@ namespace Cone
         public TestExecutor(IConeFixture fixture) {
             this.context = fixture.FixtureType;
 
-            var interceptorFields = new FieldTestInterceptor(fixture.Fixture);
+            var interceptorFields = new FieldTestInterceptor(() => fixture.Fixture);
             context.GetFields()
                 .ForEachIf(
                     x => x.FieldType.Implements<ITestInterceptor>(),
