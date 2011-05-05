@@ -81,7 +81,7 @@ namespace Cone
         }
 
         [Context("when fixture contains interceptor")]
-        public class FixtureWithRules 
+        public class FixtureWithInterceptor 
         {
             StringBuilder ExecutionSequence = new StringBuilder();
 
@@ -120,7 +120,6 @@ namespace Cone
             public void zzz_after_sequence() {
                 Verify.That(() => ExecutionSequence.ToString().StartsWith("->Interceptor.Before->Test.Before->Test->Test.After->Interceptor.After"));
             }
-
         }
 
         void RunTest() { testExecutor.Run(testMock.Object, TestResult); }
