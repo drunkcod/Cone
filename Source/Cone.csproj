@@ -42,7 +42,7 @@
     <Compile Include="BoolDisplay.cs" />
     <Compile Include="CollectionExtensions.cs" />
     <Compile Include="ConeFixture.cs" />
-    <Compile Include="ConeFixtureContext.cs" />
+    <Compile Include="Core\ConeFixtureContext.cs" />
     <Compile Include="ConeFixtureSetup.cs" />
     <Compile Include="ConeMethodClassifier.cs" />
     <Compile Include="ConeMethodThunk.cs" />
