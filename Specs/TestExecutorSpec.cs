@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Moq;
 
 namespace Cone
@@ -82,25 +83,44 @@ namespace Cone
         [Context("when fixture contains interceptor")]
         public class FixtureWithRules 
         {
+            StringBuilder ExecutionSequence = new StringBuilder();
+
             public class MyInterceptor : ITestInterceptor
             {
-                public int BeforeCalls = 0;
-                public int AfterCalls = 0;
+                readonly StringBuilder target;
 
-                public void Before() { ++BeforeCalls; }
+                public MyInterceptor(StringBuilder target) {
+                    this.target = target;
+                }
 
-                public void After(ITestResult result) { ++AfterCalls; }
+                public void Before() { target.Append("->Interceptor.Before"); }
+
+                public void After(ITestResult result) { target.Append("->Interceptor.After"); }
             }
 
-            public MyInterceptor Interceptor = new MyInterceptor();
+            public MyInterceptor Interceptor;
 
-            public void before_is_called() {
-                Verify.That(() => Interceptor.BeforeCalls == 1);
+            [BeforeAll]
+            public void EstablishContext() {
+                ExecutionSequence = new StringBuilder();
+                Interceptor = new MyInterceptor(ExecutionSequence);
             }
 
-            public void zzz_after_is_called() {
-                Verify.That(() => Interceptor.AfterCalls == 1);
+            [BeforeEach]
+            public void Before() { ExecutionSequence.Append("->Test.Before"); }
+
+            [AfterEach]
+            public void After() { ExecutionSequence.Append("->Test.After"); }
+
+            public void before_sequence() {
+                ExecutionSequence.Append("->Test");
+                Verify.That(() => ExecutionSequence.ToString() == "->Interceptor.Before->Test.Before->Test");
             }
+
+            public void zzz_after_sequence() {
+                Verify.That(() => ExecutionSequence.ToString().StartsWith("->Interceptor.Before->Test.Before->Test->Test.After->Interceptor.After"));
+            }
+
         }
 
         void RunTest() { testExecutor.Run(testMock.Object, TestResult); }

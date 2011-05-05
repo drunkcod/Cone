@@ -11,7 +11,6 @@ namespace Cone
 
         public TestExecutor(IConeFixture fixture) {
             this.context = fixture.FixtureType;
-            interceptors.Add(fixture);
 
             var interceptorFields = new FieldTestInterceptor(fixture.Fixture);
             context.GetFields()
@@ -20,6 +19,7 @@ namespace Cone
                     interceptorFields.Add);
             if(!interceptorFields.IsEmpty)
                 interceptors.Add(interceptorFields);
+            interceptors.Add(fixture);
         }
 
         public void Run(IConeTest test, ITestResult testResult) {
@@ -41,7 +41,7 @@ namespace Cone
         }
 
         void After(ITestResult result) { 
-            interceptors.ForEach(x => x.After(result));
+            interceptors.BackwardsEach(x => x.After(result));
         }
 
         static void Maybe(Action action, Action then, Action<Exception> fail) {

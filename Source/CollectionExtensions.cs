@@ -25,6 +25,11 @@ namespace Cone
                 @do(self[i]);
         }
 
+        public static void BackwardsEach<T>(this IList<T> self, Action<T> @do) {
+            for(var i = self.Count; --i != -1 ;)
+                @do(self[i]);
+        }
+
         public static void ForEach<T>(this IEnumerable<T> self, Action<T> @do) {
             foreach(var item in self)
                 @do(item);
