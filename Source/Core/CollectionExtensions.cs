@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Cone
+namespace Cone.Core
 {
     static class CollectionExtensions
     {

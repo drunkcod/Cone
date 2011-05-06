@@ -40,7 +40,7 @@
     <Compile Include="BeforeAllAttribute.cs" />
     <Compile Include="BeforeEachAttribute.cs" />
     <Compile Include="BoolDisplay.cs" />
-    <Compile Include="CollectionExtensions.cs" />
+    <Compile Include="Core\CollectionExtensions.cs" />
     <Compile Include="ConeFixture.cs" />
     <Compile Include="ConeFixtureSetup.cs" />
     <Compile Include="ConeMethodClassifier.cs" />
