@@ -36,12 +36,12 @@
     <Compile Include="Action.cs" />
     <Compile Include="AfterAllAttribute.cs" />
     <Compile Include="AfterEachAttribute.cs" />
-    <Compile Include="ArrayExpressionStringBuilder.cs" />
+    <Compile Include="Core\ArrayExpressionStringBuilder.cs" />
     <Compile Include="BeforeAllAttribute.cs" />
     <Compile Include="BeforeEachAttribute.cs" />
     <Compile Include="BoolDisplay.cs" />
     <Compile Include="Core\CollectionExtensions.cs" />
-    <Compile Include="ConeFixture.cs" />
+    <Compile Include="Core\ConeFixture.cs" />
     <Compile Include="ConeFixtureSetup.cs" />
     <Compile Include="ConeMethodClassifier.cs" />
     <Compile Include="ConeMethodThunk.cs" />
@@ -50,6 +50,8 @@
     <Compile Include="ContextAttribute.cs" />
     <Compile Include="Core\FixtureAfterContext.cs" />
     <Compile Include="Core\FixtureBeforeContext.cs" />
+    <Compile Include="Core\ICollectionFormatter.cs" />
+    <Compile Include="Core\IFixtureHolder.cs" />
     <Compile Include="Core\TestMethodContext.cs" />
     <Compile Include="DescribeAttribute.cs" />
     <Compile Include="DisplayClassAttribute.cs" />
@@ -74,7 +76,7 @@
     <Compile Include="ExpressionEvaluator.cs" />
     <Compile Include="ExpressionEvaluatorContext.cs" />
     <Compile Include="ExpressionExtensions.cs" />
-    <Compile Include="ExpressionFormatter.cs" />
+    <Compile Include="Core\ExpressionFormatter.cs" />
     <Compile Include="CustomAttributeProviderExtensions.cs" />
     <Compile Include="FeatureAttribute.cs" />
     <Compile Include="Core\InterceptorContext.cs" />
@@ -92,7 +94,7 @@
     <Compile Include="ObjectConverter.cs" />
     <Compile Include="Core\ObjectExtensions.cs" />
     <Compile Include="Core\ObjectInspector.cs" />
-    <Compile Include="ParameterFormatter.cs" />
+    <Compile Include="Core\ParameterFormatter.cs" />
     <Compile Include="PendingAttribute.cs" />
     <Compile Include="RowAttribute.cs" />
     <Compile Include="IRowTestData.cs" />

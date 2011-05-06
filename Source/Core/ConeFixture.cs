@@ -1,17 +1,8 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Cone
+namespace Cone.Core
 {
-    public interface IFixtureHolder
-    {
-        Type FixtureType { get; }
-        object Fixture { get; set; }
-        MethodInfo[] SetupMethods { get; }
-        MethodInfo[] TeardownMethods { get; }
-        MethodInfo[] AfterEachWithResult { get; }
-    }
-
     public class ConeFixture : IConeFixture
     {
         readonly IFixtureHolder fixtureHolder;

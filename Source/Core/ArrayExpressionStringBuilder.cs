@@ -2,14 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Cone
+namespace Cone.Core
 {
-    interface ICollectionFormatter<T> : IFormatter<IEnumerable<T>>, IFormatter<IEnumerable>
-    {
-        string Format(IEnumerable<T> collection, IFormatter<T> itemFormatter);
-        string Format(IEnumerable collection, IFormatter<T> itemFormatter);
-    }
-
     class ToStringFormatter<T> : IFormatter<T>
     {
         string IFormatter<T>.Format(T expression) { return expression.ToString(); }

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections;
-using System.Text;
-using System.Collections.Generic;
 
-namespace Cone
+namespace Cone.Core
 {
     public class ParameterFormatter : IFormatter<object>
     {

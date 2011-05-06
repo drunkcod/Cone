@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Cone.Core;
 using NUnit.Core;
 using NUnit.Framework;
 

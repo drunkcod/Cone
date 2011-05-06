@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Cone
+namespace Cone.Core
 {   
     public class ExpressionFormatter : IFormatter<Expression>
     {

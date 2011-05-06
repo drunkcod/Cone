@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace Cone
+namespace Cone.Core
 {
     enum DummyEnum { Value }
     [Describe(typeof(ParameterFormatter))]
