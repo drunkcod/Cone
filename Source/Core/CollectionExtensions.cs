@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Cone.Core
 {
-    static class CollectionExtensions
+    public static class CollectionExtensions
     {
         public static TOutput[] ConvertAll<TInput,TOutput>(this IList<TInput> self, Converter<TInput, TOutput> converter) {
             var result = new TOutput[self.Count];
@@ -39,6 +39,16 @@ namespace Cone.Core
             using(var items = self.GetEnumerator())
                 for(var i = 0; items.MoveNext(); ++i)
                     @do(i, items.Current);
+        }
+
+        public static int IndexOf<T>(this IEnumerable<T> self, T value) {
+            var index = 0;
+            foreach(var item in self) {
+                if(item.Equals(value))
+                    return index; 
+                ++index;
+            }
+            return -1;
         }
     }
 }
