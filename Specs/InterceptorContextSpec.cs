@@ -1,7 +1,7 @@
 ﻿using System;
 using Moq;
 
-namespace Cone
+namespace Cone.Core
 {
     [Describe(typeof(InterceptorContext))]
     public class InterceptorContextSpec

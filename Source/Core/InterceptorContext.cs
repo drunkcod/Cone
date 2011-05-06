@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Cone.Core;
 
-namespace Cone
+namespace Cone.Core
 {
     public class InterceptorContext : ITestContext
     {
