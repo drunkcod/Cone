@@ -56,7 +56,7 @@ namespace Cone.Expectations
             if(body.NodeType == ExpressionType.Convert) {
                 var conversion = (UnaryExpression)body;
                 if(conversion.Type == typeof(bool))
-                    return Boolean(body);
+                    return Conversion(conversion);
             }
 
             if (SupportedExpressionType(body.NodeType))
@@ -108,6 +108,10 @@ namespace Cone.Expectations
 
         IExpect Boolean(Expression body) {
             return new BooleanExpect(body, EvaluateAs<bool>(body));
+        }
+
+        IExpect Conversion(UnaryExpression conversion) {
+            return new ConversionExpect(conversion, EvaluateAs<object>(conversion.Operand), conversion.Method);
         }
 
         static Expect Binary(BinaryExpression body) {

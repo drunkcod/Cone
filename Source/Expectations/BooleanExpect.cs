@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Reflection;
 using Cone.Core;
 
 namespace Cone.Expectations
@@ -33,6 +34,21 @@ namespace Cone.Expectations
         protected virtual bool CheckCore() {
             if(actual != null)
                 return actual.Equals(Expected);
+            return Expected.Equals(actual);
+        }
+    }
+
+    class ConversionExpect : BooleanExpect
+    {
+        readonly MethodInfo conversion;
+
+        public ConversionExpect(Expression body, object actual, MethodInfo conversion) : base(body, actual) {
+            this.conversion = conversion;
+        }
+
+        protected override bool CheckCore() {
+            if(actual != null)
+                return conversion.Invoke(null, new[]{ actual }).Equals(Expected);
             return Expected.Equals(actual);
         }
     }

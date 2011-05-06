@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq.Expressions;
-using NUnit.Framework;
 
 namespace Cone
 {
@@ -116,6 +114,17 @@ namespace Cone
 
             public void return_value_is_same_as_actual() {
                 Verify.That(() => Object.ReferenceEquals(Verify.That(() => obj == (object)b), obj));
+            }
+
+            class True 
+            {
+                public static implicit operator bool(True value){ return true; }
+            }
+
+            public void return_value_is_actual_when_using_implict_conversion() {
+                var @true = new True();
+                var obj = Verify.That(() => @true);
+                Verify.That(() => Object.ReferenceEquals(obj, @true));
             }
             
             class WithCustomEquality

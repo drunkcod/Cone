@@ -99,6 +99,44 @@ namespace Cone.Samples
 
             }
         }
+    }
 
+    [Feature("More failures")]
+    public class MoreFailures
+    {
+        [Context("BeforeEach failure")]
+        public class BeforeEachFails
+        {
+            [BeforeEach]
+            public void DieDieDie(){ throw new Exception("BeforeEach failure"); }
+            public void test() {}
+        }
+        [Context("AfterEach failure")]
+        public class AfterEachFails
+        {
+            [AfterEach]
+            public void DieDieDie(){ throw new Exception("AfterEach failure"); }
+            public void test() {}
+        }
+        [Context("Before & After failure")]
+        public class EpicFail
+        {
+            [BeforeEach, AfterEach]
+            public void DieDieDie(){ throw new Exception("Epic failure"); }
+            public void test() {}
+        }
+    }
+
+    [Feature("random hacking")]
+    public class RandomHacking
+    {
+        public class MyCustomBool 
+        {
+            public static implicit operator bool(MyCustomBool obj){ return false; }
+        }
+
+        public void test_something() {
+            Verify.That(() => new MyCustomBool());
+        }
     }
 }
