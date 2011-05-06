@@ -42,13 +42,15 @@
     <Compile Include="BoolDisplay.cs" />
     <Compile Include="CollectionExtensions.cs" />
     <Compile Include="ConeFixture.cs" />
-    <Compile Include="Core\ConeFixtureContext.cs" />
     <Compile Include="ConeFixtureSetup.cs" />
     <Compile Include="ConeMethodClassifier.cs" />
     <Compile Include="ConeMethodThunk.cs" />
     <Compile Include="ConeSuiteBuilder.cs" />
     <Compile Include="ConeTestNamer.cs" />
     <Compile Include="ContextAttribute.cs" />
+    <Compile Include="Core\FixtureAfterContext.cs" />
+    <Compile Include="Core\FixtureBeforeContext.cs" />
+    <Compile Include="Core\TestMethodContext.cs" />
     <Compile Include="DescribeAttribute.cs" />
     <Compile Include="DisplayClassAttribute.cs" />
     <Compile Include="EnumerableExtensions.cs" />
