@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace Cone
+namespace Cone.Core
 {
     public static class ObjectExtensions 
     {

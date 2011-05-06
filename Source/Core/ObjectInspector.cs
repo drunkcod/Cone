@@ -3,9 +3,8 @@ using System.Collections;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Cone.Core;
 
-namespace Cone
+namespace Cone.Core
 {
     class ObjectInspector : IFormatter<object>
     {

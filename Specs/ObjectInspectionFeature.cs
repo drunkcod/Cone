@@ -1,4 +1,5 @@
-﻿
+﻿using Cone.Core;
+
 namespace Cone
 {
     [Feature("Object inspection")]
