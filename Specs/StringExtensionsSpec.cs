@@ -1,4 +1,6 @@
-﻿namespace Cone
+﻿using Cone.Core;
+
+namespace Cone
 {
     [Describe(typeof(StringExtensions))]
     public class StringExtensionsSpec
