@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Cone
+namespace Cone.Core
 {
     public static class ExpressionExtensions
     {

@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Reflection;
 using System.Collections.Generic;
-using Cone.Core;
+using System.Reflection;
 
-namespace Cone
+namespace Cone.Core
 {
     public class ConeFixtureMethods
     {

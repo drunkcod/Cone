@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace Cone
+namespace Cone.Core
 {
     [Describe(typeof(ConeMethodClassifier))]
     public class ConeMethodClassifierSpec

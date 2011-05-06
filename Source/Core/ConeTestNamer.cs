@@ -2,9 +2,8 @@
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using Cone.Core;
 
-namespace Cone
+namespace Cone.Core
 {
     public class ConeTestNamer
     {

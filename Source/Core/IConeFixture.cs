@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Cone
+namespace Cone.Core
 {
     public interface IConeFixture : ITestInterceptor
     {

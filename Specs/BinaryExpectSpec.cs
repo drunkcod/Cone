@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Moq;
 using System.Linq.Expressions;
+using Cone.Core;
 using Cone.Expectations;
+using Moq;
 
 namespace Cone
 {

@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Linq.Expressions;
 
-namespace Cone
+namespace Cone.Core
 {
     [Describe(typeof(ExpressionExtensions))]
     public class ExpressionExtensionsSpec

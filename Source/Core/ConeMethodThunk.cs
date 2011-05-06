@@ -2,7 +2,7 @@
 using System.Reflection.Emit;
 using System;
 
-namespace Cone
+namespace Cone.Core
 {
     public class ConeMethodThunk : ICustomAttributeProvider
     {

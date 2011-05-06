@@ -2,7 +2,7 @@
 using System.Text;
 using Moq;
 
-namespace Cone
+namespace Cone.Core
 {
     [Describe(typeof(TestExecutor))]
     public class TestExecutorSpec

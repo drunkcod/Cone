@@ -1,4 +1,4 @@
-﻿namespace Cone
+﻿namespace Cone.Core
 {
     public interface IFormatter<T>
     {

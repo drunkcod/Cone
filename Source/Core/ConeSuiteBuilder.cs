@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Cone.Core;
 
-namespace Cone.Addin
+namespace Cone.Core
 {
     public abstract class ConeSuiteBuilder<TSuite> where TSuite : IConeSuite
     {

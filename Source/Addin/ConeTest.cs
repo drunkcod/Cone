@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Threading;
+using Cone.Core;
 using NUnit.Core;
 
 namespace Cone.Addin

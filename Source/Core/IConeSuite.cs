@@ -1,7 +1,7 @@
-﻿using System.Reflection;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Reflection;
 
-namespace Cone
+namespace Cone.Core
 {
     public interface IConeSuite : ICustomAttributeProvider
     {

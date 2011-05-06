@@ -1,4 +1,6 @@
 ﻿using System.Linq.Expressions;
+using Cone.Core;
+
 namespace Cone.Expectations
 {
     class NotExpect : IExpect

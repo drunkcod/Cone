@@ -1,4 +1,5 @@
-﻿using NUnit.Core;
+﻿using Cone.Core;
+using NUnit.Core;
 
 namespace Cone.Addin
 {

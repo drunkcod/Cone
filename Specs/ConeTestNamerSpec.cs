@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Cone
+namespace Cone.Core
 {
     public class ValidDisplay
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
+using Cone.Core;
 using NUnit.Core;
 
 namespace Cone.Addin
