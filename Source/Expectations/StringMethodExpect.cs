@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using Cone.Core;
@@ -16,7 +17,12 @@ namespace Cone.Expectations
             methodDisplay = new Dictionary<MethodInfo,Func<object[], string>> {
                 { s.GetMethod("Contains"), _ => "a string containing {0}" },
                 { s.GetMethod("EndsWith", t), _ => "a string ending with {0}" },
-                { s.GetMethod("EndsWith", new []{ typeof(string), typeof(StringComparison) }), x => string.Format("a string ending with {{0}} using '{0}'", x[1]) },
+                { s.GetMethod("EndsWith", new []{ s, typeof(StringComparison) }), x => string.Format("a string ending with {{0}} using '{0}'", x[1]) },
+                { s.GetMethod("EndsWith", new []{ s, typeof(bool), typeof(CultureInfo) }), x => {
+                    var culture = (CultureInfo)x[2];
+                    var cultureName = culture == CultureInfo.InvariantCulture ? "InvariantCulture" : culture.Name;
+                    return string.Format("a string ending with {{0}} using '{0}'{1}", cultureName, (bool)x[1] ? " & ignoring case" : ""); 
+                } },
                 { s.GetMethod("StartsWith", t), _ => "a string starting with {0}" }
             };
         }
