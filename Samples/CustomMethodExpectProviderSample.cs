@@ -59,7 +59,7 @@ namespace Cone.Samples
                     }
                 }
 
-                protected override string FormatExpected(IFormatter<object> formatter) {
+                public override string FormatExpected(IFormatter<object> formatter) {
                     return string.Format("url ending with {0}", formatter.Format(arguments[1]));
                 }
             }

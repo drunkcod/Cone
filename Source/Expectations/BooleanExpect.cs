@@ -15,8 +15,9 @@ namespace Cone.Expectations
         }
 
         public virtual string FormatExpression(IFormatter<Expression> formatter){ return formatter.Format(body); }
+        public virtual string FormatExpected(IFormatter<object> formatter) { return formatter.Format(Expected); }
         public virtual string FormatMessage(IFormatter<object> formatter) { 
-            return string.Format(MessageFormat, formatter.Format(actual), formatter.Format(Expected));
+            return string.Format(MessageFormat, formatter.Format(actual), FormatExpected(formatter));
         }
 
         public ExpectResult Check() {

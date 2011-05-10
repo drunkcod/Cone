@@ -68,6 +68,7 @@
     <Compile Include="ConeTestNamerSpec.cs" />
     <Compile Include="CustomMethodExpectFeature.cs" />
     <Compile Include="DisplayClassAttributeSpec.cs" />
+    <Compile Include="Expectations\StringMethodExpectSpec.cs" />
     <Compile Include="ExpectFactorySpec.cs" />
     <Compile Include="ExpressionEvaluatorSpec.cs" />
     <Compile Include="ExpressionExtensionsSpec.cs" />

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Collections.Generic;
 
 namespace Cone.Core
 {
@@ -26,6 +27,10 @@ namespace Cone.Core
 
         public EvaluationResult EvaluateAsTarget(Expression expression, Expression context) {
             return CreateContext(context).EvaluateAsTarget(expression);
+        }
+
+        public EvaluationResult EvaluateAll(ICollection<Expression> expressions, Expression context) {
+            return CreateContext(context).EvaluateAll(expressions);
         }
 
         ExpressionEvaluatorContext CreateContext(Expression context) {

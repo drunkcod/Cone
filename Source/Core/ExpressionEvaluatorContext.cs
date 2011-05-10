@@ -40,6 +40,18 @@ namespace Cone.Core
                 .Maybe(result => result.Value == null ? NullSubexpression(expression, context) : result);
         }
 
+        public EvaluationResult EvaluateAll(ICollection<Expression> expressions) {
+            var result = new object[expressions.Count];
+            var index = 0;
+            foreach(var item in expressions) {
+                var x = Evaluate(item);
+                if(x.IsError)
+                    return x;
+                result[index++] = x.Value;
+            }
+            return Success(result);
+        }
+
         EvaluationResult EvaluateLambda(Expression expression) { return EvaluateLambda((LambdaExpression)expression); }
         EvaluationResult EvaluateLambda(LambdaExpression expression) {
             if(expression == context && expression.Parameters.Count == 0)
@@ -139,18 +151,6 @@ namespace Cone.Core
             } catch(TargetInvocationException e) {
                 return Failure(expression, e.InnerException);
             } finally { @finally(); }
-        }
-
-        EvaluationResult EvaluateAll(ICollection<Expression> expressions) {
-            var result = new object[expressions.Count];
-            var index = 0;
-            foreach(var item in expressions) {
-                var x = Evaluate(item);
-                if(x.IsError)
-                    return x;
-                result[index++] = x.Value;
-            }
-            return Success(result);
         }
 
         EvaluationResult EvaluateQuote(Expression expression) { return EvaluateQuote((UnaryExpression)expression); }

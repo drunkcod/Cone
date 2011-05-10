@@ -23,7 +23,7 @@ namespace Cone.Expectations
             return formatter.Format(Actual);
         }
 
-        protected virtual string FormatExpected(IFormatter<object> formatter) { 
+        public virtual string FormatExpected(IFormatter<object> formatter) { 
             return method.Name; 
         }
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Cone.Core;
 using Cone.Expectations;
 
 namespace Cone
@@ -20,15 +19,6 @@ namespace Cone
             Verify.That(() => expect.Check().Equals(new ExpectResult { Success = false, Actual = "123" }));
         }
 
-        public void message_formatting() {
-            Expression<Func<bool>> body = () => "123".Contains("ABC");
-            IExpect expect = ContainsExpect(body, "123", "ABC");
-            object value = string.Empty;
-            var formatter = new ParameterFormatter();
-            var expected = string.Format(ExpectMessages.EqualFormat, "\"123\"", "string containing \"ABC\"");
-            Verify.That(() => expect.FormatMessage(formatter) == expected);
-        }
-
         public void example() {
             Verify.That(() => "Hello World".Contains("World"));
         }
@@ -39,7 +29,7 @@ namespace Cone
         }
 
         StringMethodExpect ContainsExpect(Expression body, string actual, string value) {
-            return new StringMethodExpect("string containing", body, typeof(string).GetMethod("Contains"), actual, new[]{ value });
+            return new StringMethodExpect(_ => "string containing", body, typeof(string).GetMethod("Contains"), actual, new[]{ value });
         }
 
         string HelloWorld { get { return "Hello World"; } }

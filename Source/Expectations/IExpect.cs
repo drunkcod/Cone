@@ -25,6 +25,7 @@ namespace Cone.Expectations
     {
         ExpectResult Check();
         string FormatExpression(IFormatter<Expression> formatter);
+        string FormatExpected(IFormatter<object> formatter);
         string FormatMessage(IFormatter<object> formatter);
     }
 }

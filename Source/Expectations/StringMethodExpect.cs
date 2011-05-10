@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Cone.Core;
@@ -7,15 +8,16 @@ namespace Cone.Expectations
 {
     public class StringMethodsProvider : IMethodExpectProvider
     {
-        readonly Dictionary<MethodInfo, string> methodDisplay;
+        readonly Dictionary<MethodInfo, Func<object[], string>> methodDisplay;
 
         public StringMethodsProvider() {
             var s = typeof(string);
             var t = new[]{ s };
-            methodDisplay = new Dictionary<MethodInfo,string> {
-                { s.GetMethod("Contains"), "string containing" },
-                { s.GetMethod("EndsWith", t), "a string ending with" },
-                { s.GetMethod("StartsWith", t), "a string starting with" }
+            methodDisplay = new Dictionary<MethodInfo,Func<object[], string>> {
+                { s.GetMethod("Contains"), _ => "a string containing {0}" },
+                { s.GetMethod("EndsWith", t), _ => "a string ending with {0}" },
+                { s.GetMethod("EndsWith", new []{ typeof(string), typeof(StringComparison) }), x => string.Format("a string ending with {{0}} using '{0}'", x[1]) },
+                { s.GetMethod("StartsWith", t), _ => "a string starting with {0}" }
             };
         }
 
@@ -30,15 +32,15 @@ namespace Cone.Expectations
 
     public class StringMethodExpect : MemberMethodExpect
     {
-        readonly string methodDisplay;
+        readonly Func<object[], string> methodDisplay;
 
-        public StringMethodExpect(string methodDisplay, Expression body, MethodInfo method, object target, object[] arguments):
+        public StringMethodExpect(Func<object[], string> methodDisplay, Expression body, MethodInfo method, object target, object[] arguments):
             base(body, method, target, arguments) {
             this.methodDisplay = methodDisplay;
         }
 
-        protected override string FormatExpected(IFormatter<object> formatter) {
-            return string.Format("{0} {1}", methodDisplay, formatter.Format(arguments[0]));
+        public override string FormatExpected(IFormatter<object> formatter) {
+            return string.Format(methodDisplay(arguments), formatter.Format(arguments[0]));
         }
     }
 }

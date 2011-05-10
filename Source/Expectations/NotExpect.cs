@@ -19,6 +19,10 @@ namespace Cone.Expectations
             return string.Format("!({0})", inner.FormatExpression(formatter));
         }
 
+        string IExpect.FormatExpected(IFormatter<object> formatter) {
+            return inner.FormatExpected(formatter);
+        }
+
         public string FormatMessage(IFormatter<object> formatter) {
             return string.Empty;
         }

@@ -48,6 +48,10 @@ namespace Cone
                 return "<expr>";
             }
 
+            public string FormatExpected(IFormatter<object> formatter) {
+                return "<expected>";
+            }
+
             public string FormatMessage(IFormatter<object> formatter) {
                 return "<message>";
             }
