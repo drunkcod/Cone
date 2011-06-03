@@ -26,7 +26,8 @@ namespace Cone.Addin
 
             var pending = type.FirstOrDefault((IPendingAttribute x) => x.IsPending);
             if(pending != null) {
-                this.Ignore(NUnit.Core.RunState.Ignored, pending.Reason);
+                RunState = RunState.Ignored;
+                IgnoreReason = pending.Reason;
             }
         }
 

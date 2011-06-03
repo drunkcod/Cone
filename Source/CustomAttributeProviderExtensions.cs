@@ -18,13 +18,18 @@ namespace Cone
         }
 
         public static T FirstOrDefault<T>(this ICustomAttributeProvider self, Func<T, bool> predicate) {
+            return FirstOrDefault(self, predicate, default(T));
+        }
+
+        public static T FirstOrDefault<T>(this ICustomAttributeProvider self, Func<T, bool> predicate, T defaultValue) {
             var values = Array.ConvertAll(self.GetCustomAttributes(typeof(T), true), x => (T)x);
             for(var i = 0; i != values.Length; ++i) {
                 var item = values[i];
                 if(predicate(item))
                     return item;
             }
-            return default(T);
+            return defaultValue;
         }
+
     }
 }

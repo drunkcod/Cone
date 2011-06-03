@@ -24,9 +24,23 @@ namespace Cone.Core
 
         public bool IsEmpty { get { return interceptors.Count == 0; } }
 
-        void Before() { ForEachInterceptor(x => x.Before()); }
+        bool Before(ITestResult result) { 
+            try {
+                ForEachInterceptor(x => x.Before());
+                return true;
+            } catch(Exception ex) {
+                result.BeforeFailure(ex);
+                return false;
+            }
+        }
 
-        void After(ITestResult result) { ForEachInterceptor(x => x.After(result)); }
+        void After(ITestResult result) { 
+            try {
+                ForEachInterceptor(x => x.After(result));
+            } catch(Exception ex) {
+                result.AfterFailure(ex);
+            }
+        }
 
         ITestInterceptor GetInterceptor(object fixture, FieldInfo field) {
             return (ITestInterceptor)field.GetValue(fixture);
@@ -38,18 +52,12 @@ namespace Cone.Core
         }
 
         public Action<ITestResult> Establish(ICustomAttributeProvider attributes, Action<ITestResult> next) {
-            return result => {
+            return result => {               
                 try {
-                    Before();
-                    next(result);
-                } catch(Exception ex) {
-                    result.BeforeFailure(ex);
+                    if(Before(result))
+                        next(result);
                 } finally {
-                    try {
-                        After(result);
-                    } catch(Exception ex) {
-                        result.AfterFailure(ex);
-                    }
+                    After(result);
                 }
             };
         }

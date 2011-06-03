@@ -73,7 +73,7 @@
     <Compile Include="ExpectFactorySpec.cs" />
     <Compile Include="ExpressionEvaluatorSpec.cs" />
     <Compile Include="ExpressionExtensionsSpec.cs" />
-    <Compile Include="InterceptorContextSpec.cs" />
+    <Compile Include="Core\InterceptorContextSpec.cs" />
     <Compile Include="NUnitIntegration\NUnitIntegrationFeature.cs" />
     <Compile Include="ObjectInspectionFeature.cs" />
     <Compile Include="ParameterFormatterSpec.cs" />

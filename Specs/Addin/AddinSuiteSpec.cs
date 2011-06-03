@@ -18,6 +18,7 @@ namespace Cone.Addin
     public partial class AddinSuiteSpec
     {
         static TestSuite BuildSuite(Type type){ return new AddinSuiteBuilder().BuildSuite(type); }
+
         [Context("Before")]
         public class Before
         {

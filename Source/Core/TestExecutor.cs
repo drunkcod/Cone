@@ -12,20 +12,17 @@ namespace Cone.Core
 
 	class PendingMethodContext : ITestContext
 	{
+        readonly IPendingAttribute contextPending;
+
+        public PendingMethodContext(IPendingAttribute contextPending) {
+            this.contextPending = contextPending;
+        }
+
 		public Action<ITestResult> Establish(ICustomAttributeProvider attributes, Action<ITestResult> next) {
-			var pending = attributes.FirstOrDefault((IPendingAttribute x) => x.IsPending);
+			var pending = attributes.FirstOrDefault((IPendingAttribute x) => x.IsPending, contextPending);
 			return pending == null 
 				? next 
 				: result => result.Pending(pending.Reason);
-        }
-	}
-
-	class PendingFixtureContext : ITestContext
-	{
-		public string Reason;
-
-		public Action<ITestResult> Establish(ICustomAttributeProvider attributes, Action<ITestResult> next) {
-			return result => result.Pending(Reason);
         }
 	}
 
@@ -70,9 +67,7 @@ namespace Cone.Core
 
 		ITestContext PendingGuard(Type fixtureType) {
 			var pending = fixtureType.FirstOrDefault((IPendingAttribute x) => x.IsPending);
-			if(pending != null)
-				return new PendingFixtureContext { Reason = pending.Reason };
-			return new PendingMethodContext();
+			return new PendingMethodContext(pending);
 		}
     }
 }
