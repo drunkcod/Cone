@@ -32,41 +32,47 @@ namespace Cone.Addin
         }
 
         public override TestResult Run(EventListener listener, ITestFilter filter) {
-            var nunitTestResult = new TestResult(this);
-            ITestResult testResult = new NUnitTestResultAdapter(nunitTestResult);
+            var result = new TestResult(this);
             switch(RunState){               
-                case RunState.Runnable: testExecutor.Run(new TestAdapter(this, listener, nunitTestResult), testResult); break;
+                case RunState.Runnable: new NUnitTestContext(this, listener, result).Run(testExecutor); break;
                 case RunState.Explicit: goto case RunState.Runnable;
             }          
-            return nunitTestResult;
+            return result;
         }
 
-		class TestAdapter : IConeTest, ITestContext
+		class NUnitTestContext : IConeTest, ITestContext
 		{
 			readonly ConeTest inner;
 			readonly TestResult result;
 			readonly EventListener listener;
 			
-			public TestAdapter(ConeTest inner, EventListener listener, TestResult result) {
+			public NUnitTestContext(ConeTest inner, EventListener listener, TestResult result) {
 				this.inner = inner;
 				this.listener = listener;
 				this.result = result;
 			}
 
-			public ICustomAttributeProvider Attributes { get { return inner.Attributes; } }
+            public void Run(TestExecutor runner) {
+                runner.Run(this, new NUnitTestResultAdapter(result));
+            }
 
-			public void Run(ITestResult testResult) {
+			ICustomAttributeProvider IConeTest.Attributes { get { return inner.Attributes; } }
+
+			void IConeTest.Run(ITestResult testResult) {
 				inner.Run(testResult);
 			}
 
-			public Action<ITestResult> Establish(ICustomAttributeProvider attributes, System.Action<ITestResult> next) {
+			Action<ITestResult> ITestContext.Establish(ICustomAttributeProvider attributes, System.Action<ITestResult> next) {
 				return r => {
-					var time = Stopwatch.StartNew();           
-		            listener.TestStarted(inner.TestName);
-					next(r);            
-					time.Stop();
-					result.Time = time.Elapsed.TotalSeconds;
-					listener.TestFinished(result);
+					var time = Stopwatch.StartNew();       
+                    try {
+		                listener.TestStarted(inner.TestName);
+					    next(r);           
+                    } finally {
+					    time.Stop();
+					    result.Time = time.Elapsed.TotalSeconds;
+					    listener.TestFinished(result);
+                    }
 				};
 			}
 		}

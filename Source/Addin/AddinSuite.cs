@@ -23,6 +23,11 @@ namespace Cone.Addin
             this.testNamer = testNamer;
             this.fixture = new ConeFixture(this);
             this.testExecutor = new TestExecutor(this.fixture);
+
+            var pending = type.FirstOrDefault((IPendingAttribute x) => x.IsPending);
+            if(pending != null) {
+                this.Ignore(NUnit.Core.RunState.Ignored, pending.Reason);
+            }
         }
 
         public string Name { get { return TestName.FullName; } }

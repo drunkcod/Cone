@@ -7,14 +7,16 @@ using Cone.Core;
 
 namespace Cone.Expectations
 {
+    public delegate string MethodDisplay(object[] parameters);
+    
     public class StringMethodsProvider : IMethodExpectProvider
     {
-        readonly Dictionary<MethodInfo, Func<object[], string>> methodDisplay;
+        readonly Dictionary<MethodInfo, MethodDisplay> methodDisplay;
 
         public StringMethodsProvider() {
             var s = typeof(string);
             var t = new[]{ s };
-            methodDisplay = new Dictionary<MethodInfo,Func<object[], string>> {
+            methodDisplay = new Dictionary<MethodInfo, MethodDisplay> {
                 { s.GetMethod("Contains"), _ => "a string containing {0}" },
                 { s.GetMethod("EndsWith", t), _ => "a string ending with {0}" },
                 { s.GetMethod("EndsWith", new []{ s, typeof(StringComparison) }), x => string.Format("a string ending with {{0}} using '{0}'", x[1]) },
@@ -38,9 +40,9 @@ namespace Cone.Expectations
 
     public class StringMethodExpect : MemberMethodExpect
     {
-        readonly Func<object[], string> methodDisplay;
+        readonly MethodDisplay methodDisplay;
 
-        public StringMethodExpect(Func<object[], string> methodDisplay, Expression body, MethodInfo method, object target, object[] arguments):
+        public StringMethodExpect(MethodDisplay methodDisplay, Expression body, MethodInfo method, object target, object[] arguments):
             base(body, method, target, arguments) {
             this.methodDisplay = methodDisplay;
         }
