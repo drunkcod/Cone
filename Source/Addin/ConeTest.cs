@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 using System.Threading;
 using Cone.Core;
 using NUnit.Core;
@@ -37,7 +38,6 @@ namespace Cone.Addin
             listener.TestStarted(TestName);
             switch(RunState){               
                 case RunState.Runnable: testExecutor.Run(this, testResult); break;
-                case RunState.Ignored: testResult.Pending(IgnoreReason); break;
                 case RunState.Explicit: goto case RunState.Runnable;
             }
             
@@ -49,6 +49,8 @@ namespace Cone.Addin
 
         public override string TestType { get { return GetType().Name; } }
 
+		public abstract ICustomAttributeProvider Attributes { get; }
+
         public virtual void Run(ITestResult testResult){}
-    }
+	}
 }

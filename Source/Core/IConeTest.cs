@@ -1,7 +1,10 @@
-﻿namespace Cone.Core
+﻿using System.Reflection;
+
+namespace Cone.Core
 {
     public interface IConeTest
     {
-        void Run(ITestResult testResult);
+		ICustomAttributeProvider Attributes { get; }
+		void Run(ITestResult testResult);
     }
 }

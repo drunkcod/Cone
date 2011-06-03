@@ -37,7 +37,7 @@ namespace Cone.Core
             interceptors.ForEach(x => @do(GetInterceptor(fixture, x)));
         }
 
-        public Action<ITestResult> Establish(Action<ITestResult> next) {
+        public Action<ITestResult> Establish(ICustomAttributeProvider attributes, Action<ITestResult> next) {
             return result => {
                 try {
                     Before();

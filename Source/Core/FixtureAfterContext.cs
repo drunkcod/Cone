@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace Cone.Core
 {
@@ -10,7 +11,7 @@ namespace Cone.Core
             this.fixture = fixture;
         }
 
-        public Action<ITestResult> Establish(Action<ITestResult> next) {
+        public Action<ITestResult> Establish(ICustomAttributeProvider attributes, Action<ITestResult> next) {
             return result => {
                 try {
                     next(result);

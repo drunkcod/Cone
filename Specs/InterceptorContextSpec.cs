@@ -37,7 +37,7 @@ namespace Cone.Core
             var error = new Exception();
             Interceptor.Setup(x => x.Before()).Throws(error);
 
-            Context.Establish(_ => { })(Result.Object);
+            Context.Establish(null, _ => { })(Result.Object);
 
             Result.Verify(x => x.BeforeFailure(error));
             Interceptor.Verify(x => x.After(Result.Object));
@@ -47,7 +47,7 @@ namespace Cone.Core
             var error = new Exception();
             Interceptor.Setup(x => x.After(Result.Object)).Throws(error);
 
-            Context.Establish(_ => { })(Result.Object);
+            Context.Establish(null, _ => { })(Result.Object);
 
             Result.Verify(x => x.AfterFailure(error));
         }

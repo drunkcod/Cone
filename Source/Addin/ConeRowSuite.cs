@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using Cone.Core;
 using NUnit.Core;
+using System.Reflection;
 
 namespace Cone.Addin
 {
@@ -16,6 +17,8 @@ namespace Cone.Addin
             public ConeRowTest(object[] parameters, ConeRowSuite parent, string name) : base(parent, parent.testExecutor, name) {
                 this.parameters = parameters;
             }
+
+			public override ICustomAttributeProvider Attributes { get { return Thunk; } }
 
             public override void Run(ITestResult testResult) { Thunk.Invoke(Fixture, parameters); }
 
@@ -61,5 +64,7 @@ namespace Cone.Addin
         public override int TestCount { get { return tests.Count; } }
 
         public override IList Tests { get { return tests; } }
+
+		public override ICustomAttributeProvider Attributes { get { return thunk; } }
     }
 }

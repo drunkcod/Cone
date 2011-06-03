@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Text;
 using Moq;
 
@@ -14,6 +15,13 @@ namespace Cone.Core
 
         ITestResult TestResult { get { return testResultMock.Object; } }
 
+		class NullAttributeProvider : ICustomAttributeProvider
+		{
+			public object[] GetCustomAttributes(bool inherit) { return new object[0]; }
+			public object[] GetCustomAttributes(Type attributeType, bool inherit) { return new object[0]; }
+			public bool IsDefined(Type attributeType, bool inherit) { return false; }
+		}
+
         [BeforeEach]
         public void CreateMocks() {
             contextMock = new Mock<IConeFixture>();
@@ -22,6 +30,7 @@ namespace Cone.Core
 
             testResultMock = new Mock<ITestResult>();
             testMock = new Mock<IConeTest>();
+			testMock.SetupGet(x => x.Attributes).Returns(new NullAttributeProvider());
             testExecutor = new TestExecutor(contextMock.Object);
         }
 

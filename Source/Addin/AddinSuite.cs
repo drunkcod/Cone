@@ -94,7 +94,6 @@ namespace Cone.Addin
         }
 
         void AddWithAttributes(ICustomAttributeProvider method, Test test) {
-            test.ProcessPendingAttributes(method);           
             test.ProcessExplicitAttributes(method);
             Add(test);
         }

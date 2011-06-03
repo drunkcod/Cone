@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Cone.Core
 {
     interface ITestContext 
     {
-        Action<ITestResult> Establish(Action<ITestResult> next);
+        Action<ITestResult> Establish(ICustomAttributeProvider attributes, Action<ITestResult> next);
     }
 
     public class TestExecutor
@@ -19,8 +20,9 @@ namespace Cone.Core
             this.context = new List<ITestContext> {
                 new TestMethodContext(),
                 new FixtureBeforeContext(fixture), 
-                new FixtureAfterContext(fixture)
+                new FixtureAfterContext(fixture),
             };
+			this.context.AddRange(GetTestContexts(fixture.FixtureType));
 
             var interceptorContext = InterceptorContext.For(typeContext, () => fixture.Fixture);
             if(!interceptorContext.IsEmpty)
@@ -28,13 +30,19 @@ namespace Cone.Core
         }
 
         public void Run(IConeTest test, ITestResult result) {
-            var next = EstablishContext(test.Run);            
-            next(result);
+            var next = EstablishContext(test.Attributes, test.Run);
+			next(result);
         }
 
-        Action<ITestResult> EstablishContext(Action<ITestResult> next) {
+        Action<ITestResult> EstablishContext(ICustomAttributeProvider attributes, Action<ITestResult> next) {
             Verify.Context = typeContext;
-            return context.Aggregate(next, (acc, x) => x.Establish(acc));
+            return context.Concat(GetTestContexts(attributes))
+				.Aggregate(next, (acc, x) => x.Establish(attributes, acc));
         }
+
+		IEnumerable<ITestContext> GetTestContexts(ICustomAttributeProvider attributes) {
+			return attributes.GetCustomAttributes(typeof(ITestContext), true)
+				.Cast<ITestContext>();
+		}
     }
 }
