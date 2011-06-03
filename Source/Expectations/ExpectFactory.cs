@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -30,7 +29,7 @@ namespace Cone.Expectations
             return Expression.Lambda<Expector>(Expression.New(expectType.GetConstructor(arguments), parameters), parameters).Compile();
         }
 
-        readonly IDictionary<MethodInfo, IMethodExpectProvider> methodExpects = new Dictionary<MethodInfo, IMethodExpectProvider>();
+		readonly MethodExpectProviderLookup methodExpects = new MethodExpectProviderLookup();
 
         public ExpectFactory() {
             var providers = AppDomain.CurrentDomain.GetAssemblies()                
@@ -39,7 +38,7 @@ namespace Cone.Expectations
                 .Select(x => x.New() as IMethodExpectProvider);
             foreach(var provider in providers)
                 foreach(var method in provider.GetSupportedMethods())
-                    methodExpects[method] = provider;
+                    methodExpects.Insert(method, provider);
         }
 
         public static bool IsMethodExpectProvider(Type type) {
@@ -98,13 +97,17 @@ namespace Cone.Expectations
         IExpect Method(MethodCallExpression body) {
             IMethodExpectProvider provider;
             var method = body.Method;
-            if(methodExpects.TryGetValue(method, out provider)) {
+            if(TryGetExpectProvider(method, out provider)) {
                 var target = Evaluator.EvaluateAsTarget(body.Object, body).Value;
                 var args = body.Arguments.ConvertAll(EvaluateAs<object>);
                 return provider.GetExpectation(body, method, target, args);
             }
             return Boolean(body);
         }
+
+		bool TryGetExpectProvider(MethodInfo method, out IMethodExpectProvider provider) {
+			return methodExpects.TryGetExpectProvider(method, out provider);
+		}
 
         IExpect Boolean(Expression body) {
             return new BooleanExpect(body, EvaluateAs<bool>(body));

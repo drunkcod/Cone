@@ -66,6 +66,7 @@
     <Compile Include="ConeFixtureSetupSpec.cs" />
     <Compile Include="ConeMethodClassifierSpec.cs" />
     <Compile Include="ConeTestNamerSpec.cs" />
+    <Compile Include="Core\MethodExpectProviderLookupSpec.cs" />
     <Compile Include="CustomMethodExpectFeature.cs" />
     <Compile Include="DisplayClassAttributeSpec.cs" />
     <Compile Include="Expectations\StringMethodExpectSpec.cs" />

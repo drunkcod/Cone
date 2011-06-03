@@ -1,3 +1,8 @@
+.:[ 0.0.2.23 ]:.
+
+New Features
+[x] Support for generic methods when creating custom method expect providers.
+
 .:[ 0.0.2.22 ]:.
 
 Changes
