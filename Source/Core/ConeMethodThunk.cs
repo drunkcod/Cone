@@ -1,10 +1,13 @@
 ﻿using System.Reflection;
-using System.Reflection.Emit;
-using System;
 
 namespace Cone.Core
 {
-    public class ConeMethodThunk : ICustomAttributeProvider
+    public interface ICallable 
+    {
+        void Invoke(object obj, object[] parameters);
+    }
+
+    public class ConeMethodThunk : ICallable, ICustomAttributeProvider
     {
         readonly MethodInfo method;
         readonly ConeTestNamer namer;
@@ -14,7 +17,7 @@ namespace Cone.Core
             this.namer = namer;
         }
 
-        public void Invoke(object fixture, object[] parameters) { method.Invoke(fixture, parameters); }
+        public void Invoke(object obj, object[] parameters) { method.Invoke(obj, parameters); }
 
         public string NameFor(object[] parameters) {
             return namer.NameFor(method, parameters);

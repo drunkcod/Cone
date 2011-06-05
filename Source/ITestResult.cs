@@ -2,11 +2,6 @@
 
 namespace Cone
 {
-    public enum TestStatus
-    {
-        Success, Pending, Failure, SetupFailure
-    }
-
     public interface ITestResult
     {
         ITestName TestName { get; }

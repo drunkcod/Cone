@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Cone.Core;
@@ -8,8 +7,11 @@ using NUnit.Core;
 
 namespace Cone.Addin
 {
-    class ConeRowSuite : ConeTest
+    class ConeRowSuite : ConeTest, IConeRowTestBuilder<Test>
     {
+        readonly ConeMethodThunk thunk;
+        readonly List<Test> tests = new List<Test>();
+
         class ConeRowTest : ConeTest
         {
             readonly object[] parameters;
@@ -18,15 +20,14 @@ namespace Cone.Addin
                 this.parameters = parameters;
             }
 
-			public override ICustomAttributeProvider Attributes { get { return Thunk; } }
+		    public override ICustomAttributeProvider Attributes { get { return Suite.Attributes; } }
 
             public override void Run(ITestResult testResult) { Thunk.Invoke(Fixture, parameters); }
 
-            ConeMethodThunk Thunk { get { return ((ConeRowSuite)Parent).thunk; } }
-        }
+            ICallable Thunk { get { return Suite.thunk; } }
 
-        readonly ConeMethodThunk thunk;
-        readonly List<Test> tests = new List<Test>();
+            ConeRowSuite Suite { get { return ((ConeRowSuite)Parent); } }
+        }
 
         public ConeRowSuite(ConeMethodThunk thunk, Test suite, TestExecutor testExecutor, string name)
             : base(suite, testExecutor, name) {
@@ -35,24 +36,15 @@ namespace Cone.Addin
         }
 
         public void Add(IEnumerable<IRowData> rows) {
-            foreach (var row in rows) { 
-                var parameters = row.Parameters;
-                var rowName = row.DisplayAs ?? thunk.NameFor(parameters);
-                var rowTest = new ConeRowTest(parameters, this, rowName);
-                if (row.IsPending)
-                    rowTest.RunState = RunState.Ignored;
-                tests.Add(rowTest);
-            }
+            tests.AddRange(ConeRowTestBuilder.BuildFrom(this, rows));
         }
 
         public override TestResult Run(EventListener listener, ITestFilter filter) {
-            var testResult = new TestResult(this);
-            var time = Stopwatch.StartNew();
             listener.SuiteStarted(TestName);
-            return testResult.Timed(
+            return new TestResult(this).Timed(
                 x => {
                     foreach(var item in tests.Where(filter.Pass))
-                        testResult.AddResult(item.Run(listener, filter));
+                        x.AddResult(item.Run(listener, filter));
                 }, 
                 listener.SuiteFinished);
         }
@@ -64,5 +56,16 @@ namespace Cone.Addin
         public override IList Tests { get { return tests; } }
 
 		public override ICustomAttributeProvider Attributes { get { return thunk; } }
+
+        public string NameFor(object[] parameters) {
+            return thunk.NameFor(parameters);
+        }
+
+        public Test NewRow(string name, object[] parameters, TestStatus status) {
+            var row = new ConeRowTest(parameters, this, name);
+            if(status == TestStatus.Pending)
+                row.RunState = RunState.Ignored;
+            return row;
+        }
     }
 }

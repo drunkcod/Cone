@@ -45,6 +45,7 @@
     <Compile Include="Core\ConeFixtureSetup.cs" />
     <Compile Include="Core\ConeMethodClassifier.cs" />
     <Compile Include="Core\ConeMethodThunk.cs" />
+    <Compile Include="Core\ConeRowTestBuilder.cs" />
     <Compile Include="Core\ConeSuiteBuilder.cs" />
     <Compile Include="Core\ConeTestNamer.cs" />
     <Compile Include="ContextAttribute.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="Core\IFixtureHolder.cs" />
     <Compile Include="Core\MethodExpectProviderLookup.cs" />
     <Compile Include="Core\TestMethodContext.cs" />
+    <Compile Include="TestStatus.cs" />
     <Compile Include="DescribeAttribute.cs" />
     <Compile Include="DisplayClassAttribute.cs" />
     <Compile Include="Core\EvaluationResult.cs" />
