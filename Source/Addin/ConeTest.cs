@@ -65,14 +65,8 @@ namespace Cone.Addin
 			Action<ITestResult> ITestContext.Establish(ICustomAttributeProvider attributes, System.Action<ITestResult> next) {
 				return r => {
 					var time = Stopwatch.StartNew();       
-                    try {
-		                listener.TestStarted(inner.TestName);
-					    next(r);           
-                    } finally {
-					    time.Stop();
-					    result.Time = time.Elapsed.TotalSeconds;
-					    listener.TestFinished(result);
-                    }
+                    listener.TestStarted(inner.TestName);
+                    result.Timed(_ => next(r), listener.TestFinished);
 				};
 			}
 		}

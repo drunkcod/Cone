@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Cone.Expectations;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Cone.Core
 {
@@ -12,24 +14,22 @@ namespace Cone.Core
 		public void MyMethod<T>(T value) { }
 
 		class NullMethodExpectProvider : IMethodExpectProvider {
-			public IEnumerable<System.Reflection.MethodInfo> GetSupportedMethods() {
-				throw new NotImplementedException();
-			}
+			public IEnumerable<MethodInfo> GetSupportedMethods() { return new MethodInfo[0]; }
 
-			public IExpect GetExpectation(System.Linq.Expressions.Expression body, System.Reflection.MethodInfo method, object target, object[] args) {
-				throw new NotImplementedException();
+			public IExpect GetExpectation(Expression body, MethodInfo method, object target, object[] args) {
+                return null;
 			}
 		}
 
 		public void finds_generic_provider_if_available() {
 			var lookup = new MethodExpectProviderLookup();
 			var provider = new NullMethodExpectProvider();
-			lookup.Insert(GetType().GetMethod("MyMethod"), provider);
+            var method = GetType().GetMethod("MyMethod");
+			lookup.Insert(method, provider);
 
-			IMethodExpectProvider foundProvider;
-			Verify.That(() => 
-				lookup.TryGetExpectProvider(GetType().GetMethod("MyMethod").MakeGenericMethod(typeof(int)), out foundProvider) 
-				&& foundProvider == provider);
+			IMethodExpectProvider foundProvider = null;
+			Verify.That(() => lookup.TryGetExpectProvider(method.MakeGenericMethod(typeof(int)), out foundProvider));
+            Verify.That(() => foundProvider == provider);
 
 		}
 	}

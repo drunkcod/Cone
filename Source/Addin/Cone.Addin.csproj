@@ -70,6 +70,7 @@
     <Compile Include="ConeTestMethod.cs" />
     <Compile Include="NUnitTestExtensions.cs" />
     <Compile Include="NUnitTestResultAdapter.cs" />
+    <Compile Include="NUnitTestResultExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cone.csproj">

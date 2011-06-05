@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using Cone.Core;
 using NUnit.Core;
-using System.Reflection;
 
 namespace Cone.Addin
 {
@@ -49,14 +49,12 @@ namespace Cone.Addin
             var testResult = new TestResult(this);
             var time = Stopwatch.StartNew();
             listener.SuiteStarted(TestName);
-            try {
-                foreach(var item in tests.Where(filter.Pass))
-                    testResult.AddResult(item.Run(listener, filter));
-            } finally {
-                testResult.Time = time.Elapsed.TotalSeconds;
-                listener.SuiteFinished(testResult);
-            }
-            return testResult;
+            return testResult.Timed(
+                x => {
+                    foreach(var item in tests.Where(filter.Pass))
+                        testResult.AddResult(item.Run(listener, filter));
+                }, 
+                listener.SuiteFinished);
         }
 
         public override bool IsSuite { get { return true; } }
