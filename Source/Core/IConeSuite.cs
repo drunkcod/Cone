@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Cone.Core
 {
-    public interface IConeSuite : ICustomAttributeProvider
+    public interface IConeSuite
     {
         string Name { get; }
         void AddTestMethod(ConeMethodThunk testThunk);

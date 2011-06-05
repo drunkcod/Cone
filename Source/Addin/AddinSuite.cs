@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Cone.Core;
 using NUnit.Core;
-using NUnit.Framework;
 
 namespace Cone.Addin
 {
@@ -12,7 +11,7 @@ namespace Cone.Addin
         readonly Type type;
         readonly TestExecutor testExecutor;
         readonly ConeTestNamer testNamer;
-        readonly Dictionary<string,ConeRowSuite> rowSuites = new Dictionary<string,ConeRowSuite>();
+        readonly RowSuiteLookup<ConeRowSuite> rowSuites;
         readonly string suiteType;
         MethodInfo[] afterEachWithResult;
         readonly ConeFixture fixture;
@@ -23,6 +22,11 @@ namespace Cone.Addin
             this.testNamer = testNamer;
             this.fixture = new ConeFixture(this);
             this.testExecutor = new TestExecutor(this.fixture);
+            this.rowSuites = new RowSuiteLookup<ConeRowSuite>((method, suiteSame) => {
+                var suite = new ConeRowSuite(new ConeMethodThunk(method, testNamer), this, testExecutor, suiteSame);
+                AddWithAttributes(method, suite);
+                return suite;
+            });
 
             var pending = type.FirstOrDefault((IPendingAttribute x) => x.IsPending);
             if(pending != null) {
@@ -47,25 +51,8 @@ namespace Cone.Addin
             tearDownMethods = setup.AfterEach;
             afterEachWithResult = setup.AfterEachWithResult;
             fixtureTearDownMethods = setup.AfterAll;
-            
-            CreateDynamicRowTests(setup.RowSource);
-        }
 
-        void CreateDynamicRowTests(MethodInfo[] rowSources) {
-            if(rowSources == null || rowSources.Length == 0)
-                return;
-            var rows = new Dictionary<MethodInfo, List<IRowData>>();
-            foreach(var item in rowSources) {
-                foreach(IRowTestData row in (IEnumerable<IRowTestData>)fixture.Invoke(item)) {
-                    List<IRowData> parameters;
-                    if(!rows.TryGetValue(row.Method, out parameters))
-                        rows[row.Method] = parameters = new List<IRowData>();
-                    parameters.Add(row);                 
-                }
-            }
-            IConeSuite suite = this;
-            foreach(var item in rows)
-                suite.AddRowTest(NameFor(item.Key), item.Key, item.Value);
+            setup.CreateRows(fixture, (method, rows) => AddRowTest(NameFor(method), method, rows));    
         }
 
         string NameFor(MethodInfo method) {
@@ -82,38 +69,16 @@ namespace Cone.Addin
         }
         
         void IConeSuite.AddSubsuite(IConeSuite suite) {
-            AddWithAttributes(suite, (Test)suite);
+            AddWithAttributes(type, (Test)suite);
         }
 
-        void IConeSuite.AddRowTest(string name, MethodInfo method, IEnumerable<IRowData> rows) {
-            GetSuite(method, name).Add(rows);
-        }
-
-        ConeRowSuite GetSuite(MethodInfo method, string name) {
-            ConeRowSuite suite;
-            var key = method.Name + "." + name;
-            if(!rowSuites.TryGetValue(key, out suite)) {
-                rowSuites[key] = suite = new ConeRowSuite(new ConeMethodThunk(method, testNamer), this, testExecutor, name);
-                AddWithAttributes(method, suite);
-            }
-            return suite;
+        public void AddRowTest(string name, MethodInfo method, IEnumerable<IRowData> rows) {
+            rowSuites.GetSuite(method, name).Add(rows);
         }
 
         void AddWithAttributes(ICustomAttributeProvider method, Test test) {
             test.ProcessExplicitAttributes(method);
             Add(test);
-        }
-
-        object[] ICustomAttributeProvider.GetCustomAttributes(bool inherit) {
-            return type.GetCustomAttributes(inherit);
-        }
-
-        object[] ICustomAttributeProvider.GetCustomAttributes(Type attributeType, bool inherit) {
-            return type.GetCustomAttributes(attributeType, inherit);
-        }
-
-        bool ICustomAttributeProvider.IsDefined(Type attributeType, bool inherit) {
-            return type.IsDefined(attributeType, inherit);
         }
     }
 }

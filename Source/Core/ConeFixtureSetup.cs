@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Cone.Core
@@ -12,6 +13,15 @@ namespace Cone.Core
         public MethodInfo[] AfterAll;
         public MethodInfo[] AfterEachWithResult;
         public MethodInfo[] RowSource;
+
+        public void CreateRows(ConeFixture fixture, Action<MethodInfo, IEnumerable<IRowData>> methodRows) {
+            var rows = RowSource
+                .SelectMany(x => (IEnumerable<IRowTestData>)fixture.Invoke(x))
+                .GroupBy(x => x.Method, x => x as IRowData);
+            
+            foreach(var item in rows) 
+                methodRows(item.Key, item);
+        }
     }
 
     public interface IMethodProvider 

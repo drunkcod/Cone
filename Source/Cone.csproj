@@ -54,6 +54,7 @@
     <Compile Include="Core\ICollectionFormatter.cs" />
     <Compile Include="Core\IFixtureHolder.cs" />
     <Compile Include="Core\MethodExpectProviderLookup.cs" />
+    <Compile Include="Core\RowSuiteBuilder.cs" />
     <Compile Include="Core\TestMethodContext.cs" />
     <Compile Include="TestStatus.cs" />
     <Compile Include="DescribeAttribute.cs" />
