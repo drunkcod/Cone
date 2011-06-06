@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace Cone.Core
@@ -12,16 +11,6 @@ namespace Cone.Core
         public MethodInfo[] AfterEach;
         public MethodInfo[] AfterAll;
         public MethodInfo[] AfterEachWithResult;
-        public MethodInfo[] RowSource;
-
-        public void CreateRows(ConeFixture fixture, Action<MethodInfo, IEnumerable<IRowData>> methodRows) {
-            var rows = RowSource
-                .SelectMany(x => (IEnumerable<IRowTestData>)fixture.Invoke(x))
-                .GroupBy(x => x.Method, x => x as IRowData);
-            
-            foreach(var item in rows) 
-                methodRows(item.Key, item);
-        }
     }
 
     public interface IMethodProvider 
@@ -29,7 +18,7 @@ namespace Cone.Core
         IEnumerable<MethodInfo> GetMethods(Type type, BindingFlags bindingFlags);
     }
 
-    public class ConeFixtureSetup : IMethodProvider
+    public class ConeFixtureSetup : IMethodProvider, IConeFixtureMethodSink
     {
         readonly ConeMethodClassifier classifier;
         readonly IMethodProvider methodProvider;
@@ -39,29 +28,12 @@ namespace Cone.Core
         readonly List<MethodInfo> afterEach = new List<MethodInfo>();
         readonly List<MethodInfo> afterEachWithResult = new List<MethodInfo>();
         readonly List<MethodInfo> afterAll = new List<MethodInfo>();
-        readonly List<MethodInfo> rowSources = new List<MethodInfo>(); 
 
-        public ConeFixtureSetup(): this(null) { }
+        public ConeFixtureSetup(IConeTestMethodSink testSink): this(null, testSink) { }
 
-        public ConeFixtureSetup(IMethodProvider methodProvider) {
+        public ConeFixtureSetup(IMethodProvider methodProvider, IConeTestMethodSink testSink) {
             this.methodProvider = methodProvider ?? this;
-            this.classifier = new ConeMethodClassifier();
-            classifier.BeforeAll += (_, e) => beforeAll.Add(e.Method);
-            classifier.BeforeEach += (_,e) => beforeEach.Add(e.Method);
-            classifier.AfterEach += (_, e) => afterEach.Add(e.Method);
-            classifier.AfterEachWithResult += (_, e) => afterEachWithResult.Add(e.Method);
-            classifier.AfterAll += (_, e) => afterAll.Add(e.Method);
-            classifier.RowSource += (_, e) => rowSources.Add(e.Method);            
-        }
-
-        public event EventHandler<MethodClassEventArgs> Test {
-            add { classifier.Test += value; }
-            remove { classifier.Test -= value; }
-        }
-
-        public event EventHandler<RowTestClassEventArgs> RowTest {
-            add { classifier.RowTest += value; }
-            remove { classifier.RowTest -= value; }
+            this.classifier = new ConeMethodClassifier(this, testSink);
         }
 
         public void CollectFixtureMethods(Type type) {
@@ -86,8 +58,6 @@ namespace Cone.Core
             x.AfterAll = afterAll.ToArray();
             Array.Sort(x.AfterAll, DerivedBeforeBase);
 
-            x.RowSource = rowSources.ToArray();
-
             return x;
         }
 
@@ -108,5 +78,17 @@ namespace Cone.Core
         public IEnumerable<MethodInfo> GetMethods(Type type, BindingFlags bindingFlags) {
             return type.GetMethods(bindingFlags);
         }
+
+        void IConeFixtureMethodSink.Unintresting(MethodInfo method) { }
+
+        void IConeFixtureMethodSink.BeforeAll(MethodInfo method) { beforeAll.Add(method); }
+
+        void IConeFixtureMethodSink.BeforeEach(MethodInfo method) { beforeEach.Add(method); }
+
+        void IConeFixtureMethodSink.AfterEach(MethodInfo method) { afterEach.Add(method); }
+
+        void IConeFixtureMethodSink.AfterEachWithResult(MethodInfo method) { afterEachWithResult.Add(method); }
+
+        void IConeFixtureMethodSink.AfterAll(MethodInfo method) { afterAll.Add(method); }
     }
 }

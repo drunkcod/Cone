@@ -3,11 +3,9 @@ using System.Reflection;
 
 namespace Cone.Core
 {
-    public interface IConeSuite
+    public interface IConeSuite : IConeTestMethodSink
     {
         string Name { get; }
-        void AddTestMethod(ConeMethodThunk testThunk);
-        void AddRowTest(string name, MethodInfo method, IEnumerable<IRowData> rows);
         void AddSubsuite(IConeSuite suite);
         void BindTo(ConeFixtureMethods setup);
         void AddCategories(IEnumerable<string> categories);

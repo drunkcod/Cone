@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Cone.Core
@@ -26,10 +27,7 @@ namespace Cone.Core
         protected TSuite BuildSuite(Type type, IFixtureDescription description) {
             var testNamer = new ConeTestNamer();
             var suite = NewSuite(type, description, testNamer);
-            var setup = new ConeFixtureSetup();
-            
-            setup.Test += (_, e) => suite.AddTestMethod(new ConeMethodThunk(e.Method, testNamer)); 
-            setup.RowTest += (_, e) => suite.AddRowTest(testNamer.NameFor(e.Method), e.Method, e.Rows);      
+            var setup = new ConeFixtureSetup(suite);
 
             setup.CollectFixtureMethods(type);
             suite.BindTo(setup.GetFixtureMethods());

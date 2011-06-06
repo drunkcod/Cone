@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Cone.Core;
+using Moq;
 
 namespace Cone
 {
@@ -34,7 +35,7 @@ namespace Cone
     
             [BeforeAll]
             public void GetFixtureMethods() {
-                var setup = new ConeFixtureSetup(this);
+                var setup = new ConeFixtureSetup(this, new Mock<IConeTestMethodSink>().Object);
                 setup.CollectFixtureMethods(typeof(DerivedFixture));
                 FixtureMethods = setup.GetFixtureMethods();
             }
@@ -66,7 +67,7 @@ namespace Cone
 
             [BeforeAll]
             public void GetFixtureMethods() {
-                var setup = new ConeFixtureSetup(this);
+                var setup = new ConeFixtureSetup(this, new Mock<IConeTestMethodSink>().Object);
                 setup.CollectFixtureMethods(typeof(DerivedFixture));
                 FixtureMethods = setup.GetFixtureMethods();
             }

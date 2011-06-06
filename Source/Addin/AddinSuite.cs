@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 using Cone.Core;
 using NUnit.Core;
 
@@ -51,8 +52,6 @@ namespace Cone.Addin
             tearDownMethods = setup.AfterEach;
             afterEachWithResult = setup.AfterEachWithResult;
             fixtureTearDownMethods = setup.AfterAll;
-
-            setup.CreateRows(fixture, (method, rows) => AddRowTest(NameFor(method), method, rows));    
         }
 
         string NameFor(MethodInfo method) {
@@ -64,22 +63,39 @@ namespace Cone.Addin
                 Categories.Add(item);
         }
 
-        void IConeSuite.AddTestMethod(ConeMethodThunk thunk) { 
+        void AddTestMethod(ConeMethodThunk thunk) { 
             AddWithAttributes(thunk, new ConeTestMethod(thunk, this, testExecutor, thunk.NameFor(null))); 
         }
         
-        void IConeSuite.AddSubsuite(IConeSuite suite) {
-            AddWithAttributes(type, (Test)suite);
+        void AddRowTest(MethodInfo method, IEnumerable<IRowData> rows) {
+            rowSuites.GetSuite(method, testNamer.NameFor(method)).Add(rows);
         }
 
-        public void AddRowTest(string name, MethodInfo method, IEnumerable<IRowData> rows) {
-            rowSuites.GetSuite(method, name).Add(rows);
+        void IConeSuite.AddSubsuite(IConeSuite suite) {
+            AddWithAttributes(type, (Test)suite);
         }
 
         void AddWithAttributes(ICustomAttributeProvider method, Test test) {
             test.ProcessExplicitAttributes(method);
             Add(test);
         }
+
+        void IConeTestMethodSink.Test(MethodInfo method) {
+            AddTestMethod(new ConeMethodThunk(method, testNamer));
+        }
+
+        void IConeTestMethodSink.RowTest(MethodInfo method, IEnumerable<IRowData> rows) {
+            AddRowTest(method, rows);
+        }
+
+        void IConeTestMethodSink.RowSource(MethodInfo method) {
+            var rows = ((IEnumerable<IRowTestData>)fixture.Invoke(method))
+                .GroupBy(x => x.Method, x => x as IRowData);
+            foreach(var item in rows)
+                AddRowTest(item.Key, item);
+        }
+
+        IConeSuite AsSuite() { return (IConeSuite)this; }
     }
 }
  

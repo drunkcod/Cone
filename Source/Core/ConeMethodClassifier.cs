@@ -1,121 +1,92 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace Cone.Core
 {
-    [Flags]
-    public enum ConeMethodClass
+    public interface IConeTestMethodSink 
     {
-        Unintresting,
-        Test = 1,
-        RowTest = Test << 1,
-        BeforeAll = RowTest << 1,
-        BeforeEach = BeforeAll << 1,
-        AfterEach = BeforeEach << 1,
-        AfterAll = AfterEach << 1,
-        AfterEachWithResult = AfterAll << 1,
-        RowSource = AfterEachWithResult << 1
+        void Test(MethodInfo method);
+        void RowTest(MethodInfo method, IEnumerable<IRowData> rows);
+        void RowSource(MethodInfo method);
     }
 
-    public class MethodClassEventArgs : EventArgs 
+    public interface IConeFixtureMethodSink 
     {
-        readonly MethodInfo method;
-
-        public MethodClassEventArgs(MethodInfo method) {
-            this.method = method;
-        }
-
-        public MethodInfo Method { get { return method; } }
-    }
-
-    public class RowTestClassEventArgs : MethodClassEventArgs 
-    {
-        readonly RowAttribute[] rows;
-
-        public RowTestClassEventArgs(MethodInfo method, RowAttribute[] rows) : base(method) {
-            this.rows = rows;
-        }
-
-        public RowAttribute[] Rows { get { return rows; } }
-    }
-
-    static class EventHandlerExtensions 
-    {
-        public static void Raise<T>(this EventHandler<T> self, object sender, T e) where T : EventArgs {
-            if(self != null)
-                self(sender, e);
-        }
+        void Unintresting(MethodInfo method);
+        void BeforeAll(MethodInfo method);
+        void BeforeEach(MethodInfo method);
+        void AfterEach(MethodInfo method);
+        void AfterEachWithResult(MethodInfo method);
+        void AfterAll(MethodInfo method);
     }
 
     public class ConeMethodClassifier 
     {
-        public event EventHandler<MethodClassEventArgs> Test;
-        public event EventHandler<RowTestClassEventArgs> RowTest;
-        public event EventHandler<MethodClassEventArgs> RowSource;
-        public event EventHandler<MethodClassEventArgs> BeforeAll;
-        public event EventHandler<MethodClassEventArgs> BeforeEach;
-        public event EventHandler<MethodClassEventArgs> AfterEach;
-        public event EventHandler<MethodClassEventArgs> AfterEachWithResult;
-        public event EventHandler<MethodClassEventArgs> AfterAll;
+        readonly IConeFixtureMethodSink fixtureSink;
+        readonly IConeTestMethodSink testSink;
 
-        public ConeMethodClass Classify(MethodInfo method) {
-            if(method.DeclaringType == typeof(object))
-                return ConeMethodClass.Unintresting;
-            var attributes = method.GetCustomAttributes(true);
-
-            if(method.Has<RowAttribute>(rows => RowTest.Raise(this, new RowTestClassEventArgs(method, rows))))
-                return ConeMethodClass.RowTest;
-           
-            var parameters = method.GetParameters();
-            if(parameters.Length == 0)
-                return ClassifyNiladic(method, attributes);
-            else if(parameters.Length == 1)
-                return ClassifyMonadic(method, attributes, parameters[0]);
-            return ConeMethodClass.Unintresting;
+        public ConeMethodClassifier(IConeFixtureMethodSink sink, IConeTestMethodSink testSink) {
+            this.fixtureSink = sink;
+            this.testSink = testSink;
         }
 
-        ConeMethodClass ClassifyNiladic(MethodInfo method, object[] attributes) {
-            if(typeof(IEnumerable<IRowTestData>).IsAssignableFrom(method.ReturnType)) {
-                RowSource.Raise(this, new MethodClassEventArgs(method));
-                return ConeMethodClass.RowSource;
+        public void Classify(MethodInfo method) {
+            if(method.DeclaringType == typeof(object)) {
+                fixtureSink.Unintresting(method);
+                return;
             }
 
-            var mark = ConeMethodClass.Unintresting;
+            if(method.Has<RowAttribute>(rows => testSink.RowTest(method, rows)))
+                return;
+           
+            var parameters = method.GetParameters();
+            switch(parameters.Length) {
+                case 0: ClassifyNiladic(method); break;
+                case 1: ClassifyMonadic(method, parameters[0]); break;
+                default: fixtureSink.Unintresting(method); break;
+            }
+        }
+
+        void ClassifyNiladic(MethodInfo method) {
+            if(typeof(IEnumerable<IRowTestData>).IsAssignableFrom(method.ReturnType)) {
+                testSink.RowSource(method);
+                return;
+            }
+
+            bool sunk = false;
+            var attributes = method.GetCustomAttributes(true);
             for(int i = 0; i != attributes.Length; ++i) {
                 var item = attributes[i];
                 if(item is BeforeAllAttribute) {
-                    BeforeAll.Raise(this, new MethodClassEventArgs(method));
-                    mark |= ConeMethodClass.BeforeAll;
+                    fixtureSink.BeforeAll(method);
+                    sunk = true;
                 }
                 if(item is BeforeEachAttribute) {
-                    BeforeEach.Raise(this, new MethodClassEventArgs(method));
-                    mark |= ConeMethodClass.BeforeEach;
+                    fixtureSink.BeforeEach(method);
+                    sunk = true;
                 }
                 if(item is AfterEachAttribute) {
-                    AfterEach.Raise(this, new MethodClassEventArgs(method));
-                    mark |= ConeMethodClass.AfterEach;
+                    fixtureSink.AfterEach(method);
+                    sunk = true;
                 }
                 if(item is AfterAllAttribute) {
-                    AfterAll.Raise(this, new MethodClassEventArgs(method));
-                    mark |= ConeMethodClass.AfterAll;
+                    fixtureSink.AfterAll(method);
+                    sunk = true;
                 }
             }
-            if(mark != ConeMethodClass.Unintresting)
-                return mark;
+            if(sunk)
+                return;
             
-            Test.Raise(this, new MethodClassEventArgs(method));
-            return ConeMethodClass.Test;
+            testSink.Test(method);
         }
 
-        ConeMethodClass ClassifyMonadic(MethodInfo method, object[] attributes, ParameterInfo parameter) {
+        void ClassifyMonadic(MethodInfo method, ParameterInfo parameter) {
             if(typeof(ITestResult).IsAssignableFrom(parameter.ParameterType) 
-                && attributes.Any(x => x is AfterEachAttribute)) {
-                AfterEachWithResult.Raise(this, new MethodClassEventArgs(method));
-                return ConeMethodClass.AfterEachWithResult;
+                && method.Has<AfterEachAttribute>()) {
+                fixtureSink.AfterEachWithResult(method);
             }
-            return ConeMethodClass.Unintresting;
+            else fixtureSink.Unintresting(method);
         }
     }
 }
