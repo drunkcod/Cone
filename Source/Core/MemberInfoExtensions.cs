@@ -16,7 +16,7 @@ namespace Cone.Core
                     if(getMethod.IsStatic || !targetType.IsValueType) 
                         return getMethod.Invoke(target, null);
                     try {
-                        return getMethod.CreateBoxedInvoke()(target);
+                        return getMethod.CreateBoxedInvoke(targetType.Name + ".Get" + self.Name)(target);
                     } catch(Exception e) {
                         throw new TargetInvocationException(e);
                     }
@@ -24,21 +24,49 @@ namespace Cone.Core
             }            
         }
 
-        public static Func<object, object> CreateBoxedInvoke(this MethodInfo self) {
+        public static Func<object, object> CreateBoxedInvoke(this MethodInfo self, string name) {
             var targetType = self.DeclaringType;
-            var getter = new DynamicMethod(targetType.Name + ".Get" + self.Name, typeof(object), new[]{ typeof(object) }, true);
-            var il = getter.GetILGenerator();
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Unbox_Any, targetType);
-            if(targetType.IsValueType) {
-                var tmp = il.DeclareLocal(targetType);
+            var getter = new DynamicMethod(name, typeof(object), new[]{ typeof(object) }, true);
+            getter.GetILGenerator()
+                .Ldarg(0)
+                .UnboxAsCallable(targetType)
+                .CallAny(self)
+                .ToObject(self.ReturnType) 
+                .Ret();
+            return (Func<object,object>)getter.CreateDelegate(typeof(Func<object, object>));
+        }
+    }
+
+    static class ILGeneratorExtensions
+    {
+        public static ILGenerator Ldarg(this ILGenerator il, int index) {
+            il.Emit(OpCodes.Ldarg, index);
+            return il;
+        }
+
+        public static void Ret(this ILGenerator il) {
+            il.Emit(OpCodes.Ret);
+        }
+
+        public static ILGenerator UnboxAsCallable(this ILGenerator il, Type boxedType) {
+            il.Emit(OpCodes.Unbox_Any, boxedType);
+            if(boxedType.IsValueType) {
+                var tmp = il.DeclareLocal(boxedType);
                 il.Emit(OpCodes.Stloc, tmp);
                 il.Emit(OpCodes.Ldloca, tmp);
             }
-            il.Emit(self.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, self);
-            il.Emit(OpCodes.Box, self.ReturnType);
-            il.Emit(OpCodes.Ret);
-            return (Func<object,object>)getter.CreateDelegate(typeof(Func<object, object>));
+            return il;
+        }
+
+        public static ILGenerator CallAny(this ILGenerator il, MethodInfo method) {
+            il.Emit(method.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, method);
+            return il;
+        }
+
+        public static ILGenerator ToObject(this ILGenerator il, Type topOfStack) {
+            if(topOfStack.IsValueType)
+                il.Emit(OpCodes.Box, topOfStack);
+            return il;
         }
     }
 }
