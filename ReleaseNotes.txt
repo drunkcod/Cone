@@ -3,6 +3,9 @@
 New Features
 [x] Support for generic methods when creating custom method expect providers.
 
+Bug Fixes
+[x] Properly checking Nullable<T>.HasValue
+
 .:[ 0.0.2.22 ]:.
 
 Changes

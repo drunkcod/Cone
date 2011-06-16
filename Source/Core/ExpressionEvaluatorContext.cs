@@ -21,7 +21,7 @@ namespace Cone.Core
                 case ExpressionType.Lambda: return EvaluateLambda(body);
                 case ExpressionType.ArrayIndex: return EvaluateArrayIndex(body);
                 case ExpressionType.Call: return EvaluateCall(body);
-                case ExpressionType.Constant: return Success(((ConstantExpression)body).Value);
+                case ExpressionType.Constant: return Success(body.Type, ((ConstantExpression)body).Value);
                 case ExpressionType.Convert: return EvaluateConvert(body);
                 case ExpressionType.Equal: goto case ExpressionType.NotEqual;
                 case ExpressionType.NotEqual: return EvaluateBinary(body);
@@ -35,9 +35,9 @@ namespace Cone.Core
 
         public EvaluationResult EvaluateAsTarget(Expression expression) {
             if(expression == null)
-                return Success(null);
+                return Success(null, null);
             return Evaluate(expression)
-                .Maybe(result => result.Value == null ? NullSubexpression(expression, context) : result);
+                .Maybe(result => result.IsNull ? NullSubexpression(expression, context) : result);
         }
 
         public EvaluationResult EvaluateAll(ICollection<Expression> expressions) {
@@ -47,16 +47,16 @@ namespace Cone.Core
                 var x = Evaluate(item);
                 if(x.IsError)
                     return x;
-                result[index++] = x.Value;
+                result[index++] = x.Result;
             }
-            return Success(result);
+            return Success(typeof(object[]), result);
         }
 
         EvaluationResult EvaluateLambda(Expression expression) { return EvaluateLambda((LambdaExpression)expression); }
         EvaluationResult EvaluateLambda(LambdaExpression expression) {
             if(expression == context && expression.Parameters.Count == 0)
                 return Evaluate(expression.Body);
-            return Success(expression.Compile());
+            return Success(expression.Type, expression.Compile());
         }
 
         EvaluationResult EvaluateArrayIndex(Expression expression) {
@@ -67,9 +67,9 @@ namespace Cone.Core
         }
 
         EvaluationResult EvaluateArrayIndex1(BinaryExpression rank1) {
-            var array = (Array)Evaluate(rank1.Left).Value;
-            var index = (int)Evaluate(rank1.Right).Value;
-            return Success(array.GetValue(index));
+            var array = (Array)Evaluate(rank1.Left).Result;
+            var index = (int)Evaluate(rank1.Right).Result;
+            return Success(rank1.Type, array.GetValue(index));
         }
 
         EvaluationResult EvaluateBinary(Expression expression) { return EvaluateBinary((BinaryExpression)expression); }
@@ -77,16 +77,16 @@ namespace Cone.Core
             return Evaluate(binary.Left).Maybe(
                 left => Evaluate(binary.Right).Maybe(right => {
                     var parameters = new[] { 
-                        left.Value, 
-                        right.Value
+                        left.Result, 
+                        right.Result
                     };
 
                     var op = binary.Method;
                     if(op != null)
-                        return Success(op.Invoke(null, parameters));
+                        return Success(op.ReturnType, op.Invoke(null, parameters));
                     switch(binary.NodeType) {
-                        case ExpressionType.Equal: return Success(Object.Equals(parameters[0], parameters[1]));
-                        case ExpressionType.NotEqual: return Success(!Object.Equals(parameters[0], parameters[1]));
+                        case ExpressionType.Equal: return Success(typeof(bool), Object.Equals(parameters[0], parameters[1]));
+                        case ExpressionType.NotEqual: return Success(typeof(bool), !Object.Equals(parameters[0], parameters[1]));
                         default: return Unsupported(binary);
                     }
                 }));
@@ -97,9 +97,9 @@ namespace Cone.Core
             return EvaluateAsTarget(expression.Object).Maybe(target => 
                 EvaluateAll(expression.Arguments).Maybe(arguments => {
                     var method = expression.Method;
-                    var input = (object[])arguments.Value;
+                    var input = (object[])arguments.Result;
                     return GuardedInvocation(expression, 
-                        () => Success(method.Invoke(target.Value, input)), 
+                        () => Success(method.ReturnType, method.Invoke(target.Result, input)), 
                         () => AssignOutParameters(expression.Arguments, input, method.GetParameters()));
                 }));
         }
@@ -111,19 +111,19 @@ namespace Cone.Core
                 if(parameters[i].IsOut) {
                     var member = (arguments[i] as MemberExpression);
                     var field = member.Member as FieldInfo;
-                    field.SetValue(Rebind(member.Expression).Evaluate(member.Expression).Value, results[i]);
+                    field.SetValue(Rebind(member.Expression).Evaluate(member.Expression).Result, results[i]);
                 }
         }
         
         EvaluationResult EvaluateConvert(Expression expression) { return EvaluateConvert((UnaryExpression)expression); }
         EvaluationResult EvaluateConvert(UnaryExpression expression) {
             return Evaluate(expression.Operand).Maybe(source => {
-                var value = source.Value;
+                var value = source.Result;
                 var convertMethod = expression.Method;
                 if(convertMethod != null && convertMethod.IsStatic) {
-                    return GuardedInvocation(expression, () => Success(convertMethod.Invoke(null, new[] { value })));
+                    return GuardedInvocation(expression, () => Success(convertMethod.ReturnType, convertMethod.Invoke(null, new[] { value })));
                 }
-                return Success(ChangeType(value, expression.Type));
+                return Success(expression.Type, ChangeType(value, expression.Type));
             });
         }
 
@@ -131,16 +131,16 @@ namespace Cone.Core
         EvaluationResult EvaluateMemberAccess(MemberExpression expression) {
             return GuardedInvocation(expression, () =>
                 EvaluateAsTarget(expression.Expression)
-                    .Maybe(x => Success(expression.Member.GetValue(x.Value))));
+                    .Maybe(x => Success(expression.Type, expression.Member.GetValue(x.Result))));
         }
 
         EvaluationResult EvaluateNew(Expression expression) { return EvaluateNew((NewExpression)expression); }
         EvaluationResult EvaluateNew(NewExpression expression) {
             return GuardedInvocation(expression, () => {
-                var args = EvaluateAll(expression.Arguments).Value as object[];
+                var args = EvaluateAll(expression.Arguments).Result as object[];
                 if(expression.Constructor != null)
-                    return Success(expression.Constructor.Invoke(args));
-                return Success(Activator.CreateInstance(expression.Type, args));
+                    return Success(expression.Type, expression.Constructor.Invoke(args));
+                return Success(expression.Type, Activator.CreateInstance(expression.Type, args));
             });
         }
 
@@ -155,13 +155,13 @@ namespace Cone.Core
 
         EvaluationResult EvaluateQuote(Expression expression) { return EvaluateQuote((UnaryExpression)expression); }
         EvaluationResult EvaluateQuote(UnaryExpression expression) {
-            return Success(expression.Operand);
+            return Success(expression.Type, expression.Operand);
         }
 
         EvaluationResult EvaluateInvoke(Expression expression) { return EvaluateInvoke((InvocationExpression)expression); }
         EvaluationResult EvaluateInvoke(InvocationExpression expression) {
-            var target = Evaluate(expression.Expression).Value as Delegate;
-            return GuardedInvocation(expression, () => Success(target.DynamicInvoke(EvaluateAll(expression.Arguments).Value as object[])));
+            var target = Evaluate(expression.Expression).Result as Delegate;
+            return GuardedInvocation(expression, () => Success(expression.Type, target.DynamicInvoke(EvaluateAll(expression.Arguments).Result as object[])));
         }
 
         ExpressionEvaluatorContext Rebind(Expression context) {
@@ -175,7 +175,7 @@ namespace Cone.Core
             return ObjectConverter.ChangeType(value, to);
         }
 
-        EvaluationResult Success(object value){ return EvaluationResult.Success(value); }
+        EvaluationResult Success(Type type, object value){ return EvaluationResult.Success(type, value); }
         EvaluationResult Failure(Expression expression, Exception e){ return EvaluationResult.Failure(expression, e); } 
     }
 }

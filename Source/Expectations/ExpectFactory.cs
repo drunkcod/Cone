@@ -98,7 +98,7 @@ namespace Cone.Expectations
             IMethodExpectProvider provider;
             var method = body.Method;
             if(TryGetExpectProvider(method, out provider)) {
-                var target = Evaluator.EvaluateAsTarget(body.Object, body).Value;
+                var target = Evaluator.EvaluateAsTarget(body.Object, body).Result;
                 var args = body.Arguments.ConvertAll(EvaluateAs<object>);
                 return provider.GetExpectation(body, method, target, args);
             }
@@ -142,7 +142,7 @@ namespace Cone.Expectations
         }
         
         static T EvaluateAs<T>(Expression body) { return (T)Evaluate(body, body); }
-        static object Evaluate(Expression body, Expression context) { return Evaluator.Evaluate(body, context).Value; }
+        static object Evaluate(Expression body, Expression context) { return Evaluator.Evaluate(body, context).Result; }
 
         static Expect TypeIs(TypeBinaryExpression body) {
             return new TypeIsExpect(body,

@@ -51,6 +51,14 @@ namespace Cone
             Verify.That(() => objAnswer is Int32);
         }
 
+        public void nullable_HasValue_when_empty() {
+            Verify.That(() => new Nullable<int>().HasValue == false);
+        }
+
+        public void nullable_HasValue_with_value() {
+            Verify.That(() => new Nullable<int>(42).HasValue == true);
+        }
+
         public class PossiblyGreen
         {
             public bool IsGreen { get { return true; } }

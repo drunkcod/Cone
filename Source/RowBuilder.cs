@@ -73,7 +73,7 @@ namespace Cone
                 .SetName(testNamer.NameFor(call.Method, parameters));
         }
 
-        object Collect(Expression expression, Expression context) { return evaluator.Evaluate(expression, context).Value; }
+        object Collect(Expression expression, Expression context) { return evaluator.Evaluate(expression, context).Result; }
 
         IEnumerator<IRowTestData> IEnumerable<IRowTestData>.GetEnumerator() { return rows.GetEnumerator(); }
 

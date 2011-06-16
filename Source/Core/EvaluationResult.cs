@@ -11,17 +11,28 @@ namespace Cone.Core
             public Expression Expression;
         }
 
-        object value;
-        bool isError;
+        readonly Type resultType;
+        readonly object value;
+        readonly bool isError;
 
-        public static EvaluationResult Failure(Expression expression, Exception e){ return new EvaluationResult { value = new EvaluationError{ Exception = e, Expression = expression }, isError = true }; }
-        public static EvaluationResult Success(object result){ return new EvaluationResult { value = result, isError = false }; }
+        EvaluationResult(Type resultType, object value, bool isError) {
+            this.resultType = resultType;
+            this.value = value;
+            this.isError = isError;
+        }
 
-        public object Value { 
+        public static EvaluationResult Failure(Expression expression, Exception e) { 
+            return new EvaluationResult(typeof(EvaluationError), new EvaluationError{ Exception = e, Expression = expression }, true); }
+        public static EvaluationResult Success(Type resultType, object result) { 
+            return new EvaluationResult(resultType, result, false); }
+
+        public Type ResultType { get { return resultType; } }
+
+        public object Result { 
             get {
                 if(isError)
                     throw Exception;
-                return value; 
+                return value;
             } 
         }
 
@@ -29,6 +40,7 @@ namespace Cone.Core
         public Expression Expression { get { return Error.Expression; } }
 
         public bool IsError { get { return isError; } }
+        public bool IsNull { get { return !resultType.IsValueType && Result == null; } }
 
         EvaluationError Error { get { return (EvaluationError)value; } }
 

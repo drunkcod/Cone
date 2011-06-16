@@ -13,7 +13,7 @@ namespace Cone
         };
 
         T Evaluate<T>(Expression<Func<T>> lambda){ return Evaluate(lambda, x => { throw x.Exception; }); }
-        T Evaluate<T>(Expression<Func<T>> lambda, Func<EvaluationResult, EvaluationResult> onError){ return (T)evaluator.Evaluate(lambda.Body, lambda, onError).Value; }
+        T Evaluate<T>(Expression<Func<T>> lambda, Func<EvaluationResult, EvaluationResult> onError){ return (T)evaluator.Evaluate(lambda.Body, lambda, onError).Result; }
         void EvaluateError<T>(Expression<Func<T>> lambda, Func<EvaluationResult, EvaluationResult> onError) { 
             var result = evaluator.Evaluate(lambda.Body, lambda, onError);
             Verify.That(() => result.IsError);

@@ -42,7 +42,7 @@ namespace Cone.Core
 
         EvaluationResult EvaluateUnsupported(Expression expression) {
             try {
-                return EvaluationResult.Success(Expression.Lambda<Func<object>>(expression.Box()).Compile()());
+                return EvaluationResult.Success(expression.Type, Expression.Lambda<Func<object>>(expression.Box()).Compile()());
             } catch(Exception e) {
                 return EvaluationResult.Failure(expression, e);
             }
