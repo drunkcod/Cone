@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Cone.Core
 {
@@ -6,6 +7,11 @@ namespace Cone.Core
     {
         public static bool Has<T>(this Type type) {
             return type.GetCustomAttributes(typeof(T), true).Length == 1;
+        }
+
+        public static bool HasAny(this Type self, params Type[] attributeTypes) {
+            var attributes = self.GetCustomAttributes(true);
+            return attributes.Any(x => attributeTypes.Any(t => t.IsAssignableFrom(x.GetType())));
         }
 
         public static TResult WithAttributes<TAttribute, TResult>(this Type self, Func<TAttribute[], TResult> found, Func<TResult> notFound) {

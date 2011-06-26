@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Cone
 {
@@ -15,9 +16,10 @@ namespace Cone
 
         public IEnumerable<string> Categories {
             get {
-                if(!string.IsNullOrEmpty(Category))
-                    foreach(var item in Category.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                        yield return item.Trim();
+                if(string.IsNullOrEmpty(Category))
+                    return new string[0];
+                return Category.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim());
             }
         }
     }

@@ -1,32 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace Cone.Core
 {
     public abstract class ConeSuiteBuilder<TSuite> where TSuite : IConeSuite
     {
-        class FixtureDescription : IFixtureDescription
+        readonly ConeTestNamer names = new ConeTestNamer(); 
+
+        class ContextDescription : IFixtureDescription
         {
             public IEnumerable<string> Categories { get; set; }
             public string SuiteName { get; set; }
-            public string SuiteType { get; set; }
+            public string SuiteType { get { return "Context"; } }
             public string TestName { get; set; }
         }
 
-        public bool SupportedType(Type type) { return type.IsPublic && (type.Has<DescribeAttribute>() || type.Has<FeatureAttribute>()); } 
+        public bool SupportedType(Type type) { return type.IsPublic && type.HasAny(typeof(DescribeAttribute), typeof(FeatureAttribute)); } 
 
         public TSuite BuildSuite(Type suiteType) {
-            var description = DescriptionOf(suiteType);
-            return BuildSuite(suiteType, description);
+            return BuildSuite(suiteType, DescriptionOf(suiteType));
         }
 
         protected abstract TSuite NewSuite(Type type, IFixtureDescription description, ConeTestNamer testNamer);
 
         protected TSuite BuildSuite(Type type, IFixtureDescription description) {
-            var testNamer = new ConeTestNamer();
-            var suite = NewSuite(type, description, testNamer);
+            var suite = NewSuite(type, description, names);
             var setup = new ConeFixtureSetup(suite);
 
             setup.CollectFixtureMethods(type);
@@ -37,12 +36,11 @@ namespace Cone.Core
         }
 
         void AddNestedContexts(Type suiteType, IConeSuite suite) {
-            var description = new FixtureDescription {
-                SuiteType = "Context",
+            var description = new ContextDescription {
                 SuiteName = suite.Name
             };
+            ContextAttribute contextDescription;
             suiteType.GetNestedTypes(BindingFlags.Public).ForEach(item => {
-                ContextAttribute contextDescription;
                 if (item.TryGetAttribute<ContextAttribute, ContextAttribute>(out contextDescription)) {
                     description.Categories = contextDescription.Categories;
                     description.TestName = contextDescription.Context;

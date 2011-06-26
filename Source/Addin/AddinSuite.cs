@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Linq;
+using System.Reflection;
 using Cone.Core;
 using NUnit.Core;
 
@@ -17,9 +17,9 @@ namespace Cone.Addin
         MethodInfo[] afterEachWithResult;
         readonly ConeFixture fixture;
 
-        internal AddinSuite(Type type, string parentSuiteName, string name, string suiteType, ConeTestNamer testNamer) : base(parentSuiteName, name) {
+        internal AddinSuite(Type type, IFixtureDescription description, ConeTestNamer testNamer) : base(description.SuiteName, description.TestName) {
             this.type = type;
-            this.suiteType = suiteType;
+            this.suiteType = description.SuiteType;
             this.testNamer = testNamer;
             this.fixture = new ConeFixture(this);
             this.testExecutor = new TestExecutor(this.fixture);
