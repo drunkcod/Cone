@@ -22,6 +22,7 @@ namespace Cone.Addin
             this.suiteType = description.SuiteType;
             this.testNamer = testNamer;
             this.fixture = new ConeFixture(this);
+            fixture.Before += EstablishVerifyContext;
             this.testExecutor = new TestExecutor(this.fixture);
             this.rowSuites = new RowSuiteLookup<ConeRowSuite>((method, suiteSame) => {
                 var suite = new ConeRowSuite(new ConeMethodThunk(method, testNamer), this, testExecutor, suiteSame);
@@ -34,6 +35,10 @@ namespace Cone.Addin
                 RunState = RunState.Ignored;
                 IgnoreReason = pending.Reason;
             }
+        }
+
+        static void EstablishVerifyContext(object sender, EventArgs e) {
+            Verify.Context = ((IConeFixture)sender).FixtureType;
         }
 
         public string Name { get { return TestName.FullName; } }

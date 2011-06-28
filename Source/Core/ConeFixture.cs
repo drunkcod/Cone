@@ -10,9 +10,14 @@ namespace Cone.Core
             this.fixtureHolder = fixtureHolder;
         }
 
-        public void Before() { FixtureInvokeAll(SetupMethods, null); }
+        public event EventHandler Before;
 
-        public void After(ITestResult testResult) {
+        void ITestInterceptor.Before() { 
+            FixtureInvokeAll(SetupMethods, null);
+            Before.Raise(this, EventArgs.Empty);
+        }
+
+        void ITestInterceptor.After(ITestResult testResult) {
             FixtureInvokeAll(AfterEachWithResult, new[] { testResult });
             FixtureInvokeAll(TearDownMethods, null);
         }

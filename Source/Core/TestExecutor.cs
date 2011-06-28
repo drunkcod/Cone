@@ -26,22 +26,6 @@ namespace Cone.Core
         }
 	}
 
-    class EstablishVerifyContext : ITestContext 
-    {
-        readonly Type context;
-
-        public EstablishVerifyContext(Type context) {
-            this.context = context;
-        }
-
-        public Action<ITestResult> Establish(ICustomAttributeProvider attributes, Action<ITestResult> next) {
-            return x => {
-                Verify.Context = context;
-                next(x);
-            };
-        }
-    }
-
     public class TestExecutor
     {
         readonly List<ITestContext> context;
@@ -49,7 +33,6 @@ namespace Cone.Core
         public TestExecutor(IConeFixture fixture) {
             this.context = new List<ITestContext> {
                 new TestMethodContext(),
-                new EstablishVerifyContext(fixture.FixtureType),
                 new FixtureBeforeContext(fixture), 
                 new FixtureAfterContext(fixture),
 				PendingGuard(fixture.FixtureType)

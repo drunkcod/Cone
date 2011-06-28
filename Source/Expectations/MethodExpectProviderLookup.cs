@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
-using Cone.Expectations;
 
-namespace Cone.Core
+namespace Cone.Expectations
 {
 	public class MethodExpectProviderLookup 
 	{
