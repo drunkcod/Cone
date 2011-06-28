@@ -28,14 +28,14 @@ namespace Cone
             public void DerivedAfterAll() {}
         }
 
-        [Context("handles method sorted with derived first")]
-        public class DerivedFirst : IMethodProvider
+        [Context("base methods before derived ones")]
+        public class DerivedFirst
         {
             ConeFixtureMethods FixtureMethods;
     
             [BeforeAll]
             public void GetFixtureMethods() {
-                var setup = new ConeFixtureSetup(this, new Mock<IConeTestMethodSink>().Object);
+                var setup = new ConeFixtureSetup(new Mock<IConeTestMethodSink>().Object);
                 setup.CollectFixtureMethods(typeof(DerivedFixture));
                 FixtureMethods = setup.GetFixtureMethods();
             }
@@ -50,51 +50,6 @@ namespace Cone
                 Verify.That(() => 
                     FixtureMethods.BeforeEach.IndexOf(Base(x => x.BeforeEach())) <
                     FixtureMethods.BeforeEach.IndexOf(Derived(x => x.DerivedBeforeEach())));
-            }
-
-            IEnumerable<MethodInfo> IMethodProvider.GetMethods(Type type, BindingFlags bindingFlags) {
-                foreach(var item in type.GetMethods(bindingFlags | BindingFlags.DeclaredOnly))
-                    yield return item;
-                foreach(var item in type.BaseType.GetMethods(bindingFlags))
-                    yield return item;
-            }
-        }
-
-        [Context("handles method sorted with derived last")]
-        public class DerivedLast : IMethodProvider
-        {
-            ConeFixtureMethods FixtureMethods;
-
-            [BeforeAll]
-            public void GetFixtureMethods() {
-                var setup = new ConeFixtureSetup(this, new Mock<IConeTestMethodSink>().Object);
-                setup.CollectFixtureMethods(typeof(DerivedFixture));
-                FixtureMethods = setup.GetFixtureMethods();
-            }
-
-            public void base_AfterEach_after_derived() {
-                Verify.That(() => 
-                    FixtureMethods.AfterEach.IndexOf(Base(x => x.AfterEach())) >
-                    FixtureMethods.AfterEach.IndexOf(Derived(x => x.DerivedAfterEach())));
-            }
-
-            public void base_AfterEach_with_result_after_derived() {
-                Verify.That(() => 
-                    FixtureMethods.AfterEachWithResult.IndexOf(Base(x => x.AfterEachWithResult(null))) >
-                    FixtureMethods.AfterEachWithResult.IndexOf(Derived(x => x.DerivedAfterEachWithResult(null))));
-            }
-
-            public void base_AfterAll_after_derived() {
-                Verify.That(() => 
-                    FixtureMethods.AfterAll.IndexOf(Base(x => x.AfterAll())) >
-                    FixtureMethods.AfterAll.IndexOf(Derived(x => x.DerivedAfterAll())));
-            }
-
-            IEnumerable<MethodInfo> IMethodProvider.GetMethods(Type type, BindingFlags bindingFlags) {
-                foreach(var item in type.BaseType.GetMethods(bindingFlags))
-                    yield return item;
-                foreach(var item in type.GetMethods(bindingFlags | BindingFlags.DeclaredOnly))
-                    yield return item;
             }
         }
 

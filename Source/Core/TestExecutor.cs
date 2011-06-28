@@ -10,19 +10,23 @@ namespace Cone.Core
         Action<ITestResult> Establish(ICustomAttributeProvider attributes, Action<ITestResult> next);
     }
 
-	class PendingTestContext : ITestContext
+	class PendingGuardTestContext : ITestContext
 	{
         readonly IPendingAttribute contextPending;
 
-        public PendingTestContext(IPendingAttribute contextPending) {
-            this.contextPending = contextPending;
+        public PendingGuardTestContext(ICustomAttributeProvider attributes) {
+            this.contextPending = FirstPendingOrDefault(attributes, null);
         }
 
 		public Action<ITestResult> Establish(ICustomAttributeProvider attributes, Action<ITestResult> next) {
-			var pending = attributes.FirstOrDefault((IPendingAttribute x) => x.IsPending, contextPending);
+			var pending = FirstPendingOrDefault(attributes, contextPending);
 			return pending == null 
 				? next 
 				: result => result.Pending(pending.Reason);
+        }
+
+        static IPendingAttribute FirstPendingOrDefault(ICustomAttributeProvider attributes, IPendingAttribute defaultValue) {
+            return attributes.FirstOrDefault((IPendingAttribute x) => x.IsPending, defaultValue);
         }
 	}
 
@@ -33,11 +37,10 @@ namespace Cone.Core
         public TestExecutor(IConeFixture fixture) {
             this.context = new List<ITestContext> {
                 new TestMethodContext(),
+				new PendingGuardTestContext(fixture.FixtureType),
                 new FixtureBeforeContext(fixture), 
-                new FixtureAfterContext(fixture),
-				PendingGuard(fixture.FixtureType)
+                new FixtureAfterContext(fixture)
             };
-			this.context.AddRange(GetTestContexts(fixture.FixtureType));
 
             var interceptorContext = InterceptorContext.For(fixture.FixtureType, () => fixture.Fixture);
             if(!interceptorContext.IsEmpty)
@@ -45,26 +48,21 @@ namespace Cone.Core
         }
 
         public void Run(IConeTest test, ITestResult result) {
-            var next = EstablishContext(test.Attributes, test.Run);
-			var context = test as ITestContext;
-			if(context != null)
-				next = context.Establish(test.Attributes, next);
+            var wrap = HowToWrap(test.Attributes);
+            var next = context.Concat(GetTestContexts(test.Attributes)).Aggregate(test.Run, wrap);
+			var testContext = test as ITestContext;
+			if(testContext != null)
+				next = wrap(next, testContext);;
 			next(result);
         }
 
-        Action<ITestResult> EstablishContext(ICustomAttributeProvider attributes, Action<ITestResult> next) {
-            return context.Concat(GetTestContexts(attributes))
-				.Aggregate(next, (acc, x) => x.Establish(attributes, acc));
+        Func<Action<ITestResult>, ITestContext, Action<ITestResult>> HowToWrap(ICustomAttributeProvider attributes) {
+            return (acc, x) => x.Establish(attributes, acc);
         }
 
 		IEnumerable<ITestContext> GetTestContexts(ICustomAttributeProvider attributes) {
 			return attributes.GetCustomAttributes(typeof(ITestContext), true)
 				.Cast<ITestContext>();
-		}
-
-		ITestContext PendingGuard(Type fixtureType) {
-			var pending = fixtureType.FirstOrDefault((IPendingAttribute x) => x.IsPending);
-			return new PendingTestContext(pending);
 		}
     }
 }

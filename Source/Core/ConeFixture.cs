@@ -13,13 +13,13 @@ namespace Cone.Core
         public event EventHandler Before;
 
         void ITestInterceptor.Before() { 
-            FixtureInvokeAll(SetupMethods, null);
+            InvokeAll(SetupMethods, null);
             Before.Raise(this, EventArgs.Empty);
         }
 
         void ITestInterceptor.After(ITestResult testResult) {
-            FixtureInvokeAll(AfterEachWithResult, new[] { testResult });
-            FixtureInvokeAll(TearDownMethods, null);
+            InvokeAll(AfterEachWithResult, new[] { testResult });
+            InvokeAll(TearDownMethods, null);
         }
 
         public object Invoke(MethodInfo method, params object[] parameters) {
@@ -27,18 +27,18 @@ namespace Cone.Core
         }
 
         object NewFixture() { 
-            var ctor = (this as IConeFixture).FixtureType.GetConstructor(Type.EmptyTypes);
+            var ctor = FixtureType.GetConstructor(Type.EmptyTypes);
             if(ctor == null)
-                return null;
+                throw new NotSupportedException("No compatible constructor found for " + FixtureType.FullName);
             return ctor.Invoke(null);
         }
 
-        void FixtureInvokeAll(MethodInfo[] methods, object[] parameters) {
+        void InvokeAll(MethodInfo[] methods, object[] parameters) {
             for (int i = 0; i != methods.Length; ++i)
                 methods[i].Invoke(Fixture, parameters);
         }
 
-        Type IConeFixture.FixtureType { get { return fixtureHolder.FixtureType; } }
+        public Type FixtureType { get { return fixtureHolder.FixtureType; } }
 
         public object Fixture { 
             get { return fixtureHolder.Fixture ?? (Fixture = NewFixture()); }
