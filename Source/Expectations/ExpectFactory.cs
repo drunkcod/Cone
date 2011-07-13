@@ -146,7 +146,7 @@ namespace Cone.Expectations
 
         static Expect TypeIs(TypeBinaryExpression body) {
             return new TypeIsExpect(body,
-                Evaluate(body.Expression, body).GetType(), 
+                Evaluate(body.Expression, body), 
                 body.TypeOperand);
         }
     }

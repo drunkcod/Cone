@@ -70,6 +70,7 @@
     <Compile Include="CustomMethodExpectFeature.cs" />
     <Compile Include="DisplayClassAttributeSpec.cs" />
     <Compile Include="Expectations\StringMethodExpectSpec.cs" />
+    <Compile Include="Expectations\TypeIsExpectSpec.cs" />
     <Compile Include="ExpectFactorySpec.cs" />
     <Compile Include="ExpressionEvaluatorSpec.cs" />
     <Compile Include="ExpressionExtensionsSpec.cs" />

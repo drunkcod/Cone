@@ -29,6 +29,13 @@ namespace Cone
             Verify.That(() => (Type)expect.Expected == typeof(string));
         }
 
+        [DisplayAs("\"is\" test with null")]
+        public void type_check_null() {
+            object obj = null;
+
+            Verify.That(() => ExpectFrom(() => obj is string) is TypeIsExpect);
+        }
+
         class Base { }
         class Derived : Base { }
 

@@ -27,7 +27,7 @@ namespace Cone.Expectations
             };
         }
 
-        public object Actual { get { return actual; } }
+        public virtual object Actual { get { return actual; } }
         public virtual object Expected { get { return true; } }
 
         public virtual string MessageFormat { get { return ExpectMessages.EqualFormat; } }

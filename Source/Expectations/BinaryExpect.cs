@@ -34,7 +34,13 @@ namespace Cone.Expectations
 
     public class TypeIsExpect : Expect
     {
-        public TypeIsExpect(Expression body, Type actual, Type expected): base(body, actual, expected) { }
+        public TypeIsExpect(Expression body, object actual, Type expected): base(body, actual, expected) { }
+
+        public override object Actual {
+            get {
+                return actual == null ? null : actual.GetType();
+            }
+        }
 
         protected override bool CheckCore() {
             return ((Type)Expected).IsAssignableFrom((Type)Actual);
