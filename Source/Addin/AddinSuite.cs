@@ -39,6 +39,8 @@ namespace Cone.Addin
 
         public string Name { get { return TestName.FullName; } }
 
+        MethodInfo[] IFixtureHolder.FixtureSetupMethods { get { return fixtureSetUpMethods; } }
+        MethodInfo[] IFixtureHolder.FixtureTeardownMethods { get  { return fixtureTearDownMethods; } }
         MethodInfo[] IFixtureHolder.SetupMethods { get { return setUpMethods; } }
         MethodInfo[] IFixtureHolder.TeardownMethods { get { return tearDownMethods; } }
         MethodInfo[] IFixtureHolder.AfterEachWithResult { get { return afterEachWithResult; } }
@@ -46,6 +48,20 @@ namespace Cone.Addin
         public override Type FixtureType { get { return type; } }
 
         public override string TestType { get { return suiteType; } }
+
+        public override TestResult Run(EventListener listener, ITestFilter filter) {
+            listener.SuiteStarted(TestName);
+            var result = new TestResult(this);
+            try { fixture.Initialize(); } 
+            catch { }
+            foreach(Test test in Tests)
+                if(filter.Pass(test))
+                    result.AddResult(test.Run(listener, filter));
+            try { fixture.Teardown(); } 
+            catch { }
+            listener.SuiteFinished(result);
+            return result;
+        }
 
         public void BindTo(ConeFixtureMethods setup) {
             fixtureSetUpMethods = setup.BeforeAll;
