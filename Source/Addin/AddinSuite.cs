@@ -9,7 +9,6 @@ namespace Cone.Addin
 {
     public class AddinSuite : TestSuite, IConeSuite, IFixtureHolder
     {
-        readonly Type type;
         readonly TestExecutor testExecutor;
         readonly ConeTestNamer testNamer;
         readonly RowSuiteLookup<ConeRowSuite> rowSuites;
@@ -18,7 +17,6 @@ namespace Cone.Addin
         readonly ConeFixture fixture;
 
         internal AddinSuite(Type type, IFixtureDescription description, ConeTestNamer testNamer) : base(description.SuiteName, description.TestName) {
-            this.type = type;
             this.suiteType = description.SuiteType;
             this.testNamer = testNamer;
             this.fixture = new ConeFixture(type, this);
@@ -45,8 +43,7 @@ namespace Cone.Addin
         MethodInfo[] IFixtureHolder.TeardownMethods { get { return tearDownMethods; } }
         MethodInfo[] IFixtureHolder.AfterEachWithResult { get { return afterEachWithResult; } }
 
-        public override Type FixtureType { get { return type; } }
-
+        public override Type FixtureType { get { return fixture.FixtureType; } }
         public override string TestType { get { return suiteType; } }
 
         public override TestResult Run(EventListener listener, ITestFilter filter) {
@@ -89,7 +86,7 @@ namespace Cone.Addin
         }
 
         void IConeSuite.AddSubsuite(IConeSuite suite) {
-            AddWithAttributes(type, (Test)suite);
+            AddWithAttributes(FixtureType, (Test)suite);
         }
 
         void AddWithAttributes(ICustomAttributeProvider method, Test test) {
