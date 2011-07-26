@@ -53,7 +53,6 @@
     <Compile Include="Core\FixtureAfterContext.cs" />
     <Compile Include="Core\FixtureBeforeContext.cs" />
     <Compile Include="Core\ICollectionFormatter.cs" />
-    <Compile Include="Core\IFixtureHolder.cs" />
     <Compile Include="Core\ILGeneratorExtensions.cs" />
     <Compile Include="Expectations\MethodExpectProviderLookup.cs" />
     <Compile Include="Core\RowSuiteBuilder.cs" />

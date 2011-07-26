@@ -1,29 +1,34 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Cone.Core
 {
-    public class ConeFixture : IConeFixture
+    public class ConeFixture : IConeFixture, IConeFixtureMethodSink
     {
         readonly Type fixtureType;
-        readonly IFixtureHolder fixtureHolder;
+        readonly List<MethodInfo> beforeAll = new List<MethodInfo>();
+        readonly List<MethodInfo> beforeEach = new List<MethodInfo>();
+        readonly List<MethodInfo> afterEach = new List<MethodInfo>();
+        readonly List<MethodInfo> afterEachWithResult = new List<MethodInfo>();
+        readonly List<MethodInfo> afterAll = new List<MethodInfo>();
+
         object fixture;
 
-        public ConeFixture(Type fixtureType, IFixtureHolder fixtureHolder) {
+        public ConeFixture(Type fixtureType) {
             this.fixtureType = fixtureType;
-            this.fixtureHolder = fixtureHolder;
         }
 
         public event EventHandler Before;
 
         void ITestInterceptor.Before() { 
-            InvokeAll(SetupMethods, null);
+            InvokeAll(beforeEach, null);
             Before.Raise(this, EventArgs.Empty);
         }
 
         void ITestInterceptor.After(ITestResult testResult) {
-            InvokeAll(AfterEachWithResult, testResult);
-            InvokeAll(TearDownMethods);
+            InvokeAll(afterEachWithResult, testResult);
+            InvokeAll(afterEach);
         }
 
         public object Invoke(MethodInfo method, params object[] parameters) {
@@ -33,11 +38,11 @@ namespace Cone.Core
         public void Initialize() {
             if(fixture == null)
                 fixture = NewFixture();
-            InvokeAll(FixtureSetupMethods);
+            InvokeAll(beforeAll);
         }
 
         public void Teardown() {
-            InvokeAll(FixtureTeardownMethods);
+            InvokeAll(afterAll);
             fixture = null;
         }
 
@@ -50,9 +55,9 @@ namespace Cone.Core
             return ctor.Invoke(null);
         }
 
-        void InvokeAll(MethodInfo[] methods, params object[] parameters) {
-            for (int i = 0; i != methods.Length; ++i)
-                methods[i].Invoke(Fixture, parameters);
+        void InvokeAll(List<MethodInfo> methods, params object[] parameters) {
+            for (int i = 0; i != methods.Count; ++i)
+                Invoke(methods[i], parameters);
         }
 
         public Type FixtureType { get { return fixtureType; } }
@@ -61,11 +66,11 @@ namespace Cone.Core
             get { return fixture ?? (fixture = NewFixture()); }
         }
 
-        MethodInfo[] FixtureSetupMethods { get { return fixtureHolder.FixtureSetupMethods; } }
-        MethodInfo[] FixtureTeardownMethods { get { return fixtureHolder.FixtureTeardownMethods; } }
-        MethodInfo[] SetupMethods { get { return fixtureHolder.SetupMethods; } }
-        MethodInfo[] TearDownMethods { get { return fixtureHolder.TeardownMethods; } }
-        MethodInfo[] AfterEachWithResult { get { return fixtureHolder.AfterEachWithResult; } }
-
+        void IConeFixtureMethodSink.Unintresting(MethodInfo method) { }
+        void IConeFixtureMethodSink.BeforeAll(MethodInfo method) { beforeAll.Add(method); }
+        void IConeFixtureMethodSink.BeforeEach(MethodInfo method) { beforeEach.Add(method); }
+        void IConeFixtureMethodSink.AfterEach(MethodInfo method) { afterEach.Add(method); }
+        void IConeFixtureMethodSink.AfterEachWithResult(MethodInfo method) { afterEachWithResult.Add(method); }
+        void IConeFixtureMethodSink.AfterAll(MethodInfo method) { afterAll.Add(method); }
     }
 }

@@ -7,6 +7,22 @@ using Moq;
 
 namespace Cone
 {
+    class ConeFixtureMethods : IConeFixtureMethodSink
+    {
+        public List<MethodInfo> BeforeAll = new List<MethodInfo>();
+        public List<MethodInfo> BeforeEach = new List<MethodInfo>();
+        public List<MethodInfo> AfterEach = new List<MethodInfo>();
+        public List<MethodInfo> AfterAll = new List<MethodInfo>();
+        public List<MethodInfo> AfterEachWithResult = new List<MethodInfo>();
+
+        void IConeFixtureMethodSink.Unintresting(MethodInfo method) { }
+        void IConeFixtureMethodSink.BeforeAll(MethodInfo method) { BeforeAll.Add(method); }
+        void IConeFixtureMethodSink.BeforeEach(MethodInfo method) { BeforeEach.Add(method); }
+        void IConeFixtureMethodSink.AfterEach(MethodInfo method) { AfterEach.Add(method); }
+        void IConeFixtureMethodSink.AfterEachWithResult(MethodInfo method) { AfterEachWithResult.Add(method); }
+        void IConeFixtureMethodSink.AfterAll(MethodInfo method) { AfterAll.Add(method); }
+    }
+
     [Describe(typeof(ConeFixtureSetup))]
     public class ConeFixtureSetupSpec
     {
@@ -35,9 +51,9 @@ namespace Cone
     
             [BeforeAll]
             public void GetFixtureMethods() {
-                var setup = new ConeFixtureSetup(new Mock<IConeTestMethodSink>().Object);
+                FixtureMethods = new ConeFixtureMethods();
+                var setup = new ConeFixtureSetup(FixtureMethods, new Mock<IConeTestMethodSink>().Object);
                 setup.CollectFixtureMethods(typeof(DerivedFixture));
-                FixtureMethods = setup.GetFixtureMethods();
             }
 
             public void base_BeforeAll_before_derived() {

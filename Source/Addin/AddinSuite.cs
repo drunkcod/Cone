@@ -7,19 +7,18 @@ using NUnit.Core;
 
 namespace Cone.Addin
 {
-    public class AddinSuite : TestSuite, IConeSuite, IFixtureHolder
+    public class AddinSuite : TestSuite, IConeSuite
     {
         readonly TestExecutor testExecutor;
         readonly ConeTestNamer testNamer;
         readonly RowSuiteLookup<ConeRowSuite> rowSuites;
         readonly string suiteType;
-        MethodInfo[] afterEachWithResult;
         readonly ConeFixture fixture;
 
         internal AddinSuite(Type type, IFixtureDescription description, ConeTestNamer testNamer) : base(description.SuiteName, description.TestName) {
             this.suiteType = description.SuiteType;
             this.testNamer = testNamer;
-            this.fixture = new ConeFixture(type, this);
+            this.fixture = new ConeFixture(type);
             this.fixture.Before += (s, e) => Verify.Context = ((ConeFixture)s).FixtureType;          
             this.testExecutor = new TestExecutor(this.fixture);
             this.rowSuites = new RowSuiteLookup<ConeRowSuite>((method, suiteSame) => {
@@ -37,11 +36,7 @@ namespace Cone.Addin
 
         public string Name { get { return TestName.FullName; } }
 
-        MethodInfo[] IFixtureHolder.FixtureSetupMethods { get { return fixtureSetUpMethods; } }
-        MethodInfo[] IFixtureHolder.FixtureTeardownMethods { get  { return fixtureTearDownMethods; } }
-        MethodInfo[] IFixtureHolder.SetupMethods { get { return setUpMethods; } }
-        MethodInfo[] IFixtureHolder.TeardownMethods { get { return tearDownMethods; } }
-        MethodInfo[] IFixtureHolder.AfterEachWithResult { get { return afterEachWithResult; } }
+        IConeFixtureMethodSink IConeSuite.FixtureSink { get { return fixture; } }
 
         public override Type FixtureType { get { return fixture.FixtureType; } }
         public override object Fixture {
@@ -62,14 +57,6 @@ namespace Cone.Addin
             catch { }
             listener.SuiteFinished(result);
             return result;
-        }
-
-        public void BindTo(ConeFixtureMethods setup) {
-            fixtureSetUpMethods = setup.BeforeAll;
-            setUpMethods = setup.BeforeEach;
-            tearDownMethods = setup.AfterEach;
-            afterEachWithResult = setup.AfterEachWithResult;
-            fixtureTearDownMethods = setup.AfterAll;
         }
 
         string NameFor(MethodInfo method) {

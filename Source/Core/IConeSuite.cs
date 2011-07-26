@@ -6,8 +6,8 @@ namespace Cone.Core
     public interface IConeSuite : IConeTestMethodSink
     {
         string Name { get; }
+        IConeFixtureMethodSink FixtureSink { get; }
         void AddSubsuite(IConeSuite suite);
-        void BindTo(ConeFixtureMethods setup);
         void AddCategories(IEnumerable<string> categories);
     }
 }
