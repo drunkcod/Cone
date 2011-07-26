@@ -5,8 +5,11 @@ namespace Cone.Core
 {
     public class ConeFixture : IConeFixture
     {
+        readonly Type fixtureType;
         readonly IFixtureHolder fixtureHolder;
-        public ConeFixture(IFixtureHolder fixtureHolder) {
+
+        public ConeFixture(Type fixtureType, IFixtureHolder fixtureHolder) {
+            this.fixtureType = fixtureType;
             this.fixtureHolder = fixtureHolder;
         }
 
@@ -48,7 +51,7 @@ namespace Cone.Core
                 methods[i].Invoke(Fixture, parameters);
         }
 
-        public Type FixtureType { get { return fixtureHolder.FixtureType; } }
+        public Type FixtureType { get { return fixtureType; } }
 
         public object Fixture { 
             get { return fixtureHolder.Fixture ?? (Fixture = NewFixture()); }

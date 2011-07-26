@@ -21,7 +21,7 @@ namespace Cone.Addin
             this.type = type;
             this.suiteType = description.SuiteType;
             this.testNamer = testNamer;
-            this.fixture = new ConeFixture(this);
+            this.fixture = new ConeFixture(type, this);
             this.fixture.Before += (s, e) => Verify.Context = ((ConeFixture)s).FixtureType;          
             this.testExecutor = new TestExecutor(this.fixture);
             this.rowSuites = new RowSuiteLookup<ConeRowSuite>((method, suiteSame) => {

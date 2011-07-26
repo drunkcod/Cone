@@ -1,11 +1,9 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Cone.Core
 {
     public interface IFixtureHolder
     {
-        Type FixtureType { get; }
         object Fixture { get; set; }
         MethodInfo[] FixtureSetupMethods { get; }
         MethodInfo[] FixtureTeardownMethods { get; }
