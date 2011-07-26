@@ -6,17 +6,21 @@ namespace Cone.Core
 {
     public class ConeFixture : IConeFixture, IConeFixtureMethodSink
     {
+        readonly Func<Type, object> fixtureBuilder;
         readonly Type fixtureType;
         readonly List<MethodInfo> beforeAll = new List<MethodInfo>();
         readonly List<MethodInfo> beforeEach = new List<MethodInfo>();
         readonly List<MethodInfo> afterEach = new List<MethodInfo>();
         readonly List<MethodInfo> afterEachWithResult = new List<MethodInfo>();
         readonly List<MethodInfo> afterAll = new List<MethodInfo>();
-
         object fixture;
 
-        public ConeFixture(Type fixtureType) {
+        public ConeFixture(Type fixtureType): this(fixtureType, NewFixture) 
+        { }
+
+        public ConeFixture(Type fixtureType, Func<Type,object> fixtureBuilder) {
             this.fixtureType = fixtureType;
+            this.fixtureBuilder = fixtureBuilder;
         }
 
         public event EventHandler Before;
@@ -35,23 +39,39 @@ namespace Cone.Core
             return method.Invoke(Fixture, parameters);
         }
 
-        public void Initialize() {
-            if(fixture == null)
-                fixture = NewFixture();
+        public void Create() {
+            EnsureFixture();
             InvokeAll(beforeAll);
         }
 
-        public void Teardown() {
+        public void Release() {
             InvokeAll(afterAll);
+            DoCleanup();
+            DoDispose();
             fixture = null;
         }
 
-        object NewFixture() { 
-            if(FixtureType.IsSealed && FixtureType.GetConstructors().Length == 0)
+        private void DoDispose() {
+            var asDisposable = fixture as IDisposable;
+            if (asDisposable != null)
+                asDisposable.Dispose();
+        }
+
+        private void DoCleanup() {
+            var fields = fixtureType.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            foreach (var item in fields)
+                if (typeof(ITestCleanup).IsAssignableFrom(item.FieldType)) {
+                    var cleaner = item.GetValue(fixture) as ITestCleanup;
+                    cleaner.Cleanup();
+                }
+        }
+
+        static object NewFixture(Type fixtureType) { 
+            if(fixtureType.IsSealed && fixtureType.GetConstructors().Length == 0)
                 return null;
-            var ctor = FixtureType.GetConstructor(Type.EmptyTypes);
+            var ctor = fixtureType.GetConstructor(Type.EmptyTypes);
             if(ctor == null)
-                throw new NotSupportedException("No compatible constructor found for " + FixtureType.FullName);
+                throw new NotSupportedException("No compatible constructor found for " + fixtureType.FullName);
             return ctor.Invoke(null);
         }
 
@@ -62,8 +82,10 @@ namespace Cone.Core
 
         public Type FixtureType { get { return fixtureType; } }
 
-        public object Fixture { 
-            get { return fixture ?? (fixture = NewFixture()); }
+        public object Fixture { get { return EnsureFixture(); } }
+
+        object EnsureFixture() {
+            return fixture ?? (fixture = fixtureBuilder(FixtureType));
         }
 
         void IConeFixtureMethodSink.Unintresting(MethodInfo method) { }
