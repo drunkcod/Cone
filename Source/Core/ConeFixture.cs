@@ -7,6 +7,7 @@ namespace Cone.Core
     {
         readonly Type fixtureType;
         readonly IFixtureHolder fixtureHolder;
+        object fixture;
 
         public ConeFixture(Type fixtureType, IFixtureHolder fixtureHolder) {
             this.fixtureType = fixtureType;
@@ -30,16 +31,19 @@ namespace Cone.Core
         }
 
         public void Initialize() {
-            Fixture = NewFixture();
+            if(fixture == null)
+                fixture = NewFixture();
             InvokeAll(FixtureSetupMethods);
         }
 
         public void Teardown() {
             InvokeAll(FixtureTeardownMethods);
-            Fixture = null;
+            fixture = null;
         }
 
         object NewFixture() { 
+            if(FixtureType.IsSealed && FixtureType.GetConstructors().Length == 0)
+                return null;
             var ctor = FixtureType.GetConstructor(Type.EmptyTypes);
             if(ctor == null)
                 throw new NotSupportedException("No compatible constructor found for " + FixtureType.FullName);
@@ -54,8 +58,7 @@ namespace Cone.Core
         public Type FixtureType { get { return fixtureType; } }
 
         public object Fixture { 
-            get { return fixtureHolder.Fixture ?? (Fixture = NewFixture()); }
-            set { fixtureHolder.Fixture = value; }
+            get { return fixture ?? (fixture = NewFixture()); }
         }
 
         MethodInfo[] FixtureSetupMethods { get { return fixtureHolder.FixtureSetupMethods; } }

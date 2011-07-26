@@ -44,6 +44,10 @@ namespace Cone.Addin
         MethodInfo[] IFixtureHolder.AfterEachWithResult { get { return afterEachWithResult; } }
 
         public override Type FixtureType { get { return fixture.FixtureType; } }
+        public override object Fixture {
+            get { return fixture.Fixture; }
+            set { throw new InvalidOperationException(); }
+        }
         public override string TestType { get { return suiteType; } }
 
         public override TestResult Run(EventListener listener, ITestFilter filter) {
