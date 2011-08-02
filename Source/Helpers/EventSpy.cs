@@ -1,15 +1,27 @@
 ﻿using System;
+using System.Threading;
 
 namespace Cone.Helpers
 {
-    public class EventSpy<T> where T : EventArgs
+    public class EventSpy 
     {
-        bool hasBeenRaised;
+        static int nextSequenceNumber;
 
-        public bool HasBeenRaised { get { return hasBeenRaised; } }
+        int sequenceNumber;
 
+        public bool HasBeenRaised { get { return sequenceNumber != 0; } }
+
+        public bool RaisedBefore(EventSpy other) { return sequenceNumber < other.sequenceNumber; }
+
+        protected void Raised() {
+            sequenceNumber = Interlocked.Increment(ref nextSequenceNumber);
+        }
+    }
+
+    public class EventSpy<T> : EventSpy where T : EventArgs
+    {
         public static implicit operator EventHandler<T>(EventSpy<T> self) {
-            return (s, e) => self.hasBeenRaised = true;
+            return (s, e) => self.Raised();
         }
     }
 }
