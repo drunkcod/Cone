@@ -57,6 +57,7 @@
     <Compile Include="Expectations\MethodExpectProviderLookup.cs" />
     <Compile Include="Core\RowSuiteBuilder.cs" />
     <Compile Include="Core\TestMethodContext.cs" />
+    <Compile Include="Helpers\EventSpy.cs" />
     <Compile Include="ITestCleanup.cs" />
     <Compile Include="TestStatus.cs" />
     <Compile Include="DescribeAttribute.cs" />

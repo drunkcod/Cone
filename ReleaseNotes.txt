@@ -1,3 +1,9 @@
+.:[ 0.0.2.24 ]:.
+
+New Features
+[x] Dispose disposeable fixtures
+[x] ITestCleanup added for automatic fixture cleanup
+
 .:[ 0.0.2.23 ]:.
 
 New Features
