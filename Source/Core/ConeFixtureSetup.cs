@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Cone.Core
@@ -16,11 +17,25 @@ namespace Cone.Core
         public void CollectFixtureMethods(Type type) {
             if(type == typeof(object))
                 return;
-            CollectFixtureMethods(type.BaseType);
-            GetMethods(type).ForEach(Classify);
+            var seenVirtuals = new HashSet<MethodInfo>();
+            CollectFixtureMethods(type, x => Classify(x, seenVirtuals));
         }
 
-        void Classify(MethodInfo method) { classifier.Classify(method); }
+        void CollectFixtureMethods(Type type, Action<MethodInfo> classify) {
+            if(type == typeof(object))
+                return;
+            CollectFixtureMethods(type.BaseType, classify);
+            GetMethods(type).ForEach(classify);
+        }
+
+        void Classify(MethodInfo method, HashSet<MethodInfo> seenVirtuals) { 
+            if(method.IsVirtual) {
+                if(seenVirtuals.Contains(method.GetBaseDefinition()))
+                    return;
+                seenVirtuals.Add(method);
+            }
+            classifier.Classify(method); 
+        }
 
         MethodInfo[] GetMethods(Type type) {
             return type.GetMethods(OwnPublicMethods);

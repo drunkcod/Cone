@@ -4,6 +4,9 @@ New Features
 [x] Dispose disposeable fixtures
 [x] ITestCleanup added for automatic fixture cleanup
 
+Bug Fixes
+[x] Correctly handle virtual methods when inheriting fixtures
+
 .:[ 0.0.2.23 ]:.
 
 New Features

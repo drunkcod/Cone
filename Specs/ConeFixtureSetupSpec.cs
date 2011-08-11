@@ -69,6 +69,28 @@ namespace Cone
             }
         }
 
+        [Context("virtual fixture methods")]
+        public class VirtualFixtureMethods
+        {
+            class BaseFixture
+            {
+                [BeforeEach]
+                public virtual void BeforeEach() { }
+            }
+
+            class DerivedFixture : BaseFixture
+            {
+                public override void BeforeEach() { }
+            }
+
+            public void are_classified_only_once() {
+                var methods = new ConeFixtureMethods();
+                var setup = new ConeFixtureSetup(methods, new Mock<IConeTestMethodSink>().Object);
+                setup.CollectFixtureMethods(typeof(DerivedFixture));
+                Verify.That(() => methods.BeforeEach.Count == 1);
+            }
+        }
+
         static MethodInfo Base(Expression<Action<SampleFixture>> x) { return ((MethodCallExpression)x.Body).Method; }
         static MethodInfo Derived(Expression<Action<DerivedFixture>> x) { return ((MethodCallExpression)x.Body).Method; }
     }
