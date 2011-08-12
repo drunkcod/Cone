@@ -5,13 +5,8 @@ namespace Cone.Core
 {
     class FixtureBeforeContext : ITestContext
     {
-        readonly IConeFixture fixture;
-
-        public FixtureBeforeContext(IConeFixture fixture) {
-            this.fixture = fixture;
-        }
-
-        public Action<ITestResult> Establish(ICustomAttributeProvider attributes, Action<ITestResult> next) {
+        public Action<ITestResult> Establish(IFixtureContext context, Action<ITestResult> next) {
+            var fixture = context.Fixture;
             return result => {
                 try {
                     fixture.Before();

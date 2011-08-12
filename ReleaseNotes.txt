@@ -7,6 +7,9 @@ New Features
 Bug Fixes
 [x] Correctly handle virtual methods when inheriting fixtures
 
+Internal Improvements
+[x] Reduced memory footprint and number of objects created during test discovery.
+
 .:[ 0.0.2.23 ]:.
 
 New Features

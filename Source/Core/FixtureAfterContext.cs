@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Reflection;
 
 namespace Cone.Core
 {
     class FixtureAfterContext : ITestContext 
     {
-        readonly IConeFixture fixture;
-
-        public FixtureAfterContext(IConeFixture fixture) {
-            this.fixture = fixture;
-        }
-
-        public Action<ITestResult> Establish(ICustomAttributeProvider attributes, Action<ITestResult> next) {
+        public Action<ITestResult> Establish(IFixtureContext context, Action<ITestResult> next) {
+            var fixture = context.Fixture;
             return result => {
                 try {
                     next(result);

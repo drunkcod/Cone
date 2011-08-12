@@ -5,21 +5,22 @@ using System.Reflection;
 
 namespace Cone.Core
 {
+    public interface IFixtureContext
+    {
+        ICustomAttributeProvider Attributes { get; }
+        IConeFixture Fixture { get; }
+       
+    }
+
     public interface ITestContext 
     {
-        Action<ITestResult> Establish(ICustomAttributeProvider attributes, Action<ITestResult> next);
+        Action<ITestResult> Establish(IFixtureContext context, Action<ITestResult> next);
     }
 
 	class PendingGuardTestContext : ITestContext
 	{
-        readonly IPendingAttribute contextPending;
-
-        public PendingGuardTestContext(ICustomAttributeProvider attributes) {
-            this.contextPending = FirstPendingOrDefault(attributes, null);
-        }
-
-		public Action<ITestResult> Establish(ICustomAttributeProvider attributes, Action<ITestResult> next) {
-			var pending = FirstPendingOrDefault(attributes, contextPending);
+		public Action<ITestResult> Establish(IFixtureContext context, Action<ITestResult> next) {
+			var pending = FirstPendingOrDefault(context.Attributes, FirstPendingOrDefault(context.Fixture.FixtureType, null));
 			return pending == null 
 				? next 
 				: result => result.Pending(pending.Reason);
@@ -32,32 +33,51 @@ namespace Cone.Core
 
     public class TestExecutor
     {
-        readonly List<ITestContext> context;
+        static IEnumerable<ITestContext> ExecutionContext = new ITestContext[] {
+            new TestMethodContext(),
+		    new PendingGuardTestContext(),
+            new FixtureBeforeContext(), 
+            new FixtureAfterContext()
+        };
+
+        readonly IConeFixture fixture;
+        readonly List<ITestContext> fixtureContext = new List<ITestContext>();
 
         public TestExecutor(IConeFixture fixture) {
-            this.context = new List<ITestContext> {
-                new TestMethodContext(),
-				new PendingGuardTestContext(fixture.FixtureType),
-                new FixtureBeforeContext(fixture), 
-                new FixtureAfterContext(fixture)
-            };
-
+            this.fixture = fixture;
             var interceptorContext = InterceptorContext.For(fixture.FixtureType, () => fixture.Fixture);
             if(!interceptorContext.IsEmpty)
-                context.Add(interceptorContext);
+                fixtureContext.Add(interceptorContext);
+        }
+
+        class FixtureContext : IFixtureContext
+        {
+            readonly ICustomAttributeProvider attributes;
+            readonly IConeFixture fixture;
+
+            public FixtureContext(IConeFixture fixture, ICustomAttributeProvider attributes) {
+                this.attributes = attributes;
+                this.fixture = fixture;
+            }
+
+            public ICustomAttributeProvider Attributes { get { return attributes; } }
+            public IConeFixture Fixture { get { return fixture; } }
         }
 
         public void Run(IConeTest test, ITestResult result) {
-            var wrap = HowToWrap(test.Attributes);
-            var next = context.Concat(GetTestContexts(test.Attributes)).Aggregate(test.Run, wrap);
+            var wrap = CombineEstablish(new FixtureContext(fixture, test.Attributes));
+            var next = ExecutionContext
+                .Concat(fixtureContext)
+                .Concat(GetTestContexts(test.Attributes))
+                .Aggregate(test.Run, wrap);
 			var testContext = test as ITestContext;
 			if(testContext != null)
 				next = wrap(next, testContext);;
 			next(result);
         }
 
-        Func<Action<ITestResult>, ITestContext, Action<ITestResult>> HowToWrap(ICustomAttributeProvider attributes) {
-            return (acc, x) => x.Establish(attributes, acc);
+        Func<Action<ITestResult>, ITestContext, Action<ITestResult>> CombineEstablish(IFixtureContext context) {
+            return (acc, x) => x.Establish(context, acc);
         }
 
 		IEnumerable<ITestContext> GetTestContexts(ICustomAttributeProvider attributes) {

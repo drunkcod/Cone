@@ -62,7 +62,7 @@ namespace Cone.Addin
 				inner.Run(testResult);
 			}
 
-			Action<ITestResult> ITestContext.Establish(ICustomAttributeProvider attributes, System.Action<ITestResult> next) {
+			Action<ITestResult> ITestContext.Establish(IFixtureContext context, System.Action<ITestResult> next) {
 				return r => {
 					var time = Stopwatch.StartNew();       
                     listener.TestStarted(inner.TestName);

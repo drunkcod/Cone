@@ -15,17 +15,15 @@ namespace Cone.Addin
         readonly string suiteType;
         readonly ConeFixture fixture;
 
+        static EventHandler SetVerifyContext = (s, e) => Verify.Context = ((ConeFixture)s).FixtureType;
+
         internal AddinSuite(Type type, IFixtureDescription description, ConeTestNamer testNamer) : base(description.SuiteName, description.TestName) {
             this.suiteType = description.SuiteType;
             this.testNamer = testNamer;
             this.fixture = new ConeFixture(type);
-            this.fixture.Before += (s, e) => Verify.Context = ((ConeFixture)s).FixtureType;          
+            this.fixture.Before += SetVerifyContext;          
             this.testExecutor = new TestExecutor(this.fixture);
-            this.rowSuites = new RowSuiteLookup<ConeRowSuite>((method, suiteSame) => {
-                var suite = new ConeRowSuite(new ConeMethodThunk(method, testNamer), this, testExecutor, suiteSame);
-                AddWithAttributes(method, suite);
-                return suite;
-            });
+            this.rowSuites = new RowSuiteLookup<ConeRowSuite>(CreateSuite);
 
             var pending = type.FirstOrDefault((IPendingAttribute x) => x.IsPending);
             if(pending != null) {
@@ -34,11 +32,18 @@ namespace Cone.Addin
             }
         }
 
+        ConeRowSuite CreateSuite(MethodInfo method, string suiteName) {
+            var suite = new ConeRowSuite(new ConeMethodThunk(method, testNamer), this, testExecutor, suiteName);
+            AddWithAttributes(method, suite);
+            return suite;
+        }
+
         public string Name { get { return TestName.FullName; } }
 
         IConeFixtureMethodSink IConeSuite.FixtureSink { get { return fixture; } }
 
         public override Type FixtureType { get { return fixture.FixtureType; } }
+
         public override object Fixture {
             get { return fixture.Fixture; }
             set { throw new InvalidOperationException(); }

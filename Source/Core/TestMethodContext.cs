@@ -5,7 +5,7 @@ namespace Cone.Core
 {
     class TestMethodContext : ITestContext 
     {
-        public Action<ITestResult> Establish(ICustomAttributeProvider attributes, Action<ITestResult> next) {
+        public Action<ITestResult> Establish(IFixtureContext context, Action<ITestResult> next) {
 			return result => {
                 try {
 					next(result);
