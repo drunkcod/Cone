@@ -53,13 +53,14 @@ namespace Cone.Addin
         public override TestResult Run(EventListener listener, ITestFilter filter) {
             listener.SuiteStarted(TestName);
             var result = new TestResult(this);
+            var resultAdapter = new NUnitTestResultAdapter(result);
             try {
-                fixture.Create(); 
-                foreach(Test test in Tests)
-                    if(filter.Pass(test))
-                        result.AddResult(test.Run(listener, filter));
+                if(fixture.Create(resultAdapter))
+                    foreach(Test test in Tests)
+                        if(filter.Pass(test))
+                            result.AddResult(test.Run(listener, filter));
             } finally {
-                fixture.Release();
+                fixture.Release(resultAdapter);
                 listener.SuiteFinished(result);
             }
             return result;

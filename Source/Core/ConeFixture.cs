@@ -39,16 +39,25 @@ namespace Cone.Core
             return method.Invoke(Fixture, parameters);
         }
 
-        public void Create() {
-            EnsureFixture();
-            InvokeAll(beforeAll);
+        public bool Create(ITestResult result) {
+            try {
+                EnsureFixture();
+                InvokeAll(beforeAll);
+                return true;
+            } catch(Exception ex) {
+                result.BeforeFailure(ex);
+                return false;
+            }
         }
 
-        public void Release() {
-            InvokeAll(afterAll);
-            DoCleanup();
-            DoDispose();
-            fixture = null;
+        public void Release(ITestResult result) {
+            try {
+                InvokeAll(afterAll);
+                DoCleanup();
+                DoDispose();
+            } catch(Exception ex) {
+                result.AfterFailure(ex);
+            } finally { fixture = null; }
         }
 
         private void DoDispose() {

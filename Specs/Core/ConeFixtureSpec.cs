@@ -8,9 +8,8 @@ namespace Cone.Core
     {
         public void disposes_disposable_fixtures() {
             var disposableFixture = new Mock<IDisposable>();
-            var fixture = new ConeFixture(disposableFixture.Object.GetType(), _ => disposableFixture.Object);
-            fixture.Create();
-            fixture.Release();
+            CreateAndReleaseFixture(disposableFixture.Object.GetType(), _ => disposableFixture.Object);
+
             disposableFixture.Verify(x => x.Dispose());
         }
 
@@ -22,9 +21,8 @@ namespace Cone.Core
         public void support_public_test_cleanup() {
             var cleanup = new Mock<ITestCleanup>();
             var fixtureInstance = new WithCleanup{ Cleanup = cleanup.Object };
-            var fixture = new ConeFixture(fixtureInstance.GetType(), _ => fixtureInstance);
-            fixture.Create();
-            fixture.Release();
+            CreateAndReleaseFixture(fixtureInstance.GetType(), _ => fixtureInstance);
+
             cleanup.Verify(x => x.Cleanup());
         }
 
@@ -32,8 +30,41 @@ namespace Cone.Core
 
         public void supports_static_fixtures() {
             var fixture = new ConeFixture(typeof(StaticFixture));
-            fixture.Create();
-            fixture.Release();
+            var result = new Mock<ITestResult>().Object;
+            fixture.Create(result);
+            fixture.Release(result);
         }
+
+        class BrokenFixture
+        {
+            public void InvalidOperation() {
+                throw new InvalidOperationException();
+            }
+        }
+        
+        public void report_setup_error_when_failing_to_establish_context() {
+            var fixture = new ConeFixture(typeof(BrokenFixture));
+            (fixture as IConeFixtureMethodSink).BeforeAll(typeof(BrokenFixture).GetMethod("InvalidOperation"));
+            var result = new Mock<ITestResult>();
+            Verify.That(() => fixture.Create(result.Object) == false);
+            result.Verify(x => x.BeforeFailure(It.IsAny<Exception>()));
+        }
+
+        public void report_teardown_error_when_failing_release_context() {
+            var fixture = new ConeFixture(typeof(BrokenFixture));
+            (fixture as IConeFixtureMethodSink).AfterAll(typeof(BrokenFixture).GetMethod("InvalidOperation"));
+            var result = new Mock<ITestResult>();
+            fixture.Release(result.Object);
+            result.Verify(x => x.AfterFailure(It.IsAny<Exception>()));
+        }
+
+        
+        void CreateAndReleaseFixture(Type type, Func<Type, object> fixtureBuilder) {
+            var fixture = new ConeFixture(type, fixtureBuilder);
+            var result = new Mock<ITestResult>().Object;
+            fixture.Create(result);
+            fixture.Release(result);
+        }
+
     }
 }
