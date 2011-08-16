@@ -39,6 +39,15 @@ namespace Cone.Core
             return method.Invoke(Fixture, parameters);
         }
 
+        public void WithInitialized(ITestResult result, Action action) {
+            try {
+                if(Create(result))
+                    action();
+            } finally {
+                Release(result);
+            }
+        }
+
         public bool Create(ITestResult result) {
             try {
                 EnsureFixture();
