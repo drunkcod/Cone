@@ -74,23 +74,22 @@ namespace Cone.Core
 
         EvaluationResult EvaluateBinary(Expression expression) { return EvaluateBinary((BinaryExpression)expression); }
         EvaluationResult EvaluateBinary(BinaryExpression binary) {
-            return Evaluate(binary.Left).Maybe(
-                left => Evaluate(binary.Right).Maybe(right => {
-                    var parameters = new[] { 
-                        left.Result, 
-                        right.Result
-                    };
-
-                    var op = binary.Method;
-                    if(op != null)
-                        return Success(op.ReturnType, op.Invoke(null, parameters));
-                    switch(binary.NodeType) {
-                        case ExpressionType.Equal: return Success(typeof(bool), Object.Equals(parameters[0], parameters[1]));
-                        case ExpressionType.NotEqual: return Success(typeof(bool), !Object.Equals(parameters[0], parameters[1]));
-                        default: return Unsupported(binary);
-                    }
-                }));
+            return Evaluate(binary.Left)
+                .Maybe(left => Evaluate(binary.Right)
+                .Maybe(right => EvaluateBinary(binary, left.Result, right.Result)));
         }
+
+        EvaluationResult EvaluateBinary(BinaryExpression binary, object left, object right) {
+            var op = binary.Method;
+            if(op != null)
+                return Success(op.ReturnType, op.Invoke(null, new[]{ left, right }));
+            switch(binary.NodeType) {
+                case ExpressionType.Equal: return Success(typeof(bool), Object.Equals(left, right));
+                case ExpressionType.NotEqual: return Success(typeof(bool), !Object.Equals(left, right));
+                default: return Unsupported(binary);
+            }
+        }
+
 
         EvaluationResult EvaluateCall(Expression expression) { return EvaluateCall((MethodCallExpression)expression); }
         EvaluationResult EvaluateCall(MethodCallExpression expression) {

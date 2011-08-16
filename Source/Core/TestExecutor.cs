@@ -41,13 +41,13 @@ namespace Cone.Core
         };
 
         readonly IConeFixture fixture;
-        readonly List<ITestContext> fixtureContext = new List<ITestContext>();
+        IEnumerable<ITestContext> fixtureContext = new ITestContext[0];
 
         public TestExecutor(IConeFixture fixture) {
             this.fixture = fixture;
             var interceptorContext = InterceptorContext.For(fixture.FixtureType, () => fixture.Fixture);
             if(!interceptorContext.IsEmpty)
-                fixtureContext.Add(interceptorContext);
+                fixtureContext = new[]{ interceptorContext };
         }
 
         class FixtureContext : IFixtureContext
