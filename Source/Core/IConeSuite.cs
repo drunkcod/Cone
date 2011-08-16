@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Cone.Core
 {
-    public interface IConeSuite : IConeTestMethodSink
+    public interface IConeSuite
     {
         string Name { get; }
-        IConeFixtureMethodSink FixtureSink { get; }
         void AddSubsuite(IConeSuite suite);
         void AddCategories(IEnumerable<string> categories);
+        void WithTestMethodSink(Action<IConeTestMethodSink> action);
+        void WithFixtureMethodSink(Action<IConeFixtureMethodSink> action);
     }
 }

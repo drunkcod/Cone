@@ -26,9 +26,11 @@ namespace Cone.Core
 
         protected TSuite BuildSuite(Type type, IFixtureDescription description) {
             var suite = NewSuite(type, description, names);
-            var setup = new ConeFixtureSetup(suite.FixtureSink, suite);
-
-            setup.CollectFixtureMethods(type);
+            suite.WithTestMethodSink(testSink =>
+            suite.WithFixtureMethodSink(fixtureSink => {
+                var setup = new ConeFixtureSetup(fixtureSink, testSink);
+                setup.CollectFixtureMethods(type);
+            }));
             AddNestedContexts(type, suite);
             suite.AddCategories(description.Categories);
             return suite;
