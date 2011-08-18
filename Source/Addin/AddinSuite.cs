@@ -13,7 +13,7 @@ namespace Cone.Addin
         readonly string suiteType;
         readonly ConeFixture fixture;
 
-        static EventHandler SetVerifyContext = (s, e) => Verify.Context = ((ConeFixture)s).FixtureType;
+        static EventHandler SetVerifyContext = (s, e) => Verify.Context = ((IConeFixture)s).FixtureType;
 
         internal AddinSuite(Type type, IFixtureDescription description) : base(description.SuiteName, description.TestName) {
             this.suiteType = description.SuiteType;

@@ -46,7 +46,10 @@ namespace Cone.Addin
                     foreach(var item in tests.Where(filter.Pass))
                         x.AddResult(item.Run(listener, filter));
                 }, 
-                listener.SuiteFinished);
+                (x, time) => {
+                    x.Time = time.TotalSeconds;
+                    listener.SuiteFinished(x);
+                });
         }
 
         public override bool IsSuite { get { return true; } }
