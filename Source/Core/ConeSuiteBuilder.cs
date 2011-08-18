@@ -22,11 +22,11 @@ namespace Cone.Core
             return BuildSuite(suiteType, DescriptionOf(suiteType));
         }
 
-        protected abstract TSuite NewSuite(Type type, IFixtureDescription description, ConeTestNamer testNamer);
+        protected abstract TSuite NewSuite(Type type, IFixtureDescription description);
 
         protected TSuite BuildSuite(Type type, IFixtureDescription description) {
-            var suite = NewSuite(type, description, names);
-            suite.WithTestMethodSink(testSink =>
+            var suite = NewSuite(type, description);
+            suite.WithTestMethodSink(names, testSink =>
             suite.WithFixtureMethodSink(fixtureSink => {
                 var setup = new ConeFixtureSetup(fixtureSink, testSink);
                 setup.CollectFixtureMethods(type);

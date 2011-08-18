@@ -10,15 +10,13 @@ namespace Cone.Addin
     public class AddinSuite : TestSuite, IConeSuite
     {
         readonly TestExecutor testExecutor;
-        readonly ConeTestNamer testNamer;
         readonly string suiteType;
         readonly ConeFixture fixture;
 
         static EventHandler SetVerifyContext = (s, e) => Verify.Context = ((ConeFixture)s).FixtureType;
 
-        internal AddinSuite(Type type, IFixtureDescription description, ConeTestNamer testNamer) : base(description.SuiteName, description.TestName) {
+        internal AddinSuite(Type type, IFixtureDescription description) : base(description.SuiteName, description.TestName) {
             this.suiteType = description.SuiteType;
-            this.testNamer = testNamer;
             this.fixture = new ConeFixture(type);
             this.fixture.Before += SetVerifyContext;          
             this.testExecutor = new TestExecutor(this.fixture);
@@ -28,12 +26,6 @@ namespace Cone.Addin
                 RunState = RunState.Ignored;
                 IgnoreReason = pending.Reason;
             }
-        }
-
-        ConeRowSuite CreateSuite(MethodInfo method, string suiteName) {
-            var suite = new ConeRowSuite(new ConeMethodThunk(method, testNamer), this, testExecutor, suiteName);
-            AddWithAttributes(method, suite);
-            return suite;
         }
 
         public string Name { get { return TestName.FullName; } }
@@ -61,10 +53,6 @@ namespace Cone.Addin
             return result;
         }
 
-        string NameFor(MethodInfo method) {
-            return testNamer.NameFor(method);
-        }
-
         public void AddCategories(IEnumerable<string> categories) {
             foreach(var item in categories)
                 Categories.Add(item);
@@ -86,15 +74,17 @@ namespace Cone.Addin
         class AddinTestMethodSink : IConeTestMethodSink
         {
             readonly AddinSuite suite;
+            readonly ConeTestNamer testNamer;
             readonly RowSuiteLookup<ConeRowSuite> rowSuites;
 
-            public AddinTestMethodSink(AddinSuite suite) {
+            public AddinTestMethodSink(AddinSuite suite, ConeTestNamer testNamer) {
                 this.suite = suite;
-                this.rowSuites = new RowSuiteLookup<ConeRowSuite>(suite.CreateSuite);
+                this.testNamer = testNamer;
+                this.rowSuites = new RowSuiteLookup<ConeRowSuite>(CreateSuite);
             }
 
             void IConeTestMethodSink.Test(MethodInfo method) {
-                suite.AddTestMethod(new ConeMethodThunk(method, suite.testNamer));
+                suite.AddTestMethod(CreateMethodThunk(method));
             }
 
             void IConeTestMethodSink.RowTest(MethodInfo method, IEnumerable<IRowData> rows) {
@@ -108,13 +98,25 @@ namespace Cone.Addin
                     AddRowTest(item.Key, item);
             }
 
+            ConeTestNamer TestNamer { get { return testNamer; } }
+
+            ConeMethodThunk CreateMethodThunk(MethodInfo method) {
+                return new ConeMethodThunk(method, TestNamer);
+            }
+
             void AddRowTest(MethodInfo method, IEnumerable<IRowData> rows) {
-                rowSuites.GetSuite(method, suite.testNamer.NameFor(method)).Add(rows);
+                rowSuites.GetSuite(method, TestNamer.NameFor(method)).Add(rows);
+            }
+
+            ConeRowSuite CreateSuite(MethodInfo method, string suiteName) {
+                var newSuite = new ConeRowSuite(CreateMethodThunk(method), suite, suite.testExecutor, suiteName);
+                suite.AddWithAttributes(method, newSuite);
+                return newSuite;
             }
         }
 
-        public void WithTestMethodSink(Action<IConeTestMethodSink> action) {
-            action(new AddinTestMethodSink(this));
+        public void WithTestMethodSink(ConeTestNamer testNamer, Action<IConeTestMethodSink> action) {
+            action(new AddinTestMethodSink(this, testNamer));
         }
 
         public void WithFixtureMethodSink(Action<IConeFixtureMethodSink> action) {

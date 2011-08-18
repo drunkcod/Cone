@@ -8,7 +8,7 @@ namespace Cone.Core
         string Name { get; }
         void AddSubsuite(IConeSuite suite);
         void AddCategories(IEnumerable<string> categories);
-        void WithTestMethodSink(Action<IConeTestMethodSink> action);
+        void WithTestMethodSink(ConeTestNamer testNamer, Action<IConeTestMethodSink> action);
         void WithFixtureMethodSink(Action<IConeFixtureMethodSink> action);
     }
 }
