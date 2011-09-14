@@ -10,24 +10,14 @@ namespace Cone.Expectations
     {
         delegate Expect Expector(BinaryExpression body, object left, object right);
 
-        static readonly Expector EqualExpector = MakeExpector(typeof(EqualExpect));     
-        static readonly Expector NotEqualExpector = MakeExpector(typeof(NotEqualExpect));     
-        static readonly Expector BinaryExpector = MakeExpector(typeof(BinaryExpect));
-        static readonly Expector LessThanExpector = MakeExpector(typeof(LessThanExpect));     
-        static readonly Expector LessThanOrEqualExpector = MakeExpector(typeof(LessThanOrEqualExpect));     
-        static readonly Expector GreaterThanExpector = MakeExpector(typeof(GreaterThanExpect));     
-        static readonly Expector GreaterThanOrEqualExpector = MakeExpector(typeof(GreaterThanOrEqualExpect));
+        static readonly Expector EqualExpector = (body, left, right) => new EqualExpect(body, left, right);
+        static readonly Expector NotEqualExpector = (body, left, right) => new NotEqualExpect(body, left, right);     
+        static readonly Expector BinaryExpector = (body, left, right) => new BinaryExpect(body, left, right);
+        static readonly Expector LessThanExpector = (body, left, right) => new LessThanExpect(body, left, right);     
+        static readonly Expector LessThanOrEqualExpector = (body, left, right) => new LessThanOrEqualExpect(body, left, right);     
+        static readonly Expector GreaterThanExpector = (body, left, right) => new GreaterThanExpect(body, left, right);
+        static readonly Expector GreaterThanOrEqualExpector = (body, left, right) => new GreaterThanOrEqualExpect(body, left, right);
         static readonly ExpressionEvaluator Evaluator = new ExpressionEvaluator();
-
-        static Expector MakeExpector(Type expectType) {
-            var arguments = new[] { typeof(BinaryExpression), typeof(object), typeof(object) };
-            var parameters = new[] {
-                Expression.Parameter(arguments[0], "body"),
-                Expression.Parameter(arguments[1], "left"),
-                Expression.Parameter(arguments[2], "right")
-            };
-            return Expression.Lambda<Expector>(Expression.New(expectType.GetConstructor(arguments), parameters), parameters).Compile();
-        }
 
 		readonly MethodExpectProviderLookup methodExpects = new MethodExpectProviderLookup();
 

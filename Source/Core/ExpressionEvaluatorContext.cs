@@ -37,7 +37,7 @@ namespace Cone.Core
             if(expression == null)
                 return Success(null, null);
             return Evaluate(expression)
-                .Maybe(result => result.IsNull ? NullSubexpression(expression, context) : result);
+                .Then(result => result.IsNull ? NullSubexpression(expression, context) : result);
         }
 
         public EvaluationResult EvaluateAll(ICollection<Expression> expressions) {
@@ -75,8 +75,8 @@ namespace Cone.Core
         EvaluationResult EvaluateBinary(Expression expression) { return EvaluateBinary((BinaryExpression)expression); }
         EvaluationResult EvaluateBinary(BinaryExpression binary) {
             return Evaluate(binary.Left)
-                .Maybe(left => Evaluate(binary.Right)
-                .Maybe(right => EvaluateBinary(binary, left.Result, right.Result)));
+                .Then<object>(left => Evaluate(binary.Right)
+                .Then<object>(right => EvaluateBinary(binary, left, right)));
         }
 
         EvaluationResult EvaluateBinary(BinaryExpression binary, object left, object right) {
@@ -93,12 +93,11 @@ namespace Cone.Core
 
         EvaluationResult EvaluateCall(Expression expression) { return EvaluateCall((MethodCallExpression)expression); }
         EvaluationResult EvaluateCall(MethodCallExpression expression) {
-            return EvaluateAsTarget(expression.Object).Maybe(target => 
-                EvaluateAll(expression.Arguments).Maybe(arguments => {
+            return EvaluateAsTarget(expression.Object).Then<object>(target => 
+                EvaluateAll(expression.Arguments).Then<object[]>(input => {
                     var method = expression.Method;
-                    var input = (object[])arguments.Result;
                     return GuardedInvocation(expression, 
-                        () => Success(method.ReturnType, method.Invoke(target.Result, input)), 
+                        () => Success(method.ReturnType, method.Invoke(target, input)), 
                         () => AssignOutParameters(expression.Arguments, input, method.GetParameters()));
                 }));
         }
@@ -116,8 +115,7 @@ namespace Cone.Core
         
         EvaluationResult EvaluateConvert(Expression expression) { return EvaluateConvert((UnaryExpression)expression); }
         EvaluationResult EvaluateConvert(UnaryExpression expression) {
-            return Evaluate(expression.Operand).Maybe(source => {
-                var value = source.Result;
+            return Evaluate(expression.Operand).Then<object>(value => {
                 var convertMethod = expression.Method;
                 if(convertMethod != null && convertMethod.IsStatic) {
                     return GuardedInvocation(expression, () => Success(convertMethod.ReturnType, convertMethod.Invoke(null, new[] { value })));
@@ -130,7 +128,7 @@ namespace Cone.Core
         EvaluationResult EvaluateMemberAccess(MemberExpression expression) {
             return GuardedInvocation(expression, () =>
                 EvaluateAsTarget(expression.Expression)
-                    .Maybe(x => Success(expression.Type, expression.Member.GetValue(x.Result))));
+                    .Then<object>(x => Success(expression.Type, expression.Member.GetValue(x))));
         }
 
         EvaluationResult EvaluateNew(Expression expression) { return EvaluateNew((NewExpression)expression); }
@@ -160,7 +158,8 @@ namespace Cone.Core
         EvaluationResult EvaluateInvoke(Expression expression) { return EvaluateInvoke((InvocationExpression)expression); }
         EvaluationResult EvaluateInvoke(InvocationExpression expression) {
             var target = Evaluate(expression.Expression).Result as Delegate;
-            return GuardedInvocation(expression, () => Success(expression.Type, target.DynamicInvoke(EvaluateAll(expression.Arguments).Result as object[])));
+            return EvaluateAll(expression.Arguments)
+                .Then<object[]>(arguments => GuardedInvocation(expression, () => Success(expression.Type, target.DynamicInvoke(arguments))));
         }
 
         ExpressionEvaluatorContext Rebind(Expression context) {

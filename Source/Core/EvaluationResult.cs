@@ -44,10 +44,12 @@ namespace Cone.Core
 
         EvaluationError Error { get { return (EvaluationError)value; } }
 
-        public EvaluationResult Maybe(Func<EvaluationResult, EvaluationResult> next) {
+        public EvaluationResult Then(Func<EvaluationResult, EvaluationResult> next) {
             if(isError)
                 return this;
             return next(this);
         }
+
+        public EvaluationResult Then<T>(Func<T, EvaluationResult> next) { return Then(x => next((T)x.Result)); }
     }
 }
