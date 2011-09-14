@@ -1,3 +1,8 @@
+.:[ 0.0.2.26 ]:.
+
+New Features
+[x] Support Verifocation of Predicate/Func<...,bool> expressions. 
+
 .:[ 0.0.2.25 ]:.
 
 Bug Fixes

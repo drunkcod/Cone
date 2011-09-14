@@ -70,6 +70,11 @@ namespace Cone
             Verify.That(() => obj.IsGreen);
         }
 
+        public void predicate() {
+            Func<bool, bool> isTrue = x => x == true;
+            Verify.That(() => isTrue(true));
+        }
+
         public void supports_implicit_bool_conversion() {
             Verify.That(() => new PossiblyGreen());
         }
@@ -198,7 +203,7 @@ namespace Cone
                 return null;
             }
         }
-
+        
         [Context("Exceptions")]
         public class Exceptions
         {

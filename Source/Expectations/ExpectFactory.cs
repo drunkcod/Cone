@@ -46,16 +46,15 @@ namespace Cone.Expectations
         }
 
         public IExpect From(Expression body) {
-            if(body.NodeType == ExpressionType.Not)
-                return new NotExpect(From(((UnaryExpression)body).Operand));
-
-            if(body.NodeType == ExpressionType.AndAlso)
-                return Boolean(body);
-
-            if(body.NodeType == ExpressionType.Convert) {
-                var conversion = (UnaryExpression)body;
-                if(conversion.Type == typeof(bool))
-                    return Conversion(conversion);
+            switch(body.NodeType) {
+                case ExpressionType.Not: return new NotExpect(From(((UnaryExpression)body).Operand));
+                case ExpressionType.AndAlso: return Boolean(body);
+                case ExpressionType.Invoke: return Boolean(body);
+                case ExpressionType.Convert:
+                    var conversion = (UnaryExpression)body;
+                    if(conversion.Type == typeof(bool))
+                        return Conversion(conversion);
+                    break;
             }
 
             if (SupportedExpressionType(body.NodeType))
