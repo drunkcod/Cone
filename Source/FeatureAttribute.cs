@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Cone
 {
@@ -10,10 +7,12 @@ namespace Cone
     {
         public FeatureAttribute(string featureName) : base(featureName) { }
 
-        public string SuiteName { get { return string.Empty; } }
+        public string GroupAs { get; set; }
 
-        public string SuiteType { get { return "Feature"; } }
+        string IFixtureDescription.SuiteName { get { return GroupAs ?? string.Empty; } }
 
-        public string TestName { get { return Context; } }
+        string IFixtureDescription.SuiteType { get { return "Feature"; } }
+
+        string IFixtureDescription.TestName { get { return Context; } }
     }
 }

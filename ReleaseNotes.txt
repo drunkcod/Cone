@@ -1,7 +1,11 @@
+.:[ 0.0.2.27 ]:.
+New Features
+[x] FeatureAttribute.GroupAs added.
+
 .:[ 0.0.2.26 ]:.
 
 New Features
-[x] Support Verifocation of Predicate/Func<...,bool> expressions. 
+[x] Support Verification of Predicate/Func<...,bool> expressions. 
 
 .:[ 0.0.2.25 ]:.
 

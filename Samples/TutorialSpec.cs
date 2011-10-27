@@ -126,17 +126,4 @@ namespace Cone.Samples
             public void test() {}
         }
     }
-
-    [Feature("random hacking")]
-    public class RandomHacking
-    {
-        public class MyCustomBool 
-        {
-            public static implicit operator bool(MyCustomBool obj){ return false; }
-        }
-
-        public void test_something() {
-            Verify.That(() => new MyCustomBool());
-        }
-    }
 }
