@@ -9,27 +9,12 @@ namespace Cone.Core
     {
         ICustomAttributeProvider Attributes { get; }
         IConeFixture Fixture { get; }
-       
     }
 
     public interface ITestContext 
     {
         Action<ITestResult> Establish(IFixtureContext context, Action<ITestResult> next);
     }
-
-	class PendingGuardTestContext : ITestContext
-	{
-		public Action<ITestResult> Establish(IFixtureContext context, Action<ITestResult> next) {
-			var pending = FirstPendingOrDefault(context.Attributes, FirstPendingOrDefault(context.Fixture.FixtureType, null));
-			return pending == null 
-				? next 
-				: result => result.Pending(pending.Reason);
-        }
-
-        static IPendingAttribute FirstPendingOrDefault(ICustomAttributeProvider attributes, IPendingAttribute defaultValue) {
-            return attributes.FirstOrDefault((IPendingAttribute x) => x.IsPending, defaultValue);
-        }
-	}
 
     public class TestExecutor
     {

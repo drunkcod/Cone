@@ -101,9 +101,13 @@ namespace Cone.Samples
         }
     }
 
+
     [Feature("More failures")]
     public class MoreFailures
     {
+        [Pending]
+        public void pending_tests_fail_when_passing() { }
+
         [Context("BeforeEach failure")]
         public class BeforeEachFails
         {

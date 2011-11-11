@@ -68,6 +68,7 @@
     <Compile Include="ConeTestNamerSpec.cs" />
     <Compile Include="Core\ConeFixtureSpec.cs" />
     <Compile Include="Core\MethodExpectProviderLookupSpec.cs" />
+    <Compile Include="Core\PendingGuardTestContextSpec.cs" />
     <Compile Include="CustomMethodExpectFeature.cs" />
     <Compile Include="DisplayClassAttributeSpec.cs" />
     <Compile Include="Expectations\StringMethodExpectSpec.cs" />
