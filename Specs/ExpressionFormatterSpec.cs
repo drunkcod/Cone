@@ -101,11 +101,6 @@ namespace Cone.Core
             VerifyFormat(() => a != 42, "a != 42");
         }
 
-        public void enum_names() {
-            var status = TestStatus.Failure;
-            VerifyFormat(() => status == TestStatus.Success, "status == TestStatus.Success");
-        }
-
         public void indexer_property() {
             var stuff = new Dictionary<string, int>();
             VerifyFormat(() => stuff["Answer"], "stuff[\"Answer\"]");

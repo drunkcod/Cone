@@ -28,8 +28,8 @@ namespace Cone.Core
             if(type != null)
                 return string.Format("typeof({0})", type.Name);
             var typeOfObj = obj.GetType();
-            if(typeOfObj.IsEnum)
-                return string.Format("{0}.{1}", typeOfObj.Name, obj);
+            //if(typeOfObj.IsEnum)
+            //    return string.Format("{0}.{1}", typeOfObj.Name, obj);
             if(typeOfObj == typeof(bool))
                 return (bool)obj ? "true": "false";
             return obj; 

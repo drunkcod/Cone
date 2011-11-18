@@ -39,6 +39,11 @@ namespace Cone.Samples
             public void Subtract(int a, int b, int result) {
                 Verify.That(() => a - b == result);
             }
+
+            public enum MyEnum { Zero }
+            [Row(MyEnum.Zero)]
+            public void enums(MyEnum value) { }
+
         }
 
         public void report_failing_subexpression()
