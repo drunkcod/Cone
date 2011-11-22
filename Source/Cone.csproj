@@ -60,6 +60,8 @@
     <Compile Include="Core\RowSuiteBuilder.cs" />
     <Compile Include="Core\TestMethodContext.cs" />
     <Compile Include="Helpers\EventSpy.cs" />
+    <Compile Include="Helpers\FuncSpy.cs" />
+    <Compile Include="Helpers\MethodSpy.cs" />
     <Compile Include="ITestCleanup.cs" />
     <Compile Include="TestStatus.cs" />
     <Compile Include="DescribeAttribute.cs" />
