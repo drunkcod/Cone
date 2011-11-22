@@ -2,38 +2,6 @@
 
 namespace Cone.Helpers
 {
-    public static class FuncSpy
-    {
-        public static FuncSpy<T, TResult> On<T, TResult>(ref Func<T, TResult> target, Func<T, TResult> inner) {
-            var spy = new FuncSpy<T,TResult>(inner);
-            target = spy;
-            return spy;
-        }
-
-        public static FuncSpy<T1, T2, TResult> On<T1, T2, TResult>(ref Func<T1, T2, TResult> target, Func<T1, T2, TResult> inner) {
-            var spy = new FuncSpy<T1, T2,TResult>(inner);
-            target = spy;
-            return spy;
-        }
-
-        public static FuncSpy<T1, T2, T3, TResult> On<T1, T2, T3, TResult>(ref Func<T1, T2, T3, TResult> target, Func<T1, T2, T3, TResult> inner) {
-            var spy = new FuncSpy<T1, T2, T3, TResult>(inner);
-            target = spy;
-            return spy;
-        }
-
-        public static FuncSpy<T1, T2, T3, T4, TResult> On<T1, T2, T3, T4, TResult>(ref Func<T1, T2, T3, T4, TResult> target, Func<T1, T2, T3, T4, TResult> inner) {
-            var spy = new FuncSpy<T1, T2, T3, T4, TResult>(inner);
-            target = spy;
-            return spy;
-        }
-
-        public static FuncSpy<T, TResult> For<T, TResult>(Func<T, TResult> inner) { return new FuncSpy<T,TResult>(inner); }
-        public static FuncSpy<T1, T2, TResult> For<T1, T2, TResult>(Func<T1, T2, TResult> inner) { return new FuncSpy<T1,T2,TResult>(inner); }
-        public static FuncSpy<T1, T2, T3, TResult> For<T1, T2, T3, TResult>(Func<T1, T2, T3, TResult> inner) { return new FuncSpy<T1, T2, T3, TResult>(inner); }
-        public static FuncSpy<T1, T2, T3, T4, TResult> For<T1, T2, T3, T4, TResult>(Func<T1, T2, T3, T4, TResult> inner) { return new FuncSpy<T1, T2, T3, T4, TResult>(inner); }
-    }
-
     public class FuncSpy<T, TResult> : MethodSpy
     {
         readonly Func<T, TResult> inner;
