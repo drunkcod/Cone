@@ -10,19 +10,28 @@ namespace Cone.Helpers
             return spy;
         }
 
-        public static FuncSpy<T, TResult> For<T, TResult>(Func<T, TResult> inner) {
-            return new FuncSpy<T,TResult>(inner);
-        }
-
-        public static FuncSpy<T1,T2, TResult> On<T1, T2, TResult>(ref Func<T1, T2, TResult> target, Func<T1, T2, TResult> inner) {
-            var spy = new FuncSpy<T1,T2,TResult>(inner);
+        public static FuncSpy<T1, T2, TResult> On<T1, T2, TResult>(ref Func<T1, T2, TResult> target, Func<T1, T2, TResult> inner) {
+            var spy = new FuncSpy<T1, T2,TResult>(inner);
             target = spy;
             return spy;
         }
 
-        public static FuncSpy<T1,T2, TResult> For<T1, T2, TResult>(Func<T1, T2, TResult> inner) {
-            return new FuncSpy<T1,T2,TResult>(inner);
+        public static FuncSpy<T1, T2, T3, TResult> On<T1, T2, T3, TResult>(ref Func<T1, T2, T3, TResult> target, Func<T1, T2, T3, TResult> inner) {
+            var spy = new FuncSpy<T1, T2, T3, TResult>(inner);
+            target = spy;
+            return spy;
         }
+
+        public static FuncSpy<T1, T2, T3, T4, TResult> On<T1, T2, T3, T4, TResult>(ref Func<T1, T2, T3, T4, TResult> target, Func<T1, T2, T3, T4, TResult> inner) {
+            var spy = new FuncSpy<T1, T2, T3, T4, TResult>(inner);
+            target = spy;
+            return spy;
+        }
+
+        public static FuncSpy<T, TResult> For<T, TResult>(Func<T, TResult> inner) { return new FuncSpy<T,TResult>(inner); }
+        public static FuncSpy<T1, T2, TResult> For<T1, T2, TResult>(Func<T1, T2, TResult> inner) { return new FuncSpy<T1,T2,TResult>(inner); }
+        public static FuncSpy<T1, T2, T3, TResult> For<T1, T2, T3, TResult>(Func<T1, T2, T3, TResult> inner) { return new FuncSpy<T1, T2, T3, TResult>(inner); }
+        public static FuncSpy<T1, T2, T3, T4, TResult> For<T1, T2, T3, T4, TResult>(Func<T1, T2, T3, T4, TResult> inner) { return new FuncSpy<T1, T2, T3, T4, TResult>(inner); }
     }
 
     public class FuncSpy<T, TResult> : MethodSpy
@@ -41,7 +50,7 @@ namespace Cone.Helpers
         }
     }
 
-    public class FuncSpy<T1,T2, TResult> : MethodSpy
+    public class FuncSpy<T1, T2, TResult> : MethodSpy
     {
         readonly Func<T1, T2, TResult> inner;
 
@@ -49,10 +58,42 @@ namespace Cone.Helpers
             this.inner = inner;
         }
 
-        public static implicit operator Func<T1, T2, TResult>(FuncSpy<T1,T2, TResult> self) {
-            return (t1, t2) => {
+        public static implicit operator Func<T1, T2, TResult>(FuncSpy<T1, T2, TResult> self) {
+            return (arg1, arg2) => {
                 self.Called();
-                return self.inner(t1, t2);
+                return self.inner(arg1, arg2);
+            };
+        }
+    }
+
+    public class FuncSpy<T1, T2, T3, TResult> : MethodSpy
+    {
+        readonly Func<T1, T2, T3, TResult> inner;
+
+        public FuncSpy(Func<T1, T2, T3, TResult> inner) {
+            this.inner = inner;
+        }
+
+        public static implicit operator Func<T1, T2, T3, TResult>(FuncSpy<T1, T2, T3, TResult> self) {
+            return (arg1, arg2, arg3) => {
+                self.Called();
+                return self.inner(arg1, arg2, arg3);
+            };
+        }
+    }
+
+    public class FuncSpy<T1, T2, T3, T4, TResult> : MethodSpy
+    {
+        readonly Func<T1, T2, T3, T4, TResult> inner;
+
+        public FuncSpy(Func<T1, T2, T3, T4, TResult> inner) {
+            this.inner = inner;
+        }
+
+        public static implicit operator Func<T1, T2, T3, T4, TResult>(FuncSpy<T1, T2, T3, T4, TResult> self) {
+            return (arg1, arg2, arg3, arg4) => {
+                self.Called();
+                return self.inner(arg1, arg2, arg3, arg4);
             };
         }
     }
