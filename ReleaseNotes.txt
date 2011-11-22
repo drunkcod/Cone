@@ -1,3 +1,10 @@
+.:[ 0.0.2.28 ]:.
+New Features
+[x] Action & FuncSpy added, reachable via Helpers.MethodSpy
+
+Bug Fixes
+[x] Enum formatting now works as expected.
+
 .:[ 0.0.2.27 ]:.
 New Features
 [x] FeatureAttribute.GroupAs added.
