@@ -151,9 +151,14 @@ namespace Cone.Core
         }
 
         enum MyEnum { Value };
-        public void enums() { 
+        public void enum_constant_as_actual() { 
             var expected = MyEnum.Value;
             VerifyFormat(() => MyEnum.Value == expected, "Value == expected"); 
+        }
+
+        public void enums_constant_as_expected() { 
+            var actual = MyEnum.Value;
+            VerifyFormat(() => actual == MyEnum.Value, "actual == Value"); 
         }
 
         public void multiply() { VerifyFormat(() => A * B, "A * B"); }

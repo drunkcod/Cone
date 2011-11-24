@@ -154,6 +154,11 @@ namespace Cone.Core
                     return FormatBinary(Expression.MakeBinary(binary.NodeType, 
                         Expression.Constant(Enum.ToObject(conversion.Type, (int)leftConstant.Value)), conversion));
             }
+            if(left.Type.IsEnum && right.NodeType == ExpressionType.Constant && !right.Type.IsEnum) {
+                var rightConstant = right as ConstantExpression;
+                return FormatBinary(Expression.MakeBinary(binary.NodeType, 
+                    left, Expression.Constant(Enum.ToObject(left.Type, rightConstant.Value))));
+            }
             var format = string.Format(GetBinaryOp(binary.NodeType), BinaryFormat(left, 0), BinaryFormat(right, 1));
             return string.Format(format, Format(left), Format(right));
         }
