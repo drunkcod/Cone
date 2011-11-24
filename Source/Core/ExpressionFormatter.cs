@@ -145,12 +145,14 @@ namespace Cone.Core
         string FormatBinary(BinaryExpression binary) {
             Expression left = binary.Left, right = binary.Right;
             if (left.NodeType == ExpressionType.Convert) {
-                var convert = (UnaryExpression)left;
-                left = convert.Operand;
-                if (right.NodeType == ExpressionType.Constant && right.Type.Equals(typeof(int))) {
-                    var newValue = Enum.ToObject(convert.Operand.Type, (int)((ConstantExpression)right).Value);
-                    right = Expression.Constant(newValue);
-                }
+                left = (left as UnaryExpression).Operand;
+            }
+            if(left.NodeType == ExpressionType.Constant && right.NodeType == ExpressionType.Convert && left.Type == typeof(int)) {
+                var leftConstant = left as ConstantExpression;
+                var conversion = (right as UnaryExpression).Operand;
+                if(conversion.Type.IsEnum)
+                    return FormatBinary(Expression.MakeBinary(binary.NodeType, 
+                        Expression.Constant(Enum.ToObject(conversion.Type, (int)leftConstant.Value)), conversion));
             }
             var format = string.Format(GetBinaryOp(binary.NodeType), BinaryFormat(left, 0), BinaryFormat(right, 1));
             return string.Format(format, Format(left), Format(right));

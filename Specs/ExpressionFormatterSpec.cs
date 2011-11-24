@@ -150,6 +150,12 @@ namespace Cone.Core
             VerifyFormat(() => toBe ^ !toBe, "toBe ^ !toBe"); 
         }
 
+        enum MyEnum { Value };
+        public void enums() { 
+            var expected = MyEnum.Value;
+            VerifyFormat(() => MyEnum.Value == expected, "Value == expected"); 
+        }
+
         public void multiply() { VerifyFormat(() => A * B, "A * B"); }
 
         public void subtract() { VerifyFormat(() => A - B, "A - B"); }
