@@ -17,11 +17,11 @@ namespace Cone.Expectations
 
         protected override bool CheckCore() {
             if(method != null && method.IsStatic)
-                return (bool)method.Invoke(null, new[]{ actual, Expected });
+                return (bool)method.Invoke(null, new[]{ ActualValue, ExpectedValue });
 
             return Expression.Lambda<Func<bool>>(Expression.MakeBinary(body.NodeType, 
-                Expression.Constant(actual), 
-                Expression.Constant(Expected))).Execute();
+                Expression.Constant(ActualValue), 
+                Expression.Constant(ExpectedValue))).Execute();
         }
     }
 
@@ -36,14 +36,10 @@ namespace Cone.Expectations
     {
         public TypeIsExpect(Expression body, object actual, Type expected): base(body, actual, expected) { }
 
-        public override object Actual {
-            get {
-                return actual == null ? null : actual.GetType();
-            }
-        }
+        Type ActualType { get { return ActualValue == null ? null : ActualValue.GetType(); } }
 
         protected override bool CheckCore() {
-            return ((Type)Expected).IsAssignableFrom((Type)Actual);
+            return ((Type)ExpectedValue).IsAssignableFrom(ActualType);
         }
 
         public override string MessageFormat { get { return ExpectMessages.EqualFormat; } }

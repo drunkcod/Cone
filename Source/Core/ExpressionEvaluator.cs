@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq.Expressions;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace Cone.Core
 {
@@ -12,6 +12,12 @@ namespace Cone.Core
         public ExpressionEvaluator() {
             Unsupported = EvaluateUnsupported;
             NullSubexpression = EvaluateNullSubexpression;
+        }
+
+        public Expression Unwrap(Expression expression) {
+            if(expression.NodeType == ExpressionType.Convert) 
+                return (expression as UnaryExpression).Operand;
+            return expression;
         }
        
         public EvaluationResult Evaluate(Expression body, Expression context) { 

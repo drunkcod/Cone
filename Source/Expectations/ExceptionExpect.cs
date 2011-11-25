@@ -16,10 +16,10 @@ namespace Cone.Expectations
        
         ExceptionExpect(Expression body, object result, Type expected): base(body, result, expected) { }
 
-        Type ExpectedExceptionType { get { return (Type)Expected; } }
+        Type ExpectedExceptionType { get { return (Type)ExpectedValue; } }
 
         protected override bool CheckCore() {
-            return actual != null && ExpectedExceptionType.IsAssignableFrom(actual.GetType());
+            return ActualValue != null && ExpectedExceptionType.IsAssignableFrom(ActualValue.GetType());
         }
 
         static object ExceptionOrNull(Expression expression, Type expected) {
@@ -33,10 +33,10 @@ namespace Cone.Expectations
         }
 
         public override string FormatExpression(IFormatter<Expression> formatter) {
-            if(actual == null)
+            if(ActualValue== null)
                 return string.Format(ExpectMessages.MissingExceptionFormat, formatter.Format(body));
             return string.Format(ExpectMessages.UnexpectedExceptionFormat,
-                formatter.Format(body), Expected, actual.GetType());
+                formatter.Format(body), ExpectedValue, ActualValue.GetType());
         }
     }
 }

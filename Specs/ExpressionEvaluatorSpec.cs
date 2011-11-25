@@ -8,15 +8,19 @@ namespace Cone
     [Describe(typeof(ExpressionEvaluator))]
     public class ExpressionEvaluatorSpec
     {
-        ExpressionEvaluator evaluator = new ExpressionEvaluator {
+        ExpressionEvaluator Evaluator = new ExpressionEvaluator {
             Unsupported = x => { throw new NotSupportedException("Unsupported expression type:" + x.NodeType.ToString()); }
         };
 
         T Evaluate<T>(Expression<Func<T>> lambda){ return Evaluate(lambda, x => { throw x.Exception; }); }
-        T Evaluate<T>(Expression<Func<T>> lambda, Func<EvaluationResult, EvaluationResult> onError){ return (T)evaluator.Evaluate(lambda.Body, lambda, onError).Result; }
+        T Evaluate<T>(Expression<Func<T>> lambda, Func<EvaluationResult, EvaluationResult> onError){ return (T)Evaluator.Evaluate(lambda.Body, lambda, onError).Result; }
         void EvaluateError<T>(Expression<Func<T>> lambda, Func<EvaluationResult, EvaluationResult> onError) { 
-            var result = evaluator.Evaluate(lambda.Body, lambda, onError);
+            var result = Evaluator.Evaluate(lambda.Body, lambda, onError);
             Verify.That(() => result.IsError);
+        }
+
+        public void unwrapping_conversions() {
+            Verify.That(() => Evaluator.Unwrap(Expression.Convert(Expression.Constant(MyEnum.Value), typeof(int))).Type == typeof(MyEnum));
         }
 
         public void constant_evaluation() {

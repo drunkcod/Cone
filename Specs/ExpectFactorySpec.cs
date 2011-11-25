@@ -18,17 +18,6 @@ namespace Cone
             Verify.That(() => ExpectFrom(() => a == b) is StringEqualExpect);
         }
 
-        [DisplayAs("\"is\" test")]
-        public void type_check() {
-            var obj = new object();
-
-            Verify.That(() => ExpectFrom(() => obj is string) is TypeIsExpect);
-            
-            var expect = (Expect)ExpectFrom(() => obj is string);
-            Verify.That(() => (Type)expect.Actual == typeof(object));
-            Verify.That(() => (Type)expect.Expected == typeof(string));
-        }
-
         [DisplayAs("\"is\" test with null")]
         public void type_check_null() {
             object obj = null;

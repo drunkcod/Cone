@@ -11,6 +11,9 @@ namespace Cone.Core
         }
     }
 
+    enum MyEnum { Value };
+
+
     [Describe(typeof(ExpressionFormatter))]
     public class ExpressionFormatterSpec
     {
@@ -150,7 +153,6 @@ namespace Cone.Core
             VerifyFormat(() => toBe ^ !toBe, "toBe ^ !toBe"); 
         }
 
-        enum MyEnum { Value };
         public void enum_constant_as_actual() { 
             var expected = MyEnum.Value;
             VerifyFormat(() => MyEnum.Value == expected, "Value == expected"); 

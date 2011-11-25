@@ -12,9 +12,9 @@ namespace Cone.Expectations
 
         public string Preamble { 
             get {
-                if(ActualValue.Length == ExpectedValue.Length)
-                    return string.Format("String lengths are both {0}.", ActualValue.Length);
-                return string.Format("Expected string length {0} but was {1}.", ExpectedValue.Length, ActualValue.Length); 
+                if(ActualString.Length == ExpectedString.Length)
+                    return string.Format("String lengths are both {0}.", ActualString.Length);
+                return string.Format("Expected string length {0} but was {1}.", ExpectedString.Length, ActualString.Length); 
             } 
         }
 
@@ -43,18 +43,18 @@ namespace Cone.Expectations
         }
 
         public override string FormatMessage(IFormatter<object> formatter) {
-            if(Actual == null)
-                return string.Format(ExpectMessages.EqualFormat, formatter.Format(null), formatter.Format(Expected));
-            var n = ActualValue.IndexOfDifference(ExpectedValue);
-            var displayActual = formatter.Format(Center(ActualValue, n, DisplayWidth));
-            var displayExpected = formatter.Format(Center(ExpectedValue, n, DisplayWidth));
+            if(ActualValue == null)
+                return string.Format(ExpectMessages.EqualFormat, formatter.Format(null), formatter.Format(ExpectedString));
+            var n = ActualString.IndexOfDifference(ExpectedString);
+            var displayActual = formatter.Format(Center(ActualString, n, DisplayWidth));
+            var displayExpected = formatter.Format(Center(ExpectedString, n, DisplayWidth));
 
             var format = string.Format("{0}\n{1}\n{2}^", Preamble, MessageFormat, 
                 new string('-', displayActual.IndexOfDifference(displayExpected) + ExpectMessages.EqualFormat.IndexOf('{')));
             return string.Format(format, displayActual, displayExpected);
         }
 
-        string ActualValue { get { return Actual.ToString(); } }
-        string ExpectedValue { get { return Expected.ToString(); } }
+        string ActualString { get { return ActualValue.ToString(); } }
+        string ExpectedString { get { return ExpectedValue.ToString(); } }
     }
 }
