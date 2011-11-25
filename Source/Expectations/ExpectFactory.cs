@@ -8,7 +8,7 @@ namespace Cone.Expectations
 {
     public class ExpectFactory
     {
-        delegate Expect Expector(BinaryExpression body, IExpectValue left, object right);
+        delegate Expect Expector(BinaryExpression body, IExpectValue left, IExpectValue right);
 
         static readonly Expector EqualExpector = (body, left, right) => new EqualExpect(body, left, right);
         static readonly Expector NotEqualExpector = (body, left, right) => new NotEqualExpect(body, left, right);     
@@ -115,7 +115,7 @@ namespace Cone.Expectations
             && body.Right.Type == typeof(string)) {
                 return new StringEqualExpect(body, (string)left, (string)right);
             }
-            return GetExpector(body.NodeType)(body, new ExpectValue(left), right);
+            return GetExpector(body.NodeType)(body, new ExpectValue(left), new ExpectValue(right));
         }
 
         static Expector GetExpector(ExpressionType op) {

@@ -82,8 +82,8 @@ namespace Cone.Expectations
     {
         readonly IExpectValue expected;
 
-        public Expect(Expression body, IExpectValue actual, object expected) : base(body, actual) {
-            this.expected = new ExpectValue(expected ?? ExpectedNull.IsNull);
+        public Expect(Expression body, IExpectValue actual, IExpectValue expected) : base(body, actual) {            
+            this.expected = expected.Value != null ? expected : new ExpectValue(ExpectedNull.IsNull);
         }
 
         protected override IExpectValue Expected { get { return expected; } }
