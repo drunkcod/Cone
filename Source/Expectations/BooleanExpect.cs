@@ -1,7 +1,7 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using System.Reflection;
 using Cone.Core;
-using System;
 
 namespace Cone.Expectations
 {

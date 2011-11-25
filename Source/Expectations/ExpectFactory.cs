@@ -111,9 +111,9 @@ namespace Cone.Expectations
             var right = Evaluate(body.Right, body);
 
             if(IsStringEquals(body))
-                return new StringEqualExpect(body, (string)left, (string)right);
+                return new StringEqualExpect(body, (string)left.Value, (string)right.Value);
 
-            return GetExpector(body.NodeType)(body, new ExpectValue(left), new ExpectValue(right));
+            return GetExpector(body.NodeType)(body, left, right);
         }
 
         static bool IsStringEquals(BinaryExpression body) {
@@ -134,12 +134,12 @@ namespace Cone.Expectations
             return BinaryExpector;
         }
         
-        static T EvaluateAs<T>(Expression body) { return (T)Evaluate(body, body); }
-        static object Evaluate(Expression body, Expression context) { return Evaluator.Evaluate(body, context).Result; }
+        static T EvaluateAs<T>(Expression body) { return (T)(Evaluate(body, body).Value); }
+        static IExpectValue Evaluate(Expression body, Expression context) { return new ExpectValue(Evaluator.Evaluate(body, context).Result); }
 
         static Expect TypeIs(TypeBinaryExpression body) {
             return new TypeIsExpect(body,
-                new ExpectValue(Evaluate(body.Expression, body)), 
+                Evaluate(body.Expression, body), 
                 body.TypeOperand);
         }
     }
