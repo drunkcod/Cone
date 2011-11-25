@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 using Cone.Core;
+using System;
 
 namespace Cone.Expectations
 {
@@ -27,9 +28,10 @@ namespace Cone.Expectations
         readonly protected Expression body;
         readonly IExpectValue actual;
 
-        public BooleanExpect(Expression body, object actual) {
+        public BooleanExpect(Expression body, IExpectValue actual) {
+            if(actual == null) throw new ArgumentNullException("actual");
             this.body = body;
-            this.actual = new ExpectValue(actual);
+            this.actual = actual;
         }
 
         public virtual string FormatExpression(IFormatter<Expression> formatter){ return formatter.Format(body); }
@@ -65,7 +67,7 @@ namespace Cone.Expectations
     {
         readonly MethodInfo conversion;
 
-        public ConversionExpect(Expression body, object actual, MethodInfo conversion) : base(body, actual) {
+        public ConversionExpect(Expression body, object actual, MethodInfo conversion) : base(body, new ExpectValue(actual)) {
             this.conversion = conversion;
         }
 
@@ -78,12 +80,12 @@ namespace Cone.Expectations
 
     public class Expect : BooleanExpect 
     {
-        readonly object expected;
+        readonly IExpectValue expected;
 
-        public Expect(Expression body, object actual, object expected) : base(body, actual) {
-            this.expected = expected ?? ExpectedNull.IsNull;
+        public Expect(Expression body, IExpectValue actual, object expected) : base(body, actual) {
+            this.expected = new ExpectValue(expected ?? ExpectedNull.IsNull);
         }
 
-        protected override IExpectValue Expected { get { return new ExpectValue(expected); } }
+        protected override IExpectValue Expected { get { return expected; } }
     }
 }

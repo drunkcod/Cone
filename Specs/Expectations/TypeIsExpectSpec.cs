@@ -8,13 +8,13 @@ namespace Cone.Expectations
     {
         public void null_handling() {
             object obj = null;
-            var typeIs = new TypeIsExpect(Body(() => obj is string), null, typeof(string));
+            var typeIs = new TypeIsExpect(Body(() => obj is string), new ExpectValue(null), typeof(string));
             Verify.That(() => typeIs.Check().Success == false);
         }
 
         public void result_is_actual_object() {
             var obj = "Hello World";
-            var typeIs = new TypeIsExpect(Body(() => obj is string), obj, typeof(string));
+            var typeIs = new TypeIsExpect(Body(() => obj is string), new ExpectValue(obj), typeof(string));
             Verify.That(() => Object.ReferenceEquals(typeIs.Check().Actual, obj));
         }
 

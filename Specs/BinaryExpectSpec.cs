@@ -15,7 +15,7 @@ namespace Cone
             formatter.Setup(x => x.Format(actual)).Returns("<actual>");
             formatter.Setup(x => x.Format(expected)).Returns("<expected>");
 
-            var expect = new EqualExpect(Expression.MakeBinary(ExpressionType.Equal, Expression.Constant(actual), Expression.Constant(expected)), actual, expected);
+            var expect = new EqualExpect(Expression.MakeBinary(ExpressionType.Equal, Expression.Constant(actual), Expression.Constant(expected)), new ExpectValue(actual), expected);
 
             var expectedMessage = string.Format(ExpectMessages.EqualFormat, "<actual>", "<expected>");
             Verify.That(() => expect.FormatMessage(formatter.Object) == expectedMessage);
@@ -38,7 +38,7 @@ namespace Cone
             var actual = new MyClass { Value = 42 };
             var expected = new MyClass { Value = 42 };
             Expression<Func<bool>> expression = () => actual == expected;
-            var expect = new BinaryExpect((BinaryExpression)expression.Body, actual, expected);
+            var expect = new BinaryExpect((BinaryExpression)expression.Body, new ExpectValue(actual), expected);
 
             Verify.That(() => (actual == expected) == true);
             Verify.That(() => expect.Check() == new ExpectResult { Actual = actual, Success = true });

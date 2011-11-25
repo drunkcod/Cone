@@ -8,7 +8,7 @@ namespace Cone.Expectations
 {
     public class ExpectFactory
     {
-        delegate Expect Expector(BinaryExpression body, object left, object right);
+        delegate Expect Expector(BinaryExpression body, IExpectValue left, object right);
 
         static readonly Expector EqualExpector = (body, left, right) => new EqualExpect(body, left, right);
         static readonly Expector NotEqualExpector = (body, left, right) => new NotEqualExpect(body, left, right);     
@@ -99,7 +99,7 @@ namespace Cone.Expectations
 		}
 
         IExpect Boolean(Expression body) {
-            return new BooleanExpect(body, EvaluateAs<bool>(body));
+            return new BooleanExpect(body, new ExpectValue(EvaluateAs<bool>(body)));
         }
 
         IExpect Conversion(UnaryExpression conversion) {
@@ -115,7 +115,7 @@ namespace Cone.Expectations
             && body.Right.Type == typeof(string)) {
                 return new StringEqualExpect(body, (string)left, (string)right);
             }
-            return GetExpector(body.NodeType)(body, left, right);
+            return GetExpector(body.NodeType)(body, new ExpectValue(left), right);
         }
 
         static Expector GetExpector(ExpressionType op) {
@@ -135,7 +135,7 @@ namespace Cone.Expectations
 
         static Expect TypeIs(TypeBinaryExpression body) {
             return new TypeIsExpect(body,
-                Evaluate(body.Expression, body), 
+                new ExpectValue(Evaluate(body.Expression, body)), 
                 body.TypeOperand);
         }
     }

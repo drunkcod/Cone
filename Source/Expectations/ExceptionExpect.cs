@@ -14,7 +14,7 @@ namespace Cone.Expectations
             return new ExceptionExpect(expression.Body, ExceptionOrNull(expression.Body, expected), expected);
         }
        
-        ExceptionExpect(Expression body, object result, Type expected): base(body, result, expected) { }
+        ExceptionExpect(Expression body, object result, Type expected): base(body, new ExpectValue(result), expected) { }
 
         Type ExpectedExceptionType { get { return (Type)ExpectedValue; } }
 

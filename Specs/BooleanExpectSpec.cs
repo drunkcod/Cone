@@ -7,7 +7,7 @@ namespace Cone
     public class BooleanExpectSpec
     {
         public void uses_equal_format_for_messages() {
-            Verify.That(() => new BooleanExpect(Expression.Constant(false), true).MessageFormat == ExpectMessages.EqualFormat);
+            Verify.That(() => new BooleanExpect(Expression.Constant(false), new ExpectValue(true)).MessageFormat == ExpectMessages.EqualFormat);
         }
     }
 }
