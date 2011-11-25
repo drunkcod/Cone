@@ -110,12 +110,16 @@ namespace Cone.Expectations
             var left = Evaluate(body.Left, body);
             var right = Evaluate(body.Right, body);
 
-            if(body.NodeType == ExpressionType.Equal
-            && body.Left.Type == typeof(string) 
-            && body.Right.Type == typeof(string)) {
+            if(IsStringEquals(body))
                 return new StringEqualExpect(body, (string)left, (string)right);
-            }
+
             return GetExpector(body.NodeType)(body, new ExpectValue(left), new ExpectValue(right));
+        }
+
+        static bool IsStringEquals(BinaryExpression body) {
+            return body.NodeType == ExpressionType.Equal
+            && body.Left.Type == typeof(string) 
+            && body.Right.Type == typeof(string);
         }
 
         static Expector GetExpector(ExpressionType op) {
