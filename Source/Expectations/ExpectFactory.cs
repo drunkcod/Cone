@@ -134,8 +134,31 @@ namespace Cone.Expectations
             return BinaryExpector;
         }
         
+        class WrappedExpectValue : IExpectValue
+        {
+            readonly object value;
+            readonly object rawValue;
+
+            public WrappedExpectValue(object value, object rawValue) {
+                this.value = value;
+                this.rawValue = rawValue;
+            }
+
+            public object Value { get { return value;} }
+
+            public string ToString(IFormatter<object> formatter) { return formatter.Format(rawValue); }
+            public override string ToString() { return rawValue.ToString(); }
+        }
+
         static T EvaluateAs<T>(Expression body) { return (T)(Evaluate(body, body).Value); }
-        static IExpectValue Evaluate(Expression body, Expression context) { return new ExpectValue(Evaluator.Evaluate(body, context).Result); }
+        
+        static IExpectValue Evaluate(Expression body, Expression context) { 
+            var unwrapped = Evaluator.Unwrap(body);
+            var value = Evaluator.Evaluate(body, context).Result;
+            if(unwrapped == body)
+                return new ExpectValue(value); 
+            return new WrappedExpectValue(value, Evaluator.Evaluate(unwrapped, context).Result);
+        }
 
         static Expect TypeIs(TypeBinaryExpression body) {
             return new TypeIsExpect(body,
