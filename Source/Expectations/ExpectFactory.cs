@@ -71,10 +71,25 @@ namespace Cone.Expectations
         IExpect Lambda(Expression body) {
             var binary = body as BinaryExpression;
             if (binary != null)
-                return Binary(binary);
+                return Binary(LiftEnum(binary));
             if(body.NodeType == ExpressionType.TypeIs)
                 return TypeIs((TypeBinaryExpression)body);
             return Unary(body);
+        }
+
+        BinaryExpression LiftEnum(BinaryExpression source) {
+            if(source.Right.NodeType == ExpressionType.Constant
+            && source.Left.NodeType == ExpressionType.Convert
+            && source.Right.Type == source.Right.Type) {
+                var left = (UnaryExpression)source.Left;
+                var right = (ConstantExpression)source.Right;
+                if(left.Operand.Type.IsEnum) {
+                    return Expression.MakeBinary(source.NodeType, 
+                        left.Operand,
+                        Expression.Constant(Enum.ToObject(left.Operand.Type, right.Value)));
+                }
+            }
+            return source;
         }
 
         IExpect Unary(Expression body) {

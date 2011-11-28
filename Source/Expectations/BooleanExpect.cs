@@ -35,10 +35,17 @@ namespace Cone.Expectations
         }
 
         public virtual string FormatExpression(IFormatter<Expression> formatter){ return formatter.Format(body); }
-        public virtual string FormatExpected(IFormatter<object> formatter) { return formatter.Format(ExpectedValue); }
-
+        
         public virtual string FormatMessage(IFormatter<object> formatter) { 
-            return string.Format(MessageFormat, Actual.ToString(formatter), Expected.ToString(formatter));
+            return string.Format(MessageFormat, FormatActual(formatter), FormatExpected(formatter));
+        }
+
+        public string FormatActual(IFormatter<object> formatter) {
+            return Actual.ToString(formatter);
+        }
+
+        public string FormatExpected(IFormatter<object> formatter) {
+            return Expected.ToString(formatter);
         }
 
         public ExpectResult Check() {

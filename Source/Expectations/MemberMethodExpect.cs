@@ -19,7 +19,7 @@ namespace Cone.Expectations
         protected abstract object Target { get; }
         protected abstract object Actual { get ; }
 
-        protected virtual string FormatActual(IFormatter<object> formatter) {
+        public virtual string FormatActual(IFormatter<object> formatter) {
             return formatter.Format(Actual);
         }
 
