@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Text;
 
 namespace Cone.Core
 {
@@ -29,10 +30,29 @@ namespace Cone.Core
                 return string.Format("typeof({0})", type.Name);
             var typeOfObj = obj.GetType();
             if(typeOfObj.IsEnum)
-                return string.Format("{0}.{1}", typeOfObj.Name, obj);
+                return WritableEnum(obj, typeOfObj);
             if(typeOfObj == typeof(bool))
                 return (bool)obj ? "true": "false";
             return obj; 
+        }
+
+        static object WritableEnum(object obj, Type typeOfObj) {
+            if (typeOfObj.Has<FlagsAttribute>()) {
+                var values = Enum.GetValues(typeOfObj);
+                var names = Enum.GetNames(typeOfObj);
+
+                var parts = new StringBuilder();
+                var sep = "";
+                var bits = Convert.ToInt64(obj);
+                for (var i = 0; i != values.Length; ++i)
+                    if ((bits & Convert.ToInt64(values.GetValue(i))) != 0) {
+                        parts.AppendFormat("{0}{{0}}.{1}", sep, names[i]);
+                        sep = " | ";
+                    }
+                return string.Format(parts.ToString(), typeOfObj.Name);
+
+            }
+            return string.Format("{0}.{1}", typeOfObj.Name, obj);
         }
 
         string FormatCollection(IEnumerable collection) {

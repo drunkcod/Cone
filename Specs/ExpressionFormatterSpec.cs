@@ -166,7 +166,6 @@ namespace Cone.Core
             VerifyFormat(() => actual == MyEnum.Value, "actual == MyEnum.Value"); 
         }
 
-        [Pending]
         public void flags() {
             VerifyFormat(() => MyFlags.Flag1 | MyFlags.Flag2, "MyFlags.Flag1 | MyFlags.Flag2");
         }

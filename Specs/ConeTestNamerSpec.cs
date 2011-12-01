@@ -52,7 +52,7 @@ namespace Cone.Core
             Verify.That(() => TestNamer.NameFor(myMethod, new object[]{ value }, format) == string.Format(format, value));
         }
 
-        [Row("{0}", MyEnum.Value, "Value")
+        [Row("{0:D}", MyEnum.Value, "0")
         ,Row("{0}", null, "")
         ,Row("not-a-format-string", null, "not-a-format-string(null)")]
         public void formatted(string format, object value, string expected) { 
