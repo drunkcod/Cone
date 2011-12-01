@@ -53,6 +53,8 @@ namespace Cone.Core
         }
 
         [Row("{0:D}", MyEnum.Value, "0")
+        ,Row("{0:D}", MyFlags.Flag1 | MyFlags.Flag2, "3")
+        ,Row("flags", MyFlags.Flag1 | MyFlags.Flag2, "flags(MyFlags.Flag1 | MyFlags.Flag2)")
         ,Row("{0}", null, "")
         ,Row("not-a-format-string", null, "not-a-format-string(null)")]
         public void formatted(string format, object value, string expected) { 
