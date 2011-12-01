@@ -147,21 +147,22 @@ namespace Cone.Core
             if (left.NodeType == ExpressionType.Convert) {
                 left = (left as UnaryExpression).Operand;
             }
-            if(left.NodeType == ExpressionType.Constant && right.NodeType == ExpressionType.Convert && left.Type == typeof(int)) {
-                var leftConstant = left as ConstantExpression;
+            if(left.NodeType == ExpressionType.Constant && right.NodeType == ExpressionType.Convert) {
                 var conversion = (right as UnaryExpression).Operand;
                 if(conversion.Type.IsEnum)
                     return FormatBinary(Expression.MakeBinary(binary.NodeType, 
-                        Expression.Constant(Enum.ToObject(conversion.Type, (int)leftConstant.Value)), conversion));
+                        EnumConstant(conversion.Type, (left as ConstantExpression).Value), conversion));
             }
             if(left.Type.IsEnum && right.NodeType == ExpressionType.Constant && !right.Type.IsEnum) {
                 var rightConstant = right as ConstantExpression;
                 return FormatBinary(Expression.MakeBinary(binary.NodeType, 
-                    left, Expression.Constant(Enum.ToObject(left.Type, rightConstant.Value))));
+                    left, EnumConstant(left.Type, rightConstant.Value)));
             }
             var format = string.Format(GetBinaryOp(binary.NodeType), BinaryFormat(left, 0), BinaryFormat(right, 1));
             return string.Format(format, Format(left), Format(right));
         }
+
+        Expression EnumConstant(Type enumType, object value) { return Expression.Constant(Enum.ToObject(enumType, value)); }
 
         string BinaryFormat(Expression expression, int index) {
             return string.Format(expression is BinaryExpression ? "({{{0}}})" : "{{{0}}}", index);

@@ -37,7 +37,7 @@ namespace Cone.Core
                 return;
             }
 
-            if(method.Has<RowAttribute>(rows => testSink.RowTest(method, rows)))
+            if(method.Has<IRowData>(rows => testSink.RowTest(method, rows)))
                 return;
            
             var parameters = method.GetParameters();

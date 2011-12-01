@@ -32,7 +32,7 @@ namespace Cone.Core
 
         public void public_with_RowAttribute_are_row_tests() {
             var method = Method(x => x.RowTest(42));
-            Classify(method).Verify(x => x.RowTest(method, It.IsAny<RowAttribute[]>()));
+            Classify(method).Verify(x => x.RowTest(method, It.IsAny<IRowData[]>()));
         }
 
         public void public_niladic_returning_row_test_data_sequence_is_row_source() {
