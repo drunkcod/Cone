@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 
 namespace Cone.Core
@@ -33,7 +32,7 @@ namespace Cone.Core
 
         public void Classify(MethodInfo method) {
             if(method.DeclaringType == typeof(object)) {
-                fixtureSink.Unintresting(method);
+                Unintresting(method);
                 return;
             }
 
@@ -42,13 +41,13 @@ namespace Cone.Core
            
             var parameters = method.GetParameters();
             switch(parameters.Length) {
-                case 0: ClassifyNiladic(method); break;
-                case 1: ClassifyMonadic(method, parameters[0]); break;
-                default: fixtureSink.Unintresting(method); break;
+                case 0: Niladic(method); break;
+                case 1: Monadic(method, parameters[0]); break;
+                default: Unintresting(method); break;
             }
         }
 
-        void ClassifyNiladic(MethodInfo method) {
+        void Niladic(MethodInfo method) {
             if(typeof(IEnumerable<IRowTestData>).IsAssignableFrom(method.ReturnType)) {
                 testSink.RowSource(method);
                 return;
@@ -59,19 +58,19 @@ namespace Cone.Core
             for(int i = 0; i != attributes.Length; ++i) {
                 var item = attributes[i];
                 if(item is BeforeAllAttribute) {
-                    fixtureSink.BeforeAll(method);
+                    BeforeAll(method);
                     sunk = true;
                 }
                 if(item is BeforeEachAttribute) {
-                    fixtureSink.BeforeEach(method);
+                    BeforeEach(method);
                     sunk = true;
                 }
                 if(item is AfterEachAttribute) {
-                    fixtureSink.AfterEach(method);
+                    AfterEach(method);
                     sunk = true;
                 }
                 if(item is AfterAllAttribute) {
-                    fixtureSink.AfterAll(method);
+                    AfterAll(method);
                     sunk = true;
                 }
             }
@@ -81,12 +80,19 @@ namespace Cone.Core
             testSink.Test(method);
         }
 
-        void ClassifyMonadic(MethodInfo method, ParameterInfo parameter) {
+        void Monadic(MethodInfo method, ParameterInfo parameter) {
             if(typeof(ITestResult).IsAssignableFrom(parameter.ParameterType) 
                 && method.Has<AfterEachAttribute>()) {
-                fixtureSink.AfterEachWithResult(method);
+                AfterEachWithResult(method);
             }
-            else fixtureSink.Unintresting(method);
+            else Unintresting(method);
         }
+
+        void BeforeAll(MethodInfo method) { fixtureSink.BeforeAll(method); }
+        void BeforeEach(MethodInfo method) { fixtureSink.BeforeEach(method); }
+        void AfterEach(MethodInfo method) { fixtureSink.AfterEach(method); }
+        void AfterEachWithResult(MethodInfo method) { fixtureSink.AfterEachWithResult(method); }
+        void AfterAll(MethodInfo method) { fixtureSink.AfterAll(method); }
+        void Unintresting(MethodInfo method) { fixtureSink.Unintresting(method); }
     }
 }

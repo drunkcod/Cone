@@ -30,6 +30,5 @@ namespace Cone
             }
             return defaultValue;
         }
-
     }
 }

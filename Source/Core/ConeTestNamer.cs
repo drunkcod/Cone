@@ -1,14 +1,36 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Cone.Core
 {
+    class FormatString
+    {
+        static readonly Regex FormatStringPattern = new Regex(@"\{((?<id>\d)(,.+?)?(:.+?)?)\}", RegexOptions.Compiled);
+        static readonly int IdGroup = FormatStringPattern.GroupNumberFromName("id");
+
+        readonly string format;
+        readonly SortedDictionary<int, string> parts = new SortedDictionary<int,string>();
+
+        public FormatString(string format) 
+        {
+            this.format = format;
+            foreach(Match item in FormatStringPattern.Matches(format))
+                parts.Add(int.Parse(item.Groups[IdGroup].Value), item.Value);
+        }
+
+        public bool HasItemFormat { get { return parts.Count != 0; } }
+
+        public string Format(params object[] args) { return string.Format(ToString(), args); }
+
+        public override string ToString() { return format; }
+    }
+
     public class ConeTestNamer
     {
         static readonly Regex NormalizeNamePattern = new Regex(@"_|\+", RegexOptions.Compiled);
-        static readonly Regex IsFormatStringPattern = new Regex(@"\{(\d(,.+?)?(:.+?)?)\}", RegexOptions.Compiled);
 
         readonly ParameterFormatter formatter = new ParameterFormatter();
 
@@ -30,9 +52,10 @@ namespace Cone.Core
         public string NameFor(MethodInfo method, object[] parameters, string baseName) {
             if (parameters == null)
                 return baseName;
+            var formatString = new FormatString(baseName);
             var displayParameters = DisplayParameters(method.GetParameters(), parameters);
-            if(IsFormatString(baseName))
-                return string.Format(baseName, displayParameters);
+            if(formatString.HasItemFormat)
+                return formatString.Format(displayParameters);
             return string.Format("{0}({1})", baseName, FormatParameters(displayParameters));
         }
 
@@ -41,7 +64,7 @@ namespace Cone.Core
             for(var i = 0; i != parameters.Length; ++i) {
                 var displayClassAttribute = info[i].GetCustomAttributes(typeof(DisplayClassAttribute), true);
                 if(displayClassAttribute.Length == 0)
-                    result[i] = Format(parameters[i]);
+                    result[i] = parameters[i];
                 else
                     result[i] = (displayClassAttribute[0] as DisplayClassAttribute).DisplayFor(parameters[i]);
             }
@@ -56,12 +79,8 @@ namespace Cone.Core
             var result = new StringBuilder();
             var sep = "";
             for(var i = 0; i != arguments.Length; ++i, sep = ", ")
-                result.Append(sep).Append(arguments[i]);
+                result.Append(sep).Append(Format(arguments[i]));
             return result;
-        }
-
-        bool IsFormatString(string s) {
-            return IsFormatStringPattern.IsMatch(s);
         }
     }
 }

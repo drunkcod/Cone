@@ -40,6 +40,7 @@ namespace Cone.Core
         }
 
         void MyMethod(int arg){}
+        void MyMethod(object obj){}
 
         [Row("0x{0:x4}", 10)
         ,Row("{0,3}", 10)
@@ -49,6 +50,16 @@ namespace Cone.Core
             var myMethod = ((MethodCallExpression)(e.Body)).Method;
 
             Verify.That(() => TestNamer.NameFor(myMethod, new object[]{ value }, format) == string.Format(format, value));
+        }
+
+        [Row("{0}", MyEnum.Value, "Value")
+        ,Row("{0}", null, "")
+        ,Row("not-a-format-string", null, "not-a-format-string(null)")]
+        public void formatted(string format, object value, string expected) { 
+            Expression<Action<object>> e = x => MyMethod(x);
+            var myMethod = ((MethodCallExpression)(e.Body)).Method;
+
+            Verify.That(() => TestNamer.NameFor(myMethod, new object[]{ value }, format) == expected);
         }
 
         void MyMethodWithDisplayClass([DisplayClass(typeof(ValidDisplay))]  bool isValid) { }

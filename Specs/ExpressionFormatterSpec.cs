@@ -11,7 +11,10 @@ namespace Cone.Core
         }
     }
 
-    enum MyEnum { Value };
+    public enum MyEnum { Value };
+
+    [Flags]
+    enum MyFlags { Flag1 = 1, Flag2 = 2 }
 
 
     [Describe(typeof(ExpressionFormatter))]
@@ -155,12 +158,17 @@ namespace Cone.Core
 
         public void enum_constant_as_actual() { 
             var expected = MyEnum.Value;
-            VerifyFormat(() => MyEnum.Value == expected, "Value == expected"); 
+            VerifyFormat(() => MyEnum.Value == expected, "MyEnum.Value == expected"); 
         }
 
         public void enums_constant_as_expected() { 
             var actual = MyEnum.Value;
-            VerifyFormat(() => actual == MyEnum.Value, "actual == Value"); 
+            VerifyFormat(() => actual == MyEnum.Value, "actual == MyEnum.Value"); 
+        }
+
+        [Pending]
+        public void flags() {
+            VerifyFormat(() => MyFlags.Flag1 | MyFlags.Flag2, "MyFlags.Flag1 | MyFlags.Flag2");
         }
 
         public void multiply() { VerifyFormat(() => A * B, "A * B"); }
