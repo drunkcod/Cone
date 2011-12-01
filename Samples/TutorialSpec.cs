@@ -40,9 +40,12 @@ namespace Cone.Samples
                 Verify.That(() => a - b == result);
             }
 
-            public enum MyEnum { Zero }
+            public enum MyEnum { Zero, One }
             [Row(MyEnum.Zero)]
             public void enums(MyEnum value) { }
+
+            [Row(MyEnum.Zero), DisplayAs("{0}")]
+            public void formatted_enums(MyEnum value) { Verify.That(() => value == MyEnum.One); }
 
         }
 
@@ -105,7 +108,6 @@ namespace Cone.Samples
             }
         }
     }
-
 
     [Feature("More failures")]
     public class MoreFailures
