@@ -16,7 +16,7 @@ namespace Cone.Core
             public string TestName { get; set; }
         }
 
-        public bool SupportedType(Type type) { return type.IsPublic && type.HasAny(typeof(DescribeAttribute), typeof(FeatureAttribute)); } 
+        public bool SupportedType(Type type) { return type.HasAny(typeof(DescribeAttribute), typeof(FeatureAttribute)); } 
 
         public TSuite BuildSuite(Type suiteType) {
             return BuildSuite(suiteType, DescriptionOf(suiteType));

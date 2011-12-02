@@ -4,7 +4,6 @@ namespace Cone
 {
     public interface ITestResult
     {
-        ITestName TestName { get; }
         TestStatus Status { get; }
 
         void Success();

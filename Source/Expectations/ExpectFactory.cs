@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -21,8 +22,8 @@ namespace Cone.Expectations
 
 		readonly MethodExpectProviderLookup methodExpects = new MethodExpectProviderLookup();
 
-        public ExpectFactory() {
-            var providers = AppDomain.CurrentDomain.GetAssemblies()                
+        public ExpectFactory(IEnumerable<Assembly> assembliesToScan) {
+            var providers = assembliesToScan
                 .SelectMany(x => x.GetTypes())
                 .Where(IsMethodExpectProvider)
                 .Select(x => x.New() as IMethodExpectProvider);

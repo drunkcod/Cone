@@ -2,6 +2,8 @@
 using System.Linq.Expressions;
 using Cone.Core;
 using Cone.Expectations;
+using System.Reflection;
+using System.Collections.Generic;
 
 namespace Cone
 {
@@ -13,7 +15,9 @@ namespace Cone
         public static Type Context;
         static ExpressionFormatter ExpressionFormatter = new ExpressionFormatter(typeof(Verify), ParameterFormatter);
 
-        static ExpectFactory Expect { get { return expect ?? (expect = new ExpectFactory()); } }
+        public static Func<IEnumerable<Assembly>> GetPluginAssemblies = () => AppDomain.CurrentDomain.GetAssemblies();
+
+        static ExpectFactory Expect { get { return expect ?? (expect = new ExpectFactory(GetPluginAssemblies())); } }
 
         public static object That(Expression<Func<bool>> expr) {
             return Check(From(expr.Body));

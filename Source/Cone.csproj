@@ -33,6 +33,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConePad.cs" />
     <Compile Include="Core\Action.cs" />
     <Compile Include="AfterAllAttribute.cs" />
     <Compile Include="AfterEachAttribute.cs" />
@@ -99,7 +100,6 @@
     <Compile Include="IRowData.cs" />
     <Compile Include="ITestDescription.cs" />
     <Compile Include="ITestInterceptor.cs" />
-    <Compile Include="ITestName.cs" />
     <Compile Include="ITestResult.cs" />
     <Compile Include="Core\MemberInfoExtensions.cs" />
     <Compile Include="NullSubexpressionException.cs" />

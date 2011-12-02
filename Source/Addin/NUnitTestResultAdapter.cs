@@ -6,24 +6,14 @@ namespace Cone.Addin
 {
     public class NUnitTestResultAdapter : ITestResult
     {
-        class NUnitTestNameAdapter : ITestName
-        {
-            readonly TestName testName;
-
-            public NUnitTestNameAdapter(TestName testName) { this.testName = testName; }
-        
-            string  ITestName.Name { get { return testName.Name; } }
-            string  ITestName.FullName { get { return testName.FullName; } }
-        }
-
         readonly TestResult result;
 
         public NUnitTestResultAdapter(TestResult result) {
             this.result = result;
         }
 
-        public ITestName TestName {
-            get { return new NUnitTestNameAdapter(result.Test.TestName); }
+        public TestName TestName {
+            get { return result.Test.TestName; }
         }
 
         TestStatus ITestResult.Status {

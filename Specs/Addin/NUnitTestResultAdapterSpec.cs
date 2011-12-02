@@ -14,12 +14,12 @@ namespace Cone.Addin
         }
 
         public void should_expose_TestName() {
-            ITestResult adapter = new NUnitTestResultAdapter(TestResult);
+            var adapter = new NUnitTestResultAdapter(TestResult);
             Verify.That(() => adapter.TestName.Name == "TestName");
         }
 
         public void should_expose_Context() {
-            ITestResult adapter = new NUnitTestResultAdapter(TestResult);
+            var adapter = new NUnitTestResultAdapter(TestResult);
             Verify.That(() => adapter.TestName.FullName == "Context.TestName");
         }
 
