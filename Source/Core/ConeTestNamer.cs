@@ -23,17 +23,16 @@ namespace Cone.Core
         }
 
         public string NameFor(MethodInfo method, object[] parameters) {
-            return NameFor(method, parameters, GetBaseName(method, x => x.Name));
+            return NameFor(method, parameters, new FormatString(GetBaseName(method, x => x.Name)));
         }
 
-        public string NameFor(MethodInfo method, object[] parameters, string baseName) {
+        public string NameFor(MethodInfo method, object[] parameters, FormatString formatString) {
             if (parameters == null)
-                return baseName;
-            var formatString = new FormatString(baseName);
+                return formatString.ToString();
             var displayParameters = DisplayParameters(method.GetParameters(), parameters);
             if(formatString.HasItemFormat)
                 return formatString.Format(displayParameters);
-            return string.Format("{0}({1})", baseName, FormatParameters(displayParameters));
+            return string.Format("{0}({1})", formatString, FormatParameters(displayParameters));
         }
 
         object[] DisplayParameters(ParameterInfo[] info, object[] parameters) {

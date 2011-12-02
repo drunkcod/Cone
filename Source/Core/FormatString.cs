@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace Cone.Core
 {
-    class FormatString
+    public class FormatString
     {
         static readonly Regex FormatStringPattern = new Regex(@"\{((?<id>\d)(,.+?)?(:.+?)?)\}", RegexOptions.Compiled);
         static readonly int IdGroup = FormatStringPattern.GroupNumberFromName("id");

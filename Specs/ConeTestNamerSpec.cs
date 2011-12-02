@@ -49,7 +49,7 @@ namespace Cone.Core
             Expression<Action<int>> e = x => MyMethod(x);
             var myMethod = ((MethodCallExpression)(e.Body)).Method;
 
-            Verify.That(() => TestNamer.NameFor(myMethod, new object[]{ value }, format) == string.Format(format, value));
+            Verify.That(() => TestNamer.NameFor(myMethod, new object[]{ value }, new FormatString(format)) == string.Format(format, value));
         }
 
         [Row("{0:D}", MyEnum.Value, "0")
@@ -61,7 +61,7 @@ namespace Cone.Core
             Expression<Action<object>> e = x => MyMethod(x);
             var myMethod = ((MethodCallExpression)(e.Body)).Method;
 
-            Verify.That(() => TestNamer.NameFor(myMethod, new object[]{ value }, format) == expected);
+            Verify.That(() => TestNamer.NameFor(myMethod, new object[]{ value }, new FormatString(format)) == expected);
         }
 
         void MyMethodWithDisplayClass([DisplayClass(typeof(ValidDisplay))]  bool isValid) { }
@@ -70,8 +70,9 @@ namespace Cone.Core
             Expression<Action<bool>> e = x => MyMethodWithDisplayClass(x);
             var target = ((MethodCallExpression)(e.Body)).Method;
 
-            Verify.That(() => TestNamer.NameFor(target , new object[]{ true }, "{0}") == "Valid");
-            Verify.That(() => TestNamer.NameFor(target , new object[]{ false }, "{0}") == "Invalid");
+            var format = new FormatString("{0}");
+            Verify.That(() => TestNamer.NameFor(target , new object[]{ true }, format) == "Valid");
+            Verify.That(() => TestNamer.NameFor(target , new object[]{ false }, format) == "Invalid");
         }
 
     }
