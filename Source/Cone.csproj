@@ -52,6 +52,7 @@
     <Compile Include="Core\EventHandlerExtensions.cs" />
     <Compile Include="Core\FixtureAfterContext.cs" />
     <Compile Include="Core\FixtureBeforeContext.cs" />
+    <Compile Include="Core\FormatString.cs" />
     <Compile Include="Core\ICollectionFormatter.cs" />
     <Compile Include="Core\ILGeneratorExtensions.cs" />
     <Compile Include="Core\PendingGuardTestContext.cs" />
