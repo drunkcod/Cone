@@ -61,11 +61,11 @@ namespace Cone.Addin
         void AddTestMethod(ConeMethodThunk thunk) { 
             AddWithAttributes(thunk, new ConeTestMethod(thunk, this, testExecutor, thunk.NameFor(null))); 
         }
-        
-        void IConeSuite.AddSubsuite(IConeSuite suite) {
+
+        internal void AddSubSuite(AddinSuite suite) {
             AddWithAttributes(FixtureType, (Test)suite);
         }
-
+        
         void AddWithAttributes(ICustomAttributeProvider method, Test test) {
             test.ProcessExplicitAttributes(method);
             Add(test);

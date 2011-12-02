@@ -39,6 +39,7 @@ namespace Cone.Core
                 case ExpressionType.Lambda: return FormatLambda(expression);
                 case ExpressionType.Call: return FormatCall(expression);
                 case ExpressionType.Constant: return FormatConstant(expression);
+                case ExpressionType.Conditional: return FormatConditional(expression);
                 case ExpressionType.Convert: return FormatConvert(expression);
                 case ExpressionType.TypeIs: return FormatTypeIs(expression);
                 case ExpressionType.Invoke: return FormatInvoke(expression);
@@ -101,6 +102,11 @@ namespace Cone.Core
 
         string FormatConstant(Expression expression) { return FormatConstant((ConstantExpression)expression); }
         string FormatConstant(ConstantExpression constant) { return constantFormatter.Format(constant.Value); }
+
+        string FormatConditional(Expression expression) { return FormatConditional((ConditionalExpression)expression); }
+        string FormatConditional(ConditionalExpression conditional) {
+            return string.Format("{0} ? {1} : {2}", Format(conditional.Test), Format(conditional.IfTrue), Format(conditional.IfFalse));
+        }
 
         string FormatConvert(Expression expression) { return FormatConvert((UnaryExpression)expression); }
         string FormatConvert(UnaryExpression conversion) {

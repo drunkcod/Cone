@@ -23,6 +23,7 @@ namespace Cone.Core
         }
 
         protected abstract TSuite NewSuite(Type type, IFixtureDescription description);
+        protected abstract void AddSubSuite(TSuite suite, TSuite subsuite);
 
         protected TSuite BuildSuite(Type type, IFixtureDescription description) {
             var suite = NewSuite(type, description);
@@ -36,7 +37,7 @@ namespace Cone.Core
             return suite;
         }
 
-        void AddNestedContexts(Type suiteType, IConeSuite suite) {
+        void AddNestedContexts(Type suiteType, TSuite suite) {
             var description = new ContextDescription {
                 SuiteName = suite.Name
             };
@@ -45,7 +46,7 @@ namespace Cone.Core
                 if (item.TryGetAttribute<ContextAttribute, ContextAttribute>(out contextDescription)) {
                     description.Categories = contextDescription.Categories;
                     description.TestName = contextDescription.Context;
-                    suite.AddSubsuite(BuildSuite(item, description));
+                    AddSubSuite(suite, BuildSuite(item, description));
                 }
             });
         }

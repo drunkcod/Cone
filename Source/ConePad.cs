@@ -14,13 +14,17 @@ namespace Cone
             protected override ConePadSuite NewSuite(Type type, IFixtureDescription description) {
                 return new ConePadSuite(type) { Name = description.TestName };
             }
+
+            protected override void AddSubSuite(ConePadSuite suite, ConePadSuite subsuite) {
+                suite.AddSubSuite(subsuite);
+            }
         }
 
         class ConePadTestResult : ITestResult
         {
             readonly TextWriter output;
             int passed;
-            List<KeyValuePair<string, Exception>> failures = new List<KeyValuePair<string, Exception>>();
+            List<KeyValuePair<ConePadTest, Exception>> failures = new List<KeyValuePair<ConePadTest, Exception>>();
 
             public ConePadTestResult(TextWriter output) {
                 this.output = output;
@@ -29,12 +33,12 @@ namespace Cone
             int Passed { get { return passed; } }
             int Failed { get { return failures.Count; } }
             int Total { get { return Passed + Failed; } }
-            string TestName { get; set; }
+            ConePadTest runningTest;
 
             public TestStatus Status { get { return TestStatus.Success; } }
 
-            public void BeginTest(string name) {
-                TestName = name;
+            public void BeginTest(ConePadTest test) {
+                runningTest = test;
             }
 
             public void Success() {
@@ -46,20 +50,45 @@ namespace Cone
             public void BeforeFailure(Exception ex) { output.WriteLine("Before failure {0}", ex); }
             public void TestFailure(Exception ex) {
                 output.Write("F");
-                failures.Add(new KeyValuePair<string, Exception>(TestName, ex));
+                failures.Add(new KeyValuePair<ConePadTest, Exception>(runningTest, ex));
             }
             public void AfterFailure(Exception ex) { output.WriteLine("After failure {0}", ex); }
 
             public void Report() {
                 output.WriteLine("{0} testa ran. {1} Passed. {2} Failed.\n", Total, Passed, Failed);
-                foreach (var item in failures) {
+
+                if(failures.Count == 0)
+                    return;
+                output.WriteLine("Failures:");
+
+                for(var i = 0; i != failures.Count; ++i) {
+                    var item = failures[i];
                     var ex = item.Value;
                     var invocationException = ex as TargetInvocationException;
                     if (invocationException != null)
                         ex = invocationException.InnerException;
-                    output.WriteLine("{0} failed with\n{1}\n", item.Key, ex.Message);
+                    output.WriteLine("  {0,2}) {1}\n      {2}:    \n     {3}\n", i + 1, item.Key.Context, item.Key.Name, ex.Message);
                 }
             }
+        }
+
+        class ConePadTest : IConeTest
+        {
+            readonly MethodInfo method;
+            readonly object[] args;
+            readonly IConeFixture fixture;
+
+            public ConePadTest(IConeFixture fixture, MethodInfo method, object[] args) {
+                this.fixture = fixture;
+                this.method = method;
+                this.args = args;
+            }
+
+            public string Context { get; set; }
+            public string Name { get; set; }
+
+            ICustomAttributeProvider IConeTest.Attributes { get { return method; } }
+            void IConeTest.Run(ITestResult result) { method.Invoke(fixture.Fixture, args); }
         }
 
         class ConePadSuite : IConeSuite
@@ -91,47 +120,41 @@ namespace Cone
                 }
             }
 
-            class ConePadTestMethod : IConeTest
-            {
-                readonly MethodInfo method;
-                readonly object[] args;
-                readonly IConeFixture fixture;
-
-                public ConePadTestMethod(IConeFixture fixture, MethodInfo method, object[] args) {
-                    this.fixture = fixture;
-                    this.method = method;
-                    this.args = args;
-                }
-
-                public string Name { get; set; }
-
-                ICustomAttributeProvider IConeTest.Attributes { get { return method; } }
-                void IConeTest.Run(ITestResult result) { method.Invoke(fixture.Fixture, args); }
-            }
-
             readonly ConeFixture fixture;
-            readonly List<ConePadTestMethod> tests = new List<ConePadTestMethod>();
+            readonly List<ConePadTest> tests = new List<ConePadTest>();
+            readonly List<ConePadSuite> subsuites = new List<ConePadSuite>();
 
             public ConePadSuite(Type fixtureType) {
                 this.fixture = new ConeFixture(fixtureType);
             }
 
             public string Name { get; set; }
-            public void AddSubsuite(IConeSuite suite) { }
+            
+            public void AddSubSuite(ConePadSuite suite) {
+                subsuites.Add(suite);
+            }
+
             public void AddCategories(IEnumerable<string> categories) { }
+            
             public void WithTestMethodSink(ConeTestNamer testNamer, Action<IConeTestMethodSink> action) {
                 var testSink = new ConePadTestMethodSink(fixture, testNamer);
-                testSink.Test += (method, args) => tests.Add(new ConePadTestMethod(fixture, method, args) { Name = Name + "." + testNamer.NameFor(method, args) });
+                testSink.Test += (method, args) => tests.Add(new ConePadTest(fixture, method, args) { 
+                    Context = Name,
+                    Name = testNamer.NameFor(method, args) 
+                });
                 action(testSink);
             }
+
             public void WithFixtureMethodSink(Action<IConeFixtureMethodSink> action) {
                 action(fixture);
             }
 
             public void Run(ConePadTestResult results) {
+                foreach(var item in subsuites)
+                    item.Run(results);
                 var runner = new TestExecutor(fixture);
                 foreach (var item in tests) {
-                    results.BeginTest(item.Name);
+                    results.BeginTest(item);
                     runner.Run(item, results);
                 }
             }

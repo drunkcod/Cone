@@ -42,6 +42,11 @@ namespace Cone.Core
             VerifyFormat(() => DateTime.Parse("2010-07-13"), "DateTime.Parse(\"2010-07-13\")");
         }
 
+        public void iif() {
+            var foo = false;
+            VerifyFormat(() => foo ? true : false, "foo ? true : false"); 
+        }
+
         public void extension_method() {
             var obj = this;
             VerifyFormat(() => obj.IsOfType(typeof(object)), "obj.IsOfType(typeof(Object))");
