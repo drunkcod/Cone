@@ -1,24 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace Cone.Core
 {
     public class FormatString
     {
-        static readonly Regex FormatStringPattern = new Regex(@"\{((?<id>\d)(,.+?)?(:.+?)?)\}", RegexOptions.Compiled);
-        static readonly int IdGroup = FormatStringPattern.GroupNumberFromName("id");
+        static readonly Regex FormatStringPattern = new Regex(@"\{((\d)(,.+?)?(:.+?)?)\}", RegexOptions.Compiled);
 
         readonly string format;
-        readonly SortedDictionary<int, string> parts = new SortedDictionary<int,string>();
 
-        public FormatString(string format) 
-        {
+        public FormatString(string format) {
             this.format = format;
-            foreach(Match item in FormatStringPattern.Matches(format))
-                parts.Add(int.Parse(item.Groups[IdGroup].Value), item.Value);
         }
 
-        public bool HasItemFormat { get { return parts.Count != 0; } }
+        public bool HasItemFormat { get { return FormatStringPattern.Match(format).Success; } }
 
         public string Format(params object[] args) { return string.Format(ToString(), args); }
 
