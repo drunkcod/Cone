@@ -159,19 +159,29 @@ namespace Cone.Core
                     return FormatBinary(Expression.MakeBinary(binary.NodeType, 
                         EnumConstant(conversion.Type, (left as ConstantExpression).Value), conversion));
             }
-            if(left.Type.IsEnum && right.NodeType == ExpressionType.Constant && !right.Type.IsEnum) {
-                var rightConstant = right as ConstantExpression;
+            if(left.Type.IsEnum && right.Type == Enum.GetUnderlyingType(left.Type)) {
                 return FormatBinary(Expression.MakeBinary(binary.NodeType, 
-                    left, EnumConstant(left.Type, rightConstant.Value)));
+                    left, UnpackEnum(left.Type, right)));
             }
             var format = string.Format(GetBinaryOp(binary.NodeType), BinaryFormat(left, 0), BinaryFormat(right, 1));
             return string.Format(format, Format(left), Format(right));
         }
 
+        Expression UnpackEnum(Type enumType, Expression expression) {
+            switch(expression.NodeType) {
+                case ExpressionType.Constant: return EnumConstant(enumType, (expression as ConstantExpression).Value);
+                case ExpressionType.Convert: return (expression as UnaryExpression).Operand;
+                default: throw new InvalidOperationException("Unsupported expression type - " + expression.NodeType);
+            }
+        }
+
         Expression EnumConstant(Type enumType, object value) { return Expression.Constant(Enum.ToObject(enumType, value)); }
 
         string BinaryFormat(Expression expression, int index) {
-            return string.Format(expression is BinaryExpression ? "({{{0}}})" : "{{{0}}}", index);
+            bool needParens = 
+                expression.NodeType == ExpressionType.Conditional
+                || expression is BinaryExpression;
+            return string.Format(needParens ? "({{{0}}})" : "{{{0}}}", index);
         }
 
         string FormatUnary(Expression expression) { return FormatUnary((UnaryExpression)expression); }

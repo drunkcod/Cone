@@ -175,6 +175,13 @@ namespace Cone.Core
             VerifyFormat(() => MyFlags.Flag1 | MyFlags.Flag2, "MyFlags.Flag1 | MyFlags.Flag2");
         }
 
+        public void enum_return() {
+            var bar = false;
+            VerifyFormat(() => GetEnum() == (bar ? MyEnum.Value : MyEnum.Value), "GetEnum() == (bar ? MyEnum.Value : MyEnum.Value)");
+        }
+
+        MyEnum GetEnum(){ return MyEnum.Value; }
+
         public void multiply() { VerifyFormat(() => A * B, "A * B"); }
 
         public void subtract() { VerifyFormat(() => A - B, "A - B"); }

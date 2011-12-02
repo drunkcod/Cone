@@ -1,5 +1,9 @@
 .:[ 0.0.2.29 ]:.
 
+New Features
+[x] Basic conditional formatting
+[x] ConePad - a very early test runner for LinqPad
+
 Bug Fixes
 [x] Now correctly identifies row attributes via IRowData.
 [x] Correctly format Flag enumerations
