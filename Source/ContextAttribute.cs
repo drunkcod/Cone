@@ -7,11 +7,13 @@ namespace Cone
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class ContextAttribute : Attribute
     {
-        public readonly string Context;
+        protected readonly string rawContext;
+        
+        public virtual string Context { get { return rawContext; } }
         public string Category { get; set; }
 
         public ContextAttribute(string context) {
-            Context = context;
+            this.rawContext = context;
         }
 
         public IEnumerable<string> Categories {

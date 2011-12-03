@@ -67,7 +67,11 @@ namespace Cone
                     var invocationException = ex as TargetInvocationException;
                     if (invocationException != null)
                         ex = invocationException.InnerException;
-                    output.WriteLine("  {0,2}) {1}\n      {2}:    \n     {3}\n", i + 1, item.Key.Context, item.Key.Name, ex.Message);
+                    output.Write("  {0,2})", i + 1);
+                    var context = item.Key.Context;
+                    if(!string.IsNullOrEmpty(context))
+                        output.Write(" {0}\n       ", context);
+                    output.WriteLine(" {0}:    \n     {1}\n", item.Key.Name, ex.Message);
                 }
             }
         }
@@ -161,7 +165,7 @@ namespace Cone
         }
 
         public static void RunTests() {
-            RunTests(Assembly.GetCallingAssembly().GetTypes());
+            RunTests(Console.Out, Assembly.GetCallingAssembly().GetTypes().Where(ConePadSuiteBuilder.SupportedType));
         }
 
         public static void RunTests(params Type[] suiteTypes) {
@@ -169,11 +173,13 @@ namespace Cone
         }
 
         public static void RunTests(TextWriter output, IEnumerable<Type> suites) {
+            Verify.GetPluginAssemblies = () => new[]{ typeof(Verify).Assembly };
+
             output.WriteLine("Running tests!\n----------------------------------");
 
             var results = new ConePadTestResult(output);
             var suiteBuilder = new ConePadSuiteBuilder();
-            foreach (var item in suites.Where(suiteBuilder.SupportedType))
+            foreach (var item in suites)
                 suiteBuilder.BuildSuite(item).Run(results);
 
             output.WriteLine("\nDone.\n");

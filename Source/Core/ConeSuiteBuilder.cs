@@ -16,7 +16,7 @@ namespace Cone.Core
             public string TestName { get; set; }
         }
 
-        public bool SupportedType(Type type) { return type.HasAny(typeof(DescribeAttribute), typeof(FeatureAttribute)); } 
+        public static bool SupportedType(Type type) { return type.HasAny(typeof(DescribeAttribute), typeof(FeatureAttribute)); } 
 
         public TSuite BuildSuite(Type suiteType) {
             return BuildSuite(suiteType, DescriptionOf(suiteType));
@@ -51,10 +51,29 @@ namespace Cone.Core
             });
         }
 
+        class NullFixtureDescription : IFixtureDescription 
+        {
+            public IEnumerable<string> Categories {
+                get { return new string[0]; }
+            }
+
+            public string SuiteName {
+                get { return string.Empty; }
+            }
+
+            public string SuiteType {
+                get { return "TestSuite"; }
+            }
+
+            public string TestName {
+                get { return string.Empty; }
+            }
+        }
+
         protected static IFixtureDescription DescriptionOf(Type fixtureType) {
             return fixtureType.WithAttributes(
                 (IFixtureDescription[] x) => x[0], 
-                () => { throw new NotSupportedException(); });
+                () => new NullFixtureDescription());
         }
     }
 }

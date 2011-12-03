@@ -21,7 +21,7 @@ namespace Cone.Addin
 
         Test ISuiteBuilder.BuildFrom(Type type) { return suiteBuilder.BuildSuite(type); }
 
-        bool ISuiteBuilder.CanBuildFrom(Type type) { return type.IsPublic && suiteBuilder.SupportedType(type); }
+        bool ISuiteBuilder.CanBuildFrom(Type type) { return type.IsPublic && AddinSuiteBuilder.SupportedType(type); }
 
         static void AssertionFailed(string message) {
             throw new AssertionException(message);

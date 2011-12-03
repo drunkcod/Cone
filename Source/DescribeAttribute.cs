@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Cone
 {
@@ -18,11 +17,13 @@ namespace Cone
 
         public string SuiteType { get { return "Description"; } }
 
+        public override string Context { get {  return TestName; } }
+
         public string TestName {
             get {
-                if (string.IsNullOrEmpty(Context))
+                if (string.IsNullOrEmpty(rawContext))
                     return DescribedType.Name;
-                return DescribedType.Name + " - " + Context;
+                return DescribedType.Name + " - " + rawContext;
             }
         }
     }
