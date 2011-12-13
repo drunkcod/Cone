@@ -38,14 +38,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Tools\Moq.3.1.416.3\Moq.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.core">
-      <HintPath>..\..\Tools\NUnit-2.5.10.11092\bin\net-2.0\lib\nunit.core.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="nunit.core.interfaces">
-      <HintPath>..\..\Tools\NUnit-2.5.10.11092\bin\net-2.0\lib\nunit.core.interfaces.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
