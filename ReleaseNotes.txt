@@ -3,6 +3,7 @@
 New Features
 [x] Basic conditional formatting
 [x] ConePad - a very early test runner for LinqPad
+[x] Conesole - a very early console test runner
 
 Bug Fixes
 [x] Now correctly identifies row attributes via IRowData.

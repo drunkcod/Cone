@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Cone;
 using System.Reflection;
+using Cone;
 
 namespace Conesole
 {
