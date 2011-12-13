@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Cone.Core
 {
@@ -7,7 +9,7 @@ namespace Cone.Core
         void Invoke(object obj, object[] parameters);
     }
 
-    public class ConeMethodThunk : ICallable, ICustomAttributeProvider
+    public class ConeMethodThunk : ICallable, IConeAttributeProvider
     {
         readonly MethodInfo method;
         readonly ConeTestNamer namer;
@@ -23,16 +25,8 @@ namespace Cone.Core
             return namer.NameFor(method, parameters);
         }
 
-        object[] ICustomAttributeProvider.GetCustomAttributes(bool inherit) {
-            return method.GetCustomAttributes(inherit);
-        }
-
-        object[] ICustomAttributeProvider.GetCustomAttributes(System.Type attributeType, bool inherit) {
-            return method.GetCustomAttributes(attributeType, inherit);
-        }
-
-        bool ICustomAttributeProvider.IsDefined(System.Type attributeType, bool inherit) {
-            return method.IsDefined(attributeType, inherit);
+        IEnumerable<object> IConeAttributeProvider.GetCustomAttributes(Type attributeType) {
+            return method.GetCustomAttributes(attributeType, true);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Cone.Core
 {
     public interface IFixtureContext
     {
-        ICustomAttributeProvider Attributes { get; }
+        IConeAttributeProvider Attributes { get; }
         IConeFixture Fixture { get; }
     }
 
@@ -37,15 +37,15 @@ namespace Cone.Core
 
         class FixtureContext : IFixtureContext
         {
-            readonly ICustomAttributeProvider attributes;
+            readonly IConeAttributeProvider attributes;
             readonly IConeFixture fixture;
 
-            public FixtureContext(IConeFixture fixture, ICustomAttributeProvider attributes) {
+            public FixtureContext(IConeFixture fixture, IConeAttributeProvider attributes) {
                 this.attributes = attributes;
                 this.fixture = fixture;
             }
 
-            public ICustomAttributeProvider Attributes { get { return attributes; } }
+            public IConeAttributeProvider Attributes { get { return attributes; } }
             public IConeFixture Fixture { get { return fixture; } }
         }
 
@@ -65,8 +65,8 @@ namespace Cone.Core
             return (acc, x) => x.Establish(context, acc);
         }
 
-		IEnumerable<ITestContext> GetTestContexts(ICustomAttributeProvider attributes) {
-			return attributes.GetCustomAttributes(typeof(ITestContext), true)
+		IEnumerable<ITestContext> GetTestContexts(IConeAttributeProvider attributes) {
+			return attributes.GetCustomAttributes(typeof(ITestContext))
 				.Cast<ITestContext>();
 		}
     }

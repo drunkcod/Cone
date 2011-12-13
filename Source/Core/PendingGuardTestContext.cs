@@ -6,7 +6,7 @@ namespace Cone.Core
 	public class PendingGuardTestContext : ITestContext
 	{
 		public Action<ITestResult> Establish(IFixtureContext context, Action<ITestResult> next) {
-			var pending = FirstPendingOrDefault(context.Attributes, FirstPendingOrDefault(context.Fixture.FixtureType, null));
+			var pending = FirstPendingOrDefault(context.Attributes, FirstPendingOrDefault(context.Fixture.FixtureType.AsConeAttributeProvider(), null));
 			return pending == null 
 				? next 
 				: result => ExpectFailure(pending.Reason, next, result);
@@ -20,7 +20,7 @@ namespace Cone.Core
                 result.Pending(reason);
         }
 
-        static IPendingAttribute FirstPendingOrDefault(ICustomAttributeProvider attributes, IPendingAttribute defaultValue) {
+        static IPendingAttribute FirstPendingOrDefault(IConeAttributeProvider attributes, IPendingAttribute defaultValue) {
             return attributes.FirstOrDefault((IPendingAttribute x) => x.IsPending, defaultValue);
         }
 	}

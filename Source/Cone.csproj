@@ -55,6 +55,7 @@
     <Compile Include="Core\FixtureBeforeContext.cs" />
     <Compile Include="Core\FormatString.cs" />
     <Compile Include="Core\ICollectionFormatter.cs" />
+    <Compile Include="Core\IConeAttributeProvider.cs" />
     <Compile Include="Core\ILGeneratorExtensions.cs" />
     <Compile Include="Core\PendingGuardTestContext.cs" />
     <Compile Include="Core\TimedTestContext.cs" />
@@ -90,7 +91,7 @@
     <Compile Include="Core\ExpressionEvaluatorContext.cs" />
     <Compile Include="Core\ExpressionExtensions.cs" />
     <Compile Include="Core\ExpressionFormatter.cs" />
-    <Compile Include="CustomAttributeProviderExtensions.cs" />
+    <Compile Include="Core\CustomAttributeProviderExtensions.cs" />
     <Compile Include="FeatureAttribute.cs" />
     <Compile Include="Core\InterceptorContext.cs" />
     <Compile Include="Core\IConeSuite.cs" />

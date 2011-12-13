@@ -36,7 +36,7 @@ namespace Cone.Core
                 return;
             }
 
-            if(method.Has<IRowData>(rows => testSink.RowTest(method, rows)))
+            if(method.AsConeAttributeProvider().Has<IRowData>(rows => testSink.RowTest(method, rows)))
                 return;
            
             var parameters = method.GetParameters();
@@ -82,7 +82,7 @@ namespace Cone.Core
 
         void Monadic(MethodInfo method, ParameterInfo parameter) {
             if(typeof(ITestResult).IsAssignableFrom(parameter.ParameterType) 
-                && method.Has<AfterEachAttribute>()) {
+                && method.AsConeAttributeProvider().Has<AfterEachAttribute>()) {
                 AfterEachWithResult(method);
             }
             else Unintresting(method);

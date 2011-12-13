@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Text;
 using Moq;
+using System.Collections.Generic;
 
 namespace Cone.Core
 {
@@ -15,11 +16,9 @@ namespace Cone.Core
 
         ITestResult TestResult { get { return testResultMock.Object; } }
 
-		class NullAttributeProvider : ICustomAttributeProvider
+		class NullAttributeProvider : IConeAttributeProvider
 		{
-			public object[] GetCustomAttributes(bool inherit) { return new object[0]; }
-			public object[] GetCustomAttributes(Type attributeType, bool inherit) { return new object[0]; }
-			public bool IsDefined(Type attributeType, bool inherit) { return false; }
+			public IEnumerable<object> GetCustomAttributes(Type attributeType) { return new object[0]; }
 		}
 
         [BeforeEach]

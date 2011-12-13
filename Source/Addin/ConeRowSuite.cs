@@ -20,7 +20,7 @@ namespace Cone.Addin
                 this.parameters = parameters;
             }
 
-		    public override ICustomAttributeProvider Attributes { get { return Suite.Attributes; } }
+		    public override IConeAttributeProvider Attributes { get { return Suite.Attributes; } }
 
             public override void Run(ITestResult testResult) { Thunk.Invoke(Fixture, parameters); }
 
@@ -58,7 +58,7 @@ namespace Cone.Addin
 
         public override IList Tests { get { return tests; } }
 
-		public override ICustomAttributeProvider Attributes { get { return thunk; } }
+		public override IConeAttributeProvider Attributes { get { return thunk; } }
 
         public string NameFor(object[] parameters) {
             return thunk.NameFor(parameters);

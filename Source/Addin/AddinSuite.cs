@@ -21,7 +21,7 @@ namespace Cone.Addin
             this.fixture.Before += SetVerifyContext;          
             this.testExecutor = new TestExecutor(this.fixture);
 
-            var pending = type.FirstOrDefault((IPendingAttribute x) => x.IsPending);
+            var pending = type.AsConeAttributeProvider().FirstOrDefault((IPendingAttribute x) => x.IsPending);
             if(pending != null) {
                 RunState = RunState.Ignored;
                 IgnoreReason = pending.Reason;
@@ -63,10 +63,10 @@ namespace Cone.Addin
         }
 
         internal void AddSubSuite(AddinSuite suite) {
-            AddWithAttributes(FixtureType, (Test)suite);
+            AddWithAttributes(FixtureType.AsConeAttributeProvider(), (Test)suite);
         }
         
-        void AddWithAttributes(ICustomAttributeProvider method, Test test) {
+        void AddWithAttributes(IConeAttributeProvider method, Test test) {
             test.ProcessExplicitAttributes(method);
             Add(test);
         }
@@ -110,7 +110,7 @@ namespace Cone.Addin
 
             ConeRowSuite CreateSuite(MethodInfo method, string suiteName) {
                 var newSuite = new ConeRowSuite(CreateMethodThunk(method), suite, suite.testExecutor, suiteName);
-                suite.AddWithAttributes(method, newSuite);
+                suite.AddWithAttributes(method.AsConeAttributeProvider(), newSuite);
                 return newSuite;
             }
         }

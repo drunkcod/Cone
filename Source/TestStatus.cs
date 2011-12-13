@@ -2,6 +2,6 @@
 {
     public enum TestStatus
     {
-        ReadyToRun, Success, Pending, Failure, SetupFailure
+        ReadyToRun, Success, Pending, Failure, SetupFailure, TeardownFailure
     }
 }

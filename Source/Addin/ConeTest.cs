@@ -47,7 +47,7 @@ namespace Cone.Addin
 
         public override string TestType { get { return GetType().Name; } }
 
-		public abstract ICustomAttributeProvider Attributes { get; }
+		public abstract IConeAttributeProvider Attributes { get; }
 
         public virtual void Run(ITestResult testResult){}
 	}

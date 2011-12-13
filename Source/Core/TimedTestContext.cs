@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 
 namespace Cone.Core
 {
@@ -15,7 +14,7 @@ namespace Cone.Core
             this.after = after;
 	    }
 
-	    ICustomAttributeProvider IConeTest.Attributes { get { return inner.Attributes; } }
+	    IConeAttributeProvider IConeTest.Attributes { get { return inner.Attributes; } }
 
 	    void IConeTest.Run(ITestResult testResult) {
 		    inner.Run(testResult);

@@ -13,8 +13,8 @@ namespace Cone.Core
             var pendingGuard = new PendingGuardTestContext();
             var context = new Mock<IFixtureContext>();
             var fixture = new Mock<IConeFixture>();
-            var attributes = new Mock<ICustomAttributeProvider>();
-            attributes.Setup(x => x.GetCustomAttributes(It.IsAny<Type>(), It.IsAny<bool>()))
+            var attributes = new Mock<IConeAttributeProvider>();
+            attributes.Setup(x => x.GetCustomAttributes(It.IsAny<Type>()))
                 .Returns(new object[]{ new PendingAttribute { Reason = PendingReason } });
             
             context.SetupGet(x => x.Attributes).Returns(attributes.Object);

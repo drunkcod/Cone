@@ -13,7 +13,7 @@ namespace Cone.Addin
             this.thunk = thunk;
         }
 
-		public override ICustomAttributeProvider Attributes { get { return thunk; } }
+		public override IConeAttributeProvider Attributes { get { return thunk; } }
 
         public override void Run(ITestResult testResult) { thunk.Invoke(Fixture, null); }
     }
