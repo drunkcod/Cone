@@ -4,6 +4,7 @@ using System.Reflection;
 using Cone.Core;
 using System.IO;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Cone
 {
@@ -193,10 +194,12 @@ namespace Cone
             public void Run(ConePadTestResults results) {
                 foreach(var item in subsuites)
                     item.Run(results);
-                var runner = new TestExecutor(fixture);                
-                foreach (var item in tests) {
-                    results.BeginTest(item, result => runner.Run(item, result));
-                }
+                fixture.WithInitialized(null, () => {
+                    var runner = new TestExecutor(fixture);              
+                    foreach (var item in tests) {
+                        results.BeginTest(item, result => runner.Run(item, result));
+                    }
+                });
             }
         }
 
@@ -216,13 +219,13 @@ namespace Cone
 
         public static void RunTests(TextWriter output, IEnumerable<Type> suites) {
             output.WriteLine("Running tests!\n----------------------------------");
-
+            var time = Stopwatch.StartNew();
             var results = new ConePadTestResults(output);
             var suiteBuilder = new ConePadSuiteBuilder();
             foreach (var item in suites)
                 suiteBuilder.BuildSuite(item).Run(results);
 
-            output.WriteLine("\nDone.\n");
+            output.WriteLine("\nDone in {0}.\n", time.Elapsed);
             results.Report();
         }
     }
