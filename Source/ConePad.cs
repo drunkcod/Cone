@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using Cone.Core;
+using System.IO;
+using System.Linq;
 
 namespace Cone
 {
@@ -20,15 +20,41 @@ namespace Cone
             }
         }
 
-        class ConePadTestResult : ITestResult
+        class ConePadTestResults
         {
+            class ConePadTestResult : ITestResult
+            {
+                TestStatus testStatus;
+
+                public Exception Error;
+                public TestStatus Status { get { return testStatus; } }
+
+
+                void ITestResult.Success() { testStatus = TestStatus.Success; }
+
+                void ITestResult.Pending(string reason) { testStatus = TestStatus.Pending; }
+            
+                void ITestResult.BeforeFailure(Exception ex) { 
+                    testStatus = TestStatus.SetupFailure;
+                    Error = ex;
+                }
+
+                void ITestResult.TestFailure(Exception ex) {
+                    testStatus = TestStatus.Failure;
+                    Error = ex;
+                }
+            
+                void ITestResult.AfterFailure(Exception ex) {
+                    testStatus = TestStatus.TeardownFailure;
+                    Error = ex;
+                }
+            }
+
             readonly TextWriter output;
             readonly List<KeyValuePair<ConePadTest, Exception>> failures = new List<KeyValuePair<ConePadTest, Exception>>();
             int passed;
-            ConePadTest runningTest;
-            TestStatus testStatus;
 
-            public ConePadTestResult(TextWriter output) {
+            public ConePadTestResults(TextWriter output) {
                 this.output = output;
             }
 
@@ -36,35 +62,22 @@ namespace Cone
             int Failed { get { return failures.Count; } }
             int Total { get { return Passed + Failed; } }
 
-            public void BeginTest(ConePadTest test) {
-                runningTest = test;
-                testStatus = TestStatus.Pending;
-            }
-
-            public void Success() {
-                ++passed;
-                testStatus = TestStatus.Success;
-                output.Write(".");
-            }
-
-            TestStatus ITestResult.Status { get { return testStatus; } }
-
-            void ITestResult.Pending(string reason) { testStatus = TestStatus.Pending; }
-            
-            void ITestResult.BeforeFailure(Exception ex) { 
-                testStatus = TestStatus.SetupFailure;
-                failures.Add(new KeyValuePair<ConePadTest, Exception>(runningTest, ex));
-            }
-
-            void ITestResult.TestFailure(Exception ex) {
-                testStatus = TestStatus.Failure;
-                output.Write("F");
-                failures.Add(new KeyValuePair<ConePadTest, Exception>(runningTest, ex));
-            }
-            
-            void ITestResult.AfterFailure(Exception ex) {
-                testStatus = TestStatus.TeardownFailure;
-                failures.Add(new KeyValuePair<ConePadTest, Exception>(runningTest, ex));
+            public void BeginTest(ConePadTest test, Action<ITestResult> collectResult) {
+                var result = new ConePadTestResult();
+                collectResult(result);
+                switch(result.Status) {
+                    case TestStatus.Success: 
+                        ++passed; 
+                        output.Write(".");
+                        break;
+                    case TestStatus.Failure:
+                        failures.Add(new KeyValuePair<ConePadTest,Exception>(test, result.Error)); 
+                        output.Write("F");
+                        break;
+                    case TestStatus.Pending:
+                        output.Write("?");
+                        break;
+                }
             }
 
             public void Report() {
@@ -94,17 +107,19 @@ namespace Cone
             readonly MethodInfo method;
             readonly object[] args;
             readonly IConeFixture fixture;
+            readonly IConeAttributeProvider attributes;
 
-            public ConePadTest(IConeFixture fixture, MethodInfo method, object[] args) {
+            public ConePadTest(IConeFixture fixture, MethodInfo method, object[] args, IConeAttributeProvider attributes) {
                 this.fixture = fixture;
                 this.method = method;
                 this.args = args;
+                this.attributes = attributes;
             }
 
             public string Context { get; set; }
             public string Name { get; set; }
 
-            IConeAttributeProvider IConeTest.Attributes { get { return method.AsConeAttributeProvider(); } }
+            IConeAttributeProvider IConeTest.Attributes { get { return attributes; } }
             void IConeTest.Run(ITestResult result) { method.Invoke(fixture.Fixture, args); }
         }
 
@@ -120,13 +135,18 @@ namespace Cone
                     this.names = names;
                 }
 
-                public Action<MethodInfo, object[]> TestFound;
+                public Action<MethodInfo, object[], IConeAttributeProvider> TestFound;
 
-                void IConeTestMethodSink.Test(MethodInfo method) { TestFound(method, null); }
+                void IConeTestMethodSink.Test(MethodInfo method) { TestFound(method, null, method.AsConeAttributeProvider()); }
 
                 public void RowTest(MethodInfo method, IEnumerable<IRowData> rows) {
-                    foreach (var item in rows)
-                        TestFound(method, item.Parameters);
+                    foreach (var item in rows) {
+                        var attributes = method.AsConeAttributeProvider();
+                        if(item.IsPending) {
+                            attributes = new ConeAttributeProvider(method.GetCustomAttributes(true).Concat(new[]{ new PendingAttribute() }));
+                        }
+                        TestFound(method, item.Parameters, attributes);
+                    }
                 }
 
                 public void RowSource(MethodInfo method) {
@@ -155,12 +175,12 @@ namespace Cone
             
             public void WithTestMethodSink(ConeTestNamer testNamer, Action<IConeTestMethodSink> action) {
                 var testSink = new ConePadTestMethodSink(fixture, testNamer);
-                testSink.TestFound += (method, args) => tests.Add(NewTest(testNamer, method, args));
+                testSink.TestFound += (method, args, attributes) => tests.Add(NewTest(testNamer, method, args, attributes));
                 action(testSink);
             }
 
-            ConePadTest NewTest(ConeTestNamer testNamer, MethodInfo method, object[] args) {
-                return new ConePadTest(fixture, method, args) { 
+            ConePadTest NewTest(ConeTestNamer testNamer, MethodInfo method, object[] args, IConeAttributeProvider attributes) {
+                return new ConePadTest(fixture, method, args, attributes) { 
                     Context = Name,
                     Name = testNamer.NameFor(method, args),
                 };
@@ -170,13 +190,12 @@ namespace Cone
                 action(fixture);
             }
 
-            public void Run(ConePadTestResult results) {
+            public void Run(ConePadTestResults results) {
                 foreach(var item in subsuites)
                     item.Run(results);
                 var runner = new TestExecutor(fixture);                
                 foreach (var item in tests) {
-                    results.BeginTest(item);
-                    runner.Run(item, results);
+                    results.BeginTest(item, result => runner.Run(item, result));
                 }
             }
         }
@@ -198,7 +217,7 @@ namespace Cone
         public static void RunTests(TextWriter output, IEnumerable<Type> suites) {
             output.WriteLine("Running tests!\n----------------------------------");
 
-            var results = new ConePadTestResult(output);
+            var results = new ConePadTestResults(output);
             var suiteBuilder = new ConePadSuiteBuilder();
             foreach (var item in suites)
                 suiteBuilder.BuildSuite(item).Run(results);
