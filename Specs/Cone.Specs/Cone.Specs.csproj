@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{BF157BB9-A8AE-4CE1-BDD8-8EFA7358EC0B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Cone</RootNamespace>
+    <AssemblyName>Cone.Specs</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <OutputPath>$(SolutionDir)\Build</OutputPath>
+    <IntermediateOutputPath>$(OutputPath)\obj\$(MSBuildProjectName)</IntermediateOutputPath>
+    <NUnitVersion>2.5.7.10213</NUnitVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Moq, Version=3.1.416.3, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Tools\Moq.3.1.416.3\Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.core">
+      <HintPath>..\..\Tools\NUnit-2.5.10.11092\bin\net-2.0\lib\nunit.core.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="nunit.core.interfaces">
+      <HintPath>..\..\Tools\NUnit-2.5.10.11092\bin\net-2.0\lib\nunit.core.interfaces.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.XML" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BinaryExpectSpec.cs" />
+    <Compile Include="BooleanExpectSpec.cs" />
+    <Compile Include="ConeFixtureSetupSpec.cs" />
+    <Compile Include="ConeMethodClassifierSpec.cs" />
+    <Compile Include="ConeTestNamerSpec.cs" />
+    <Compile Include="Core\ConeAttributeProviderSpec.cs" />
+    <Compile Include="Core\ConeFixtureSpec.cs" />
+    <Compile Include="Core\MethodExpectProviderLookupSpec.cs" />
+    <Compile Include="Core\PendingGuardTestContextSpec.cs" />
+    <Compile Include="CustomMethodExpectFeature.cs" />
+    <Compile Include="DisplayClassAttributeSpec.cs" />
+    <Compile Include="Expectations\StringMethodExpectSpec.cs" />
+    <Compile Include="Expectations\TypeIsExpectSpec.cs" />
+    <Compile Include="ExpectFactorySpec.cs" />
+    <Compile Include="ExpressionEvaluatorSpec.cs" />
+    <Compile Include="ExpressionExtensionsSpec.cs" />
+    <Compile Include="Core\InterceptorContextSpec.cs" />
+    <Compile Include="ObjectInspectionFeature.cs" />
+    <Compile Include="ParameterFormatterSpec.cs" />
+    <Compile Include="RowBuilderSpec.cs" />
+    <Compile Include="SampleFixture.cs" />
+    <Compile Include="StringContainsSpec.cs" />
+    <Compile Include="StringExtensionsSpec.cs" />
+    <Compile Include="StringVerificationSpec.cs" />
+    <Compile Include="TestExecutorSpec.cs" />
+    <Compile Include="ExpressionFormatterSpec.cs" />
+    <Compile Include="VerifySpec.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\Addin\Cone.Addin.csproj">
+      <Project>{C1B2EAD0-140C-4D5F-A757-1092CB39AECE}</Project>
+      <Name>Cone.Addin</Name>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Cone.csproj">
+      <Project>{E557FD03-E249-4211-80CF-FB0923FD4C7D}</Project>
+      <Name>Cone</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Samples\Cone.Samples.csproj">
+      <Project>{A277DEC5-9AE8-433A-ADF8-8B084ACD3CE9}</Project>
+      <Name>Cone.Samples</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

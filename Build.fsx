@@ -1,4 +1,5 @@
 ﻿#r "Tools\DotNetZip\Ionic.Zip.Reduced.dll"
+open System
 open System.Diagnostics
 open System.IO
 open System.Reflection
@@ -19,6 +20,7 @@ let build args =
         Arguments = "Cone.sln /nologo /m /v:m /p:Configuration=Release " + args ,
         UseShellExecute = false))
   build.WaitForExit()
+  Console.WriteLine("build {0} exited with {1}", args, build.ExitCode)
   build.ExitCode = 0
 
 let copyAddin() =
@@ -34,7 +36,7 @@ let test() =
     Process.Start(
       ProcessStartInfo(
         FileName = Path.Combine(NUnitPath, "nunit-console.exe"),
-        Arguments = @"Build\Cone.Specs.dll /nologo /process=Single /domain=Single",
+        Arguments = @"Build\Cone.Specs.dll Build\Cone.Addin.Specs.dll /nologo /process=Single /domain=Single",
         UseShellExecute = false))
   nunit.WaitForExit()
   nunit.ExitCode = 0
