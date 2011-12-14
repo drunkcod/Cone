@@ -191,15 +191,37 @@ namespace Cone
                 action(fixture);
             }
 
+            public IEnumerable<ConePadSuite> GetRunList() {
+                return subsuites.SelectMany(x => x.GetRunList()).Concat(new[]{ this });
+            }
+
             public void Run(ConePadTestResults results) {
-                foreach(var item in subsuites)
-                    item.Run(results);
                 fixture.WithInitialized(null, () => {
                     var runner = new TestExecutor(fixture);              
                     foreach (var item in tests) {
                         results.BeginTest(item, result => runner.Run(item, result));
                     }
                 });
+            }
+        }
+
+        public class SimpleConeRunner
+        {
+            readonly ConePadSuiteBuilder suiteBuilder = new ConePadSuiteBuilder();
+
+            public void RunTests(TextWriter output, IEnumerable<Type> suiteTypes) {
+                var results = new ConePadTestResults(output);
+                var time = Stopwatch.StartNew();
+                var suites = ConvertAll(suiteTypes.ToArray(), suiteBuilder.BuildSuite);
+                var runLists = ConvertAll(suites, x => x.GetRunList());
+                ConvertAll(runLists.SelectMany(x => x).ToArray(), x => { x.Run(results); return true; });
+
+                results.Report();
+                output.WriteLine("\nDone in {0}.\n", time.Elapsed);
+            }
+
+            protected virtual TOutput[] ConvertAll<TInput,TOutput>(TInput[] input, Converter<TInput, TOutput> transform) {
+                return Array.ConvertAll(input, transform);
             }
         }
 
@@ -219,15 +241,8 @@ namespace Cone
 
         public static void RunTests(TextWriter output, IEnumerable<Type> suites) {
             output.WriteLine("Running tests!\n----------------------------------");
-            var time = Stopwatch.StartNew();
-            var results = new ConePadTestResults(output);
-            var suiteBuilder = new ConePadSuiteBuilder();
-            foreach (var item in suites)
-                suiteBuilder.BuildSuite(item).Run(results);
-
-            output.WriteLine("\nDone in {0}.\n", time.Elapsed);
-            results.Report();
+            var runner = new SimpleConeRunner();
+            runner.RunTests(output, suites);
         }
     }
-
 }
