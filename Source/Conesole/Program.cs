@@ -7,13 +7,9 @@ namespace Conesole
 {
     class Program
     {
-        class ConsoleRunner : ConePad.SimpleConeRunner
-        {
-        }
-
         static void Main(string[] args) {
             try {
-                new ConsoleRunner().RunTests(Console.Out, args.Select(x => Assembly.LoadFrom(x)));
+                new ConePad.SimpleConeRunner().RunTests(Console.Out, args.Select(x => Assembly.LoadFrom(x)));
             } catch(ReflectionTypeLoadException tle) {
                 foreach(var item in tle.LoaderExceptions)
                     Console.Error.WriteLine("{0}\n---", item);

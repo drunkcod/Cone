@@ -209,6 +209,10 @@ namespace Cone
         {
             readonly ConePadSuiteBuilder suiteBuilder = new ConePadSuiteBuilder();
 
+            public void RunTests(TextWriter output, IEnumerable<Assembly> assemblies) {
+                RunTests(output, assemblies.SelectMany(x => x.GetTypes()).Where(ConePadSuiteBuilder.SupportedType));
+            }
+
             public void RunTests(TextWriter output, IEnumerable<Type> suiteTypes) {
                 var results = new ConePadTestResults(output);
                 var time = Stopwatch.StartNew();

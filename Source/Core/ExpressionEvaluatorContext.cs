@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -41,16 +42,14 @@ namespace Cone.Core
         }
 
         public EvaluationResult EvaluateAll(ICollection<Expression> expressions) {
-            var result = new object[expressions.Count];
-            var index = 0;
-            foreach(var item in expressions) {
-                var x = Evaluate(item);
-                if(x.IsError)
-                    return x;
-                result[index++] = x.Result;
-            }
+            var evald = Array.ConvertAll(expressions.ToArray(), Evaluate);
+            var fail = Array.FindIndex(evald, x => x.IsError);
+            if(fail != -1)
+                return evald[fail];
+            var result = Array.ConvertAll(evald, x => x.Result);
             return Success(typeof(object[]), result);
         }
+
 
         EvaluationResult EvaluateLambda(Expression expression) { return EvaluateLambda((LambdaExpression)expression); }
         EvaluationResult EvaluateLambda(LambdaExpression expression) {
