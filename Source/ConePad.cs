@@ -8,6 +8,26 @@ using Cone.Core;
 
 namespace Cone
 {
+    public class ConeTestFailure
+    {
+        public string File;
+        public int Line;
+        public int Column;
+        public string Context;
+        public string TestName;
+        public string Message;
+
+        public override string ToString() {
+            return string.Format("{0}({1}:{2}) {3} - {4}: {5}", File, Line, Column, Context, TestName, Message);
+        }
+
+    }
+    public interface IConeLogger
+    {
+        void Info(string format, params object[] args);
+        void Failure(ConeTestFailure message);
+    }
+
     public static class ConePad
     {
         class ConePadSuiteBuilder : ConeSuiteBuilder<ConePadSuite>
@@ -51,12 +71,12 @@ namespace Cone
                 }
             }
 
-            readonly TextWriter output;
+            readonly IConeLogger log;
             readonly List<KeyValuePair<ConePadTest, Exception>> failures = new List<KeyValuePair<ConePadTest, Exception>>();
             int passed;
 
-            public ConePadTestResults(TextWriter output) {
-                this.output = output;
+            public ConePadTestResults(IConeLogger log) {
+                this.log = log;
             }
 
             int Passed { get { return passed; } }
@@ -69,24 +89,24 @@ namespace Cone
                 switch(result.Status) {
                     case TestStatus.Success: 
                         ++passed; 
-                        output.Write(".");
+                        log.Info(".");
                         break;
                     case TestStatus.Failure:
                         failures.Add(new KeyValuePair<ConePadTest,Exception>(test, result.Error)); 
-                        output.Write("F");
+                        log.Info("F");
                         break;
                     case TestStatus.Pending:
-                        output.Write("?");
+                        log.Info("?");
                         break;
                 }
             }
 
             public void Report() {
-                output.WriteLine("{0} testa ran. {1} Passed. {2} Failed.\n", Total, Passed, Failed);
+                log.Info("{0} testa ran. {1} Passed. {2} Failed.\n", Total, Passed, Failed);
 
                 if(failures.Count == 0)
                     return;
-                output.WriteLine("Failures:");
+                log.Info("Failures:\n");
 
                 for(var i = 0; i != failures.Count; ++i) {
                     var item = failures[i];
@@ -94,11 +114,17 @@ namespace Cone
                     var invocationException = ex as TargetInvocationException;
                     if (invocationException != null)
                         ex = invocationException.InnerException;
-                    output.Write("  {0,2})", i + 1);
+                    log.Info("  {0,2})", i + 1);
                     var context = item.Key.Context;
-                    if(!string.IsNullOrEmpty(context))
-                        output.Write(" {0}\n       ", context);
-                    output.WriteLine(" {0}:    \n     {1}\n", item.Key.Name, ex.Message);
+                    var topFrame = new StackTrace(ex, true).GetFrame(3);
+                    log.Failure(new ConeTestFailure {
+                        File = topFrame.GetFileName(),
+                        Line = topFrame.GetFileLineNumber(),
+                        Column = topFrame.GetFileColumnNumber(),
+                        Context = context, 
+                        TestName = item.Key.Name,
+                        Message = ex.Message
+                    });
                 }
             }
         }
@@ -205,23 +231,35 @@ namespace Cone
             }
         }
 
+        public class ConsoleLogger : IConeLogger
+        {
+            public void Info(string format, object[] args) {
+                Console.Out.Write(format, args);
+            }
+
+            public void Failure(ConeTestFailure failure) {
+                Console.Out.WriteLine("{0}({1}) - {2}", failure.File, failure.Line, failure.Context);
+                Console.Out.WriteLine("{0}: {1}", failure.TestName, failure.Message);
+            }
+        }
+
         public class SimpleConeRunner
         {
             readonly ConePadSuiteBuilder suiteBuilder = new ConePadSuiteBuilder();
-
-            public void RunTests(TextWriter output, IEnumerable<Assembly> assemblies) {
-                RunTests(output, assemblies.SelectMany(x => x.GetTypes()).Where(ConePadSuiteBuilder.SupportedType));
+            
+            public void RunTests(IConeLogger log, IEnumerable<Assembly> assemblies) {
+                RunTests(log, assemblies.SelectMany(x => x.GetTypes()).Where(ConePadSuiteBuilder.SupportedType));
             }
 
-            public void RunTests(TextWriter output, IEnumerable<Type> suiteTypes) {
-                var results = new ConePadTestResults(output);
+            public void RunTests(IConeLogger log, IEnumerable<Type> suiteTypes) {
+                var results = new ConePadTestResults(log);
                 var time = Stopwatch.StartNew();
                 var suites = ConvertAll(suiteTypes.ToArray(), suiteBuilder.BuildSuite);
                 var runLists = ConvertAll(suites, x => x.GetRunList());
                 ConvertAll(runLists.SelectMany(x => x).ToArray(), x => { x.Run(results); return true; });
-
+                log.Info("\n");
                 results.Report();
-                output.WriteLine("\nDone in {0}.\n", time.Elapsed);
+                log.Info("\nDone in {0}.\n", time.Elapsed);
             }
 
             protected virtual TOutput[] ConvertAll<TInput,TOutput>(TInput[] input, Converter<TInput, TOutput> transform) {
@@ -231,22 +269,22 @@ namespace Cone
 
         public static void RunTests() {
             Verify.GetPluginAssemblies = () => new[]{ typeof(Verify).Assembly };
-            RunTests(Console.Out, Assembly.GetCallingAssembly().GetTypes().Where(ConePadSuiteBuilder.SupportedType));
+            RunTests(new ConsoleLogger(), Assembly.GetCallingAssembly().GetTypes().Where(ConePadSuiteBuilder.SupportedType));
         }
 
         public static void RunTests(TextWriter output, IEnumerable<Assembly> assemblies) {
             Verify.GetPluginAssemblies = () => assemblies.Concat(new[]{ typeof(Verify).Assembly });
-            RunTests(Console.Out, assemblies.SelectMany(x => x.GetTypes()).Where(ConePadSuiteBuilder.SupportedType));
+            RunTests(new ConsoleLogger(), assemblies.SelectMany(x => x.GetTypes()).Where(ConePadSuiteBuilder.SupportedType));
         }
 
         public static void RunTests(params Type[] suiteTypes) {
-            RunTests(Console.Out, suiteTypes);
+            RunTests(new ConsoleLogger(), suiteTypes);
         }
 
-        public static void RunTests(TextWriter output, IEnumerable<Type> suites) {
-            output.WriteLine("Running tests!\n----------------------------------");
+        public static void RunTests(IConeLogger log, IEnumerable<Type> suites) {
+            log.Info("Running tests!\n----------------------------------\n");
             var runner = new SimpleConeRunner();
-            runner.RunTests(output, suites);
+            runner.RunTests(log, suites);
         }
     }
 }

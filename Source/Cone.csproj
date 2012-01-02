@@ -13,9 +13,11 @@
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
-    <OutputPath>$(SolutionDir)\Bin</OutputPath>
+    <OutputPath>$(BuildPath)</OutputPath>
     <IntermediateOutputPath>$(SolutionDir)\Build\obj\$(MSBuildProjectName)</IntermediateOutputPath>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <BuildPath>$(SolutionDir)\Build</BuildPath>
+    <OutputPath>$(BuildPath)</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -132,4 +134,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Target Name="AfterBuild">
+    <RemoveDir Directories="obj" />
+  </Target>
 </Project>

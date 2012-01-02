@@ -9,7 +9,7 @@ namespace Conesole
     {
         static void Main(string[] args) {
             try {
-                new ConePad.SimpleConeRunner().RunTests(Console.Out, args.Select(x => Assembly.LoadFrom(x)));
+                new ConePad.SimpleConeRunner().RunTests(new ConePad.ConsoleLogger(), args.Select(x => Assembly.LoadFrom(x)));
             } catch(ReflectionTypeLoadException tle) {
                 foreach(var item in tle.LoaderExceptions)
                     Console.Error.WriteLine("{0}\n---", item);

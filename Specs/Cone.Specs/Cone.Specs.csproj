@@ -12,11 +12,13 @@
     <AssemblyName>Cone.Specs</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <OutputPath>$(SolutionDir)\Build</OutputPath>
+    <OutputPath>$(BuildPath)</OutputPath>
     <IntermediateOutputPath>$(OutputPath)\obj\$(MSBuildProjectName)</IntermediateOutputPath>
     <NUnitVersion>2.5.7.10213</NUnitVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
+    <BuildPath>$(SolutionDir)Build</BuildPath>
+    <OutputPath>$(BuildPath)</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -92,7 +94,10 @@
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
   -->
+  <UsingTask AssemblyFile="$(SolutionDir)\Tools\Cone.Build.dll" TaskName="ConeTask" />
+  <Target Name="AfterBuild">
+    <ConeTask Path="$(OutputPath)\$(AssemblyName).dll" />
+    <RemoveDir Directories="obj" />
+  </Target>
 </Project>

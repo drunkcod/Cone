@@ -12,11 +12,13 @@
     <AssemblyName>Cone.Addin.Specs</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <OutputPath>$(SolutionDir)\Build</OutputPath>
+    <OutputPath>$(BuildPath)</OutputPath>
     <IntermediateOutputPath>$(OutputPath)\obj\$(MSBuildProjectName)</IntermediateOutputPath>
     <NUnitVersion>2.5.7.10213</NUnitVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
+    <BuildPath>$(SolutionDir)\Build</BuildPath>
+    <OutputPath>$(BuildPath)</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -87,4 +89,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Target Name="AfterBuild">
+    <RemoveDir Directories="obj" />
+  </Target>
 </Project>
