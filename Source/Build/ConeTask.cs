@@ -1,33 +1,76 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Microsoft.Build.Framework;
-using System;
-using System.IO;
 
 namespace Cone.Build
 {
-    public class ConeTask : ITask, IConeLogger
+    [Serializable]
+    public class RunnerEventArgs : EventArgs
     {
-        bool noFailures = true;
+        public string File;
+        public int Line;
+        public int Column;
+        public string Message;
+    }
+        
+
+    public class CrossDomainConeRunner : MarshalByRefObject, IConeLogger
+    {
+        public EventHandler<RunnerEventArgs> Info;
+        public EventHandler<RunnerEventArgs> Failure;
+
+        public void RunTests(IEnumerable<string> assemblyPaths) {
+            new ConePad.SimpleConeRunner().RunTests(this, assemblyPaths.Select(x => Assembly.LoadFrom(x)));
+        }
+
+        void IConeLogger.Info(string format, params object[] args) {
+            Info(this, new RunnerEventArgs {
+                Message = string.Format(format, args)
+            });
+        }
+
+        void IConeLogger.Failure(ConeTestFailure failure) {
+            Failure(this, new RunnerEventArgs {
+                File = failure.File,
+                Line = failure.Line,
+                Column = failure.Column,
+                Message = failure.Message
+            });
+        }
+    }
+
+    public class ConeTask : MarshalByRefObject, ITask
+    {
+        bool noFailures;
+
         public IBuildEngine BuildEngine { get; set; }
 
         public bool Execute() {
-            Environment.CurrentDirectory = System.IO.Path.GetDirectoryName(Path);
-            new ConePad.SimpleConeRunner().RunTests(this, new[]{ Assembly.LoadFrom(Path) });
+            noFailures = true;
+            var testDomain = AppDomain.CreateDomain("TestDomain", null, new AppDomainSetup {
+                ApplicationBase = System.IO.Path.GetDirectoryName(Path),
+                ShadowCopyFiles = "true"
+            });
+            var runner = (CrossDomainConeRunner)testDomain.CreateInstanceAndUnwrap(typeof(CrossDomainConeRunner).Assembly.FullName, typeof(CrossDomainConeRunner).FullName);
+            
+            runner.Info += (sender, e) => BuildEngine.LogMessageEvent(new BuildMessageEventArgs(e.Message, string.Empty, string.Empty, MessageImportance.Low));                     
+            runner.Failure += (sender, e) => Failure(sender, e);
+
+            runner.RunTests(new[]{ Path });
+            AppDomain.Unload(testDomain);
             return noFailures;
+        }
+
+        void Failure(object sender, RunnerEventArgs e) {
+            noFailures = false;
+            BuildEngine.LogErrorEvent(new BuildErrorEventArgs("Test ", string.Empty, e.File, e.Line, 0, 0, e.Column, e.Message, string.Empty, "Cone"));
         }
 
         public ITaskHost HostObject { get; set; }
 
         [Required]
         public string Path { get; set; }
-
-        void IConeLogger.Info(string format, params object[] args) {
-            BuildEngine.LogMessageEvent(new BuildMessageEventArgs(string.Format(format, args), string.Empty, string.Empty, MessageImportance.Low));
-        }
-
-        public void Failure(ConeTestFailure failure) {
-            noFailures = false;
-            BuildEngine.LogErrorEvent(new BuildErrorEventArgs("Test ", string.Empty, failure.File, failure.Line, 0, 0, failure.Column, failure.Message, string.Empty, "Cone"));
-        }
     }
 }

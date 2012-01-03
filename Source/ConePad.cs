@@ -25,7 +25,7 @@ namespace Cone
     public interface IConeLogger
     {
         void Info(string format, params object[] args);
-        void Failure(ConeTestFailure message);
+        void Failure(ConeTestFailure failure);
     }
 
     public static class ConePad
