@@ -160,7 +160,6 @@ namespace Cone
             public void custom_equality() {
                 Verify.That(() => new WithCustomEquality(42) == 42);
             }
-
         }
 
         [Context("null checks")]

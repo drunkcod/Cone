@@ -14,15 +14,16 @@ namespace Cone.Build
         public int Column;
         public string Message;
     }
-        
-
+ 
     public class CrossDomainConeRunner : MarshalByRefObject, IConeLogger
     {
         public EventHandler<RunnerEventArgs> Info;
         public EventHandler<RunnerEventArgs> Failure;
 
         public void RunTests(IEnumerable<string> assemblyPaths) {
-            new ConePad.SimpleConeRunner().RunTests(this, assemblyPaths.Select(x => Assembly.LoadFrom(x)));
+            new ConePad.SimpleConeRunner() {
+                ShowProgress = false
+            }.RunTests(this, assemblyPaths.Select(x => Assembly.LoadFrom(x)));
         }
 
         void IConeLogger.Info(string format, params object[] args) {
@@ -43,6 +44,7 @@ namespace Cone.Build
 
     public class ConeTask : MarshalByRefObject, ITask
     {
+        const string SenderName = "Cone";
         bool noFailures;
 
         public IBuildEngine BuildEngine { get; set; }
@@ -55,7 +57,7 @@ namespace Cone.Build
             });
             var runner = (CrossDomainConeRunner)testDomain.CreateInstanceAndUnwrap(typeof(CrossDomainConeRunner).Assembly.FullName, typeof(CrossDomainConeRunner).FullName);
             
-            runner.Info += (sender, e) => BuildEngine.LogMessageEvent(new BuildMessageEventArgs(e.Message, string.Empty, string.Empty, MessageImportance.Low));                     
+            runner.Info += (sender, e) => BuildEngine.LogMessageEvent(new BuildMessageEventArgs(e.Message, string.Empty, SenderName, MessageImportance.High));                     
             runner.Failure += (sender, e) => Failure(sender, e);
 
             runner.RunTests(new[]{ Path });
@@ -65,7 +67,7 @@ namespace Cone.Build
 
         void Failure(object sender, RunnerEventArgs e) {
             noFailures = false;
-            BuildEngine.LogErrorEvent(new BuildErrorEventArgs("Test ", string.Empty, e.File, e.Line, 0, 0, e.Column, e.Message, string.Empty, "Cone"));
+            BuildEngine.LogErrorEvent(new BuildErrorEventArgs("Test ", string.Empty, e.File, e.Line, 0, 0, e.Column, e.Message, string.Empty, SenderName));
         }
 
         public ITaskHost HostObject { get; set; }

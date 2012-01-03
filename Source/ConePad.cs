@@ -79,6 +79,8 @@ namespace Cone
                 this.log = log;
             }
 
+            public bool ShowProgress { get; set; }
+
             int Passed { get { return passed; } }
             int Failed { get { return failures.Count; } }
             int Total { get { return Passed + Failed; } }
@@ -89,20 +91,25 @@ namespace Cone
                 switch(result.Status) {
                     case TestStatus.Success: 
                         ++passed; 
-                        log.Info(".");
+                        LogProgress(".");
                         break;
                     case TestStatus.Failure:
                         failures.Add(new KeyValuePair<ConePadTest,Exception>(test, result.Error)); 
-                        log.Info("F");
+                        LogProgress("F");
                         break;
                     case TestStatus.Pending:
-                        log.Info("?");
+                        LogProgress("?");
                         break;
                 }
             }
 
+            void LogProgress(string message) {
+                if(ShowProgress)
+                    log.Info(message);
+            }
+
             public void Report() {
-                log.Info("{0} testa ran. {1} Passed. {2} Failed.\n", Total, Passed, Failed);
+                log.Info("{0} tests ran. {1} Passed. {2} Failed.\n", Total, Passed, Failed);
 
                 if(failures.Count == 0)
                     return;
@@ -246,13 +253,20 @@ namespace Cone
         public class SimpleConeRunner
         {
             readonly ConePadSuiteBuilder suiteBuilder = new ConePadSuiteBuilder();
+            public bool ShowProgress { get; set; }
+
+            public SimpleConeRunner() {
+                ShowProgress = true;
+            }
             
             public void RunTests(IConeLogger log, IEnumerable<Assembly> assemblies) {
                 RunTests(log, assemblies.SelectMany(x => x.GetTypes()).Where(ConePadSuiteBuilder.SupportedType));
             }
 
             public void RunTests(IConeLogger log, IEnumerable<Type> suiteTypes) {
-                var results = new ConePadTestResults(log);
+                var results = new ConePadTestResults(log) {
+                    ShowProgress = ShowProgress
+                };
                 var time = Stopwatch.StartNew();
                 var suites = ConvertAll(suiteTypes.ToArray(), suiteBuilder.BuildSuite);
                 var runLists = ConvertAll(suites, x => x.GetRunList());
