@@ -14,35 +14,47 @@ namespace Cone.Build
         public int Column;
         public string Message;
     }
- 
-    public class CrossDomainConeRunner : MarshalByRefObject, IConeLogger
-    {
-        public EventHandler<RunnerEventArgs> Info;
-        public EventHandler<RunnerEventArgs> Failure;
 
-        public void RunTests(IEnumerable<string> assemblyPaths) {
+    public interface ICrossDomainLogger 
+    {
+        void Info(RunnerEventArgs e);
+        void Failure(RunnerEventArgs e);
+    }
+ 
+    public class CrossDomainConeRunner : MarshalByRefObject
+    {
+        class CrossDomainLoggerAdapater : IConeLogger
+        {
+            readonly ICrossDomainLogger crossDomainLog;
+            
+            public CrossDomainLoggerAdapater(ICrossDomainLogger crossDomainLog) {
+                this.crossDomainLog = crossDomainLog;
+            }
+
+            void IConeLogger.Info(string format, params object[] args) {
+                crossDomainLog.Info(new RunnerEventArgs {
+                    Message = string.Format(format, args)
+                });
+            }
+
+            void IConeLogger.Failure(ConeTestFailure failure) {
+                crossDomainLog.Failure(new RunnerEventArgs {
+                    File = failure.File,
+                    Line = failure.Line,
+                    Column = failure.Column,
+                    Message = failure.Message
+                });
+            }
+        }
+
+        public void RunTests(ICrossDomainLogger logger, IEnumerable<string> assemblyPaths) {
             new ConePad.SimpleConeRunner() {
                 ShowProgress = false
-            }.RunTests(this, assemblyPaths.Select(x => Assembly.LoadFrom(x)));
-        }
-
-        void IConeLogger.Info(string format, params object[] args) {
-            Info(this, new RunnerEventArgs {
-                Message = string.Format(format, args)
-            });
-        }
-
-        void IConeLogger.Failure(ConeTestFailure failure) {
-            Failure(this, new RunnerEventArgs {
-                File = failure.File,
-                Line = failure.Line,
-                Column = failure.Column,
-                Message = failure.Message
-            });
+            }.RunTests(new CrossDomainLoggerAdapater(logger), assemblyPaths.Select(x => Assembly.LoadFrom(x)));
         }
     }
 
-    public class ConeTask : MarshalByRefObject, ITask
+    public class ConeTask : MarshalByRefObject, ITask, ICrossDomainLogger
     {
         const string SenderName = "Cone";
         bool noFailures;
@@ -57,15 +69,16 @@ namespace Cone.Build
             });
             var runner = (CrossDomainConeRunner)testDomain.CreateInstanceAndUnwrap(typeof(CrossDomainConeRunner).Assembly.FullName, typeof(CrossDomainConeRunner).FullName);
             
-            runner.Info += (sender, e) => BuildEngine.LogMessageEvent(new BuildMessageEventArgs(e.Message, string.Empty, SenderName, MessageImportance.High));                     
-            runner.Failure += (sender, e) => Failure(sender, e);
-
-            runner.RunTests(new[]{ Path });
+            runner.RunTests(this, new[]{ Path });
             AppDomain.Unload(testDomain);
             return noFailures;
         }
 
-        void Failure(object sender, RunnerEventArgs e) {
+        void ICrossDomainLogger.Info(RunnerEventArgs e) {
+            BuildEngine.LogMessageEvent(new BuildMessageEventArgs(e.Message, string.Empty, SenderName, MessageImportance.High));
+        }
+
+        void ICrossDomainLogger.Failure(RunnerEventArgs e) {
             noFailures = false;
             BuildEngine.LogErrorEvent(new BuildErrorEventArgs("Test ", string.Empty, e.File, e.Line, 0, 0, e.Column, e.Message, string.Empty, SenderName));
         }
