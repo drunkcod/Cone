@@ -5,15 +5,15 @@ namespace Cone.Core
 {
 	public class PendingGuardTestContext : ITestContext
 	{
-		public Action<ITestResult> Establish(IFixtureContext context, Action<ITestResult> next) {
+		public TestContextStep Establish(IFixtureContext context, TestContextStep next) {
 			var pending = FirstPendingOrDefault(context.Attributes, FirstPendingOrDefault(context.Fixture.FixtureType.AsConeAttributeProvider(), null));
 			return pending == null 
 				? next 
-				: result => ExpectFailure(pending.Reason, next, result);
+				: new TestContextStep((test, result) => ExpectFailure(pending.Reason, next, test, result));
         }
 
-        static void ExpectFailure(string reason, Action<ITestResult> runTest, ITestResult result) {
-            runTest(result);
+        static void ExpectFailure(string reason, TestContextStep runTest, IConeTest test, ITestResult result) {
+            runTest(test, result);
             if(result.Status == TestStatus.Success)
                 result.TestFailure(new ExpectationFailedException("Test passed"));
             else

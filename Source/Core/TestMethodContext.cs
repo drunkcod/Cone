@@ -5,10 +5,10 @@ namespace Cone.Core
 {
     class TestMethodContext : ITestContext 
     {
-        public Action<ITestResult> Establish(IFixtureContext context, Action<ITestResult> next) {
-			return result => {
+        public TestContextStep Establish(IFixtureContext context, TestContextStep next) {
+			return (test, result) => {
                 try {
-					next(result);
+					next(test, result);
 					result.Success();
                 } catch(Exception ex) {
                     result.TestFailure(ex);                        

@@ -5,16 +5,16 @@ namespace Cone.Core
 {
     class FixtureBeforeContext : ITestContext
     {
-        public Action<ITestResult> Establish(IFixtureContext context, Action<ITestResult> next) {
+        public TestContextStep Establish(IFixtureContext context, TestContextStep next) {
             var fixture = context.Fixture;
-            return result => {
+            return (test, result) => {
                 try {
                     fixture.Before();
                 } catch(Exception ex) {
                     result.BeforeFailure(ex);
                     return;
                 }
-                next(result);
+                next(test, result);
             };
         }
     }

@@ -51,11 +51,11 @@ namespace Cone.Core
             interceptors.ForEach(x => @do(GetInterceptor(fixture, x)));
         }
 
-        public Action<ITestResult> Establish(IFixtureContext context, Action<ITestResult> next) {
-            return result => {               
+        public TestContextStep Establish(IFixtureContext context, TestContextStep next) {
+            return (test, result) => {               
                 try {
                     if(Before(result))
-                        next(result);
+                        next(test, result);
                 } finally {
                     After(result);
                 }

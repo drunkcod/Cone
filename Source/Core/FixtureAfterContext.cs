@@ -4,11 +4,11 @@ namespace Cone.Core
 {
     class FixtureAfterContext : ITestContext 
     {
-        public Action<ITestResult> Establish(IFixtureContext context, Action<ITestResult> next) {
+        public TestContextStep Establish(IFixtureContext context, TestContextStep next) {
             var fixture = context.Fixture;
-            return result => {
+            return (test, result) => {
                 try {
-                    next(result);
+                    next(test, result);
                 } finally {
                     try {
                         fixture.After(result);

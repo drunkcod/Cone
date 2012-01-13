@@ -33,12 +33,14 @@ namespace Cone.Addin
         public override TestResult Run(EventListener listener, ITestFilter filter) {
             var result = new TestResult(this);
             switch(RunState){               
-                case RunState.Runnable: testExecutor.Run(new TimedTestContext(this,
-                    _ => listener.TestStarted(TestName),
-                    (_, time) => {
-                        result.Time = time.TotalSeconds;
-                        listener.TestFinished(result);
-                    }), new NUnitTestResultAdapter(result));
+                case RunState.Runnable: testExecutor.Run(this, 
+                    new NUnitTestResultAdapter(result), 
+                    new TimedTestContext(
+                        _ => listener.TestStarted(TestName),
+                        (_, time) => {
+                            result.Time = time.TotalSeconds;
+                            listener.TestFinished(result);
+                        }));
                     break;
                 case RunState.Explicit: goto case RunState.Runnable;
             }          

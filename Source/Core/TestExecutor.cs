@@ -11,9 +11,11 @@ namespace Cone.Core
         IConeFixture Fixture { get; }
     }
 
+    public delegate void TestContextStep(IConeTest test, ITestResult result);
+
     public interface ITestContext 
     {
-        Action<ITestResult> Establish(IFixtureContext context, Action<ITestResult> next);
+        TestContextStep Establish(IFixtureContext context, TestContextStep next);
     }
 
     public class TestExecutor
@@ -49,19 +51,30 @@ namespace Cone.Core
             public IConeFixture Fixture { get { return fixture; } }
         }
 
+        class NullContext : ITestContext 
+        {
+            public TestContextStep Establish(IFixtureContext context, TestContextStep next) {
+                return next;
+            }
+        }
+
         public void Run(IConeTest test, ITestResult result) {
+            Run(test, result, new NullContext());
+        }
+        
+        public void Run(IConeTest test, ITestResult result, ITestContext context) {
             var wrap = CombineEstablish(new FixtureContext(fixture, test.Attributes));
             var next = ExecutionContext
                 .Concat(fixtureContext)
                 .Concat(GetTestContexts(test.Attributes))
-                .Aggregate(test.Run, wrap);
+                .Aggregate((t, r) => t.Run(r), wrap);
 			var testContext = test as ITestContext;
 			if(testContext != null)
 				next = wrap(next, testContext);;
-			next(result);
+			wrap(next, context)(test, result);
         }
 
-        Func<Action<ITestResult>, ITestContext, Action<ITestResult>> CombineEstablish(IFixtureContext context) {
+        Func<TestContextStep, ITestContext, TestContextStep> CombineEstablish(IFixtureContext context) {
             return (acc, x) => x.Establish(context, acc);
         }
 

@@ -27,7 +27,7 @@ namespace Cone.Core
             var error = new Exception();
             Interceptor.Setup(x => x.Before()).Throws(error);
 
-            Context.Establish(null, _ => { })(Result.Object);
+            Context.Establish(null, (_, __) => { })(null, Result.Object);
 
             Result.Verify(x => x.BeforeFailure(error));
             Interceptor.Verify(x => x.After(Result.Object));
@@ -37,21 +37,21 @@ namespace Cone.Core
             var error = new Exception();
             Interceptor.Setup(x => x.Before()).Throws(error);
 
-            Context.Establish(null, _ => { throw new InvalidOperationException("should not run test when before fails"); })(Result.Object);
+            Context.Establish(null, (_, __) => { throw new InvalidOperationException("should not run test when before fails"); })(null, Result.Object);
         }
 
         public void report_after_failures() {
             var error = new Exception();
             Interceptor.Setup(x => x.After(Result.Object)).Throws(error);
 
-            Context.Establish(null, _ => { })(Result.Object);
+            Context.Establish(null, (_, __) => { })(null, Result.Object);
 
             Result.Verify(x => x.AfterFailure(error));
         }
 
         public void propagate_exceptions_raised_by_test() {
-            Action<ITestResult> raiseException = _ => { throw new Exception(); };
-            Verify.Throws<Exception>.When(() => Context.Establish(null, raiseException)(Result.Object));
+            TestContextStep raiseException = (_, __) => { throw new Exception(); };
+            Verify.Throws<Exception>.When(() => Context.Establish(null, raiseException)(null, Result.Object));
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Cone.Core
     {
         readonly string PendingReason = "Pending Reason";
 
-        Action<ITestResult> NewPendingTestContext(Action<ITestResult> runTest) {
+        TestContextStep NewPendingTestContext(TestContextStep runTest) {
             var pendingGuard = new PendingGuardTestContext();
             var context = new Mock<IFixtureContext>();
             var fixture = new Mock<IConeFixture>();
@@ -25,20 +25,20 @@ namespace Cone.Core
         }
 
         public void sets_pending_reason() {
-            var runTest = NewPendingTestContext(x => x.TestFailure(new Exception()));
+            var runTest = NewPendingTestContext((_, x) => x.TestFailure(new Exception()));
 
             var testResult = new Mock<ITestResult>();
-            runTest(testResult.Object);
+            runTest(null, testResult.Object);
 
             testResult.Verify(x => x.Pending(PendingReason));
         }
 
         public void report_failure_when_pending_test_pass() {
-            var runTest = NewPendingTestContext(x => x.Success());
+            var runTest = NewPendingTestContext((_, x) => x.Success());
 
             var testResult = new Mock<ITestResult>();
             testResult.SetupGet(x => x.Status).Returns(TestStatus.Success);
-            runTest(testResult.Object);
+            runTest(null, testResult.Object);
 
             testResult.Verify(x => x.TestFailure(It.IsAny<ExpectationFailedException>()));
         }

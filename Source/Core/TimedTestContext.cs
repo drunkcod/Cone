@@ -2,29 +2,20 @@
 
 namespace Cone.Core
 {
-    public class TimedTestContext : IConeTest, ITestContext
+    public class TimedTestContext : ITestContext
     {
-	    readonly IConeTest inner;
 	    readonly Action<IConeTest> before;
         readonly Action<IConeTest, TimeSpan> after;
 	
-	    public TimedTestContext(IConeTest inner, Action<IConeTest> before, Action<IConeTest, TimeSpan> after) {
-		    this.inner = inner;
+	    public TimedTestContext(Action<IConeTest> before, Action<IConeTest, TimeSpan> after) {
             this.before = before;
             this.after = after;
 	    }
 
-        ITestName IConeTest.Name { get { return inner.Name; } }
-	    IConeAttributeProvider IConeTest.Attributes { get { return inner.Attributes; } }
-
-	    void IConeTest.Run(ITestResult testResult) {
-		    inner.Run(testResult);
-	    }
-
-	    Action<ITestResult> ITestContext.Establish(IFixtureContext context, Action<ITestResult> next) {
-		    return r => {
-                before(inner);
-                inner.Timed(_ => next(r), after);
+	    TestContextStep ITestContext.Establish(IFixtureContext context, TestContextStep next) {
+		    return (test, r) => {
+                before(test);
+                test.Timed(_ => next(test, r), after);
 		    };
 	    }
     }
