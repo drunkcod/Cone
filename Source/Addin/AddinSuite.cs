@@ -46,6 +46,15 @@ namespace Cone.Addin
                     foreach(Test test in Tests)
                         if(filter.Pass(test))
                             result.AddResult(test.Run(listener, filter));
+                }, ex => {
+                    foreach(Test item in Tests) {
+                        var failure = new TestResult(item);
+                        listener.TestStarted(item.TestName);
+                        failure.Error(ex, FailureSite.SetUp);
+                        listener.TestFinished(failure);
+                        result.AddResult(failure);
+                    }
+                        
                 });
             } finally {
                 listener.SuiteFinished(result);

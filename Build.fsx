@@ -27,8 +27,8 @@ let copyAddin() =
   let addins = Directory.CreateDirectory(Path.Combine(NUnitPath, "addins"))
   let copyToAddins source = 
       File.Copy(source, Path.Combine(addins.FullName, Path.GetFileName(source)), true)
-  copyToAddins "Bin\Cone.Addin.dll"
-  copyToAddins "Bin\Cone.dll"
+  copyToAddins @"Build\Cone.Addin.dll"
+  copyToAddins @"Build\Cone.dll"
   true
 
 let test() =
@@ -36,18 +36,17 @@ let test() =
     Process.Start(
       ProcessStartInfo(
         FileName = Path.Combine(NUnitPath, "nunit-console.exe"),
-        Arguments = @"Build\Cone.Specs.dll Build\Cone.Addin.Specs.dll /nologo /process=Single /domain=Single",
+        Arguments = @"Build\Cone.Addin.Specs.dll /nologo /process=Single /domain=Single",
         UseShellExecute = false))
   nunit.WaitForExit()
   nunit.ExitCode = 0
 
 let package() =
-    let version = AssemblyName.GetAssemblyName("Bin\Cone.dll").Version.ToString()
+    let version = AssemblyName.GetAssemblyName("Build\Cone.dll").Version.ToString()
 
     use zip = new ZipFile()
 
     zip.AddDirectory("Bin", "Bin") |> ignore
-    zip.RemoveEntry("Bin\Cone.Addin.dll") |> ignore
     zip.AddDirectory("Samples", "Samples") |> ignore
     zip.AddFile("Cone.Samples.sln") |> ignore
     zip.AddFile("Install.txt") |> ignore
@@ -57,8 +56,8 @@ let package() =
 clean ["Build";"Bin"]
 && build ""
 && build "/p:NUnitVersion=2.5.5.10112 /t:Cone_Addin:Rebuild"
-&& build "/p:NUnitVersion=2.5.7.10213 /t:Cone_Addin:Rebuild"
 && build "/p:NUnitVersion=2.5.10.11092 /t:Cone_Addin:Rebuild"
+&& build "/p:NUnitVersion=2.5.7.10213 /t:Cone_Addin:Rebuild"
 && copyAddin()
 && test()
 && package()

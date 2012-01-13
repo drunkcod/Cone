@@ -9,7 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cone.Samples", "Samples\Con
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9F49969B-C9E7-4176-9538-40ADF6A36D82}"
 	ProjectSection(SolutionItems) = preProject
-		Build.fsx = Build.fsx
 		ReleaseNotes.txt = ReleaseNotes.txt
 		TestStats.fsx = TestStats.fsx
 	EndProjectSection

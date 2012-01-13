@@ -13,14 +13,14 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <OutputPath>$(BuildPath)</OutputPath>
-    <IntermediateOutputPath>$(SolutionDir)\Build\obj\$(MSBuildProjectName)</IntermediateOutputPath>
     <TargetFrameworkProfile />
     <NUnitVersion>2.5.7.10213</NUnitVersion>
     <NUnitPath>$(SolutionDir)\Tools\NUnit-$(NUnitVersion)\bin\net-2.0</NUnitPath>
     <NUnitLibPath>$(NUnitPath)\lib</NUnitLibPath>
     <NUnitFrameworkPath>$(NUnitPath)\framework</NUnitFrameworkPath>
-    <BuildPath>$(SolutionDir)\Build</BuildPath>
-    <OutputPath>$(BuildPath)</OutputPath>
+    <BuildPath>$(SolutionDir)</BuildPath>
+    <OutputPath>$(BuildPath)Bin\$(NUnitVersion)</OutputPath>
+    <IntermediateOutputPath>$(SolutionDir)\Build\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

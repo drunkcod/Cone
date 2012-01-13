@@ -10,14 +10,12 @@
     <RootNamespace>Cone</RootNamespace>
     <AssemblyName>Cone</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <OutputPath>$(BuildPath)</OutputPath>
-    <IntermediateOutputPath>$(SolutionDir)\Build\obj\$(MSBuildProjectName)</IntermediateOutputPath>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <BuildPath>$(SolutionDir)\Build</BuildPath>
-    <OutputPath>$(BuildPath)</OutputPath>
+    <BuildPath>$(SolutionDir)</BuildPath>
+    <OutputPath>$(BuildPath)Bin</OutputPath>
+    <IntermediateOutputPath>$(SolutionDir)Build\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -36,6 +34,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConePad.cs" />
+    <Compile Include="Core\ConeTestFailure.cs" />
     <Compile Include="Core\Action.cs" />
     <Compile Include="AfterAllAttribute.cs" />
     <Compile Include="AfterEachAttribute.cs" />

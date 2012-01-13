@@ -6,6 +6,8 @@ namespace Cone.Core
     [Describe(typeof(ConeFixture))]
     public class ConeFixtureSpec
     {
+        Action<Exception> Nop = _ => { };
+
         public void disposes_disposable_fixtures() {
             var disposableFixture = new Mock<IDisposable>();
             CreateAndReleaseFixture(disposableFixture.Object.GetType(), _ => disposableFixture.Object);
@@ -31,7 +33,7 @@ namespace Cone.Core
         public void supports_static_fixtures() {
             var fixture = new ConeFixture(typeof(StaticFixture));
             var result = new Mock<ITestResult>().Object;
-            fixture.Create(result);
+            fixture.Create(result, Nop);
             fixture.Release(result);
         }
 
@@ -46,7 +48,7 @@ namespace Cone.Core
             var fixture = new ConeFixture(typeof(BrokenFixture));
             (fixture as IConeFixtureMethodSink).BeforeAll(typeof(BrokenFixture).GetMethod("InvalidOperation"));
             var result = new Mock<ITestResult>();
-            Verify.That(() => fixture.Create(result.Object) == false);
+            Verify.That(() => fixture.Create(result.Object, Nop) == false);
             result.Verify(x => x.BeforeFailure(It.IsAny<Exception>()));
         }
 
@@ -62,7 +64,7 @@ namespace Cone.Core
         void CreateAndReleaseFixture(Type type, Func<Type, object> fixtureBuilder) {
             var fixture = new ConeFixture(type, fixtureBuilder);
             var result = new Mock<ITestResult>().Object;
-            fixture.Create(result);
+            fixture.Create(result, Nop);
             fixture.Release(result);
         }
 

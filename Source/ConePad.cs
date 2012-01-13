@@ -8,20 +8,8 @@ using Cone.Core;
 
 namespace Cone
 {
-    public class ConeTestFailure
-    {
-        public string File;
-        public int Line;
-        public int Column;
-        public string Context;
-        public string TestName;
-        public string Message;
 
-        public override string ToString() {
-            return string.Format("{0}({1}:{2}) {3} - {4}: {5}", File, Line, Column, Context, TestName, Message);
-        }
 
-    }
     public interface IConeLogger
     {
         void Info(string format, params object[] args);
@@ -49,7 +37,6 @@ namespace Cone
 
                 public Exception Error;
                 public TestStatus Status { get { return testStatus; } }
-
 
                 void ITestResult.Success() { testStatus = TestStatus.Success; }
 
@@ -93,6 +80,7 @@ namespace Cone
                         ++passed; 
                         LogProgress(".");
                         break;
+                    case TestStatus.SetupFailure: goto case TestStatus.Failure;
                     case TestStatus.Failure:
                         failures.Add(new KeyValuePair<ConePadTest,Exception>(test, result.Error)); 
                         LogProgress("F");
@@ -122,16 +110,8 @@ namespace Cone
                     if (invocationException != null)
                         ex = invocationException.InnerException;
                     log.Info("  {0,2})", i + 1);
-                    var context = item.Key.Context;
-                    var topFrame = new StackTrace(ex, true).GetFrame(3);
-                    log.Failure(new ConeTestFailure {
-                        File = topFrame.GetFileName(),
-                        Line = topFrame.GetFileLineNumber(),
-                        Column = topFrame.GetFileColumnNumber(),
-                        Context = context, 
-                        TestName = item.Key.Name,
-                        Message = ex.Message
-                    });
+
+                    log.Failure(new ConeTestFailure(item.Key.Name, item.Key.Context, ex, 3));
                 }
             }
         }
@@ -228,13 +208,22 @@ namespace Cone
                 return subsuites.SelectMany(x => x.GetRunList()).Concat(new[]{ this });
             }
 
+            class NullTestResult : ITestResult 
+            {
+                public TestStatus Status { get { return TestStatus.ReadyToRun; } }
+
+                public void Success() { }
+                public void Pending(string reason) { }
+                public void BeforeFailure(Exception ex) { }
+                public void TestFailure(Exception ex) { }
+                public void AfterFailure(Exception ex) { }
+            }
+
             public void Run(ConePadTestResults results) {
-                fixture.WithInitialized(null, () => {
+                fixture.WithInitialized(new NullTestResult(), () => {
                     var runner = new TestExecutor(fixture);              
-                    foreach (var item in tests) {
-                        results.BeginTest(item, result => runner.Run(item, result));
-                    }
-                });
+                    tests.ForEach(item => results.BeginTest(item, result => runner.Run(item, result)));
+                }, ex => { });
             }
         }
 
@@ -253,6 +242,7 @@ namespace Cone
         public class SimpleConeRunner
         {
             readonly ConePadSuiteBuilder suiteBuilder = new ConePadSuiteBuilder();
+
             public bool ShowProgress { get; set; }
 
             public SimpleConeRunner() {
