@@ -15,9 +15,9 @@ namespace Cone
         public readonly string TestName;
         public readonly string Message;
 
-        public ConeTestFailure(string testName, string context, Exception error, int skipFrames) {
-            TestName = testName;
-            Context = context;
+        public ConeTestFailure(ITestName testName, Exception error, int skipFrames) {
+            TestName = testName.Name;
+            Context = testName.Context;
             var errorLocation = new StackTrace(error, skipFrames, true).GetFrame(0);
             File = errorLocation.GetFileName();
             Line = errorLocation.GetFileLineNumber();

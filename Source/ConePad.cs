@@ -8,8 +8,6 @@ using Cone.Core;
 
 namespace Cone
 {
-
-
     public interface IConeLogger
     {
         void Info(string format, params object[] args);
@@ -34,8 +32,16 @@ namespace Cone
             class ConePadTestResult : ITestResult
             {
                 TestStatus testStatus;
+                IConeTest test;
+
+                public ConePadTestResult(IConeTest test) {
+                    this.test = test;
+                }
 
                 public Exception Error;
+
+                public ITestName TestName { get { return test.Name; } }
+
                 public TestStatus Status { get { return testStatus; } }
 
                 void ITestResult.Success() { testStatus = TestStatus.Success; }
@@ -73,7 +79,7 @@ namespace Cone
             int Total { get { return Passed + Failed; } }
 
             public void BeginTest(ConePadTest test, Action<ITestResult> collectResult) {
-                var result = new ConePadTestResult();
+                var result = new ConePadTestResult(test);
                 collectResult(result);
                 switch(result.Status) {
                     case TestStatus.Success: 
@@ -111,27 +117,28 @@ namespace Cone
                         ex = invocationException.InnerException;
                     log.Info("  {0,2})", i + 1);
 
-                    log.Failure(new ConeTestFailure(item.Key.Name, item.Key.Context, ex, 3));
+                    log.Failure(new ConeTestFailure(item.Key.Name, ex, 3));
                 }
             }
         }
 
         class ConePadTest : IConeTest
         {
+            readonly ITestName name;
+            readonly IConeFixture fixture;
             readonly MethodInfo method;
             readonly object[] args;
-            readonly IConeFixture fixture;
             readonly IConeAttributeProvider attributes;
 
-            public ConePadTest(IConeFixture fixture, MethodInfo method, object[] args, IConeAttributeProvider attributes) {
+            public ConePadTest(ITestName name, IConeFixture fixture, MethodInfo method, object[] args, IConeAttributeProvider attributes) {
+                this.name = name;
                 this.fixture = fixture;
                 this.method = method;
                 this.args = args;
                 this.attributes = attributes;
             }
 
-            public string Context { get; set; }
-            public string Name { get; set; }
+            public ITestName Name { get { return name; } }
 
             IConeAttributeProvider IConeTest.Attributes { get { return attributes; } }
             void IConeTest.Run(ITestResult result) { method.Invoke(fixture.Fixture, args); }
@@ -194,10 +201,7 @@ namespace Cone
             }
 
             ConePadTest NewTest(ConeTestNamer testNamer, MethodInfo method, object[] args, IConeAttributeProvider attributes) {
-                return new ConePadTest(fixture, method, args, attributes) { 
-                    Context = Name,
-                    Name = testNamer.NameFor(method, args),
-                };
+                return new ConePadTest(testNamer.TestNameFor(Name, method, args), fixture, method, args, attributes);
             }
 
             public void WithFixtureMethodSink(Action<IConeFixtureMethodSink> action) {
@@ -210,6 +214,7 @@ namespace Cone
 
             class NullTestResult : ITestResult 
             {
+                public ITestName TestName { get { return null; } }
                 public TestStatus Status { get { return TestStatus.ReadyToRun; } }
 
                 public void Success() { }

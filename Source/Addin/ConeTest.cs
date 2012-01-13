@@ -4,7 +4,7 @@ using Cone.Core;
 using NUnit.Core;
 
 namespace Cone.Addin
-{
+{ 
     public abstract class ConeTest : Test, IConeTest
     {
         internal readonly TestExecutor testExecutor;
@@ -46,6 +46,8 @@ namespace Cone.Addin
         }
 
         public override string TestType { get { return GetType().Name; } }
+
+        ITestName IConeTest.Name { get { return new NUnitTestNameAdapter(TestName); } }
 
 		public abstract IConeAttributeProvider Attributes { get; }
 

@@ -14,6 +14,7 @@ namespace Cone.Core
             this.after = after;
 	    }
 
+        ITestName IConeTest.Name { get { return inner.Name; } }
 	    IConeAttributeProvider IConeTest.Attributes { get { return inner.Attributes; } }
 
 	    void IConeTest.Run(ITestResult testResult) {

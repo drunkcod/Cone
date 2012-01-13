@@ -62,6 +62,7 @@
     <Compile Include="Addin\ConeSuiteSpec.RowTests.cs">
       <DependentUpon>AddinSuiteSpec.cs</DependentUpon>
     </Compile>
+    <Compile Include="Addin\NUnitTestNameAdapterSpec.cs" />
     <Compile Include="Addin\NUnitTestResultAdapterSpec.cs" />
     <Compile Include="NUnitIntegration\NUnitIntegrationFeature.cs" />
     <Compile Include="TestExtensions.cs" />

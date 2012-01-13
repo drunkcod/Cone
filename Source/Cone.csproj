@@ -69,6 +69,7 @@
     <Compile Include="Helpers\FuncSpy.cs" />
     <Compile Include="Helpers\MethodSpy.cs" />
     <Compile Include="ITestCleanup.cs" />
+    <Compile Include="ITestName.cs" />
     <Compile Include="TestStatus.cs" />
     <Compile Include="DescribeAttribute.cs" />
     <Compile Include="DisplayClassAttribute.cs" />

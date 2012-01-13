@@ -113,8 +113,10 @@ namespace Cone.Addin
                 return new ConeMethodThunk(method, TestNamer);
             }
 
-            void AddRowTest(MethodInfo method, IEnumerable<IRowData> rows) {
-                rowSuites.GetSuite(method, TestNamer.NameFor(method)).Add(rows);
+            void AddRowTest(MethodInfo method, IEnumerable<IRowData> rows) { GetRowSuite(method).Add(rows); }
+
+            ConeRowSuite GetRowSuite(MethodInfo method) {
+                return rowSuites.GetSuite(method, TestNamer.NameFor(method));
             }
 
             ConeRowSuite CreateSuite(MethodInfo method, string suiteName) {

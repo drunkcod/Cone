@@ -71,6 +71,7 @@
     <Compile Include="ConeTest.cs" />
     <Compile Include="ConeTestMethod.cs" />
     <Compile Include="NUnitTestExtensions.cs" />
+    <Compile Include="NUnitTestNameAdapter.cs" />
     <Compile Include="NUnitTestResultAdapter.cs" />
   </ItemGroup>
   <ItemGroup>

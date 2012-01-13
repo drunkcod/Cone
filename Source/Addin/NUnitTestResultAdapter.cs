@@ -12,6 +12,8 @@ namespace Cone.Addin
             this.result = result;
         }
 
+        ITestName ITestResult.TestName { get { return new NUnitTestNameAdapter(TestName); } }
+
         public TestName TestName {
             get { return result.Test.TestName; }
         }

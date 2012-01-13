@@ -7,6 +7,22 @@ namespace Cone.Core
 {
     public class ConeTestNamer
     {
+        class ConeTestName : ITestName 
+        {
+            readonly string context;
+            readonly string name;
+ 
+            public ConeTestName(string context, string name) {
+                this.context = context;
+                this.name = name;
+            }
+
+            public string Context { get { return context; } }
+            public string Name { get { return name; } }
+            public string FullName { get { return string.Format("{0}.{1}", Context, Name); } }
+        }
+
+
         static readonly Regex NormalizeNamePattern = new Regex(@"_|\+", RegexOptions.Compiled);
 
         readonly ParameterFormatter formatter = new ParameterFormatter();
@@ -20,6 +36,10 @@ namespace Cone.Core
             if(nameAttribute.Length != 0)
                 return selectName(((DisplayAsAttribute)nameAttribute[0]));
             return NormalizeNamePattern.Replace(method.Name, " ");
+        }
+
+        public ITestName TestNameFor(string context, MethodInfo method, object[] parameters) {
+            return new ConeTestName(context, NameFor(method, parameters));
         }
 
         public string NameFor(MethodInfo method, object[] parameters) {
