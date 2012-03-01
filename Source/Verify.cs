@@ -4,6 +4,7 @@ using Cone.Core;
 using Cone.Expectations;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Cone
 {
@@ -21,6 +22,16 @@ namespace Cone
 
         public static object That(Expression<Func<bool>> expr) {
             return Check(From(expr.Body));
+        }
+
+        public static void Guard(Action action) {
+            try {
+                action();
+            } catch(TargetInvocationException e) {
+                ExpectationFailed(e.InnerException.Message);
+            } catch(Exception e) {
+                ExpectationFailed(e.Message);
+            }
         }
 
         public static class Throws<TException> where TException : Exception
