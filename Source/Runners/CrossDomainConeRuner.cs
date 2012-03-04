@@ -31,12 +31,31 @@ namespace Cone.Runners
         }
     }
 
-    public class CrossDomainConeRunner : MarshalByRefObject
+    public class CrossDomainConeRunner
     {
-        public void RunTests(ICrossDomainLogger logger, string[] assemblyPaths) {
-             new SimpleConeRunner() {
-                ShowProgress = false
-            }.RunTests(new CrossDomainLoggerAdapater(logger), Array.ConvertAll(assemblyPaths, Assembly.LoadFrom));             
+        [Serializable]
+        class RunTestsCommand
+        {
+            public ICrossDomainLogger Logger;
+            public string[] AssemblyPaths;
+
+            public void Execute() {
+                 new SimpleConeRunner() {
+                    ShowProgress = false
+                }.RunTests(new CrossDomainLoggerAdapater(Logger), Array.ConvertAll(AssemblyPaths, Assembly.LoadFrom));             
+            }
+        }
+
+        public static void RunTestsInTemporaryDomain(ICrossDomainLogger logger, string applicationBase, string[] assemblyPaths) {
+            var testDomain = AppDomain.CreateDomain("TestDomain", null, new AppDomainSetup {
+                    ApplicationBase = applicationBase,
+                    ShadowCopyFiles = "true"
+                });
+                testDomain.DoCallBack(new RunTestsCommand {
+                    Logger = logger,
+                    AssemblyPaths = assemblyPaths
+                }.Execute);
+                AppDomain.Unload(testDomain);
         }
     }
 }

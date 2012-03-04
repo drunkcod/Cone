@@ -4,17 +4,6 @@ using Microsoft.Build.Framework;
 
 namespace Cone.Build
 {
-    [Serializable]
-    public class CrossDomainRunTestsCommand
-    {
-        public ICrossDomainLogger Logger;
-        public string[] Paths;
-
-        public void Execute() {
-            new CrossDomainConeRunner().RunTests(Logger, Paths);
-        }
-    }
-
     public class ConeTask : MarshalByRefObject, ITask, ICrossDomainLogger
     {
         const string SenderName = "Cone";
@@ -25,13 +14,9 @@ namespace Cone.Build
         public bool Execute() {
             try {
                 noFailures = true;
-                var testDomain = AppDomain.CreateDomain("TestDomain", null, new AppDomainSetup {
-                    ApplicationBase = System.IO.Path.GetDirectoryName(Path),
-                    ShadowCopyFiles = "true"
-                });
-
-                testDomain.DoCallBack(new CrossDomainRunTestsCommand { Logger = this, Paths = new[] { Path } }.Execute);
-                AppDomain.Unload(testDomain);
+                CrossDomainConeRunner.RunTestsInTemporaryDomain(this,
+                    System.IO.Path.GetDirectoryName(Path),
+                    new []{ Path });
                 return noFailures;
             } catch(Exception e) {
                 BuildEngine.LogErrorEvent(new BuildErrorEventArgs("RuntimeFailure", string.Empty, string.Empty, 0, 0, 0, 0, string.Format("{0}", e), string.Empty, SenderName));
@@ -40,7 +25,7 @@ namespace Cone.Build
         }
 
         void ICrossDomainLogger.Info(string message) {
-            BuildEngine.LogMessageEvent(new BuildMessageEventArgs(message, string.Empty, SenderName, MessageImportance.High));
+            BuildEngine.LogMessageEvent(new BuildMessageEventArgs(message.TrimEnd(), string.Empty, SenderName, MessageImportance.High));
         }
 
         void ICrossDomainLogger.Failure(string file, int line, int column, string message) {
