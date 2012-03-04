@@ -155,6 +155,10 @@ namespace Cone
                 }
 
                 public static bool operator!=(WithCustomEquality self, int value) {  return !(self == value); }
+
+                public override int GetHashCode() {
+                    return value.GetHashCode();
+                }
             }
 
             public void custom_equality() {

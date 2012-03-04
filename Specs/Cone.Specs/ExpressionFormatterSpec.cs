@@ -211,6 +211,9 @@ namespace Cone.Core
                 public Bar(object obj) { }
                 public int Value;
                 public int Answer;
+                //to silence warnings
+                public void SetValue(int value) { Value = value; }
+                public void SetAnsewr(int value) { Answer = value; }
             }
 
             public void boolean_constant() { VerifyFormat(Expression.Lambda<Func<bool>>(Expression.Constant(true)), "true"); }

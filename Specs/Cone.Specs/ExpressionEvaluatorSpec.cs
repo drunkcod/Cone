@@ -67,13 +67,6 @@ namespace Cone
             Verify.That(() => Evaluate(() => (DateTime?)null) == null);
         }
 
-        class MyValue<T> 
-        {
-            public T Value;
-
-            public static implicit operator T(MyValue<T> item){ return item.Value; }
-        }
-
         public void implicit_convesion_operators() {
             Verify.That(() => new MyValue<int>{ Value = 42 } == 42);
         }

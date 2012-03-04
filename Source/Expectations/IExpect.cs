@@ -9,7 +9,7 @@ namespace Cone.Expectations
         public object Actual;
 
         public static bool operator==(ExpectResult left, ExpectResult right) {
-            return left.Equals(right);
+            return left.Success == right.Success && left.Actual.Equals(right.Actual);
         }
 
         public static bool operator!=(ExpectResult left, ExpectResult right) {
@@ -18,6 +18,16 @@ namespace Cone.Expectations
 
         public override string ToString() {
             return string.Format("{{Success: {0}, Actual: {1}}}", Success, Actual);
+        }
+
+        public override bool Equals(object obj) {
+            if(object.ReferenceEquals(obj, this))
+                return true;
+            return obj is ExpectResult && (ExpectResult)obj == this;
+        }
+
+        public override int GetHashCode() {
+            return Actual.GetHashCode();
         }
     }
 

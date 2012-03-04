@@ -6,6 +6,33 @@ using Moq;
 
 namespace Cone
 {
+    class MyValue<T>
+    {
+        public T Value;
+
+        public static bool operator==(MyValue<T> left, MyValue<T> right) {
+            return left.Value.Equals(right.Value);
+        }
+
+        public static bool operator!=(MyValue<T> left, MyValue<T> right) {
+            return !(left == right);
+        }
+
+        public override bool Equals(object obj) {
+            if(Object.ReferenceEquals(obj, this))
+                return true;
+            var other = obj as MyValue<T>;
+            return other != null && other == this;
+        }
+
+        public static implicit operator T(MyValue<T> item){ return item.Value; }
+
+
+        public override int GetHashCode() {
+            return Value.GetHashCode();
+        }
+    }
+
     [Describe(typeof(EqualExpect))]
     public class BinaryExpectSpec
     {
@@ -21,22 +48,9 @@ namespace Cone
             Verify.That(() => expect.FormatMessage(formatter.Object) == expectedMessage);
         }
 
-        class MyClass
-        {
-            public object Value;
-
-            public static bool operator==(MyClass left, MyClass right) {
-                return left.Value.Equals(right.Value);
-            }
-
-            public static bool operator!=(MyClass left, MyClass right) {
-                return !(left == right);
-            }
-        }
-
         public void operator_overloading_supported() {
-            var actual = new MyClass { Value = 42 };
-            var expected = new MyClass { Value = 42 };
+            var actual = new MyValue<object> { Value = 42 };
+            var expected = new MyValue<object> { Value = 42 };
             Expression<Func<bool>> expression = () => actual == expected;
             var expect = new BinaryExpect((BinaryExpression)expression.Body, new ExpectValue(actual), new ExpectValue(expected));
 
