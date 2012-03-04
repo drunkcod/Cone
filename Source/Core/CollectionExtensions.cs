@@ -12,6 +12,10 @@ namespace Cone.Core
             return result;
         }
 
+        public static TOutput[] ConvertAll<TInput, TOutput>(this TInput[] self, Converter<TInput, TOutput> converter) {
+            return Array.ConvertAll(self, converter);
+        }
+
         public static void ForEachIf<T>(this T[] self, Func<T, bool> predicate, Action<T> @do) {
             for(var i = 0; i != self.Length; ++i) {
                 var x = self[i];

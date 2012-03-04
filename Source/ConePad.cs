@@ -9,18 +9,31 @@ namespace Cone
 {
     public static class ConePad
     {
+        class ConePadLogger : IConeLogger
+        {
+            public void Info(string format, object[] args) {
+                Console.Out.Write(format, args);
+            }
+
+            public void Failure(ConeTestFailure failure) {
+                Console.Out.WriteLine(" {0}", failure.Context);
+                Console.Out.WriteLine("\t\t{0}: {1}", failure.TestName, failure.Message);
+            }
+
+        }
+
         public static void RunTests() {
             Verify.GetPluginAssemblies = () => new[]{ typeof(Verify).Assembly };
-            RunTests(new ConsoleLogger(), Assembly.GetCallingAssembly().GetTypes().Where(ConePadSuiteBuilder.SupportedType));
+            RunTests(new ConePadLogger(), Assembly.GetCallingAssembly().GetTypes().Where(ConePadSuiteBuilder.SupportedType));
         }
 
         public static void RunTests(TextWriter output, IEnumerable<Assembly> assemblies) {
             Verify.GetPluginAssemblies = () => assemblies.Concat(new[]{ typeof(Verify).Assembly });
-            RunTests(new ConsoleLogger(), assemblies.SelectMany(x => x.GetTypes()).Where(ConePadSuiteBuilder.SupportedType));
+            RunTests(new ConePadLogger(), assemblies.SelectMany(x => x.GetTypes()).Where(ConePadSuiteBuilder.SupportedType));
         }
 
         public static void RunTests(params Type[] suiteTypes) {
-            RunTests(new ConsoleLogger(), suiteTypes);
+            RunTests(new ConePadLogger(), suiteTypes);
         }
 
         public static void RunTests(IConeLogger log, IEnumerable<Type> suites) {

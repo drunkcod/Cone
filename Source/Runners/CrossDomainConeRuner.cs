@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Cone.Core;
 
 namespace Cone.Runners
 {
@@ -9,7 +10,7 @@ namespace Cone.Runners
         void Failure(string file, int line, int column, string message);
     }
  
-    public class CrossDomainLoggerAdapater : IConeLogger
+    class CrossDomainLoggerAdapater : IConeLogger
     {
         readonly ICrossDomainLogger crossDomainLog;
             
@@ -39,9 +40,9 @@ namespace Cone.Runners
             public string[] AssemblyPaths;
 
             public void Execute() {
-                 new SimpleConeRunner() {
+                new SimpleConeRunner() {
                     ShowProgress = false
-                }.RunTests(new CrossDomainLoggerAdapater(Logger), Array.ConvertAll(AssemblyPaths, Assembly.LoadFrom));             
+                }.RunTests(new CrossDomainLoggerAdapater(Logger), AssemblyPaths.ConvertAll(Assembly.LoadFrom));             
             }
         }
 

@@ -25,7 +25,7 @@ namespace Cone.Build
         }
 
         void ICrossDomainLogger.Info(string message) {
-            BuildEngine.LogMessageEvent(new BuildMessageEventArgs(message.TrimEnd(), string.Empty, SenderName, MessageImportance.High));
+            BuildEngine.LogMessageEvent(new BuildMessageEventArgs(message, string.Empty, SenderName, MessageImportance.High));
         }
 
         void ICrossDomainLogger.Failure(string file, int line, int column, string message) {

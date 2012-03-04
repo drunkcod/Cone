@@ -10,7 +10,7 @@ namespace Conesole
     {
         static void Main(string[] args) {
             try {
-                new SimpleConeRunner().RunTests(new ConsoleLogger(), args.Select(x => Assembly.LoadFrom(x)));
+                new SimpleConeRunner().RunTests(new ConsoleLogger(), args.Select(Assembly.LoadFrom));
             } catch(ReflectionTypeLoadException tle) {
                 foreach(var item in tle.LoaderExceptions)
                     Console.Error.WriteLine("{0}\n---", item);
