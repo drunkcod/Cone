@@ -13,11 +13,11 @@ let clean what =
 let build args =
   let fxPath = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()  
   let msBuild4 = Path.Combine(fxPath, @"..\v4.0.30319\MSBuild.exe")
-  let build =
+  use build =
     Process.Start(
       ProcessStartInfo(
         FileName = msBuild4,
-        Arguments = "Cone.sln /nologo /m /v:m /p:Configuration=Release " + args ,
+        Arguments = "Cone.sln /nologo /m /v:m /p:Configuration=Release " + args,
         UseShellExecute = false))
   build.WaitForExit()
   Console.WriteLine("build {0} exited with {1}", args, build.ExitCode)
@@ -32,7 +32,7 @@ let copyAddin() =
   true
 
 let test() =
-  let nunit = 
+  use nunit = 
     Process.Start(
       ProcessStartInfo(
         FileName = Path.Combine(NUnitPath, "nunit-console.exe"),

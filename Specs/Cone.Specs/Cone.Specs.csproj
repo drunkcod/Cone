@@ -94,7 +94,7 @@
   -->
   <UsingTask AssemblyFile="$(SolutionDir)\Tools\Cone.Build.dll" TaskName="ConeTask" />
   <Target Name="AfterBuild">
-    <ConeTask Path="$(OutputPath)\$(AssemblyName).dll" />
+      <ConeTask Path="$(OutputPath)\$(AssemblyName).dll" />
     <RemoveDir Directories="obj" />
   </Target>
 </Project>
