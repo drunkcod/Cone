@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -24,13 +23,12 @@ namespace Cone.Runners
             var results = new ConePadTestResults(log) {
                 ShowProgress = ShowProgress
             };
-            var time = Stopwatch.StartNew();
+            results.BeginTestSession();
             var suites = suiteTypes.Select(suiteBuilder.BuildSuite);
             foreach(var test in suites.SelectMany(x => x.GetRunList()))
                 test.Run(results);
-            log.Info("\n");
+            results.EndTestSession();
             results.Report();
-            log.Info("\nDone in {0}.\n", time.Elapsed);
         }
     }
 }

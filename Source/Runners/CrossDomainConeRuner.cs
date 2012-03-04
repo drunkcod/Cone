@@ -34,10 +34,9 @@ namespace Cone.Runners
     public class CrossDomainConeRunner : MarshalByRefObject
     {
         public void RunTests(ICrossDomainLogger logger, string[] assemblyPaths) {
-            
              new SimpleConeRunner() {
                 ShowProgress = false
-            }.RunTests(new CrossDomainLoggerAdapater(logger), assemblyPaths.Select(x => Assembly.LoadFrom(x)));             
+            }.RunTests(new CrossDomainLoggerAdapater(logger), Array.ConvertAll(assemblyPaths, Assembly.LoadFrom));             
         }
     }
 }

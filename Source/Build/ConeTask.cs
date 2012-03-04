@@ -5,7 +5,7 @@ using Microsoft.Build.Framework;
 namespace Cone.Build
 {
     [Serializable]
-    public class CrossDomainCall
+    public class CrossDomainRunTestsCommand
     {
         public ICrossDomainLogger Logger;
         public string[] Paths;
@@ -30,7 +30,7 @@ namespace Cone.Build
                     ShadowCopyFiles = "true"
                 });
 
-                testDomain.DoCallBack(new CrossDomainCall { Logger = this, Paths = new[] { Path } }.Execute);
+                testDomain.DoCallBack(new CrossDomainRunTestsCommand { Logger = this, Paths = new[] { Path } }.Execute);
                 AppDomain.Unload(testDomain);
                 return noFailures;
             } catch(Exception e) {

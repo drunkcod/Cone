@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Cone.Core;
+using System.Diagnostics;
 using System.Reflection;
+using Cone.Core;
 
 namespace Cone.Runners
 {
@@ -45,6 +46,7 @@ namespace Cone.Runners
         readonly IConeLogger log;
         readonly List<KeyValuePair<ConePadTest, Exception>> failures = new List<KeyValuePair<ConePadTest, Exception>>();
         int passed;
+        Stopwatch timeTaken;
 
         public ConePadTestResults(IConeLogger log) {
             this.log = log;
@@ -55,6 +57,9 @@ namespace Cone.Runners
         int Passed { get { return passed; } }
         int Failed { get { return failures.Count; } }
         int Total { get { return Passed + Failed; } }
+
+        public void BeginTestSession() { timeTaken = Stopwatch.StartNew(); }
+        public void EndTestSession() { timeTaken.Stop(); }
 
         public void BeginTest(ConePadTest test, Action<ITestResult> collectResult) {
             var result = new ConePadTestResult(test);
@@ -81,22 +86,24 @@ namespace Cone.Runners
         }
 
         public void Report() {
+            LogProgress("\n");
             log.Info("{0} tests ran. {1} Passed. {2} Failed.\n", Total, Passed, Failed);
 
-            if(failures.Count == 0)
-                return;
-            log.Info("Failures:\n");
+            if(failures.Count > 0) {
+                log.Info("Failures:\n");
 
-            for(var i = 0; i != failures.Count; ++i) {
-                var item = failures[i];
-                var ex = item.Value;
-                var invocationException = ex as TargetInvocationException;
-                if (invocationException != null)
-                    ex = invocationException.InnerException;
-                log.Info("  {0,2})", i + 1);
+                for(var i = 0; i != failures.Count; ++i) {
+                    var item = failures[i];
+                    var ex = item.Value;
+                    var invocationException = ex as TargetInvocationException;
+                    if (invocationException != null)
+                        ex = invocationException.InnerException;
+                    log.Info("  {0,2})", i + 1);
 
-                log.Failure(new ConeTestFailure(item.Key.Name, ex, 3));
+                    log.Failure(new ConeTestFailure(item.Key.Name, ex, 3));
+                }
             }
+            log.Info("\nDone in {0}.\n", timeTaken.Elapsed);
         }
     }
 }
