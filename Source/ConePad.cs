@@ -263,9 +263,9 @@ namespace Cone
                     ShowProgress = ShowProgress
                 };
                 var time = Stopwatch.StartNew();
-                var suites = ConvertAll(suiteTypes.ToArray(), suiteBuilder.BuildSuite);
-                var runLists = ConvertAll(suites, x => x.GetRunList());
-                ConvertAll(runLists.SelectMany(x => x).ToArray(), x => { x.Run(results); return true; });
+                var suites = suiteTypes.Select(suiteBuilder.BuildSuite);
+                foreach(var test in suites.SelectMany(x => x.GetRunList()))
+                    test.Run(results);
                 log.Info("\n");
                 results.Report();
                 log.Info("\nDone in {0}.\n", time.Elapsed);

@@ -21,7 +21,7 @@ namespace Cone
     {
         static int TheAnswer = 42;
 
-        public void should_evaluate_only_once() {
+        public void evaluates_expression_only_once() {
             var counter = new Counter();
             try {
                 Verify.That(() => counter.Next() != 0);
