@@ -89,7 +89,7 @@ namespace Cone.Runners
             public void Run(ConePadTestResults results) {
                 fixture.WithInitialized(new NullTestResult(), () => {
                     var runner = new TestExecutor(fixture);              
-                    tests.ForEach(item => results.BeginTest(item, result => runner.Run(item, result)));
+                    tests.ForEach(item => results.CollectTestResult(item, result => runner.Run(item, result)));
                 }, ex => { });
             }
         }

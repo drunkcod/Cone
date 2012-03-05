@@ -11,15 +11,16 @@ namespace Cone
     {
         class ConePadLogger : IConeLogger
         {
+            TextWriter Output { get { return Console.Out; } }
+
             public void Info(string format, object[] args) {
-                Console.Out.Write(format, args);
+                Output.Write(format, args);
             }
 
-            public void Failure(ConeTestFailure failure) {
-                Console.Out.WriteLine(" {0}", failure.Context);
-                Console.Out.WriteLine("\t\t{0}: {1}", failure.TestName, failure.Message);
+            public void Failure(ConeTestFailure failure) {                
+                Output.WriteLine(" {0}) {1}", failure.SequenceNumber, failure.Context);
+                Output.WriteLine("\t\t{0}: {1}", failure.TestName, failure.Message);
             }
-
         }
 
         public static void RunTests() {

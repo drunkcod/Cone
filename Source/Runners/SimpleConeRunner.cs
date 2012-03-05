@@ -23,11 +23,11 @@ namespace Cone.Runners
             var results = new ConePadTestResults(log) {
                 ShowProgress = ShowProgress
             };
-            results.BeginTestSession();
+            results.BeginSession();
             var suites = suiteTypes.Select(suiteBuilder.BuildSuite);
             foreach(var test in suites.SelectMany(x => x.GetRunList()))
                 test.Run(results);
-            results.EndTestSession();
+            results.EndSession();
             results.Report();
         }
     }

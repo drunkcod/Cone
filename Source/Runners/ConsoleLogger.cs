@@ -9,7 +9,7 @@ namespace Cone.Runners
         }
 
         public void Failure(ConeTestFailure failure) {
-            Console.Out.WriteLine("{0}({1}) - {2}", failure.File, failure.Line, failure.Context);
+            Console.Out.WriteLine("{0}. {1}({2}) - {3}", failure.SequenceNumber, failure.File, failure.Line, failure.Context);
             Console.Out.WriteLine("{0}: {1}", failure.TestName, failure.Message);
         }
     }

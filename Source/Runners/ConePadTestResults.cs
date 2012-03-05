@@ -58,26 +58,38 @@ namespace Cone.Runners
         int Failed { get { return failures.Count; } }
         int Total { get { return Passed + Failed; } }
 
-        public void BeginTestSession() { timeTaken = Stopwatch.StartNew(); }
-        public void EndTestSession() { timeTaken.Stop(); }
+        public void BeginSession() { timeTaken = Stopwatch.StartNew(); }
+        public void EndSession() { timeTaken.Stop(); }
 
-        public void BeginTest(ConePadTest test, Action<ITestResult> collectResult) {
+        public void CollectTestResult(ConePadTest test, Action<ITestResult> collectResult) {
             var result = new ConePadTestResult(test);
             collectResult(result);
             switch(result.Status) {
-                case TestStatus.Success: 
-                    ++passed; 
-                    LogProgress(".");
+                case TestStatus.Success:
+                    AddSuccess(test);
                     break;
                 case TestStatus.SetupFailure: goto case TestStatus.Failure;
                 case TestStatus.Failure:
-                    failures.Add(new KeyValuePair<ConePadTest,Exception>(test, result.Error)); 
-                    LogProgress("F");
+                    AddFailure(test, result.Error);
                     break;
                 case TestStatus.Pending:
-                    LogProgress("?");
+                    AddPending(test);
                     break;
             }
+        }
+
+        void AddSuccess(ConePadTest test) {
+            ++passed;
+            LogProgress(".");
+        }
+
+        void AddFailure(ConePadTest test, Exception error) {
+            failures.Add(new KeyValuePair<ConePadTest, Exception>(test, error));
+            LogProgress("F");
+        }
+
+        void AddPending(ConePadTest test) {
+            LogProgress("?");
         }
 
         void LogProgress(string message) {
@@ -91,17 +103,13 @@ namespace Cone.Runners
 
             if(failures.Count > 0) {
                 log.Info("Failures:\n");
-
-                for(var i = 0; i != failures.Count; ++i) {
-                    var item = failures[i];
+                failures.ForEach((i, item) => {
                     var ex = item.Value;
                     var invocationException = ex as TargetInvocationException;
                     if (invocationException != null)
                         ex = invocationException.InnerException;
-                    log.Info("  {0,2})", i + 1);
-
-                    log.Failure(new ConeTestFailure(item.Key.Name, ex, 3));
-                }
+                    log.Failure(new ConeTestFailure(i + 1, item.Key.Name, ex, 3));
+                });
             }
             log.Info("\nDone in {0}.\n", timeTaken.Elapsed);
         }
