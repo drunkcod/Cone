@@ -14,6 +14,8 @@ namespace Cone.Runners
     {
         readonly ICrossDomainLogger crossDomainLog;
             
+        public bool ShowProgress { get; set; }
+
         public CrossDomainLoggerAdapater(ICrossDomainLogger crossDomainLog) {
             this.crossDomainLog = crossDomainLog;
         }
@@ -29,6 +31,16 @@ namespace Cone.Runners
                 failure.Column,
                 failure.Message);
         }
+
+        void IConeLogger.Success(IConeTest test) {
+            if(ShowProgress)
+                crossDomainLog.Info(".");
+        }
+
+        void IConeLogger.Pending(IConeTest test) {
+            if(ShowProgress)
+                crossDomainLog.Info("?");
+        }
     }
 
     public class CrossDomainConeRunner
@@ -42,7 +54,9 @@ namespace Cone.Runners
             public void Execute() {
                 new SimpleConeRunner() {
                     ShowProgress = false
-                }.RunTests(new CrossDomainLoggerAdapater(Logger), AssemblyPaths.ConvertAll(Assembly.LoadFrom));             
+                }.RunTests(new CrossDomainLoggerAdapater(Logger) {
+                    ShowProgress = false
+                }, AssemblyPaths.ConvertAll(Assembly.LoadFrom));             
             }
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Cone.Core;
 using Cone.Runners;
 
 namespace Cone
@@ -13,13 +14,21 @@ namespace Cone
         {
             TextWriter Output { get { return Console.Out; } }
 
-            public void Info(string format, object[] args) {
+            public void Info(string format, params object[] args) {
                 Output.Write(format, args);
             }
 
             public void Failure(ConeTestFailure failure) {                
                 Output.WriteLine(" {0}) {1}", failure.SequenceNumber, failure.Context);
                 Output.WriteLine("\t\t{0}: {1}", failure.TestName, failure.Message);
+            }
+
+            public void Success(IConeTest test) {
+                Info(".");
+            }
+
+            public void Pending(IConeTest test) {
+                Info("?");
             }
         }
 

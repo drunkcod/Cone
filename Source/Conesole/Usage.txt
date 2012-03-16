@@ -1,0 +1,4 @@
+﻿Usage is: Console [inputfiles] [options]
+
+Options are:
+	-?				Get help (you're viewing it).

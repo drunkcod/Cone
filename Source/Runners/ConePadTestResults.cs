@@ -80,7 +80,7 @@ namespace Cone.Runners
 
         void AddSuccess(ConePadTest test) {
             ++passed;
-            LogProgress(".");
+            log.Success(test);
         }
 
         void AddFailure(ConePadTest test, Exception error) {
@@ -89,14 +89,14 @@ namespace Cone.Runners
         }
 
         void AddPending(ConePadTest test) {
-            LogProgress("?");
+            log.Pending(test);
         }
 
         void LogProgress(string message) {
             if(ShowProgress)
                 log.Info(message);
         }
-
+        
         public void Report() {
             LogProgress("\n");
             log.Info("{0} tests ran. {1} Passed. {2} Failed.\n", Total, Passed, Failed);
