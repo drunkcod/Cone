@@ -60,6 +60,7 @@
     <Compile Include="Core\ICollectionFormatter.cs" />
     <Compile Include="Core\IConeAttributeProvider.cs" />
     <Compile Include="Core\ILGeneratorExtensions.cs" />
+    <Compile Include="Core\MissingLinq.cs" />
     <Compile Include="Core\PendingGuardTestContext.cs" />
     <Compile Include="Core\TimedTestContext.cs" />
     <Compile Include="Expectations\MethodExpectProviderLookup.cs" />
@@ -74,7 +75,7 @@
     <Compile Include="Runners\ConePadSuite.cs" />
     <Compile Include="Runners\ConePadSuiteBuilder.cs" />
     <Compile Include="Runners\ConePadTest.cs" />
-    <Compile Include="Runners\ConePadTestResults.cs" />
+    <Compile Include="Runners\TestSession.cs" />
     <Compile Include="Runners\ConsoleLogger.cs" />
     <Compile Include="Runners\CrossDomainConeRuner.cs" />
     <Compile Include="Runners\IConeLogger.cs" />

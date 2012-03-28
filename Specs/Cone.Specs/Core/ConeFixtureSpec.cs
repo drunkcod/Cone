@@ -1,4 +1,5 @@
 ﻿using System;
+using Cone.Helpers;
 using Moq;
 
 namespace Cone.Core
@@ -47,26 +48,24 @@ namespace Cone.Core
         public void report_setup_error_when_failing_to_establish_context() {
             var fixture = new ConeFixture(typeof(BrokenFixture));
             (fixture as IConeFixtureMethodSink).BeforeAll(typeof(BrokenFixture).GetMethod("InvalidOperation"));
-            var result = new Mock<ITestResult>();
-            Verify.That(() => fixture.Create(result.Object.BeforeFailure) == false);
-            result.Verify(x => x.BeforeFailure(It.IsAny<Exception>()));
+            
+            var error = new ActionSpy<Exception>();
+            Verify.That(() => fixture.Create(error) == false);
+            Verify.That(() => error.HasBeenCalled);
         }
 
         public void report_teardown_error_when_failing_release_context() {
             var fixture = new ConeFixture(typeof(BrokenFixture));
             (fixture as IConeFixtureMethodSink).AfterAll(typeof(BrokenFixture).GetMethod("InvalidOperation"));
-            var result = new Mock<ITestResult>();
-            fixture.Release(result.Object.AfterFailure);
-            result.Verify(x => x.AfterFailure(It.IsAny<Exception>()));
+            var error = new ActionSpy<Exception>();
+            fixture.Release(error);
+            Verify.That(() => error.HasBeenCalled);
         }
-
         
         void CreateAndReleaseFixture(Type type, Func<Type, object> fixtureBuilder) {
             var fixture = new ConeFixture(type, fixtureBuilder);
-            var result = new Mock<ITestResult>().Object;
             fixture.Create(Nop);
-            fixture.Release(result.AfterFailure);
+            fixture.Release(Nop);
         }
-
     }
 }

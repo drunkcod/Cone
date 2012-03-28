@@ -6,7 +6,7 @@ using Cone.Core;
 
 namespace Cone.Runners
 {
-    class ConePadTestResults
+    class TestSession
     {
         class ConePadTestResult : ITestResult
         {
@@ -43,24 +43,23 @@ namespace Cone.Runners
         }
 
         readonly IConeLogger log;
-        readonly List<KeyValuePair<ConePadTest, Exception>> failures = new List<KeyValuePair<ConePadTest, Exception>>();
-        int passed;
+        readonly List<KeyValuePair<IConeTest, Exception>> failures = new List<KeyValuePair<IConeTest, Exception>>();
         Stopwatch timeTaken;
 
-        public ConePadTestResults(IConeLogger log) {
+        public TestSession(IConeLogger log) {
             this.log = log;
         }
 
         public bool ShowProgress { get; set; }
 
-        int Passed { get { return passed; } }
+        private int Passed { get; set; }
         int Failed { get { return failures.Count; } }
         int Total { get { return Passed + Failed; } }
 
         public void BeginSession() { timeTaken = Stopwatch.StartNew(); }
         public void EndSession() { timeTaken.Stop(); }
 
-        public void CollectTestResult(ConePadTest test, Action<ITestResult> collectResult) {
+        public void CollectResult(ConePadTest test, Action<ITestResult> collectResult) {
             var result = new ConePadTestResult(test);
             collectResult(result);
             switch(result.Status) {
@@ -77,17 +76,17 @@ namespace Cone.Runners
             }
         }
 
-        void AddSuccess(ConePadTest test) {
-            ++passed;
+        void AddSuccess(IConeTest test) {
+            ++Passed;
             log.Success(test);
         }
 
-        void AddFailure(ConePadTest test, Exception error) {
-            failures.Add(new KeyValuePair<ConePadTest, Exception>(test, error));
+        void AddFailure(IConeTest test, Exception error) {
+            failures.Add(new KeyValuePair<IConeTest, Exception>(test, error));
             LogProgress("F");
         }
 
-        void AddPending(ConePadTest test) {
+        void AddPending(IConeTest test) {
             log.Pending(test);
         }
 

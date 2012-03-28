@@ -4,6 +4,10 @@ namespace Cone.Helpers
 {
     public class ActionSpy<T> : MethodSpy
     {
+        static void Nop(T _) { }
+        
+        public ActionSpy() : base(new Action<T>(Nop)) { }
+        
         public ActionSpy(Action<T> inner) : base(inner) { }
 
         public static implicit operator Action<T>(ActionSpy<T> self) {

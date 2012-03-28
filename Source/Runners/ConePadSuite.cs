@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Cone.Core;
 using System.Reflection;
+using Cone.Core;
 
 namespace Cone.Runners
 {
@@ -70,15 +70,12 @@ namespace Cone.Runners
                 action(fixture);
             }
 
-            public IEnumerable<ConePadSuite> GetRunList() {
-                return subsuites.SelectMany(x => x.GetRunList()).Concat(new[]{ this });
-            }
-
-            public void Run(ConePadTestResults results) {
+            public void Run(TestSession session) {
                 fixture.WithInitialized(() => {
                     var runner = new TestExecutor(fixture);              
-                    tests.ForEach(item => results.CollectTestResult(item, result => runner.Run(item, result)));
+                    tests.ForEach(item => session.CollectResult(item, result => runner.Run(item, result)));
                 }, _ => { }, _ => { });
+                subsuites.ForEach(x => x.Run(session));
             }
         }
 }

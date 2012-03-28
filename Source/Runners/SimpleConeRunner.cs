@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Cone.Core;
 
 namespace Cone.Runners
 {
@@ -22,13 +23,14 @@ namespace Cone.Runners
         }
 
         public void RunTests(IEnumerable<Type> suiteTypes) {
-            var results = new ConePadTestResults(log) {
+            var results = new TestSession(log) {
                 ShowProgress = ShowProgress
             };
             results.BeginSession();
-            var suites = suiteTypes.Select(suiteBuilder.BuildSuite);
-            foreach(var test in suites.SelectMany(x => x.GetRunList()))
-                test.Run(results);
+            suiteTypes
+                .Select(suiteBuilder.BuildSuite)
+                .ForEach(x => x.Run(results));
+
             results.EndSession();
             results.Report();
         }
