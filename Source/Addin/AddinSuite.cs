@@ -42,20 +42,21 @@ namespace Cone.Addin
             listener.SuiteStarted(TestName);
             var result = new TestResult(this);
             try {
-                fixture.WithInitialized(new NUnitTestResultAdapter(result), () => {
+                ITestResult resultAdapter = new NUnitTestResultAdapter(result);
+                fixture.WithInitialized(() => {
                     foreach(Test test in Tests)
                         if(filter.Pass(test))
                             result.AddResult(test.Run(listener, filter));
                 }, ex => {
+                    resultAdapter.BeforeFailure(ex);
                     foreach(Test item in Tests) {
                         var failure = new TestResult(item);
                         listener.TestStarted(item.TestName);
                         failure.Error(ex, FailureSite.SetUp);
                         listener.TestFinished(failure);
                         result.AddResult(failure);
-                    }
-                        
-                });
+                    }                     
+                }, resultAdapter.AfterFailure);
             } finally {
                 listener.SuiteFinished(result);
             }

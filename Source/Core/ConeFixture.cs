@@ -39,34 +39,33 @@ namespace Cone.Core
             return method.Invoke(Fixture, parameters);
         }
 
-        public void WithInitialized(ITestResult result, Action action, Action<Exception> error) {
+        public void WithInitialized(Action action, Action<Exception> beforeFailure, Action<Exception> afterFailure) {
             try {
-                if(Create(result, error))
+                if(Create(beforeFailure))
                     action();
             } finally {
-                Release(result);
+                Release(afterFailure);
             }
         }
 
-        public bool Create(ITestResult result, Action<Exception> error) {
+        public bool Create(Action<Exception> error) {
             try {
                 EnsureFixture();
                 InvokeAll(beforeAll);
                 return true;
             } catch(Exception ex) {
-                result.BeforeFailure(ex);
                 error(ex);
                 return false;
             }
         }
 
-        public void Release(ITestResult result) {
+        public void Release(Action<Exception> error) {
             try {
                 InvokeAll(afterAll);
                 DoCleanup();
                 DoDispose();
             } catch(Exception ex) {
-                result.AfterFailure(ex);
+                error(ex);
             } finally { fixture = null; }
         }
 

@@ -10,8 +10,7 @@ namespace Cone.Runners
     {
         class ConePadTestResult : ITestResult
         {
-            TestStatus testStatus;
-            IConeTest test;
+            readonly IConeTest test;
 
             public ConePadTestResult(IConeTest test) {
                 this.test = test;
@@ -21,24 +20,24 @@ namespace Cone.Runners
 
             public ITestName TestName { get { return test.Name; } }
 
-            public TestStatus Status { get { return testStatus; } }
+            public TestStatus Status { get; private set; }
 
-            void ITestResult.Success() { testStatus = TestStatus.Success; }
+            void ITestResult.Success() { Status = TestStatus.Success; }
 
-            void ITestResult.Pending(string reason) { testStatus = TestStatus.Pending; }
+            void ITestResult.Pending(string reason) { Status = TestStatus.Pending; }
             
             void ITestResult.BeforeFailure(Exception ex) { 
-                testStatus = TestStatus.SetupFailure;
+                Status = TestStatus.SetupFailure;
                 Error = ex;
             }
 
             void ITestResult.TestFailure(Exception ex) {
-                testStatus = TestStatus.Failure;
+                Status = TestStatus.Failure;
                 Error = ex;
             }
             
             void ITestResult.AfterFailure(Exception ex) {
-                testStatus = TestStatus.TeardownFailure;
+                Status = TestStatus.TeardownFailure;
                 Error = ex;
             }
         }

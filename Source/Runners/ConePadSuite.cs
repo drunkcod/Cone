@@ -74,23 +74,11 @@ namespace Cone.Runners
                 return subsuites.SelectMany(x => x.GetRunList()).Concat(new[]{ this });
             }
 
-            class NullTestResult : ITestResult 
-            {
-                public ITestName TestName { get { return null; } }
-                public TestStatus Status { get { return TestStatus.ReadyToRun; } }
-
-                public void Success() { }
-                public void Pending(string reason) { }
-                public void BeforeFailure(Exception ex) { }
-                public void TestFailure(Exception ex) { }
-                public void AfterFailure(Exception ex) { }
-            }
-
             public void Run(ConePadTestResults results) {
-                fixture.WithInitialized(new NullTestResult(), () => {
+                fixture.WithInitialized(() => {
                     var runner = new TestExecutor(fixture);              
                     tests.ForEach(item => results.CollectTestResult(item, result => runner.Run(item, result)));
-                }, ex => { });
+                }, _ => { }, _ => { });
             }
         }
 }
