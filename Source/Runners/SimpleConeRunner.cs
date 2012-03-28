@@ -8,18 +8,20 @@ namespace Cone.Runners
     public class SimpleConeRunner
     {
         readonly ConePadSuiteBuilder suiteBuilder = new ConePadSuiteBuilder();
+        readonly IConeLogger log;
 
         public bool ShowProgress { get; set; }
 
-        public SimpleConeRunner() {
+        public SimpleConeRunner(IConeLogger log) {
             ShowProgress = true;
+            this.log = log;
         }
             
-        public void RunTests(IConeLogger log, IEnumerable<Assembly> assemblies) {
-            RunTests(log, assemblies.SelectMany(x => x.GetTypes()).Where(ConePadSuiteBuilder.SupportedType));
+        public void RunTests(IEnumerable<Assembly> assemblies) {
+            RunTests(assemblies.SelectMany(x => x.GetTypes()).Where(ConePadSuiteBuilder.SupportedType));
         }
 
-        public void RunTests(IConeLogger log, IEnumerable<Type> suiteTypes) {
+        public void RunTests(IEnumerable<Type> suiteTypes) {
             var results = new ConePadTestResults(log) {
                 ShowProgress = ShowProgress
             };

@@ -25,7 +25,7 @@ namespace Conesole
 
             var logger = new ConsoleLogger();
             try {
-                new SimpleConeRunner().RunTests(logger, args.Select(Assembly.LoadFrom));
+                new SimpleConeRunner(logger).RunTests(args.Select(Assembly.LoadFrom));
             } catch(ReflectionTypeLoadException tle) {
                 foreach(var item in tle.LoaderExceptions)
                     Console.Error.WriteLine("{0}\n---", item);

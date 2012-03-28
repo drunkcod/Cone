@@ -48,8 +48,8 @@ namespace Cone
 
         public static void RunTests(IConeLogger log, IEnumerable<Type> suites) {
             log.Info("Running tests!\n----------------------------------\n");
-            var runner = new SimpleConeRunner();
-            runner.RunTests(log, suites);
+            var runner = new SimpleConeRunner(log);
+            runner.RunTests(suites);
         }
     }
 }
