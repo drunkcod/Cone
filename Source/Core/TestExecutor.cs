@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace Cone.Core
 {
@@ -20,7 +19,7 @@ namespace Cone.Core
 
     public class TestExecutor
     {
-        static IEnumerable<ITestContext> ExecutionContext = new ITestContext[] {
+        static readonly IEnumerable<ITestContext> ExecutionContext = new ITestContext[] {
             new TestMethodContext(),
 		    new PendingGuardTestContext(),
             new FixtureBeforeContext(), 
@@ -28,7 +27,7 @@ namespace Cone.Core
         };
 
         readonly IConeFixture fixture;
-        IEnumerable<ITestContext> fixtureContext = new ITestContext[0];
+        readonly IEnumerable<ITestContext> fixtureContext = new ITestContext[0];
 
         public TestExecutor(IConeFixture fixture) {
             this.fixture = fixture;

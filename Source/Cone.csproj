@@ -60,7 +60,7 @@
     <Compile Include="Core\ICollectionFormatter.cs" />
     <Compile Include="Core\IConeAttributeProvider.cs" />
     <Compile Include="Core\ILGeneratorExtensions.cs" />
-    <Compile Include="Core\MissingLinq.cs" />
+    <Compile Include="Core\MissingLinqExtensions.cs" />
     <Compile Include="Core\PendingGuardTestContext.cs" />
     <Compile Include="Core\TimedTestContext.cs" />
     <Compile Include="Expectations\MethodExpectProviderLookup.cs" />
