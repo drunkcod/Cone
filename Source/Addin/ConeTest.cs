@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Cone.Core;
 using NUnit.Core;
@@ -24,6 +25,8 @@ namespace Cone.Addin
             Parent = suite;
             this.testExecutor = testExecutor; 
         }
+		
+		IEnumerable<string> IConeTest.Categories { get { return Categories.Cast<string>(); } }
 
         public override object Fixture {
             get { return Parent.Fixture; }

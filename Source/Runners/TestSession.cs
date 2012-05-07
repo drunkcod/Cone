@@ -6,13 +6,13 @@ using Cone.Core;
 
 namespace Cone.Runners
 {
-    class TestSession
+    public class TestSession
     {
-        class ConePadTestResult : ITestResult
+        class SessionTestResult : ITestResult
         {
             readonly IConeTest test;
 
-            public ConePadTestResult(IConeTest test) {
+            public SessionTestResult(IConeTest test) {
                 this.test = test;
             }
 
@@ -51,29 +51,39 @@ namespace Cone.Runners
         }
 
         public bool ShowProgress { get; set; }
+		public Predicate<IConeTest> ShouldSkipTest = _ => false; 
+		public Predicate<IConeFixture> ShouldSkipFixture = _ => false; 
 
-        private int Passed { get; set; }
+        int Passed;
         int Failed { get { return failures.Count; } }
-        int Total { get { return Passed + Failed; } }
+        int Total { get { return Passed + Failed + Skipped; } }
+		int Skipped;
 
         public void BeginSession() { timeTaken = Stopwatch.StartNew(); }
         public void EndSession() { timeTaken.Stop(); }
 
-        public void CollectResult(ConePadTest test, Action<ITestResult> collectResult) {
-            var result = new ConePadTestResult(test);
-            collectResult(result);
-            switch(result.Status) {
-                case TestStatus.Success:
-                    AddSuccess(test);
-                    break;
-                case TestStatus.SetupFailure: goto case TestStatus.Failure;
-                case TestStatus.Failure:
-                    AddFailure(test, result.Error);
-                    break;
-                case TestStatus.Pending:
-                    AddPending(test);
-                    break;
-            }
+        public void CollectResults(IEnumerable<IConeTest> tests, Action<IConeTest, ITestResult> collectResult) {
+			tests.ForEach(test => {
+				if(ShouldSkipTest(test)) { 
+					++Skipped;
+					return;
+				}
+
+				var result = new SessionTestResult(test);
+				collectResult(test, result);
+				switch(result.Status) {
+					case TestStatus.Success:
+						AddSuccess(test);
+						break;
+					case TestStatus.SetupFailure: goto case TestStatus.Failure;
+					case TestStatus.Failure:
+						AddFailure(test, result.Error);
+						break;
+					case TestStatus.Pending:
+						AddPending(test);
+						break;
+				}
+			});
         }
 
         void AddSuccess(IConeTest test) {
@@ -96,8 +106,7 @@ namespace Cone.Runners
         }
         
         public void Report() {
-            LogProgress("\n");
-            log.Info("{0} tests ran. {1} Passed. {2} Failed.\n", Total, Passed, Failed);
+            log.Info("\n{0} tests ran. {1} Passed. {2} Failed. ({3} Skipped)\n", Total, Passed, Failed, Skipped);
 
             if(failures.Count > 0) {
                 log.Info("Failures:\n");

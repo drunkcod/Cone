@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 using Cone.Core;
 
 namespace Cone.Runners
@@ -22,6 +23,7 @@ namespace Cone.Runners
         public ITestName Name { get { return name; } }
 
         IConeAttributeProvider IConeTest.Attributes { get { return attributes; } }
+		IEnumerable<string> IConeTest.Categories { get { return fixture.Categories; } }
         void IConeTest.Run(ITestResult result) { method.Invoke(fixture.Fixture, args); }
     }
 }

@@ -14,16 +14,20 @@ namespace Cone.Core
         readonly List<MethodInfo> afterEachWithResult = new List<MethodInfo>();
         readonly List<MethodInfo> afterAll = new List<MethodInfo>();
         object fixture;
+		IEnumerable<string> categories; 
 
-        public ConeFixture(Type fixtureType): this(fixtureType, NewFixture) 
+        public ConeFixture(Type fixtureType, IEnumerable<string> categories): this(fixtureType, categories, NewFixture) 
         { }
 
-        public ConeFixture(Type fixtureType, Func<Type,object> fixtureBuilder) {
+        public ConeFixture(Type fixtureType, IEnumerable<string> categories, Func<Type,object> fixtureBuilder) {
             this.fixtureType = fixtureType;
+			this.categories = categories;
             this.fixtureBuilder = fixtureBuilder;
         }
 
         public event EventHandler Before;
+
+		public IEnumerable<string> Categories { get { return categories; } } 
 
         void ITestInterceptor.Before() { 
             InvokeAll(beforeEach, null);

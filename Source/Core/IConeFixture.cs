@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Cone.Core
 {
@@ -6,5 +7,6 @@ namespace Cone.Core
     {
         object Fixture { get; }
         Type FixtureType { get; }
+		IEnumerable<string> Categories { get; }
     }
 }

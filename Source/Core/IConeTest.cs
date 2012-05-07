@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
 
 namespace Cone.Core
 {
@@ -6,6 +6,7 @@ namespace Cone.Core
     {
         ITestName Name { get; }
 		IConeAttributeProvider Attributes { get; }
+		IEnumerable<string> Categories { get; }
 		void Run(ITestResult testResult);
     }
 }

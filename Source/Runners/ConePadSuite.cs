@@ -11,11 +11,9 @@ namespace Cone.Runners
             class ConePadTestMethodSink : IConeTestMethodSink
             {
                 readonly IConeFixture fixture;
-                readonly ConeTestNamer names;
 
-                public ConePadTestMethodSink(IConeFixture fixture, ConeTestNamer names) {
+                public ConePadTestMethodSink(IConeFixture fixture) {
                     this.fixture = fixture;
-                    this.names = names;
                 }
 
                 public Action<MethodInfo, object[], IConeAttributeProvider> TestFound;
@@ -57,7 +55,7 @@ namespace Cone.Runners
             public void AddCategories(IEnumerable<string> categories) { }
             
             public void WithTestMethodSink(ConeTestNamer testNamer, Action<IConeTestMethodSink> action) {
-                var testSink = new ConePadTestMethodSink(fixture, testNamer);
+                var testSink = new ConePadTestMethodSink(fixture);
                 testSink.TestFound += (method, args, attributes) => tests.Add(NewTest(testNamer, method, args, attributes));
                 action(testSink);
             }
@@ -71,10 +69,12 @@ namespace Cone.Runners
             }
 
             public void Run(TestSession session) {
-                fixture.WithInitialized(() => {
-                    var runner = new TestExecutor(fixture);              
-                    tests.ForEach(item => session.CollectResult(item, result => runner.Run(item, result)));
-                }, _ => { }, _ => { });
+				if(!session.ShouldSkipFixture(fixture)) {
+					fixture.WithInitialized(() => {
+						var runner = new TestExecutor(fixture);              
+						session.CollectResults(tests.Cast<IConeTest>(), runner.Run);
+					}, _ => { }, _ => { });
+				}
                 subsuites.ForEach(x => x.Run(session));
             }
         }

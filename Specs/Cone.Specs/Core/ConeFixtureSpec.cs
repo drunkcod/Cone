@@ -32,7 +32,7 @@ namespace Cone.Core
         static class StaticFixture { }
 
         public void supports_static_fixtures() {
-            var fixture = new ConeFixture(typeof(StaticFixture));
+            var fixture = FixtureFor(typeof(StaticFixture));
             var result = new Mock<ITestResult>().Object;
             fixture.Create(Nop);
             fixture.Release(result.AfterFailure);
@@ -46,7 +46,7 @@ namespace Cone.Core
         }
         
         public void report_setup_error_when_failing_to_establish_context() {
-            var fixture = new ConeFixture(typeof(BrokenFixture));
+            var fixture = FixtureFor(typeof(BrokenFixture));
             (fixture as IConeFixtureMethodSink).BeforeAll(typeof(BrokenFixture).GetMethod("InvalidOperation"));
             
             var error = new ActionSpy<Exception>();
@@ -55,15 +55,17 @@ namespace Cone.Core
         }
 
         public void report_teardown_error_when_failing_release_context() {
-            var fixture = new ConeFixture(typeof(BrokenFixture));
+            var fixture = FixtureFor(typeof(BrokenFixture));
             (fixture as IConeFixtureMethodSink).AfterAll(typeof(BrokenFixture).GetMethod("InvalidOperation"));
             var error = new ActionSpy<Exception>();
             fixture.Release(error);
             Verify.That(() => error.HasBeenCalled);
         }
+	
+		ConeFixture FixtureFor(Type type) { return new ConeFixture(type, new string[0]); }
         
         void CreateAndReleaseFixture(Type type, Func<Type, object> fixtureBuilder) {
-            var fixture = new ConeFixture(type, fixtureBuilder);
+            var fixture = new ConeFixture(type, new string[0], fixtureBuilder);
             fixture.Create(Nop);
             fixture.Release(Nop);
         }

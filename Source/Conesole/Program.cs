@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,8 +9,12 @@ namespace Conesole
 {
     class ConesoleConfiguration
     {
-        static ConesoleConfiguration ParseCommandlineArgs(string[] args) {
-            return new ConesoleConfiguration();
+        public IEnumerable<string> AssemblyPaths;
+
+        public static ConesoleConfiguration ParseCommandlineArgs(string[] args) {
+            return new ConesoleConfiguration {
+                AssemblyPaths = args
+            };
         }
     }
 
@@ -22,18 +27,25 @@ namespace Conesole
                 }
                 return -1;
             }
+			var config = ConesoleConfiguration.ParseCommandlineArgs(args);
 
-            var logger = new ConsoleLogger();
             try {
-                new SimpleConeRunner(logger).RunTests(args.Select(Assembly.LoadFrom));
-            } catch(ReflectionTypeLoadException tle) {
-                foreach(var item in tle.LoaderExceptions)
+				var results = new TestSession(new ConsoleLogger());
+				results.ShouldSkipFixture = x => x.Categories.Contains("Acceptance"); 
+				results.ShouldSkipTest = x => x.Categories.Contains("Acceptance"); 
+                new SimpleConeRunner().RunTests(results, LoadTestAssemblies(config));
+            } catch (ReflectionTypeLoadException tle) {
+                foreach (var item in tle.LoaderExceptions)
                     Console.Error.WriteLine("{0}\n---", item);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 Console.Error.WriteLine(e);
                 return -1;
             }
             return 0;
         }
+
+    	static IEnumerable<Assembly> LoadTestAssemblies(ConesoleConfiguration config) {
+    		return config.AssemblyPaths.Select(Assembly.LoadFrom);
+    	}
     }
 }

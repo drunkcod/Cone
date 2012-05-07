@@ -3,7 +3,7 @@ using Cone.Core;
 
 namespace Cone.Runners
 {
-    public enum ConsoleLoggerVerbosity {
+    public enum LoggerVerbosity {
         Default,
         TestName
     }
@@ -14,7 +14,7 @@ namespace Cone.Runners
             Console.Out.Write(format, args);
         }
 
-        public ConsoleLoggerVerbosity Verbosity;
+        public LoggerVerbosity Verbosity;
 
         public void Failure(ConeTestFailure failure) {
             Console.Out.WriteLine("{0}. {1}({2}) - {3}", failure.SequenceNumber, failure.File, failure.Line, failure.Context);
@@ -23,8 +23,8 @@ namespace Cone.Runners
 
         public void Success(IConeTest test) {
             switch(Verbosity) {
-                case ConsoleLoggerVerbosity.Default: Info("."); break;
-                case ConsoleLoggerVerbosity.TestName: Info("{0}\n", test.Name.FullName); break;
+                case LoggerVerbosity.Default: Info("."); break;
+                case LoggerVerbosity.TestName: Info("{0}\n", test.Name.FullName); break;
             }
         }
 

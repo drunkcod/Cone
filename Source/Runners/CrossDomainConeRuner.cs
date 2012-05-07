@@ -52,12 +52,15 @@ namespace Cone.Runners
             public string[] AssemblyPaths;
 
             public void Execute() {
-                new SimpleConeRunner(new CrossDomainLoggerAdapater(Logger) {
+				var log = new CrossDomainLoggerAdapater(Logger) {
                     ShowProgress = false
-                }) {
-                    ShowProgress = false
-                }.RunTests(AssemblyPaths.ConvertAll(Assembly.LoadFrom));             
+                };
+                new SimpleConeRunner().RunTests(new TestSession(log), LoadTestAssemblies());             
             }
+
+        	Assembly[] LoadTestAssemblies() {
+        		return AssemblyPaths.ConvertAll(Assembly.LoadFrom);
+        	}
         }
 
         public static void RunTestsInTemporaryDomain(ICrossDomainLogger logger, string applicationBase, string[] assemblyPaths) {

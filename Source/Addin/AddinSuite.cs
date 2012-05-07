@@ -17,7 +17,7 @@ namespace Cone.Addin
 
         internal AddinSuite(Type type, IFixtureDescription description) : base(description.SuiteName, description.TestName) {
             this.suiteType = description.SuiteType;
-            this.fixture = new ConeFixture(type);
+            this.fixture = new ConeFixture(type, description.Categories);
             this.fixture.Before += SetVerifyContext;          
             this.testExecutor = new TestExecutor(this.fixture);
 
