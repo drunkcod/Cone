@@ -60,6 +60,7 @@
     <Compile Include="Core\ICollectionFormatter.cs" />
     <Compile Include="Core\IConeAttributeProvider.cs" />
     <Compile Include="Core\ILGeneratorExtensions.cs" />
+    <Compile Include="Core\IRowData.cs" />
     <Compile Include="Core\MissingLinqExtensions.cs" />
     <Compile Include="Core\PendingGuardTestContext.cs" />
     <Compile Include="Core\TimedTestContext.cs" />
@@ -111,7 +112,6 @@
     <Compile Include="Core\IConeFixture.cs" />
     <Compile Include="Core\IConeTest.cs" />
     <Compile Include="Core\IFormatter.cs" />
-    <Compile Include="IRowData.cs" />
     <Compile Include="ITestDescription.cs" />
     <Compile Include="ITestInterceptor.cs" />
     <Compile Include="ITestResult.cs" />
