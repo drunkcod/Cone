@@ -195,6 +195,11 @@ namespace Cone.Core
             VerifyFormat(() => getAnswer(), "getAnswer()");
         }
 
+		public void as_expression() {
+			var items = new List<object[]>{ new[] { "Hello" } };
+			VerifyFormat(() => (items[0][0] as string), "(items[0][0] as string)");
+		}
+
         [Context("nested expressions")]
         public class NestedExpressions
         {

@@ -42,6 +42,7 @@ namespace Cone.Core
                 case ExpressionType.Conditional: return FormatConditional(expression);
                 case ExpressionType.Convert: return FormatConvert(expression);
                 case ExpressionType.TypeIs: return FormatTypeIs(expression);
+				case ExpressionType.TypeAs: return FormatTypeAs(expression);
                 case ExpressionType.Invoke: return FormatInvoke(expression);
                     
                 default:
@@ -120,7 +121,12 @@ namespace Cone.Core
             return string.Format("{0} is {1}", Format(typeIs.Expression), FormatType(typeIs.TypeOperand));
         }
 
-        string FormatLambda(Expression expression) { return FormatLambda((LambdaExpression)expression); }
+        string FormatTypeAs(Expression expression) { return FormatTypeAs((UnaryExpression)expression); }
+        string FormatTypeAs(UnaryExpression typeAs) {
+            return string.Format("({0} as {1})", Format(typeAs.Operand), FormatType(typeAs.Type));
+        }
+
+		string FormatLambda(Expression expression) { return FormatLambda((LambdaExpression)expression); }
         string FormatLambda(LambdaExpression lambda) {
             var parameters = lambda.Parameters;
             return string.Format("{0} => {1}",
