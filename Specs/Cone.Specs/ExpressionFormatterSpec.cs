@@ -190,6 +190,8 @@ namespace Cone.Core
 
         public void nullable() { VerifyFormat(() => 4 == (int?)5, "4 == (int?)5"); }
 
+		public void generic_type() { VerifyFormat(() => new List<int>(), "new List<int>()"); }
+
         public void invoke_niladic() { 
             Func<int> getAnswer = () => 42;
             VerifyFormat(() => getAnswer(), "getAnswer()");

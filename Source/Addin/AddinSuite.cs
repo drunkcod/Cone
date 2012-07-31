@@ -43,11 +43,10 @@ namespace Cone.Addin
             var result = new TestResult(this);
             try {
                 ITestResult resultAdapter = new NUnitTestResultAdapter(result);
-                fixture.WithInitialized(() => 
-                    Tests.Cast<Test>()
-                        .Where(filter.Pass)
-                        .ForEach(x => x.Run(listener, filter)), 
-                    ex => {
+                fixture.WithInitialized(() => {
+                    foreach(var item in Tests.Cast<Test>().Where(filter.Pass).Select(x => x.Run(listener, filter)))
+ 						result.AddResult(item);
+					}, ex => {
                         resultAdapter.BeforeFailure(ex);
                         foreach(Test item in Tests) {
                             var failure = new TestResult(item);

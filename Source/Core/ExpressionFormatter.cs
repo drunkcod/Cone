@@ -66,8 +66,14 @@ namespace Cone.Core
                 case "System.Boolean": return "bool";
                 case "System.Int32": return "int";
                 default: 
-                    if(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-                        return string.Format("{0}?", FormatType(type.GetGenericArguments()[0]));
+                    if(type.IsGenericType) {
+						if(type.GetGenericTypeDefinition() == typeof(Nullable<>))
+							return string.Format("{0}?", FormatType(type.GetGenericArguments()[0]));
+						else {
+							var genArgs = Array.ConvertAll(type.GetGenericArguments(), FormatType);
+							return type.Name.Replace(string.Format("`{0}", genArgs.Length), "<" + string.Join(", ", genArgs) + ">");
+						}
+					}
                     return type.Name;
             }
         }
