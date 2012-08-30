@@ -30,10 +30,8 @@ namespace Conesole
 			var config = ConesoleConfiguration.ParseCommandlineArgs(args);
 
             try {
-				var results = new TestSession(new ConsoleLogger());
-				results.ShouldSkipFixture = x => x.Categories.Contains("Acceptance"); 
-				results.ShouldSkipTest = x => x.Categories.Contains("Acceptance"); 
-                new SimpleConeRunner().RunTests(results, LoadTestAssemblies(config));
+            	var results = new TestSession(new ConsoleLogger());
+            	new SimpleConeRunner().RunTests(results, LoadTestAssemblies(config));
             } catch (ReflectionTypeLoadException tle) {
                 foreach (var item in tle.LoaderExceptions)
                     Console.Error.WriteLine("{0}\n---", item);
