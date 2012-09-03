@@ -3,18 +3,43 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using Cone.Core;
 using Cone.Runners;
 
 namespace Conesole
 {
-    class ConesoleConfiguration
+    public class ConesoleConfiguration
     {
         public IEnumerable<string> AssemblyPaths;
+		public Predicate<IConeTest> IncludeTest = _ => true;
 
-        public static ConesoleConfiguration ParseCommandlineArgs(string[] args) {
-            return new ConesoleConfiguration {
-                AssemblyPaths = args
-            };
+        public static ConesoleConfiguration Parse(params string[] args) {
+			var argPattern = new Regex("^--(?<option>.+)=(?<value>.+$)");
+			var paths = new List<string>();
+			var result = new ConesoleConfiguration { AssemblyPaths = paths };
+			foreach(var item in args) {
+				var m = argPattern.Match(item);
+				if(!m.Success)
+					paths.Add(item);
+				else {
+					var option = m.Groups["option"].Value;
+					var valueRaw =  m.Groups["value"].Value;
+					if(!valueRaw.Contains("."))
+						valueRaw = "*." + valueRaw;
+					
+					var value = "^" + valueRaw
+						.Replace(".", "\\.")
+						.Replace("*", ".*?");
+
+					if(option == "include-tests") {
+						result.IncludeTest = x => Regex.IsMatch(x.Name.FullName, value);
+					} else {
+						throw new ArgumentException("Unknown option:" + option);
+					}
+				}
+			}
+			return result;
         }
     }
 
@@ -27,7 +52,7 @@ namespace Conesole
                 }
                 return -1;
             }
-			var config = ConesoleConfiguration.ParseCommandlineArgs(args);
+			var config = ConesoleConfiguration.Parse(args);
 
             try {
             	var results = new TestSession(new ConsoleLogger());

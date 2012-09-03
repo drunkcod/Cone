@@ -10,12 +10,13 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Cone</RootNamespace>
     <AssemblyName>Cone.Specs</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NUnitVersion>2.5.7.10213</NUnitVersion>
     <BuildPath>$(SolutionDir)Build</BuildPath>
     <OutputPath>$(BuildPath)</OutputPath>
     <IntermediateOutputPath>$(OutputPath)\obj\$(MSBuildProjectName)</IntermediateOutputPath>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -47,6 +48,7 @@
     <Compile Include="BooleanExpectSpec.cs" />
     <Compile Include="ConeFixtureSetupSpec.cs" />
     <Compile Include="ConeMethodClassifierSpec.cs" />
+    <Compile Include="Conesole\ConesoleConfigurationSpec.cs" />
     <Compile Include="ConeTestNamerSpec.cs" />
     <Compile Include="Core\ConeAttributeProviderSpec.cs" />
     <Compile Include="Core\ConeFixtureSpec.cs" />
@@ -85,7 +87,12 @@
       <Project>{A277DEC5-9AE8-433A-ADF8-8B084ACD3CE9}</Project>
       <Name>Cone.Samples</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\Conesole\Conesole.csproj">
+      <Project>{6096118B-3F90-453F-A5E9-9A9E117891F0}</Project>
+      <Name>Conesole</Name>
+    </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -94,7 +101,7 @@
   -->
   <UsingTask AssemblyFile="$(SolutionDir)\Tools\Cone.Build.dll" TaskName="ConeTask" />
   <Target Name="AfterBuild">
-      <ConeTask Path="$(OutputPath)\$(AssemblyName).dll" />
+    <ConeTask Path="$(OutputPath)\$(AssemblyName).dll" />
     <RemoveDir Directories="obj" />
   </Target>
 </Project>

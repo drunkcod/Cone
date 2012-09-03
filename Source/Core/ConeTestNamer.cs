@@ -5,24 +5,23 @@ using System.Text.RegularExpressions;
 
 namespace Cone.Core
 {
-    public class ConeTestNamer
+    public class ConeTestName : ITestName 
     {
-        class ConeTestName : ITestName 
-        {
-            readonly string context;
-            readonly string name;
+        readonly string context;
+        readonly string name;
  
-            public ConeTestName(string context, string name) {
-                this.context = context;
-                this.name = name;
-            }
-
-            public string Context { get { return context; } }
-            public string Name { get { return name; } }
-            public string FullName { get { return string.Format("{0}.{1}", Context, Name); } }
+        public ConeTestName(string context, string name) {
+            this.context = context;
+            this.name = name;
         }
 
+        public string Context { get { return context; } }
+        public string Name { get { return name; } }
+        public string FullName { get { return string.Format("{0}.{1}", Context, Name); } }
+    }
 
+	public class ConeTestNamer
+    {
         static readonly Regex NormalizeNamePattern = new Regex(@"_|\+", RegexOptions.Compiled);
 
         readonly ParameterFormatter formatter = new ParameterFormatter();
