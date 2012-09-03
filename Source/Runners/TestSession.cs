@@ -43,7 +43,7 @@ namespace Cone.Runners
         }
 
         readonly IConeLogger log;
-        readonly List<KeyValuePair<IConeTest, Exception>> failures = new List<KeyValuePair<IConeTest, Exception>>();
+        readonly List<ConeTestFailure> failures = new List<ConeTestFailure>();
         Stopwatch timeTaken;
 
         public TestSession(IConeLogger log) {
@@ -92,8 +92,12 @@ namespace Cone.Runners
         }
 
         void AddFailure(IConeTest test, Exception error) {
-            failures.Add(new KeyValuePair<IConeTest, Exception>(test, error));
-            LogProgress("F");
+            var invocationException = error as TargetInvocationException;
+            if (invocationException != null)
+                error = invocationException.InnerException;
+        	var failure = new ConeTestFailure(failures.Count + 1, test.Name, error, 3);
+			failures.Add(failure);
+            log.Failure(failure);
         }
 
         void AddPending(IConeTest test) {
@@ -110,12 +114,9 @@ namespace Cone.Runners
 
             if(failures.Count > 0) {
                 log.Info("Failures:\n");
-                failures.ForEach((i, item) => {
-                    var ex = item.Value;
-                    var invocationException = ex as TargetInvocationException;
-                    if (invocationException != null)
-                        ex = invocationException.InnerException;
-                    log.Failure(new ConeTestFailure(i + 1, item.Key.Name, ex, 3));
+                failures.ForEach(failure => {
+					log.Info("{0}. {1}({2}) - {3}", failure.SequenceNumber, failure.File, failure.Line, failure.Context);
+					log.Info("{0}: {1}", failure.TestName, failure.Message);
                 });
             }
             log.Info("\nDone in {0}.\n", timeTaken.Elapsed);

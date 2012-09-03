@@ -17,8 +17,10 @@ namespace Cone.Runners
         public LoggerVerbosity Verbosity;
 
         public void Failure(ConeTestFailure failure) {
-            Console.Out.WriteLine("{0}. {1}({2}) - {3}", failure.SequenceNumber, failure.File, failure.Line, failure.Context);
-            Console.Out.WriteLine("{0}: {1}", failure.TestName, failure.Message);
+			switch(Verbosity) {
+				case LoggerVerbosity.Default: Info("F"); break;
+                case LoggerVerbosity.TestName: WriteTestName(failure.Context, failure.TestName, ConsoleColor.Red); break;
+			}
         }
 
 		string[] context = new string[0];
@@ -26,20 +28,29 @@ namespace Cone.Runners
         public void Success(IConeTest test) {
             switch(Verbosity) {
                 case LoggerVerbosity.Default: Info("."); break;
-                case LoggerVerbosity.TestName: 
-					var parts = test.Name.Context.Split('.');
-					var skip = 0;
-					while(skip != context.Length && context[skip] == parts[skip])
-						++skip;
-					context = parts;
-					for(; skip != context.Length; ++skip)
-						Info("{0}{1}\n", new string(' ', skip << 1), context[skip]);
-					Info("{0}{1}\n", new string(' ', skip << 1), test.Name.Name); break;
+                case LoggerVerbosity.TestName: WriteTestName(test.Name.Context, test.Name.Name, ConsoleColor.Green); break;
             }
         }
 
         public void Pending(IConeTest test) {
-            Info("?");
+			switch(Verbosity) {
+				case LoggerVerbosity.Default: Info("?"); break;
+                case LoggerVerbosity.TestName: WriteTestName(test.Name.Context, test.Name.Name, ConsoleColor.Yellow); break;
+			}
         }
+
+		void WriteTestName(string contextName, string testName, ConsoleColor color) {
+			var parts = contextName.Split('.');
+			var skip = 0;
+			while(skip != context.Length && context[skip] == parts[skip])
+				++skip;
+			context = parts;
+			for(; skip != context.Length; ++skip)
+				Info("{0}{1}\n", new string(' ', skip << 1), context[skip]);
+			var tmp = Console.ForegroundColor;
+			Console.ForegroundColor = color;
+			Info("{0}{1}\n", new string(' ', skip << 1), testName);
+			Console.ForegroundColor = tmp;
+		}
     }
 }

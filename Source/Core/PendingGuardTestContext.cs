@@ -9,7 +9,7 @@ namespace Cone.Core
 			var pending = FirstPendingOrDefault(context.Attributes, FirstPendingOrDefault(context.Fixture.FixtureType.AsConeAttributeProvider(), null));
 			return pending == null 
 				? next 
-				: new TestContextStep((test, result) => ExpectFailure(pending.Reason, next, test, result));
+				: (test, result) => ExpectFailure(pending.Reason, next, test, result);
         }
 
         static void ExpectFailure(string reason, TestContextStep runTest, IConeTest test, ITestResult result) {
@@ -21,7 +21,7 @@ namespace Cone.Core
         }
 
         static IPendingAttribute FirstPendingOrDefault(IConeAttributeProvider attributes, IPendingAttribute defaultValue) {
-            return attributes.FirstOrDefault((IPendingAttribute x) => x.IsPending, defaultValue);
+            return attributes.FirstOrDefault(x => x.IsPending, defaultValue);
         }
 	}
 }

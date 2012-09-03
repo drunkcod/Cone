@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
 
 namespace Cone
@@ -21,9 +18,11 @@ namespace Cone
             TestName = testName.Name;
             Context = testName.Context;
             var errorLocation = new StackTrace(error, skipFrames, true).GetFrame(0);
-            File = errorLocation.GetFileName();
-            Line = errorLocation.GetFileLineNumber();
-            Column = errorLocation.GetFileColumnNumber();
+			if(errorLocation != null) {
+				File = errorLocation.GetFileName();
+				Line = errorLocation.GetFileLineNumber();
+				Column = errorLocation.GetFileColumnNumber();
+			}
             Message = error.Message;
         }
 
