@@ -21,10 +21,20 @@ namespace Cone.Runners
             Console.Out.WriteLine("{0}: {1}", failure.TestName, failure.Message);
         }
 
+		string[] context = new string[0];
+
         public void Success(IConeTest test) {
             switch(Verbosity) {
                 case LoggerVerbosity.Default: Info("."); break;
-                case LoggerVerbosity.TestName: Info("{0}\n", test.Name.FullName); break;
+                case LoggerVerbosity.TestName: 
+					var parts = test.Name.Context.Split('.');
+					var skip = 0;
+					while(skip != context.Length && context[skip] == parts[skip])
+						++skip;
+					context = parts;
+					for(; skip != context.Length; ++skip)
+						Info("{0}{1}\n", new string(' ', skip << 1), context[skip]);
+					Info("{0}{1}\n", new string(' ', skip << 1), test.Name.Name); break;
             }
         }
 

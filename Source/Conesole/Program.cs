@@ -13,27 +13,32 @@ namespace Conesole
     {
         public IEnumerable<string> AssemblyPaths;
 		public Predicate<IConeTest> IncludeTest = _ => true;
+		public LoggerVerbosity Verbosity = LoggerVerbosity.Default;
 
         public static ConesoleConfiguration Parse(params string[] args) {
 			var argPattern = new Regex("^--(?<option>.+)=(?<value>.+$)");
 			var paths = new List<string>();
 			var result = new ConesoleConfiguration { AssemblyPaths = paths };
 			foreach(var item in args) {
+				if(item == "--labels") {
+					result.Verbosity = LoggerVerbosity.TestName;
+					continue;
+				}
 				var m = argPattern.Match(item);
 				if(!m.Success)
 					paths.Add(item);
 				else {
 					var option = m.Groups["option"].Value;
 					var valueRaw =  m.Groups["value"].Value;
-					if(!valueRaw.Contains("."))
-						valueRaw = "*." + valueRaw;
-					
-					var value = "^" + valueRaw
-						.Replace("\\", "\\\\")
-						.Replace(".", "\\.")
-						.Replace("*", ".*?");
-
 					if(option == "include-tests") {
+						if(!valueRaw.Contains("."))
+							valueRaw = "*." + valueRaw;
+					
+						var value = "^" + valueRaw
+							.Replace("\\", "\\\\")
+							.Replace(".", "\\.")
+							.Replace("*", ".*?");
+
 						result.IncludeTest = x => Regex.IsMatch(x.Name.FullName, value);
 					} else {
 						throw new ArgumentException("Unknown option:" + option);
@@ -56,7 +61,7 @@ namespace Conesole
 			var config = ConesoleConfiguration.Parse(args);
 
             try {
-            	var results = new TestSession(new ConsoleLogger());
+            	var results = new TestSession(new ConsoleLogger { Verbosity = config.Verbosity });
 				results.ShouldSkipTest = x => !config.IncludeTest(x);
             	new SimpleConeRunner().RunTests(results, LoadTestAssemblies(config));
             } catch (ReflectionTypeLoadException tle) {
