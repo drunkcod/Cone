@@ -29,6 +29,7 @@ namespace Conesole
 						valueRaw = "*." + valueRaw;
 					
 					var value = "^" + valueRaw
+						.Replace("\\", "\\\\")
 						.Replace(".", "\\.")
 						.Replace("*", ".*?");
 
@@ -56,6 +57,7 @@ namespace Conesole
 
             try {
             	var results = new TestSession(new ConsoleLogger());
+				results.ShouldSkipTest = x => !config.IncludeTest(x);
             	new SimpleConeRunner().RunTests(results, LoadTestAssemblies(config));
             } catch (ReflectionTypeLoadException tle) {
                 foreach (var item in tle.LoaderExceptions)
