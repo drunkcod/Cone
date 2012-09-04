@@ -39,8 +39,8 @@ namespace Cone.Runners
             }
 
             readonly ConeFixture fixture;
-            readonly List<ConePadTest> tests = new List<ConePadTest>();
             readonly List<Lazy<ConePadSuite>> subsuites = new List<Lazy<ConePadSuite>>();
+            Lazy<List<ConePadTest>> tests;
 
             public ConePadSuite(ConeFixture fixture) {
                 this.fixture = fixture;
@@ -54,26 +54,27 @@ namespace Cone.Runners
 
             public void AddCategories(IEnumerable<string> categories) { }
             
-            public void WithTestMethodSink(ConeTestNamer testNamer, Action<IConeTestMethodSink> action) {
-                var testSink = new ConePadTestMethodSink(fixture);
-                testSink.TestFound += (method, args, attributes) => tests.Add(NewTest(testNamer, method, args, attributes));
-                action(testSink);
-            }
-
             ConePadTest NewTest(ConeTestNamer testNamer, MethodInfo method, object[] args, IConeAttributeProvider attributes) {
                 return new ConePadTest(testNamer.TestNameFor(Name, method, args), fixture, method, args, attributes);
             }
 
-            public void WithFixtureMethodSink(Action<IConeFixtureMethodSink> action) {
-                action(fixture);
-            }
+			public void DiscoverTests(ConeTestNamer names) {
+				tests = new Lazy<List<ConePadTest>>(() => {
+					var foundTests = new List<ConePadTest>();
+					var testSink = new ConePadTestMethodSink(fixture);
+					testSink.TestFound += (method, args, attributes) => foundTests.Add(NewTest(names, method, args, attributes));
+					var setup = new ConeFixtureSetup(fixture, testSink);
+					setup.CollectFixtureMethods(fixture.FixtureType);
+					return foundTests;
+				});
+			}
 
             public void Run(TestSession session) {
             	if(!session.IncludeFixture(fixture)) 
 					return;
             	
 				fixture.WithInitialized(
-            		() => session.CollectResults(tests.Cast<IConeTest>(), fixture), 
+            		() => session.CollectResults(tests.Value.Cast<IConeTest>(), fixture), 
             		_ => { }, 
             		_ => { });
 

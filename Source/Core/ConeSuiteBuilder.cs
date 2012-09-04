@@ -4,17 +4,6 @@ using System.Reflection;
 
 namespace Cone.Core
 {
-	static class IConeSuiteExtensions
-	{
-		public static void DiscoverTests(this IConeSuite self, ConeTestNamer names, Type type) {
-            self.WithTestMethodSink(names, testSink =>
-            self.WithFixtureMethodSink(fixtureSink => {
-                var setup = new ConeFixtureSetup(fixtureSink, testSink);
-                setup.CollectFixtureMethods(type);
-            }));
-		}
-	}
-
 	public class Lazy<T>
 	{
 		Func<T> getValue;
@@ -55,7 +44,7 @@ namespace Cone.Core
         TSuite BuildSuite(Type type, IFixtureDescription description) {
             var suite = NewSuite(type, description);
             suite.AddCategories(description.Categories);
-			suite.DiscoverTests(names, type);
+			suite.DiscoverTests(names);
             AddNestedContexts(type, suite);
             return suite;
         }

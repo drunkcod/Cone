@@ -134,7 +134,13 @@ namespace Cone.Addin
             action(fixture);
         }
 
-        IConeSuite AsSuite() { return (IConeSuite)this; }
+		public void DiscoverTests(ConeTestNamer names) {
+			WithTestMethodSink(names, testSink =>
+			WithFixtureMethodSink(fixtureSink => {
+				var setup = new ConeFixtureSetup(fixtureSink, testSink);
+				setup.CollectFixtureMethods(fixture.FixtureType);
+			}));
+		}
     }
 }
  
