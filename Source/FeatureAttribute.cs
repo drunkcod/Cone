@@ -9,7 +9,7 @@ namespace Cone
 
         public string GroupAs { get; set; }
 
-        string IFixtureDescription.SuiteName { get { return GroupAs ?? string.Empty; } }
+        string IFixtureDescription.SuiteName { get { return GroupAs ?? "Features"; } }
 
         string IFixtureDescription.SuiteType { get { return "Feature"; } }
 
