@@ -1,4 +1,5 @@
-﻿using Cone.Core;
+﻿using System;
+using Cone.Core;
 using Conesole;
 
 namespace Cone.Conesole
@@ -42,6 +43,10 @@ namespace Cone.Conesole
 			}
 		}
 
+		public void raises_ArgumentException_for_unknown_options() {
+			Verify.Throws<ArgumentException>.When(() => ConesoleConfiguration.Parse("--invalid-option"));
+		}
+
 		[Context("test filtering")]
 		public class ConsoleConfigurationTestFiltering
 		{
@@ -62,7 +67,6 @@ namespace Cone.Conesole
 				Verify.That(() => includeFoo.IncludeTest(new ConeTestStub().InContext("Context.A").WithName("Bar")));
 				Verify.That(() => includeFoo.IncludeTest(new ConeTestStub().InContext("Context.B").WithName("Baz")));
 			}
-
 		}
 	}
 }

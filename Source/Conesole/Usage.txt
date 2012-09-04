@@ -1,4 +1,7 @@
 ﻿Usage is: Console [inputfiles] [options]
 
 Options are:
-	-?				Get help (you're viewing it).
+	--help                      Get help (you're viewing it).
+	--labels                    Display test names while running.
+	--include-tests=pattern     Run only tests matchingt pattern.
+	                              '*' acts as wildcard.

@@ -10,7 +10,9 @@ namespace Cone.Runners
 
     public class ConsoleLogger : IConeLogger
     {
-        public void Info(string format, params object[] args) {
+		string[] context = new string[0];
+
+		public void Info(string format, params object[] args) {
             Console.Out.Write(format, args);
         }
 
@@ -23,21 +25,23 @@ namespace Cone.Runners
 			}
         }
 
-		string[] context = new string[0];
-
         public void Success(IConeTest test) {
             switch(Verbosity) {
                 case LoggerVerbosity.Default: Info("."); break;
-                case LoggerVerbosity.TestName: WriteTestName(test.Name.Context, test.Name.Name, ConsoleColor.Green); break;
+                case LoggerVerbosity.TestName: WriteTestName(test, ConsoleColor.Green); break;
             }
         }
 
         public void Pending(IConeTest test) {
 			switch(Verbosity) {
 				case LoggerVerbosity.Default: Info("?"); break;
-                case LoggerVerbosity.TestName: WriteTestName(test.Name.Context, test.Name.Name, ConsoleColor.Yellow); break;
+                case LoggerVerbosity.TestName: WriteTestName(test, ConsoleColor.Yellow); break;
 			}
         }
+
+		void WriteTestName(IConeTest test, ConsoleColor color) {
+			WriteTestName(test.Name.Context, test.Name.Name, color);
+		}
 
 		void WriteTestName(string contextName, string testName, ConsoleColor color) {
 			var parts = contextName.Split('.');
@@ -49,7 +53,7 @@ namespace Cone.Runners
 				Info("{0}{1}\n", new string(' ', skip << 1), context[skip]);
 			var tmp = Console.ForegroundColor;
 			Console.ForegroundColor = color;
-			Info("{0}{1}\n", new string(' ', skip << 1), testName);
+			Info("{0}- {1}\n", new string(' ', skip << 1), testName);
 			Console.ForegroundColor = tmp;
 		}
     }
