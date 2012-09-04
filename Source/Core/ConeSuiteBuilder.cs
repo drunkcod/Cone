@@ -4,6 +4,32 @@ using System.Reflection;
 
 namespace Cone.Core
 {
+	static class IConeSuiteExtensions
+	{
+		public static void DiscoverTests(this IConeSuite self, ConeTestNamer names, Type type) {
+            self.WithTestMethodSink(names, testSink =>
+            self.WithFixtureMethodSink(fixtureSink => {
+                var setup = new ConeFixtureSetup(fixtureSink, testSink);
+                setup.CollectFixtureMethods(type);
+            }));
+		}
+	}
+
+	public class Lazy<T>
+	{
+		Func<T> getValue;
+ 
+		public Lazy(Func<T> forceValue) {
+			getValue = () => {
+				var value = forceValue();
+				getValue = () => value;
+				return value;
+			};
+		}
+
+		public T Value { get { return getValue(); } }
+	}
+
     public abstract class ConeSuiteBuilder<TSuite> where TSuite : IConeSuite
     {
 		static readonly Type[] FixtureAttributes = new[]{ typeof(DescribeAttribute), typeof(FeatureAttribute) };
@@ -24,30 +50,26 @@ namespace Cone.Core
         }
 
         protected abstract TSuite NewSuite(Type type, IFixtureDescription description);
-        protected abstract void AddSubSuite(TSuite suite, TSuite subsuite);
+        protected abstract void AddSubSuite(TSuite suite, Lazy<TSuite> subsuite);
 
-        protected TSuite BuildSuite(Type type, IFixtureDescription description) {
+        TSuite BuildSuite(Type type, IFixtureDescription description) {
             var suite = NewSuite(type, description);
-            suite.WithTestMethodSink(names, testSink =>
-            suite.WithFixtureMethodSink(fixtureSink => {
-                var setup = new ConeFixtureSetup(fixtureSink, testSink);
-                setup.CollectFixtureMethods(type);
-            }));
-            AddNestedContexts(type, suite);
             suite.AddCategories(description.Categories);
+			suite.DiscoverTests(names, type);
+            AddNestedContexts(type, suite);
             return suite;
         }
 
         void AddNestedContexts(Type suiteType, TSuite suite) {
-            var description = new ContextDescription {
-                SuiteName = suite.Name
-            };
             ContextAttribute contextDescription;
             suiteType.GetNestedTypes(BindingFlags.Public).ForEach(item => {
                 if (item.TryGetAttribute<ContextAttribute, ContextAttribute>(out contextDescription)) {
-                    description.Categories = contextDescription.Categories;
-                    description.TestName = contextDescription.Context;
-                    AddSubSuite(suite, BuildSuite(item, description));
+					var description = new ContextDescription {
+						SuiteName = suite.Name,
+	                    Categories = contextDescription.Categories,
+						TestName = contextDescription.Context
+					};
+                    AddSubSuite(suite, new Lazy<TSuite>(() => BuildSuite(item, description)));
                 }
             });
         }

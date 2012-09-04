@@ -11,7 +11,7 @@ namespace Cone.Runners
 			};
         }
 
-        protected override void AddSubSuite(ConePadSuite suite, ConePadSuite subsuite) {
+        protected override void AddSubSuite(ConePadSuite suite, Lazy<ConePadSuite> subsuite) {
             suite.AddSubSuite(subsuite);
         }
     }
