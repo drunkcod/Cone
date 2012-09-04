@@ -14,6 +14,8 @@ namespace Cone.Core
         readonly List<MethodInfo> afterEachWithResult = new List<MethodInfo>();
         readonly List<MethodInfo> afterAll = new List<MethodInfo>();
         object fixture;
+		bool fixtureInitialized = false;
+
 		IEnumerable<string> categories; 
 
         public ConeFixture(Type fixtureType, IEnumerable<string> categories): this(fixtureType, categories, NewFixture) 
@@ -29,7 +31,11 @@ namespace Cone.Core
 
 		public IEnumerable<string> Categories { get { return categories; } } 
 
-        void ITestInterceptor.Before() { 
+        void ITestInterceptor.Before() {
+			if(!fixtureInitialized) {
+				InvokeAll(beforeAll);
+				fixtureInitialized = true;
+			}
             InvokeAll(beforeEach, null);
             Before.Raise(this, EventArgs.Empty);
         }
@@ -43,8 +49,8 @@ namespace Cone.Core
             return method.Invoke(Fixture, parameters);
         }
 
-        public void WithInitialized(Action action, Action<Exception> beforeFailure, Action<Exception> afterFailure) {
-            try {
+        public void WithInitialized(Action action, Action<Exception> beforeFailure, Action<Exception> afterFailure) {            
+			try {
                 if(Create(beforeFailure))
                     action();
             } finally {
@@ -55,7 +61,6 @@ namespace Cone.Core
         public bool Create(Action<Exception> error) {
             try {
                 EnsureFixture();
-                InvokeAll(beforeAll);
                 return true;
             } catch(Exception ex) {
                 error(ex);
@@ -64,8 +69,9 @@ namespace Cone.Core
         }
 
         public void Release(Action<Exception> error) {
-            try {
-                InvokeAll(afterAll);
+            try {				
+				if(fixtureInitialized)
+					InvokeAll(afterAll);
                 DoCleanup();
                 DoDispose();
             } catch(Exception ex) {

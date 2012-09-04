@@ -17,6 +17,7 @@ namespace Cone.Runners
         }
 
         public LoggerVerbosity Verbosity;
+		public ConsoleColor SuccessColor = ConsoleColor.Green;
 
         public void Failure(ConeTestFailure failure) {
 			switch(Verbosity) {
@@ -28,7 +29,7 @@ namespace Cone.Runners
         public void Success(IConeTest test) {
             switch(Verbosity) {
                 case LoggerVerbosity.Default: Info("."); break;
-                case LoggerVerbosity.TestName: WriteTestName(test, ConsoleColor.Green); break;
+                case LoggerVerbosity.TestName: WriteTestName(test, SuccessColor); break;
             }
         }
 

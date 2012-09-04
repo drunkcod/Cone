@@ -6,6 +6,7 @@ namespace Cone.Core
 {
     public abstract class ConeSuiteBuilder<TSuite> where TSuite : IConeSuite
     {
+		static readonly Type[] FixtureAttributes = new[]{ typeof(DescribeAttribute), typeof(FeatureAttribute) };
         readonly ConeTestNamer names = new ConeTestNamer(); 
 
         class ContextDescription : IFixtureDescription
@@ -16,7 +17,7 @@ namespace Cone.Core
             public string TestName { get; set; }
         }
 
-        public static bool SupportedType(Type type) { return type.HasAny(typeof(DescribeAttribute), typeof(FeatureAttribute)); } 
+        public static bool SupportedType(Type type) { return type.HasAny(FixtureAttributes); } 
 
         public TSuite BuildSuite(Type suiteType) {
             return BuildSuite(suiteType, DescriptionOf(suiteType));

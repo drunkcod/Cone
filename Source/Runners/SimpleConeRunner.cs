@@ -11,7 +11,8 @@ namespace Cone.Runners
         readonly ConePadSuiteBuilder suiteBuilder = new ConePadSuiteBuilder();
             
         public void RunTests(TestSession results, IEnumerable<Assembly> assemblies) {
-            RunTests(results, assemblies.SelectMany(x => x.GetTypes()).Where(ConePadSuiteBuilder.SupportedType));
+			var suites = assemblies.SelectMany(x => x.GetTypes()).Where(ConePadSuiteBuilder.SupportedType).ToList();
+            RunTests(results, suites);
         }
 
         public void RunTests(TestSession results ,IEnumerable<Type> suiteTypes) {

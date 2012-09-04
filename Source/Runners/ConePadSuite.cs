@@ -69,13 +69,14 @@ namespace Cone.Runners
             }
 
             public void Run(TestSession session) {
-				if(!session.ShouldSkipFixture(fixture)) {
-					fixture.WithInitialized(() => {
-						var runner = new TestExecutor(fixture);              
-						session.CollectResults(tests.Cast<IConeTest>(), runner.Run);
-					}, _ => { }, _ => { });
+				if(session.IncludeFixture(fixture)) {
+					fixture.WithInitialized(
+						() => session.CollectResults(tests.Cast<IConeTest>(), fixture), 
+						_ => { }, 
+						_ => { });
+
+	                subsuites.ForEach(x => x.Run(session));
 				}
-                subsuites.ForEach(x => x.Run(session));
             }
         }
 }

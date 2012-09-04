@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Cone.Core;
 using Conesole;
 
@@ -11,9 +12,15 @@ namespace Cone.Conesole
 		{
 			string name = string.Empty;
 			string context = string.Empty;
+			string[] categories = new string[0];
 
 			public ConeTestStub WithName(string name) {
 				this.name = name;
+				return this;
+			}
+
+			public ConeTestStub WithCategories(params string[] categories) {
+				this.categories= categories;
 				return this;
 			}
 
@@ -32,10 +39,7 @@ namespace Cone.Conesole
 				get { throw new System.NotImplementedException(); }
 			}
 
-			public System.Collections.Generic.IEnumerable<string> Categories
-			{
-				get { throw new System.NotImplementedException(); }
-			}
+			public IEnumerable<string> Categories { get { return categories; } }
 
 			public void Run(ITestResult testResult)
 			{
@@ -66,6 +70,11 @@ namespace Cone.Conesole
 				var includeFoo = ConesoleConfiguration.Parse("--include-tests=Context.*.B*");
 				Verify.That(() => includeFoo.IncludeTest(new ConeTestStub().InContext("Context.A").WithName("Bar")));
 				Verify.That(() => includeFoo.IncludeTest(new ConeTestStub().InContext("Context.B").WithName("Baz")));
+			}
+
+			public void exclude_category() {
+				var includeFoo = ConesoleConfiguration.Parse("--categories=!Acceptance");
+				Verify.That(() => !includeFoo.IncludeTest(new ConeTestStub().WithCategories("Acceptance")));
 			}
 		}
 	}

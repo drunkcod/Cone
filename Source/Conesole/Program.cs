@@ -9,6 +9,13 @@ using Cone.Runners;
 
 namespace Conesole
 {
+	static class PredicateExtensions
+	{
+		public static Predicate<T> And<T>(this Predicate<T> self, Predicate<T> andAlso) {
+			return x => self(x) && andAlso(x);
+		}
+	}
+
     public class ConesoleConfiguration
     {
 		const string OptionPrefix = "--";
@@ -16,7 +23,10 @@ namespace Conesole
 
         public IEnumerable<string> AssemblyPaths;
 		public Predicate<IConeTest> IncludeTest = _ => true;
+		public Predicate<IConeFixture> IncludeFixture = _ => true;  
+
 		public LoggerVerbosity Verbosity = LoggerVerbosity.Default;
+		public bool IsDryRun;
 
         public static ConesoleConfiguration Parse(params string[] args) {
 			var paths = new List<string>();
@@ -31,6 +41,11 @@ namespace Conesole
 
 			if(item == "--labels") {
 				Verbosity = LoggerVerbosity.TestName;
+				return true;
+			} 
+			
+			if(item == "--dry-run") {
+				IsDryRun = true;
 				return true;
 			}
 
@@ -49,8 +64,19 @@ namespace Conesole
 					.Replace(".", "\\.")
 					.Replace("*", ".*?");
 
-				IncludeTest = x => Regex.IsMatch(x.Name.FullName, value);
+				IncludeTest = IncludeTest.And(x => Regex.IsMatch(x.Name.FullName, value));
 			}
+			else if(option == "categories") {
+				var excluded = new HashSet<string>();
+				foreach(var category in valueRaw.Split(','))
+					if(category.StartsWith("!"))
+						excluded.Add(category.Substring(1));
+				IncludeFixture = IncludeFixture.And(x => !x.Categories.Any(excluded.Contains));
+				IncludeTest = IncludeTest.And(x => !x.Categories.Any(excluded.Contains));
+			}
+			else 
+				throw new ArgumentException("Unknown option:" + item);
+
 			return true;
 		}
     }
@@ -63,8 +89,15 @@ namespace Conesole
 
             try {
 				var config = ConesoleConfiguration.Parse(args);
-            	var results = new TestSession(new ConsoleLogger { Verbosity = config.Verbosity });
-				results.ShouldSkipTest = x => !config.IncludeTest(x);
+				var logger = new ConsoleLogger { Verbosity = config.Verbosity };
+            	var results = new TestSession(logger) {
+					IncludeFixture = config.IncludeFixture,
+					ShouldSkipTest = x => !config.IncludeTest(x)
+				};
+				if(config.IsDryRun) {
+					results.GetResultCollector = _ => (test, result) => result.Success();
+					logger.SuccessColor = ConsoleColor.DarkGray;
+				}
             	new SimpleConeRunner().RunTests(results, LoadTestAssemblies(config));
             } catch (ReflectionTypeLoadException tle) {
                 foreach (var item in tle.LoaderExceptions)

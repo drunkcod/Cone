@@ -52,7 +52,8 @@ namespace Cone.Runners
 
         public bool ShowProgress { get; set; }
 		public Predicate<IConeTest> ShouldSkipTest = _ => false; 
-		public Predicate<IConeFixture> ShouldSkipFixture = _ => false; 
+		public Predicate<IConeFixture> IncludeFixture = _ => true;
+		public Func<IConeFixture, Action<IConeTest, ITestResult>> GetResultCollector = x => new TestExecutor(x).Run; 
 
         int Passed;
         int Failed { get { return failures.Count; } }
@@ -62,7 +63,8 @@ namespace Cone.Runners
         public void BeginSession() { timeTaken = Stopwatch.StartNew(); }
         public void EndSession() { timeTaken.Stop(); }
 
-        public void CollectResults(IEnumerable<IConeTest> tests, Action<IConeTest, ITestResult> collectResult) {
+        public void CollectResults(IEnumerable<IConeTest> tests, IConeFixture fixture) {
+			var collectResult = GetResultCollector(fixture);
 			tests.ForEach(test => {
 				if(ShouldSkipTest(test)) { 
 					++Skipped;
