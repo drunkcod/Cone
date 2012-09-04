@@ -40,19 +40,22 @@ namespace Cone.Runners
 
             readonly ConeFixture fixture;
             readonly List<Lazy<ConePadSuite>> subsuites = new List<Lazy<ConePadSuite>>();
-            Lazy<List<ConePadTest>> tests;
+			readonly List<string> categories = new List<string>(); 
+
+			Lazy<List<ConePadTest>> tests;
 
             public ConePadSuite(ConeFixture fixture) {
                 this.fixture = fixture;
             }
 
             public string Name { get; set; }
+			public IEnumerable<string> Categories { get { return categories; } } 
             
             public void AddSubSuite(Lazy<ConePadSuite> suite) {
                 subsuites.Add(suite);
             }
 
-            public void AddCategories(IEnumerable<string> categories) { }
+            public void AddCategories(IEnumerable<string> categories) { this.categories.AddRange(categories); }
             
             ConePadTest NewTest(ConeTestNamer testNamer, MethodInfo method, object[] args, IConeAttributeProvider attributes) {
                 return new ConePadTest(testNamer.TestNameFor(Name, method, args), fixture, method, args, attributes);
@@ -70,7 +73,7 @@ namespace Cone.Runners
 			}
 
             public void Run(TestSession session) {
-            	if(!session.IncludeFixture(fixture)) 
+            	if(!session.IncludeSuite(this)) 
 					return;
             	
 				fixture.WithInitialized(

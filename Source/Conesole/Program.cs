@@ -23,7 +23,7 @@ namespace Conesole
 
         public IEnumerable<string> AssemblyPaths;
 		public Predicate<IConeTest> IncludeTest = _ => true;
-		public Predicate<IConeFixture> IncludeFixture = _ => true;  
+		public Predicate<IConeSuite> IncludeSuite = _ => true;  
 
 		public LoggerVerbosity Verbosity = LoggerVerbosity.Default;
 		public bool IsDryRun;
@@ -56,28 +56,37 @@ namespace Conesole
 			var option = m.Groups["option"].Value;
 			var valueRaw =  m.Groups["value"].Value;
 			if(option == "include-tests") {
-				if(!valueRaw.Contains("."))
-					valueRaw = "*." + valueRaw;
-					
-				var value = "^" + valueRaw
-					.Replace("\\", "\\\\")
-					.Replace(".", "\\.")
-					.Replace("*", ".*?");
+				var suitePattern = "*";
+				var parts = valueRaw.Split('.');
 
-				IncludeTest = IncludeTest.And(x => Regex.IsMatch(x.Name.FullName, value));
+				if(parts.Length > 1)
+					suitePattern = string.Join(".", parts, 0, parts.Length - 1);
+					
+				var testPatternRegex = CreatePatternRegex(suitePattern + "." + parts.Last());
+				var suitePatternRegex = CreatePatternRegex(suitePattern);
+
+				IncludeSuite = IncludeSuite.And(x => suitePatternRegex.IsMatch(x.Name));
+				IncludeTest = IncludeTest.And(x => testPatternRegex.IsMatch(x.Name.FullName));
 			}
 			else if(option == "categories") {
 				var excluded = new HashSet<string>();
 				foreach(var category in valueRaw.Split(','))
 					if(category.StartsWith("!"))
 						excluded.Add(category.Substring(1));
-				IncludeFixture = IncludeFixture.And(x => !x.Categories.Any(excluded.Contains));
+				IncludeSuite = IncludeSuite.And(x => !x.Categories.Any(excluded.Contains));
 				IncludeTest = IncludeTest.And(x => !x.Categories.Any(excluded.Contains));
 			}
 			else 
 				throw new ArgumentException("Unknown option:" + item);
 
 			return true;
+		}
+
+		static Regex CreatePatternRegex(string pattern) {
+			return new Regex("^" + pattern
+				.Replace("\\", "\\\\")
+				.Replace(".", "\\.")
+				.Replace("*", ".*?"));
 		}
     }
 
@@ -91,7 +100,7 @@ namespace Conesole
 				var config = ConesoleConfiguration.Parse(args);
 				var logger = new ConsoleLogger { Verbosity = config.Verbosity };
             	var results = new TestSession(logger) {
-					IncludeFixture = config.IncludeFixture,
+					IncludeSuite = config.IncludeSuite,
 					ShouldSkipTest = x => !config.IncludeTest(x)
 				};
 				if(config.IsDryRun) {

@@ -52,7 +52,7 @@ namespace Cone.Runners
 
         public bool ShowProgress { get; set; }
 		public Predicate<IConeTest> ShouldSkipTest = _ => false; 
-		public Predicate<IConeFixture> IncludeFixture = _ => true;
+		public Predicate<IConeSuite> IncludeSuite = _ => true;
 		public Func<IConeFixture, Action<IConeTest, ITestResult>> GetResultCollector = x => new TestExecutor(x).Run; 
 
         int Passed;

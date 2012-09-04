@@ -6,9 +6,9 @@ namespace Cone.Core
     public interface IConeSuite
     {
         string Name { get; }
+		IEnumerable<string> Categories { get; }
         void AddCategories(IEnumerable<string> categories);
-        //void WithTestMethodSink(ConeTestNamer testNamer, Action<IConeTestMethodSink> action);
-        //void WithFixtureMethodSink(Action<IConeFixtureMethodSink> action);
+
 		void DiscoverTests(ConeTestNamer names);
     }
 }
