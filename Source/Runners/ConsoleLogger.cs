@@ -54,7 +54,7 @@ namespace Cone.Runners
 				Info("{0}{1}\n", new string(' ', skip << 1), context[skip]);
 			var tmp = Console.ForegroundColor;
 			Console.ForegroundColor = color;
-			Info("{0}- {1}\n", new string(' ', skip << 1), testName);
+			Info("{0}* {1}\n", new string(' ', skip << 1), testName);
 			Console.ForegroundColor = tmp;
 		}
     }

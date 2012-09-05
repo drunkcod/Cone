@@ -11,24 +11,36 @@ namespace Cone.Runners
             class ConePadTestMethodSink : IConeTestMethodSink
             {
                 readonly IConeFixture fixture;
+				readonly ConeTestNamer names;
+				readonly string context;
 
-                public ConePadTestMethodSink(IConeFixture fixture) {
+                public ConePadTestMethodSink(ConeTestNamer names, IConeFixture fixture, string context) {
                     this.fixture = fixture;
+					this.names = names;
+					this.context = context;
                 }
 
-                public Action<MethodInfo, object[], IConeAttributeProvider> TestFound;
+                public Action<MethodInfo, object[], ITestName, IConeAttributeProvider> TestFound;
 
-                void IConeTestMethodSink.Test(MethodInfo method) { TestFound(method, null, method.AsConeAttributeProvider()); }
+                void IConeTestMethodSink.Test(MethodInfo method) { 
+					TestFound(method, null, names.TestNameFor(context, method, null) , method.AsConeAttributeProvider()); 
+				}
 
                 public void RowTest(MethodInfo method, IEnumerable<IRowData> rows) {
                     foreach (var item in rows) {
                         var attributes = method.AsConeAttributeProvider();
                         if(item.IsPending) {
                             attributes = new ConeAttributeProvider(method.GetCustomAttributes(true).Concat(new[]{ new PendingAttribute() }));
-                        }
-                        TestFound(method, item.Parameters, attributes);
+                        }				
+                        TestFound(method, item.Parameters, GetDisplayName(method, item), attributes);
                     }
                 }
+
+				ITestName GetDisplayName(MethodInfo method, IRowData item) {
+					if(item.DisplayAs == null)
+						return names.TestNameFor(context, method, item.Parameters);
+					return new ConeTestName(context, item.DisplayAs);
+				}
 
                 public void RowSource(MethodInfo method) {
                     var rows = ((IEnumerable<IRowTestData>)method.Invoke(fixture.Fixture, null))
@@ -40,7 +52,7 @@ namespace Cone.Runners
 
             readonly ConeFixture fixture;
             readonly List<Lazy<ConePadSuite>> subsuites = new List<Lazy<ConePadSuite>>();
-			readonly List<string> categories = new List<string>(); 
+			readonly List<string> categories = new List<string>();
 
 			Lazy<List<ConePadTest>> tests;
 
@@ -57,15 +69,16 @@ namespace Cone.Runners
 
             public void AddCategories(IEnumerable<string> categories) { this.categories.AddRange(categories); }
             
-            ConePadTest NewTest(ConeTestNamer testNamer, MethodInfo method, object[] args, IConeAttributeProvider attributes) {
-                return new ConePadTest(testNamer.TestNameFor(Name, method, args), fixture, method, args, attributes);
+            ConePadTest NewTest(ITestName displayName, MethodInfo method, object[] args, IConeAttributeProvider attributes) {
+				return new ConePadTest(displayName, fixture, method, args, attributes);
             }
 
 			public void DiscoverTests(ConeTestNamer names) {
 				tests = new Lazy<List<ConePadTest>>(() => {
 					var foundTests = new List<ConePadTest>();
-					var testSink = new ConePadTestMethodSink(fixture);
-					testSink.TestFound += (method, args, attributes) => foundTests.Add(NewTest(names, method, args, attributes));
+					var testSink = new ConePadTestMethodSink(names, fixture, Name);
+					testSink.TestFound += (method, args, displayName, attributes) => 
+						foundTests.Add(NewTest(displayName, method, args, attributes));
 					var setup = new ConeFixtureSetup(fixture, testSink);
 					setup.CollectFixtureMethods(fixture.FixtureType);
 					return foundTests;

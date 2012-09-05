@@ -18,7 +18,7 @@ namespace Cone
             this.parameters = parameters;
         }
 
-        public string DisplayAs  { get { return name ?? method.Name; } }
+        public string DisplayAs  { get { return name; } }
 
         public MethodInfo Method { get { return method; } }
 
