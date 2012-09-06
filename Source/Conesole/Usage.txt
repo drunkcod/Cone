@@ -1,7 +1,13 @@
 ﻿Usage is: Console [inputfiles] [options]
 
 Options are:
-	--help                      Get help (you're viewing it).
-	--labels                    Display test names while running.
-	--include-tests=pattern     Run only tests matchingt pattern.
-	                              '*' acts as wildcard.
+	--help                                Get help (you're viewing it).
+	
+	--labels                              Display test names while running.
+	
+	--include-tests=<pattern>             Run only tests matchingt pattern.
+	                                      '*' acts as wildcard.
+	
+	--dry-run                             Show tests that would have run.
+	
+	--categories=<include>,!<exclude>     Select categories to run.
