@@ -12,7 +12,11 @@ namespace Conesole
 	static class PredicateExtensions
 	{
 		public static Predicate<T> And<T>(this Predicate<T> self, Predicate<T> andAlso) {
-			return x => self(x) && andAlso(x);
+			return self == null ? andAlso : x => self(x) && andAlso(x);
+		}
+
+		public static Predicate<T> Or<T>(this Predicate<T> self, Predicate<T> orElse) {
+			return self ==  null ? orElse : x => self(x) || orElse(x);
 		}
 	}
 
@@ -22,7 +26,7 @@ namespace Conesole
 		readonly Regex OptionPattern = new Regex(string.Format("^{0}(?<option>.+)=(?<value>.+$)", OptionPrefix));
 
         public IEnumerable<string> AssemblyPaths;
-		public Predicate<IConeTest> IncludeTest = _ => true;
+		public Predicate<IConeTest> IncludeTest;
 		public Predicate<IConeSuite> IncludeSuite = _ => true;  
 
 		public LoggerVerbosity Verbosity = LoggerVerbosity.Default;
@@ -32,6 +36,8 @@ namespace Conesole
 			var paths = new List<string>();
 			var result = new ConesoleConfiguration { AssemblyPaths = paths };
         	paths.AddRange(args.Where(item => !result.ParseOption(item)));
+			if(result.IncludeTest == null)
+				result.IncludeTest = _ => true;
         	return result;
         }
 
@@ -65,8 +71,8 @@ namespace Conesole
 				var testPatternRegex = CreatePatternRegex(suitePattern + "." + parts.Last());
 				var suitePatternRegex = CreatePatternRegex(suitePattern);
 
-				IncludeSuite = IncludeSuite.And(x => suitePatternRegex.IsMatch(x.Name));
-				IncludeTest = IncludeTest.And(x => testPatternRegex.IsMatch(x.Name.FullName));
+				IncludeSuite = IncludeSuite.Or(x => suitePatternRegex.IsMatch(x.Name));
+				IncludeTest = IncludeTest.Or(x => testPatternRegex.IsMatch(x.Name.FullName));
 			}
 			else if(option == "categories") {
 				var excluded = new HashSet<string>();

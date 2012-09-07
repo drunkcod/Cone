@@ -60,6 +60,12 @@ namespace Cone.Conesole
 				Verify.That(() => !includeFoo.IncludeTest(new ConeTestStub().WithName("Bar")));
 			}
 
+			public void merges_multiple_includes() {
+				var includeFoo = ConesoleConfiguration.Parse("--include-tests=*.Foo", "--include-tests=*.Bar");
+				Verify.That(() => includeFoo.IncludeTest(new ConeTestStub().WithName("A.Foo")));
+				Verify.That(() => includeFoo.IncludeTest(new ConeTestStub().WithName("A.Bar")));
+			}
+
 			public void understands_context_separator() {
 				var includeFoo = ConesoleConfiguration.Parse("--include-tests=Context.Foo");
 				Verify.That(() => includeFoo.IncludeTest(new ConeTestStub().InContext("Context").WithName("Foo")));
