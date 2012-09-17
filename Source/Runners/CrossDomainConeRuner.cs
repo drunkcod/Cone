@@ -20,6 +20,9 @@ namespace Cone.Runners
             this.crossDomainLog = crossDomainLog;
         }
 
+		void IConeLogger.BeginSession() { }
+		void IConeLogger.EndSession() { }
+
         void IConeLogger.Info(string format, params object[] args) {
             crossDomainLog.Info(string.Format(format, args));
         }

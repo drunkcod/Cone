@@ -14,6 +14,9 @@ namespace Cone
         {
             TextWriter Output { get { return Console.Out; } }
 
+			public void BeginSession() { }
+			public void EndSession() { }
+
             public void Info(string format, params object[] args) {
                 Output.Write(format, args);
             }

@@ -93,7 +93,6 @@ namespace Cone.Runners
             		() => session.CollectResults(tests.Value.Cast<IConeTest>(), fixture), 
             		_ => { }, 
             		_ => { });
-
             	subsuites.ForEach(x => x.Value.Run(session));
             }
         }

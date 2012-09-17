@@ -4,33 +4,24 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Xml;
 using Cone.Core;
 using Cone.Runners;
 
 namespace Conesole
 {
-	static class PredicateExtensions
-	{
-		public static Predicate<T> And<T>(this Predicate<T> self, Predicate<T> andAlso) {
-			return self == null ? andAlso : x => self(x) && andAlso(x);
-		}
-
-		public static Predicate<T> Or<T>(this Predicate<T> self, Predicate<T> orElse) {
-			return self ==  null ? orElse : x => self(x) || orElse(x);
-		}
-	}
-
-    public class ConesoleConfiguration
+	public class ConesoleConfiguration
     {
 		const string OptionPrefix = "--";
 		readonly Regex OptionPattern = new Regex(string.Format("^{0}(?<option>.+)=(?<value>.+$)", OptionPrefix));
 
-        public IEnumerable<string> AssemblyPaths;
+        public ICollection<string> AssemblyPaths;
 		public Predicate<IConeTest> IncludeTest;
 		public Predicate<IConeSuite> IncludeSuite = _ => true;  
 
 		public LoggerVerbosity Verbosity = LoggerVerbosity.Default;
 		public bool IsDryRun;
+		public bool XmlOutput;
 
         public static ConesoleConfiguration Parse(params string[] args) {
 			var paths = new List<string>();
@@ -52,6 +43,11 @@ namespace Conesole
 			
 			if(item == "--dry-run") {
 				IsDryRun = true;
+				return true;
+			}
+
+			if(item == "--xml-console") {
+				XmlOutput = true;
 				return true;
 			}
 
@@ -87,7 +83,6 @@ namespace Conesole
 
 			return true;
 		}
-
 		static Regex CreatePatternRegex(string pattern) {
 			return new Regex("^" + pattern
 				.Replace("\\", "\\\\")
@@ -96,48 +91,104 @@ namespace Conesole
 		}
     }
 
+	interface IConesoleResult 
+	{
+		int ExitCode { get; set;}
+	}
+
+	class ConesoleResult : MarshalByRefObject, IConesoleResult
+	{
+		public int ExitCode { get; set; }
+	}
+
+	[Serializable]
     class Program
     {
-        static int Main(string[] args) {
+		public IConesoleResult Result = new ConesoleResult();
+		public string[] Arguments;
+
+		static int Main(string[] args) {
             if(args.Length == 0)
             	return DisplayUsage();
 
+			var testDomain = AppDomain.CreateDomain("Conesole.TestDomain");
+			var runner = new Program {
+				Arguments = args,
+			};
+
+			testDomain.AssemblyResolve += AssemblyResolve;
+			testDomain.DoCallBack(runner.Execute);
+			AppDomain.Unload(testDomain);
+
+			return runner.Result.ExitCode;
+        }
+
+		static Assembly AssemblyResolve(object sender, ResolveEventArgs e) {
+			var baseName = e.Name.Substring(0, e.Name.IndexOf(','));
+			var probe = Path.Combine(GetBaseDir(e), baseName) + ".dll";
+			if(File.Exists(probe))
+				return Assembly.LoadFile(probe);
+			return null;
+		}
+
+		static string GetBaseDir(ResolveEventArgs e) {
+			if(e.RequestingAssembly == null)
+				return Environment.CurrentDirectory;
+			return Path.GetDirectoryName(new Uri(e.RequestingAssembly.CodeBase).LocalPath);
+		}
+
+		void Execute(){
             try {
-				var config = ConesoleConfiguration.Parse(args);
-				var logger = new ConsoleLogger { Verbosity = config.Verbosity };
+				var config = ConesoleConfiguration.Parse(Arguments);
+				var logger = CreateLogger(config);
             	var results = new TestSession(logger) {
 					IncludeSuite = config.IncludeSuite,
 					ShouldSkipTest = x => !config.IncludeTest(x)
 				};
+
 				if(config.IsDryRun) {
 					results.GetResultCollector = _ => (test, result) => result.Success();
-					logger.SuccessColor = ConsoleColor.DarkGray;
 				}
-            	new SimpleConeRunner().RunTests(results, LoadTestAssemblies(config));
+            	
+				new SimpleConeRunner().RunTests(results, LoadTestAssemblies(config));
+
+	            Result.ExitCode = 0;
             } catch (ReflectionTypeLoadException tle) {
                 foreach (var item in tle.LoaderExceptions)
                     Console.Error.WriteLine("{0}\n---", item);
 			} catch(ArgumentException e) {
 				Console.Error.WriteLine(e.Message);
-				return DisplayUsage();
+				Result.ExitCode = DisplayUsage();
             } catch (Exception e) {
                 Console.Error.WriteLine(e);
-                return -1;
+                Result.ExitCode = -1;
             }
-            return 0;
-        }
+		}
 
-    	private static int DisplayUsage()
-    	{
-    		using(var reader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("Conesole.Usage.txt")))
-    		{
+		static IConeLogger CreateLogger(ConesoleConfiguration config) {
+			if(config.XmlOutput)
+				return new XmlLogger(new XmlTextWriter(Console.Out) {
+					Formatting = Formatting.Indented
+				});
+
+			var logger = new ConsoleLogger { Verbosity = config.Verbosity };
+			if(config.IsDryRun)
+				logger.SuccessColor = ConsoleColor.DarkGreen;
+			return logger;
+		}
+
+    	static int DisplayUsage() {
+    		using(var reader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("Conesole.Usage.txt"))) {
     			Console.WriteLine(reader.ReadToEnd());
     		}
     		return -1;
     	}
 
     	static IEnumerable<Assembly> LoadTestAssemblies(ConesoleConfiguration config) {
-    		return config.AssemblyPaths.Select(Assembly.LoadFrom);
+			var paths = config.AssemblyPaths;
+			if(paths.IsEmpty())
+				throw new ArgumentException("No test assemblies specified");
+			return paths.Select(item => Assembly.LoadFile(Path.GetFullPath(item)));
     	}
     }
 }

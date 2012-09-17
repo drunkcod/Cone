@@ -1,9 +1,11 @@
-﻿Usage is: Console [inputfiles] [options]
+﻿Usage is: Console [test-assemblies] [options]
 
 Options are:
 	--help                                Get help (you're viewing it).
 	
 	--labels                              Display test names while running.
+
+	--xml-console                         Output results as XML.
 	
 	--include-tests=<pattern>             Run only tests matchingt pattern.
 	                                      '*' acts as wildcard.

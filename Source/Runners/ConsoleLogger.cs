@@ -19,6 +19,9 @@ namespace Cone.Runners
         public LoggerVerbosity Verbosity;
 		public ConsoleColor SuccessColor = ConsoleColor.Green;
 
+		public void BeginSession() { }
+		public void EndSession() { }
+
         public void Failure(ConeTestFailure failure) {
 			switch(Verbosity) {
 				case LoggerVerbosity.Default: Info("F"); break;

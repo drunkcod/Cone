@@ -32,6 +32,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConePad.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Core\IRowData.cs" />
     <Compile Include="Core\MissingLinqExtensions.cs" />
     <Compile Include="Core\PendingGuardTestContext.cs" />
+    <Compile Include="Core\PredicateExtensions.cs" />
     <Compile Include="Core\TimedTestContext.cs" />
     <Compile Include="Expectations\MethodExpectProviderLookup.cs" />
     <Compile Include="Core\RowSuiteBuilder.cs" />
@@ -81,6 +83,7 @@
     <Compile Include="Runners\CrossDomainConeRuner.cs" />
     <Compile Include="Runners\IConeLogger.cs" />
     <Compile Include="Runners\SimpleConeRunner.cs" />
+    <Compile Include="Runners\XmlLogger.cs" />
     <Compile Include="TestStatus.cs" />
     <Compile Include="DescribeAttribute.cs" />
     <Compile Include="DisplayClassAttribute.cs" />

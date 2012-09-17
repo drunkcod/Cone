@@ -60,8 +60,14 @@ namespace Cone.Runners
         int Total { get { return Passed + Failed + Skipped; } }
 		int Skipped;
 
-        public void BeginSession() { timeTaken = Stopwatch.StartNew(); }
-        public void EndSession() { timeTaken.Stop(); }
+        public void BeginSession() { 
+			log.BeginSession();
+			timeTaken = Stopwatch.StartNew(); 
+		}
+        public void EndSession() { 
+			timeTaken.Stop(); 
+			log.EndSession();
+		}
 
         public void CollectResults(IEnumerable<IConeTest> tests, IConeFixture fixture) {
 			var collectResult = GetResultCollector(fixture);
@@ -105,20 +111,15 @@ namespace Cone.Runners
         void AddPending(IConeTest test) {
             log.Pending(test);
         }
-
-        void LogProgress(string message) {
-            if(ShowProgress)
-                log.Info(message);
-        }
         
         public void Report() {
-            log.Info("\n{0} tests ran. {1} Passed. {2} Failed. ({3} Skipped)\n", Total, Passed, Failed, Skipped);
+            log.Info("\n{0} tests found. {1} Passed. {2} Failed. ({3} Skipped)\n", Total, Passed, Failed, Skipped);
 
             if(failures.Count > 0) {
                 log.Info("Failures:\n");
                 failures.ForEach(failure => {
-					log.Info("{0}. {1}({2}) - {3}", failure.SequenceNumber, failure.File, failure.Line, failure.Context);
-					log.Info("{0}: {1}", failure.TestName, failure.Message);
+					log.Info("{0}", failure.ToString());
+					log.Info("\n");
                 });
             }
             log.Info("\nDone in {0}.\n", timeTaken.Elapsed);

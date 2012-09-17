@@ -27,7 +27,7 @@ namespace Cone
         }
 
         public override string ToString() {
-            return string.Format("{0}({1}:{2}) {3} - {4}: {5}", File, Line, Column, Context, TestName, Message);
+            return string.Format("{0}({1}:{2}) {3}.{4}: {5}", File, Line, Column, Context, TestName, Message);
         }
 
     } 

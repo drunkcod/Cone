@@ -48,6 +48,7 @@ namespace Cone.Core
 		class SimpleFixture
 		{
 			public readonly List<string> Executed = new List<string>();
+			public string ExecutionPath { get { return string.Join("->", Executed); } }
 
 			public void BeforeAll() { Executed.Add("BeforeAll"); }
 			public void AfterAll() { Executed.Add("AfterAll"); }
@@ -74,8 +75,19 @@ namespace Cone.Core
 			(fixture as ITestInterceptor).Before();
 			(fixture as ITestInterceptor).Before();
 
-			Verify.That(() => string.Join("->", fixtureInstance.Executed) == "BeforeAll->BeforeEach->BeforeEach");
+			Verify.That(() => fixtureInstance.ExecutionPath == "BeforeAll->BeforeEach->BeforeEach");
 		}
+
+		public void AfterAll_executeted_for_initialized_fixture_when_released() {
+            var fixtureInstance = new SimpleFixture();
+            var fixture = new ConeFixture(fixtureInstance.GetType(), new string[0], _ => fixtureInstance);
+			IConeFixtureMethodSink fixtureMethods = fixture;
+			fixtureMethods.AfterAll(((Action)fixtureInstance.AfterAll).Method);
+            fixture.WithInitialized(() => (fixture as ITestInterceptor).Before(), Nop, Nop);
+
+			Verify.That(() => fixtureInstance.ExecutionPath == "AfterAll");
+		}
+
 
 		public void only_runs_AfterAll_if_fixture_has_been_initialized() {
             var fixtureInstance = new SimpleFixture();
