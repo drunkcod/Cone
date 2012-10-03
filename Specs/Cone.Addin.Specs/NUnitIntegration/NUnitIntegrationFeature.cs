@@ -27,26 +27,28 @@ namespace Cone.NUnitIntegration
         [Context("when running the samples project")]
         public class Samples
         {
-            static XPathNavigator SamplesResult;
-
-            [BeforeAll]
-            public void GetSamplesResult() {
-                var nunitPath = Path.Combine(ProjectDir, @"Tools\NUnit-2.5.7.10213\bin\net-2.0\nunit-console.exe");
-
-                var nunit = Process.Start(new ProcessStartInfo {
-                    FileName = nunitPath,
-                    Arguments = "/domain=Single /process=Single /nologo /xmlConsole " + SamplesPath,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = true
-                });
-                var output = nunit.StandardOutput;
-                output.ReadLine();
-                output.ReadLine();
-                output.ReadLine();
-                SamplesResult = new XPathDocument(output).CreateNavigator();
-                nunit.WaitForExit();
-            }
+			static XPathNavigator samplesResult;
+            static XPathNavigator SamplesResult {
+				get {
+					if(samplesResult == null) {
+						var nunitPath = Path.Combine(ProjectDir, @"Tools\NUnit-2.5.7.10213\bin\net-2.0\nunit-console.exe");
+						var nunit = Process.Start(new ProcessStartInfo {
+							FileName = nunitPath,
+							Arguments = "/domain=Single /process=Single /nologo /xmlConsole " + SamplesPath,
+							UseShellExecute = false,
+							RedirectStandardOutput = true,
+							CreateNoWindow = true
+						});
+						var output = nunit.StandardOutput;
+						output.ReadLine();
+						output.ReadLine();
+						output.ReadLine();
+						samplesResult = new XPathDocument(output).CreateNavigator();
+						nunit.WaitForExit();
+					}
+					return samplesResult;
+				}
+			}
 
             [Context("ExampleFeature")]
             public class ExampleFeature
@@ -64,12 +66,12 @@ namespace Cone.NUnitIntegration
             public class Failures
             {
                 public void member_access_failure() {
-                    var node = (XPathNavigator)Verify.That(() => SamplesResult.SelectSingleNode("//test-case[@name='Failure.member access example']") != null);
+                    var node = (XPathNavigator)Verify.That(() => SamplesResult.SelectSingleNode("//test-case[@name='Features.Failure.member access example']") != null);
                     Verify.That(() => node.Value.StartsWith("TheAnswer == 7"));
                 }
 
                 public void string_failure() {
-                    var node = (XPathNavigator)Verify.That(() => SamplesResult.SelectSingleNode("//test-case[@name='Failure.string example']") != null);
+                    var node = (XPathNavigator)Verify.That(() => SamplesResult.SelectSingleNode("//test-case[@name='Features.Failure.string example']") != null);
                     Verify.That(() => node.Value.StartsWith("\"Hello World\".Length == 3"));
                 }
             }
