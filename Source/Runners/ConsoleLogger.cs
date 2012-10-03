@@ -13,7 +13,7 @@ namespace Cone.Runners
 		string[] context = new string[0];
 
 		public void Info(string format, params object[] args) {
-            Console.Out.Write(format, args);
+            Console.Out.WriteLine(format, args);
         }
 
         public LoggerVerbosity Verbosity;
@@ -24,21 +24,21 @@ namespace Cone.Runners
 
         public void Failure(ConeTestFailure failure) {
 			switch(Verbosity) {
-				case LoggerVerbosity.Default: Info("F"); break;
+				case LoggerVerbosity.Default: Write("F"); break;
                 case LoggerVerbosity.TestName: WriteTestName(failure.Context, failure.TestName, ConsoleColor.Red); break;
 			}
         }
 
         public void Success(IConeTest test) {
             switch(Verbosity) {
-                case LoggerVerbosity.Default: Info("."); break;
+                case LoggerVerbosity.Default: Write("."); break;
                 case LoggerVerbosity.TestName: WriteTestName(test, SuccessColor); break;
             }
         }
 
         public void Pending(IConeTest test) {
 			switch(Verbosity) {
-				case LoggerVerbosity.Default: Info("?"); break;
+				case LoggerVerbosity.Default: Write("?"); break;
                 case LoggerVerbosity.TestName: WriteTestName(test, ConsoleColor.Yellow); break;
 			}
         }
@@ -54,11 +54,15 @@ namespace Cone.Runners
 				++skip;
 			context = parts;
 			for(; skip != context.Length; ++skip)
-				Info("{0}{1}\n", new string(' ', skip << 1), context[skip]);
+				Write("{0}{1}\n", new string(' ', skip << 1), context[skip]);
 			var tmp = Console.ForegroundColor;
 			Console.ForegroundColor = color;
-			Info("{0}* {1}\n", new string(' ', skip << 1), testName);
+			Write("{0}* {1}\n", new string(' ', skip << 1), testName);
 			Console.ForegroundColor = tmp;
+		}
+
+		void Write(string format, params object[] args) {
+			Console.Out.Write(format, args);
 		}
     }
 }

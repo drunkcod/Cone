@@ -31,11 +31,16 @@ namespace Cone.Core
 
 		public IEnumerable<string> Categories { get { return categories; } } 
 
+		public void Initialize() {
+			if(fixtureInitialized) 
+				return;
+			
+			InvokeAll(beforeAll);
+			fixtureInitialized = true;
+		}
+
         void ITestInterceptor.Before() {
-			if(!fixtureInitialized) {
-				InvokeAll(beforeAll);
-				fixtureInitialized = true;
-			}
+			Initialize();
             InvokeAll(beforeEach, null);
             Before.Raise(this, EventArgs.Empty);
         }

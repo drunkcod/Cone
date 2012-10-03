@@ -13,11 +13,12 @@ namespace Cone
         public readonly string TestName;
         public readonly string Message;
 
-        public ConeTestFailure(int sequenceNumber, ITestName testName, Exception error, int skipFrames) {
+        public ConeTestFailure(int sequenceNumber, ITestName testName, Exception error) {
             SequenceNumber = sequenceNumber;
             TestName = testName.Name;
             Context = testName.Context;
-            var errorLocation = new StackTrace(error, skipFrames, true).GetFrame(0);
+            var stackTrace= new StackTrace(error, 0, true);
+			var errorLocation = stackTrace.GetFrame(stackTrace.FrameCount - 1);
 			if(errorLocation != null) {
 				File = errorLocation.GetFileName();
 				Line = errorLocation.GetFileLineNumber();

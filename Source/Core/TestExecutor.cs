@@ -31,7 +31,10 @@ namespace Cone.Core
 
         public TestExecutor(IConeFixture fixture) {
             this.fixture = fixture;
-            var interceptorContext = InterceptorContext.For(fixture.FixtureType, () => fixture.Fixture);
+            var interceptorContext = InterceptorContext.For(fixture.FixtureType, () => { 
+				fixture.Initialize();
+				return fixture.Fixture;
+			});
             if(!interceptorContext.IsEmpty)
                 fixtureContext = new[]{ interceptorContext };
         }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security;
+using System.Security.Permissions;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Cone.Core;
@@ -15,7 +17,6 @@ namespace Conesole
 		const string OptionPrefix = "--";
 		readonly Regex OptionPattern = new Regex(string.Format("^{0}(?<option>.+)=(?<value>.+$)", OptionPrefix));
 
-        public ICollection<string> AssemblyPaths;
 		public Predicate<IConeTest> IncludeTest;
 		public Predicate<IConeSuite> IncludeSuite = _ => true;  
 
@@ -24,31 +25,35 @@ namespace Conesole
 		public bool XmlOutput;
 
         public static ConesoleConfiguration Parse(params string[] args) {
-			var paths = new List<string>();
-			var result = new ConesoleConfiguration { AssemblyPaths = paths };
-        	paths.AddRange(args.Where(item => !result.ParseOption(item)));
+			var result = new ConesoleConfiguration();
+			foreach(var item in args)
+        		result.ParseOption(item);
 			if(result.IncludeTest == null)
 				result.IncludeTest = _ => true;
         	return result;
         }
 
-		bool ParseOption(string item) {
-			if(!item.StartsWith(OptionPrefix))
-				return false;
+		public static bool IsOption(string value) {
+			return value.StartsWith(OptionPrefix);
+		}
+
+		void ParseOption(string item) {
+			if(!IsOption(item))
+				return;
 
 			if(item == "--labels") {
 				Verbosity = LoggerVerbosity.TestName;
-				return true;
+				return;
 			} 
 			
 			if(item == "--dry-run") {
 				IsDryRun = true;
-				return true;
+				return;
 			}
 
 			if(item == "--xml-console") {
 				XmlOutput = true;
-				return true;
+				return;
 			}
 
 			var m = OptionPattern.Match(item);
@@ -80,8 +85,6 @@ namespace Conesole
 			}
 			else 
 				throw new ArgumentException("Unknown option:" + item);
-
-			return true;
 		}
 		static Regex CreatePatternRegex(string pattern) {
 			return new Regex("^" + pattern
@@ -105,15 +108,33 @@ namespace Conesole
     class Program
     {
 		public IConesoleResult Result = new ConesoleResult();
-		public string[] Arguments;
+		public string[] AssemblyPaths;
+		public string[] Options;
 
 		static int Main(string[] args) {
             if(args.Length == 0)
             	return DisplayUsage();
 
-			var testDomain = AppDomain.CreateDomain("Conesole.TestDomain");
+			var assemblyPaths = args
+				.Where(x => !ConesoleConfiguration.IsOption(x))
+				.ToArray();
+
+			var domainSetup = new AppDomainSetup {
+				ApplicationBase = AppDomain.CurrentDomain.SetupInformation.ApplicationBase
+			};
+			if(assemblyPaths.Length == 1) {
+				var configPath = Path.GetFullPath(assemblyPaths[0] + ".config");
+				if(File.Exists(configPath))
+					domainSetup.ConfigurationFile = configPath;
+			}
+			var testDomain = AppDomain.CreateDomain("Conesole.TestDomain", 
+				null, 
+				domainSetup, 
+				new PermissionSet(PermissionState.Unrestricted));
+
 			var runner = new Program {
-				Arguments = args,
+				AssemblyPaths = assemblyPaths,
+				Options = args,
 			};
 
 			testDomain.AssemblyResolve += AssemblyResolve;
@@ -139,7 +160,7 @@ namespace Conesole
 
 		void Execute(){
             try {
-				var config = ConesoleConfiguration.Parse(Arguments);
+				var config = ConesoleConfiguration.Parse(Options);
 				var logger = CreateLogger(config);
             	var results = new TestSession(logger) {
 					IncludeSuite = config.IncludeSuite,
@@ -150,7 +171,7 @@ namespace Conesole
 					results.GetResultCollector = _ => (test, result) => result.Success();
 				}
             	
-				new SimpleConeRunner().RunTests(results, LoadTestAssemblies(config));
+				new SimpleConeRunner().RunTests(results, LoadTestAssemblies());
 
 	            Result.ExitCode = 0;
             } catch (ReflectionTypeLoadException tle) {
@@ -184,11 +205,10 @@ namespace Conesole
     		return -1;
     	}
 
-    	static IEnumerable<Assembly> LoadTestAssemblies(ConesoleConfiguration config) {
-			var paths = config.AssemblyPaths;
-			if(paths.IsEmpty())
+    	IEnumerable<Assembly> LoadTestAssemblies() {
+			if(AssemblyPaths.IsEmpty())
 				throw new ArgumentException("No test assemblies specified");
-			return paths.Select(item => Assembly.LoadFile(Path.GetFullPath(item)));
+			return AssemblyPaths.Select(item => Assembly.LoadFile(Path.GetFullPath(item)));
     	}
     }
 }

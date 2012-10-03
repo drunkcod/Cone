@@ -8,5 +8,6 @@ namespace Cone.Core
         object Fixture { get; }
         Type FixtureType { get; }
 		IEnumerable<string> Categories { get; }
+		void Initialize();
     }
 }

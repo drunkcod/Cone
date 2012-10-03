@@ -84,6 +84,7 @@ namespace Cone.Runners
 						AddSuccess(test);
 						break;
 					case TestStatus.SetupFailure: goto case TestStatus.Failure;
+					case TestStatus.TeardownFailure: goto case TestStatus.Failure;
 					case TestStatus.Failure:
 						AddFailure(test, result.Error);
 						break;
@@ -103,7 +104,7 @@ namespace Cone.Runners
             var invocationException = error as TargetInvocationException;
             if (invocationException != null)
                 error = invocationException.InnerException;
-        	var failure = new ConeTestFailure(failures.Count + 1, test.Name, error, 3);
+        	var failure = new ConeTestFailure(failures.Count + 1, test.Name, error);
 			failures.Add(failure);
             log.Failure(failure);
         }
@@ -113,16 +114,15 @@ namespace Cone.Runners
         }
         
         public void Report() {
-            log.Info("\n{0} tests found. {1} Passed. {2} Failed. ({3} Skipped)\n", Total, Passed, Failed, Skipped);
+			log.Info(string.Empty);
+            log.Info("{0} tests found. {1} Passed. {2} Failed. ({3} Skipped)", Total, Passed, Failed, Skipped);
 
             if(failures.Count > 0) {
-                log.Info("Failures:\n");
-                failures.ForEach(failure => {
-					log.Info("{0}", failure.ToString());
-					log.Info("\n");
-                });
+                log.Info("Failures:");
+                failures.ForEach(failure => log.Info("{0}", failure));
             }
-            log.Info("\nDone in {0}.\n", timeTaken.Elapsed);
+			log.Info(string.Empty);
+            log.Info("Done in {0}.", timeTaken.Elapsed);
         }
     }
 }
