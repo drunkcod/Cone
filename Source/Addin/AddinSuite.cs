@@ -138,7 +138,7 @@ namespace Cone.Addin
 		public void DiscoverTests(ConeTestNamer names) {
 			WithTestMethodSink(names, testSink =>
 			WithFixtureMethodSink(fixtureSink => {
-				var setup = new ConeFixtureSetup(fixtureSink, testSink);
+				var setup = new ConeFixtureSetup(fixtureSink, testSink, new ConeMethodClassifier(fixtureSink, testSink));
 				setup.CollectFixtureMethods(fixture.FixtureType);
 			}));
 		}

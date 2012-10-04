@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Cone.Core;
 
 namespace Cone.Runners
@@ -41,6 +42,39 @@ namespace Cone.Runners
 			}
 		}
 
+		class NUnitSuite : ConePadSuite 
+		{
+			class NUnitMethodClassifier : MethodClassifier
+			{
+				public NUnitMethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) : base(fixtureSink, testSink)
+				{ }
+
+				protected override void ClassifyCore(MethodInfo method) {
+					if(method.GetParameters().Length > 0) {
+						Unintresting(method);
+						return;
+					}
+					var attributeNames = method.GetCustomAttributes(true).Select(x => x.GetType().FullName).ToArray();
+					var sunk = false;
+					if(attributeNames.Any(x => x == "NUnit.Framework.SetUpAttribute")) {
+						BeforeEach(method);
+						sunk = true;
+					}
+
+					if(!sunk)
+						Test(method);					
+				}
+			}
+
+			public NUnitSuite(ConeFixture fixture) : base(fixture) 
+			{}
+
+			protected override IMethodClassifier GetMethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink)
+			{
+				return new NUnitMethodClassifier(fixtureSink, testSink);
+			}
+		}
+
 		public override bool SupportedType(Type type)
 		{
 			return type.GetCustomAttributes(true)
@@ -50,6 +84,12 @@ namespace Cone.Runners
 		public override IFixtureDescription DescriptionOf(Type fixtureType)
 		{
 			return new NUnitFixtureDescription(fixtureType);
+		}
+
+		protected override ConePadSuite NewSuite(Type type, IFixtureDescription description) {
+            return new NUnitSuite(new ConeFixture(type, description.Categories)) { 
+				Name = description.SuiteName + "." + description.TestName
+			};
 		}
 	}
 }

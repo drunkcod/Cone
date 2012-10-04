@@ -60,6 +60,8 @@
     <Compile Include="Core\FormatString.cs" />
     <Compile Include="Core\ICollectionFormatter.cs" />
     <Compile Include="Core\IConeAttributeProvider.cs" />
+    <Compile Include="Core\IConeFixtureMethodSink.cs" />
+    <Compile Include="Core\IConeTestMethodSink.cs" />
     <Compile Include="Core\ILGeneratorExtensions.cs" />
     <Compile Include="Core\IRowData.cs" />
     <Compile Include="Core\Lazy.cs" />

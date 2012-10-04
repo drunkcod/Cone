@@ -6,6 +6,8 @@ namespace NUnit.Framework
 {
 	public class TestFixtureAttribute : Attribute { }
 
+	public class SetUpAttribute : Attribute { }
+
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 	public class CategoryAttribute : Attribute 
 	{
@@ -26,7 +28,14 @@ namespace Cone.Runners
 	{
 		[TestFixture, Category("SomeCategory"), Category("Integration")]
 		class MyNUnitFixture
-		{ }
+		{ 
+			public bool SetUpCalled;
+
+			[SetUp]
+			public void SetUp() { SetUpCalled = true; }
+
+			public void a_test(){}
+		}
 
 		NUnitSuiteBuilder SuiteBuilder = new NUnitSuiteBuilder();
 
@@ -62,7 +71,44 @@ namespace Cone.Runners
 				Verify.That(() => Description.Categories.Contains("SomeCategory"));
 				Verify.That(() => Description.Categories.Contains("Integration"));
 			}
-
 		}
+
+		[Context("given a fixture instance")]
+		public class NUnitSuiteBuilderFixtureInstanceSpec
+		{
+			private ConePadSuite NUnitFixture;
+
+			[BeforeEach]
+			public void GivenFixtureInstance() {
+				NUnitFixture = new NUnitSuiteBuilder().BuildSuite(typeof(MyNUnitFixture)); 
+			}
+
+			public void SetUp_is_called_on_Before() {
+				var fixture = (MyNUnitFixture)NUnitFixture.Fixture;
+				NUnitFixture.Run(new TestSession(new NullLogger()));
+				Verify.That(() => fixture.SetUpCalled == true);
+			}
+		}
+	}
+
+	public class NullLogger : IConeLogger
+	{
+		public void BeginSession()
+		{ }
+
+		public void EndSession()
+		{ }
+
+		public void Info(string format, params object[] args)
+		{ }
+
+		public void Failure(ConeTestFailure failure)
+		{ }
+
+		public void Success(Core.IConeTest test)
+		{ }
+
+		public void Pending(Core.IConeTest test)
+		{ }
 	}
 }

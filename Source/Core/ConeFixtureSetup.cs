@@ -8,10 +8,13 @@ namespace Cone.Core
     {
         const BindingFlags OwnPublicMethods = BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public;
 
-        readonly ConeMethodClassifier classifier;
+        readonly IMethodClassifier classifier;
 
-        public ConeFixtureSetup(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) {
-            this.classifier = new ConeMethodClassifier(fixtureSink, testSink);
+        public ConeFixtureSetup(
+			IConeFixtureMethodSink fixtureSink, 
+			IConeTestMethodSink testSink,
+			IMethodClassifier classifier) {
+            this.classifier = classifier;
         }
 
         public void CollectFixtureMethods(Type type) {

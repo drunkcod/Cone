@@ -9,6 +9,11 @@ namespace Cone.Samples.NUnitCompatibility
 	[TestFixture]
 	public class NUnitTests
 	{
-		public void MyTest() { }
+		public bool SetUpCalled;
+
+		[SetUp]
+		public void SetUp() { SetUpCalled = true; }
+
+		public void MyTest() { Assert.That(SetUpCalled);}
 	}
 }

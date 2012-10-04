@@ -66,7 +66,9 @@ namespace Cone.Runners
 				get { 
 					return subsuites.Select(x => x.Value);
 				} 
-			} 
+			}
+
+			public object Fixture { get { return fixture.Fixture; } }
 
             public void AddSubSuite(Lazy<ConePadSuite> suite) {
                 subsuites.Add(suite);
@@ -84,13 +86,20 @@ namespace Cone.Runners
 					var testSink = new ConePadTestMethodSink(names, fixture, Name);
 					testSink.TestFound += (method, args, displayName, attributes) => 
 						foundTests.Add(NewTest(displayName, method, args, attributes));
-					var setup = new ConeFixtureSetup(fixture, testSink);
+					var setup = new ConeFixtureSetup(fixture, testSink, GetMethodClassifier(fixture, testSink));
 					setup.CollectFixtureMethods(fixture.FixtureType);
 					return foundTests;
 				});
 			}
 
-            public void Run(TestSession session) {
+        	protected virtual IMethodClassifier GetMethodClassifier(
+				IConeFixtureMethodSink fixtureSink, 
+				IConeTestMethodSink testSink) {
+
+        		return new ConeMethodClassifier(fixtureSink, testSink);
+        	}
+
+        	public void Run(TestSession session) {
 				fixture.WithInitialized(
             		x => session.CollectResults(tests.Value.Cast<IConeTest>(), x), 
             		_ => { }, 

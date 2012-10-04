@@ -3,25 +3,49 @@ using System.Reflection;
 
 namespace Cone.Core
 {
-	public class ConeMethodClassifier 
-    {
-        readonly IConeFixtureMethodSink fixtureSink;
-        readonly IConeTestMethodSink testSink;
+	public interface IMethodClassifier
+	{
+		void Classify(MethodInfo method);
+	}
 
-        public ConeMethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) {
+	public abstract class MethodClassifier : IMethodClassifier
+	{
+        readonly IConeFixtureMethodSink fixtureSink;
+        protected readonly IConeTestMethodSink testSink;
+
+		public MethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) {
             this.fixtureSink = fixtureSink;
             this.testSink = testSink;
         }
 
-        public void Classify(MethodInfo method) {
+		public void Classify(MethodInfo method) {
             if(method.DeclaringType == typeof(object)) {
                 Unintresting(method);
                 return;
             }
+			ClassifyCore(method);
+        }
 
+		protected abstract void ClassifyCore(MethodInfo method);
+
+        protected void BeforeAll(MethodInfo method) { fixtureSink.BeforeAll(method); }
+        protected void BeforeEach(MethodInfo method) { fixtureSink.BeforeEach(method); }
+        protected void AfterEach(MethodInfo method) { fixtureSink.AfterEach(method); }
+        protected void AfterEachWithResult(MethodInfo method) { fixtureSink.AfterEachWithResult(method); }
+        protected void AfterAll(MethodInfo method) { fixtureSink.AfterAll(method); }
+        protected void Unintresting(MethodInfo method) { fixtureSink.Unintresting(method); }
+		protected void Test(MethodInfo method) { testSink.Test(method); }
+	}
+
+	public class ConeMethodClassifier : MethodClassifier
+	{
+        public ConeMethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) : base(fixtureSink, testSink)
+		{ }
+
+        protected override void ClassifyCore(MethodInfo method) {
             if(method.AsConeAttributeProvider().Has<IRowData>(rows => testSink.RowTest(method, rows)))
                 return;
-           
+
             var parameters = method.GetParameters();
             switch(parameters.Length) {
                 case 0: Niladic(method); break;
@@ -60,7 +84,7 @@ namespace Cone.Core
             if(sunk)
                 return;
             
-            testSink.Test(method);
+            Test(method);
         }
 
         void Monadic(MethodInfo method, ParameterInfo parameter) {
@@ -70,12 +94,5 @@ namespace Cone.Core
             }
             else Unintresting(method);
         }
-
-        void BeforeAll(MethodInfo method) { fixtureSink.BeforeAll(method); }
-        void BeforeEach(MethodInfo method) { fixtureSink.BeforeEach(method); }
-        void AfterEach(MethodInfo method) { fixtureSink.AfterEach(method); }
-        void AfterEachWithResult(MethodInfo method) { fixtureSink.AfterEachWithResult(method); }
-        void AfterAll(MethodInfo method) { fixtureSink.AfterAll(method); }
-        void Unintresting(MethodInfo method) { fixtureSink.Unintresting(method); }
     }
 }
