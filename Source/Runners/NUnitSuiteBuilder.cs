@@ -50,11 +50,12 @@ namespace Cone.Runners
 				{ }
 
 				protected override void ClassifyCore(MethodInfo method) {
+					var attributes = method.GetCustomAttributes(true);
 					if(method.GetParameters().Length > 0) {
-						Unintresting(method);
+						ClassifyParameterized(method, attributes);
 						return;
 					}
-					var attributeNames = method.GetCustomAttributes(true).Select(x => x.GetType().FullName).ToArray();
+					var attributeNames = attributes.Select(x => x.GetType().FullName).ToArray();
 					var sunk = false;
 					if(attributeNames.Any(x => x == "NUnit.Framework.SetUpAttribute")) {
 						BeforeEach(method);
@@ -76,6 +77,47 @@ namespace Cone.Runners
 					if(!sunk)
 						Test(method);					
 				}
+
+				void ClassifyParameterized(MethodInfo method, object[] attributes) {
+					var testCases = attributes.Where(x => x.GetType().FullName == "NUnit.Framework.TestCaseAttribute").ToList();
+					if(testCases.Count == 0) {
+						Unintresting(method);
+						return;
+					}
+					RowTest(method, testCases.Select(x => (IRowData)new NUnitRowDataAdapter(x)));
+				}
+
+				class NUnitRowDataAdapter : IRowData 
+				{
+					readonly Type testCaseType;
+					readonly object testCase;
+
+					public NUnitRowDataAdapter(object testCase) {
+						this.testCase = testCase;
+						this.testCaseType = testCase.GetType();
+					}
+
+					public bool IsPending {
+						get { return false; }
+					}
+
+					public string DisplayAs {
+						get { return (string)GetPropertyValue("TestName"); }
+					}
+
+					public object[] Parameters {
+						get { return (object[])GetPropertyValue("Arguments"); }
+					}
+
+					public object Result {
+						get { return GetPropertyValue("Result"); }
+					}
+
+					object GetPropertyValue(string name) {
+						return testCaseType.GetProperty(name).GetValue(testCase, null);
+					}
+				}
+
 			}
 
 			public NUnitSuite(ConeFixture fixture) : base(fixture) 

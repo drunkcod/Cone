@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 
 namespace Cone.Core
 {
@@ -9,7 +8,6 @@ namespace Cone.Core
 			return (test, result) => {
                 try {
 					next(test, result);
-					result.Success();
                 } catch(Exception ex) {
                     result.TestFailure(ex);                        
                 }

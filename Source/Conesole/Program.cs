@@ -146,9 +146,11 @@ namespace Conesole
 
 		static Assembly AssemblyResolve(object sender, ResolveEventArgs e) {
 			var baseName = e.Name.Substring(0, e.Name.IndexOf(','));
-			var probe = Path.Combine(GetBaseDir(e), baseName) + ".dll";
-			if(File.Exists(probe))
-				return Assembly.LoadFile(probe);
+			foreach(var ext in new[]{ ".dll", ".exe" }) {
+				var probe = Path.Combine(GetBaseDir(e), baseName) + ext;
+				if(File.Exists(probe))
+					return Assembly.LoadFile(probe);
+			}
 			return null;
 		}
 

@@ -39,7 +39,6 @@ namespace Cone.Core
             contextMock.Verify(x => x.Before());
             testMock.Verify(x => x.Run(TestResult));
             contextMock.Verify(x => x.After(TestResult));
-            testResultMock.Verify(x => x.Success());
         }
 
         public void run_after_when_before_throws() {

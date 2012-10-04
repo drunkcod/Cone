@@ -28,7 +28,8 @@ namespace Cone
         }
 
         public override string ToString() {
-            return string.Format("{0}({1}:{2}) {3}.{4}: {5}", File, Line, Column, Context, TestName, Message);
+			var prefix = string.IsNullOrEmpty(File) ? string.Empty : string.Format("{0}({1}:{2}) ", File, Line, Column);
+            return string.Format("{0}) {1}{2}.{3}: {4}", SequenceNumber, prefix, Context, TestName, Message);
         }
 
     } 

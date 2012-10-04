@@ -23,7 +23,7 @@ namespace Cone.Core
             public string TestName { get; set; }
         }
 
-        public virtual bool SupportedType(Type type) { return type.HasAny(FixtureAttributes); } 
+        public virtual bool SupportedType(Type type) { return type.HasAny(FixtureAttributes); }
 
         public TSuite BuildSuite(Type suiteType) {
             return BuildSuite(suiteType, DescriptionOf(suiteType));

@@ -11,7 +11,7 @@ namespace Cone.Core
 	public abstract class MethodClassifier : IMethodClassifier
 	{
         readonly IConeFixtureMethodSink fixtureSink;
-        protected readonly IConeTestMethodSink testSink;
+        readonly IConeTestMethodSink testSink;
 
 		public MethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) {
             this.fixtureSink = fixtureSink;
@@ -35,6 +35,8 @@ namespace Cone.Core
         protected void AfterAll(MethodInfo method) { fixtureSink.AfterAll(method); }
         protected void Unintresting(MethodInfo method) { fixtureSink.Unintresting(method); }
 		protected void Test(MethodInfo method) { testSink.Test(method); }
+		protected void RowTest(MethodInfo method, IEnumerable<IRowData> rows) { testSink.RowTest(method, rows); }
+		protected void RowSource(MethodInfo method) { testSink.RowSource(method); }
 	}
 
 	public class ConeMethodClassifier : MethodClassifier
@@ -43,7 +45,7 @@ namespace Cone.Core
 		{ }
 
         protected override void ClassifyCore(MethodInfo method) {
-            if(method.AsConeAttributeProvider().Has<IRowData>(rows => testSink.RowTest(method, rows)))
+            if(method.AsConeAttributeProvider().Has<IRowData>(rows => RowTest(method, rows)))
                 return;
 
             var parameters = method.GetParameters();
@@ -56,7 +58,7 @@ namespace Cone.Core
 
         void Niladic(MethodInfo method) {
             if(typeof(IEnumerable<IRowTestData>).IsAssignableFrom(method.ReturnType)) {
-                testSink.RowSource(method);
+                RowSource(method);
                 return;
             }
 

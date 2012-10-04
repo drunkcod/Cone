@@ -13,5 +13,6 @@ namespace Cone
         public string DisplayAs { get; set; }
         public object[] Parameters { get { return args; } } 
         public bool IsPending { get; set; }
+		object IRowData.Result { get { return null; } }
     }
 }

@@ -11,8 +11,6 @@ namespace Cone.Core
         readonly IMethodClassifier classifier;
 
         public ConeFixtureSetup(
-			IConeFixtureMethodSink fixtureSink, 
-			IConeTestMethodSink testSink,
 			IMethodClassifier classifier) {
             this.classifier = classifier;
         }

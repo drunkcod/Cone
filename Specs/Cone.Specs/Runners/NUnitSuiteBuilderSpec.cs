@@ -2,6 +2,7 @@
 using System.Linq;
 using NUnit.Framework;
 
+//mimic the NUnit framework attributes, matches must be name based to avoid referenceing nunit.
 namespace NUnit.Framework
 {
 	public class TestFixtureAttribute : Attribute { }
@@ -24,6 +25,20 @@ namespace NUnit.Framework
 		}
 
  		public string Name { get { return @name; } }
+	}
+
+	[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+	public class TestCaseAttribute : Attribute
+	{
+		readonly object[] arguments;
+
+		public TestCaseAttribute(params object[] arguments) {
+			this.arguments = arguments;
+		}
+
+		public object[] Arguments { get { return arguments; } }
+		public object Result { get; set; }
+		public string TestName { get; set; }
 	}
 }
 
@@ -120,6 +135,28 @@ namespace Cone.Runners
 
 			public void TestFixtureTearDown_is_used_to_release_fixture() {
 				Verify.That(() => NUnitFixture.FixtureTearDownCalled == NUnitFixture.Calls);
+			}
+		}
+
+		[Context("given fixture with TestCase's")]
+		public class NUnitSuiteBuilderTestCaseSpec
+		{
+			class FixtureWithTestCases
+			{
+				[TestCase(1, 2, Result = 3, TestName = "1 + 2 = 3")]
+				[TestCase(1, 1, Result = 3, TestName = "1 + 1 = 3")]
+				public int add(int a, int b) { return a + b; }
+			}
+
+			private ConePadSuite NUnitSuite;
+
+			[BeforeEach]
+			public void GivenFixtureWithTestCases() {
+				NUnitSuite = new NUnitSuiteBuilder().BuildSuite(typeof(FixtureWithTestCases)); 
+			}
+
+			public void theres_one_test_per_case() {
+				Verify.That(() => NUnitSuite.TestCount == 2);
 			}
 		}
 	}

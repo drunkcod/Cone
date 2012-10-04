@@ -22,7 +22,9 @@ namespace Cone
 
         public MethodInfo Method { get { return method; } }
 
-        public object[] Parameters { get { return parameters;; } }
+        public object[] Parameters { get { return parameters; } }
+
+		object IRowData.Result { get { return null; } }
 
         public bool IsPending { get { return isPending; } }
 

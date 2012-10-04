@@ -53,7 +53,7 @@ namespace Cone
             public void GetFixtureMethods() {
                 FixtureMethods = new ConeFixtureMethods();
 				var testSink = new Mock<IConeTestMethodSink>().Object;
-                var setup = new ConeFixtureSetup(FixtureMethods, testSink, new ConeMethodClassifier(FixtureMethods, testSink));
+                var setup = new ConeFixtureSetup(new ConeMethodClassifier(FixtureMethods, testSink));
                 setup.CollectFixtureMethods(typeof(DerivedFixture));
             }
 
@@ -87,7 +87,7 @@ namespace Cone
             public void are_classified_only_once() {
                 var methods = new ConeFixtureMethods();
 				var testSink = new Mock<IConeTestMethodSink>().Object;
-                var setup = new ConeFixtureSetup(methods, testSink, new ConeMethodClassifier(methods, testSink));
+                var setup = new ConeFixtureSetup(new ConeMethodClassifier(methods, testSink));
                 setup.CollectFixtureMethods(typeof(DerivedFixture));
                 Verify.That(() => methods.BeforeEach.Count == 1);
             }
