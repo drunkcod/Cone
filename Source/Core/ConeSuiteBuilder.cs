@@ -4,22 +4,13 @@ using System.Reflection;
 
 namespace Cone.Core
 {
-	public class Lazy<T>
+	public interface IConeSuiteBuilder<TSuite> where TSuite : IConeSuite
 	{
-		Func<T> getValue;
- 
-		public Lazy(Func<T> forceValue) {
-			getValue = () => {
-				var value = forceValue();
-				getValue = () => value;
-				return value;
-			};
-		}
-
-		public T Value { get { return getValue(); } }
+		bool SupportedType(Type type);
+		TSuite BuildSuite(Type suiteType);
 	}
 
-    public abstract class ConeSuiteBuilder<TSuite> where TSuite : IConeSuite
+	public abstract class ConeSuiteBuilder<TSuite> : IConeSuiteBuilder<TSuite> where TSuite : IConeSuite
     {
 		static readonly Type[] FixtureAttributes = new[]{ typeof(DescribeAttribute), typeof(FeatureAttribute) };
         readonly ConeTestNamer names = new ConeTestNamer(); 
@@ -32,7 +23,7 @@ namespace Cone.Core
             public string TestName { get; set; }
         }
 
-        public static bool SupportedType(Type type) { return type.HasAny(FixtureAttributes); } 
+        public virtual bool SupportedType(Type type) { return type.HasAny(FixtureAttributes); } 
 
         public TSuite BuildSuite(Type suiteType) {
             return BuildSuite(suiteType, DescriptionOf(suiteType));
@@ -82,7 +73,7 @@ namespace Cone.Core
             }
         }
 
-        protected static IFixtureDescription DescriptionOf(Type fixtureType) {
+        public virtual IFixtureDescription DescriptionOf(Type fixtureType) {
             return fixtureType.WithAttributes(
                 (IFixtureDescription[] x) => x[0], 
                 () => new NullFixtureDescription());

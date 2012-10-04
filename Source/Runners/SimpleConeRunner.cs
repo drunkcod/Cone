@@ -8,22 +8,40 @@ namespace Cone.Runners
 {
     public class SimpleConeRunner
     {
-        readonly ConePadSuiteBuilder suiteBuilder = new ConePadSuiteBuilder();
+        readonly IConeSuiteBuilder<ConePadSuite>[] suiteBuilders = new [] {
+			new ConePadSuiteBuilder(),
+			new NUnitSuiteBuilder()
+		};
             
         public void RunTests(TestSession results, IEnumerable<Assembly> assemblies) {
-			var suites = assemblies
-				.SelectMany(x => x.GetTypes())
-				.Where(ConePadSuiteBuilder.SupportedType).ToList();
-            RunTests(results, suites);
+        	RunTests(results, assemblies.SelectMany(x => x.GetTypes()));
         }
 
         public void RunTests(TestSession results ,IEnumerable<Type> suiteTypes) {
             results.BeginSession();
             suiteTypes
-                .Select(suiteBuilder.BuildSuite)
+				.Choose<Type, ConePadSuite>(TryBuildSuite)
+				.SelectMany(Flatten)
+				.Where(x => results.IncludeSuite(x))
                 .ForEach(x => x.Run(results));
             results.Report();
 			results.EndSession();
         }
+
+		bool TryBuildSuite(Type input, out ConePadSuite suite) {
+			var builder = suiteBuilders.FirstOrDefault(x => x.SupportedType(input));
+			if(builder == null) {
+				suite = null;
+				return false;
+			}
+			suite = builder.BuildSuite(input);
+			return suite != null;
+		}
+
+		IEnumerable<ConePadSuite> Flatten(ConePadSuite suite) {
+			yield return suite;
+			foreach(var item in suite.Subsuites.SelectMany(Flatten))
+				yield return item;
+		}
     }
 }

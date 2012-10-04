@@ -54,10 +54,10 @@ namespace Cone.Core
             return method.Invoke(Fixture, parameters);
         }
 
-        public void WithInitialized(Action action, Action<Exception> beforeFailure, Action<Exception> afterFailure) {            
+        public void WithInitialized(Action<IConeFixture> action, Action<Exception> beforeFailure, Action<Exception> afterFailure) {            
 			try {
                 if(Create(beforeFailure))
-                    action();
+                    action(this);
             } finally {
                 Release(afterFailure);
             }

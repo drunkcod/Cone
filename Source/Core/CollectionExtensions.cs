@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace Cone.Core
 {
+	public delegate bool TryConvert<TInput, TOutput>(TInput value, out TOutput result);
+
     public static class CollectionExtensions
     {
         public static TOutput[] ConvertAll<TInput,TOutput>(this IList<TInput> self, Converter<TInput, TOutput> converter) {
@@ -58,5 +60,13 @@ namespace Cone.Core
             }
             return -1;
         }
+
+		public static IEnumerable<TOutput> Choose<TInput, TOutput>(this IEnumerable<TInput> self, TryConvert<TInput, TOutput> transform) {
+			TOutput value;
+			foreach(var item in self)
+				if(transform(item, out value))
+					yield return value;			
+		}
+
     }
 }

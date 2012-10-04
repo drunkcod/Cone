@@ -83,7 +83,7 @@ namespace Cone.Core
             var fixture = new ConeFixture(fixtureInstance.GetType(), new string[0], _ => fixtureInstance);
 			IConeFixtureMethodSink fixtureMethods = fixture;
 			fixtureMethods.AfterAll(((Action)fixtureInstance.AfterAll).Method);
-            fixture.WithInitialized(() => (fixture as ITestInterceptor).Before(), Nop, Nop);
+            fixture.WithInitialized(x => x.Before(), Nop, Nop);
 
 			Verify.That(() => fixtureInstance.ExecutionPath == "AfterAll");
 		}

@@ -3,7 +3,7 @@ using Cone.Core;
 
 namespace Cone.Runners
 {
-    class ConePadSuiteBuilder : ConeSuiteBuilder<ConePadSuite>
+    public class ConePadSuiteBuilder : ConeSuiteBuilder<ConePadSuite>
     {
         protected override ConePadSuite NewSuite(Type type, IFixtureDescription description) {
             return new ConePadSuite(new ConeFixture(type, description.Categories)) { 

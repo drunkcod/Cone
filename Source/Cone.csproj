@@ -62,7 +62,7 @@
     <Compile Include="Core\IConeAttributeProvider.cs" />
     <Compile Include="Core\ILGeneratorExtensions.cs" />
     <Compile Include="Core\IRowData.cs" />
-    <Compile Include="Core\MissingLinqExtensions.cs" />
+    <Compile Include="Core\Lazy.cs" />
     <Compile Include="Core\PendingGuardTestContext.cs" />
     <Compile Include="Core\PredicateExtensions.cs" />
     <Compile Include="Core\TimedTestContext.cs" />
@@ -78,6 +78,7 @@
     <Compile Include="Runners\ConePadSuite.cs" />
     <Compile Include="Runners\ConePadSuiteBuilder.cs" />
     <Compile Include="Runners\ConePadTest.cs" />
+    <Compile Include="Runners\NUnitSuiteBuilder.cs" />
     <Compile Include="Runners\TestSession.cs" />
     <Compile Include="Runners\ConsoleLogger.cs" />
     <Compile Include="Runners\CrossDomainConeRuner.cs" />

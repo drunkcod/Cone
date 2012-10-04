@@ -3,30 +3,13 @@ using System.Reflection;
 
 namespace Cone.Core
 {
-    public interface IConeTestMethodSink 
-    {
-        void Test(MethodInfo method);
-        void RowTest(MethodInfo method, IEnumerable<IRowData> rows);
-        void RowSource(MethodInfo method);
-    }
-
-    public interface IConeFixtureMethodSink 
-    {
-        void Unintresting(MethodInfo method);
-        void BeforeAll(MethodInfo method);
-        void BeforeEach(MethodInfo method);
-        void AfterEach(MethodInfo method);
-        void AfterEachWithResult(MethodInfo method);
-        void AfterAll(MethodInfo method);
-    }
-
-    public class ConeMethodClassifier 
+	public class ConeMethodClassifier 
     {
         readonly IConeFixtureMethodSink fixtureSink;
         readonly IConeTestMethodSink testSink;
 
-        public ConeMethodClassifier(IConeFixtureMethodSink sink, IConeTestMethodSink testSink) {
-            this.fixtureSink = sink;
+        public ConeMethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) {
+            this.fixtureSink = fixtureSink;
             this.testSink = testSink;
         }
 

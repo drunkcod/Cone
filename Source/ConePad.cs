@@ -35,14 +35,16 @@ namespace Cone
             }
         }
 
+		static ConePadSuiteBuilder SuiteBuilder = new ConePadSuiteBuilder();
+
         public static void RunTests() {
             Verify.GetPluginAssemblies = () => new[]{ typeof(Verify).Assembly };
-            RunTests(new ConePadLogger(), Assembly.GetCallingAssembly().GetTypes().Where(ConePadSuiteBuilder.SupportedType));
+            RunTests(new ConePadLogger(), Assembly.GetCallingAssembly().GetTypes());
         }
 
         public static void RunTests(TextWriter output, IEnumerable<Assembly> assemblies) {
             Verify.GetPluginAssemblies = () => assemblies.Concat(new[]{ typeof(Verify).Assembly });
-            RunTests(new ConePadLogger(), assemblies.SelectMany(x => x.GetTypes()).Where(ConePadSuiteBuilder.SupportedType));
+            RunTests(new ConePadLogger(), assemblies.SelectMany(x => x.GetTypes()));
         }
 
         public static void RunTests(params Type[] suiteTypes) {

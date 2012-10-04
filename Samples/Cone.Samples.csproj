@@ -17,7 +17,7 @@
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <BuildPath>$(SolutionDir)\Build</BuildPath>
-    <OutputPath>$(BuildPath)</OutputPath>  
+    <OutputPath>$(BuildPath)</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -52,6 +52,7 @@
     <Compile Include="ExampleFeatureFeature.cs" />
     <Compile Include="Failures\FailureMessagesFeature.cs" />
     <Compile Include="FreeDeliveryFeature.cs" />
+    <Compile Include="NUnitCompatibility\NUnitTests.cs" />
     <Compile Include="PendingAttributeSamples.cs" />
     <Compile Include="RowBuilderSample.cs" />
     <Compile Include="TutorialSpec.cs" />

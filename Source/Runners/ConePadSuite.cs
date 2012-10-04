@@ -6,7 +6,7 @@ using Cone.Core;
 
 namespace Cone.Runners
 {
-        class ConePadSuite : IConeSuite
+        public class ConePadSuite : IConeSuite
         {
             class ConePadTestMethodSink : IConeTestMethodSink
             {
@@ -51,8 +51,8 @@ namespace Cone.Runners
             }
 
             readonly ConeFixture fixture;
-            readonly List<Lazy<ConePadSuite>> subsuites = new List<Lazy<ConePadSuite>>();
-			readonly List<string> categories = new List<string>();
+            readonly List<Lazy<ConePadSuite>> @subsuites = new List<Lazy<ConePadSuite>>();
+			readonly List<string> @categories = new List<string>();
 
 			Lazy<List<ConePadTest>> tests;
 
@@ -62,7 +62,12 @@ namespace Cone.Runners
 
             public string Name { get; set; }
 			public IEnumerable<string> Categories { get { return categories; } } 
-            
+			public IEnumerable<ConePadSuite> Subsuites { 
+				get { 
+					return subsuites.Select(x => x.Value);
+				} 
+			} 
+
             public void AddSubSuite(Lazy<ConePadSuite> suite) {
                 subsuites.Add(suite);
             }
@@ -86,14 +91,10 @@ namespace Cone.Runners
 			}
 
             public void Run(TestSession session) {
-            	if(!session.IncludeSuite(this)) 
-					return;
-            	
 				fixture.WithInitialized(
-            		() => session.CollectResults(tests.Value.Cast<IConeTest>(), fixture), 
+            		x => session.CollectResults(tests.Value.Cast<IConeTest>(), x), 
             		_ => { }, 
             		_ => { });
-            	subsuites.ForEach(x => x.Value.Run(session));
             }
         }
 }
