@@ -60,6 +60,10 @@ namespace Cone.Runners
 						BeforeEach(method);
 						sunk = true;
 					}
+					if(attributeNames.Any(x => x == "NUnit.Framework.TearDownAttribute")) {
+						AfterEach(method);
+						sunk = true;
+					}
 
 					if(!sunk)
 						Test(method);					

@@ -8,6 +8,8 @@ namespace NUnit.Framework
 
 	public class SetUpAttribute : Attribute { }
 
+	public class TearDownAttribute : Attribute { }
+
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 	public class CategoryAttribute : Attribute 
 	{
@@ -29,12 +31,18 @@ namespace Cone.Runners
 		[TestFixture, Category("SomeCategory"), Category("Integration")]
 		class MyNUnitFixture
 		{ 
-			public bool SetUpCalled;
+			public int Calls;
+			public int SetUpCalled;
+			public int TestCalled;
+			public int TearDownCalled;
 
 			[SetUp]
-			public void SetUp() { SetUpCalled = true; }
+			public void SetUp() { SetUpCalled = ++Calls; }
 
-			public void a_test(){}
+			[TearDown]
+			public void TearDown() { TearDownCalled = ++Calls; }
+
+			public void a_test(){ TestCalled = ++Calls; }
 		}
 
 		NUnitSuiteBuilder SuiteBuilder = new NUnitSuiteBuilder();
@@ -76,17 +84,21 @@ namespace Cone.Runners
 		[Context("given a fixture instance")]
 		public class NUnitSuiteBuilderFixtureInstanceSpec
 		{
-			private ConePadSuite NUnitFixture;
+			private MyNUnitFixture NUnitFixture;
+			private ConePadSuite NUnitSuite;
 
 			[BeforeEach]
 			public void GivenFixtureInstance() {
-				NUnitFixture = new NUnitSuiteBuilder().BuildSuite(typeof(MyNUnitFixture)); 
+				NUnitSuite = new NUnitSuiteBuilder().BuildSuite(typeof(MyNUnitFixture)); 
+				NUnitFixture = (MyNUnitFixture)NUnitSuite.Fixture;
+				NUnitSuite.Run(new TestSession(new NullLogger()));
 			}
 
-			public void SetUp_is_called_on_Before() {
-				var fixture = (MyNUnitFixture)NUnitFixture.Fixture;
-				NUnitFixture.Run(new TestSession(new NullLogger()));
-				Verify.That(() => fixture.SetUpCalled == true);
+			public void SetUp_is_called_as_BeforeEach() {
+				Verify.That(() => NUnitFixture.SetUpCalled == NUnitFixture.TestCalled - 1);
+			}
+			public void TearDown_is_called_as_AfterEach() {
+				Verify.That(() => NUnitFixture.TearDownCalled == NUnitFixture.TestCalled + 1);
 			}
 		}
 	}
