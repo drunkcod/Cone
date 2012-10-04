@@ -64,6 +64,14 @@ namespace Cone.Runners
 						AfterEach(method);
 						sunk = true;
 					}
+					if(attributeNames.Any(x => x == "NUnit.Framework.TestFixtureSetUpAttribute")) {
+						BeforeAll(method);
+						sunk = true;
+					}
+					if(attributeNames.Any(x => x == "NUnit.Framework.TestFixtureTearDownAttribute")) {
+						AfterAll(method);
+						sunk = true;
+					}
 
 					if(!sunk)
 						Test(method);					

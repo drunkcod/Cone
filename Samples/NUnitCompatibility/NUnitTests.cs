@@ -14,6 +14,15 @@ namespace Cone.Samples.NUnitCompatibility
 		[SetUp]
 		public void SetUp() { SetUpCalled = true; }
 
+		[TearDown]
+		public void TearDown() { }
+
+		[TestFixtureSetUp]
+		public void FixtureSetUp() { }
+
+		[TestFixtureTearDown]
+		public void FixtureTearDown() { }
+
 		public void MyTest() { Assert.That(SetUpCalled);}
 	}
 }
