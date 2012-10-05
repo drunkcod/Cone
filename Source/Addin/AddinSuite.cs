@@ -10,7 +10,28 @@ namespace Cone.Addin
 {
     public class AddinSuite : TestSuite, IConeSuite
     {
-        readonly TestExecutor testExecutor;
+        class AddinTestMethodSink : ConeTestMethodSink
+        {
+            readonly AddinSuite suite;
+
+            public AddinTestMethodSink(AddinSuite suite, ConeTestNamer testNamer) : base(testNamer) {
+                this.suite = suite;
+            }
+
+            protected override void TestCore(MethodInfo method) {
+                suite.AddTestMethod(CreateMethodThunk(method));
+            }
+
+			protected override object FixtureInvoke(MethodInfo method) {
+				return suite.fixture.Invoke(method);
+			}
+
+			protected override IRowSuite CreateRowSuite(MethodInfo method, string context) {
+				return suite.AddRowSuite(CreateMethodThunk(method), context);
+			}
+        }
+
+		readonly TestExecutor testExecutor;
         readonly string suiteType;
         readonly ConeFixture fixture;
 
@@ -86,28 +107,6 @@ namespace Cone.Addin
         void AddWithAttributes(IConeAttributeProvider method, Test test) {
             test.ProcessExplicitAttributes(method);
             Add(test);
-        }
-
-        class AddinTestMethodSink : ConeTestMethodSink
-        {
-            readonly AddinSuite suite;
-
-            public AddinTestMethodSink(AddinSuite suite, ConeTestNamer testNamer) : base(testNamer) {
-                this.suite = suite;
-            }
-
-            protected override void TestCore(MethodInfo method) {
-                suite.AddTestMethod(CreateMethodThunk(method));
-            }
-
-			protected override object FixtureInvoke(MethodInfo method) {
-				return suite.fixture.Invoke(method);
-			}
-
-			protected override IRowSuite CreateRowSuite(MethodInfo method, string context) {
-				return suite.AddRowSuite(CreateMethodThunk(method), context);
-			}
-
         }
 
         public void WithTestMethodSink(ConeTestNamer testNamer, Action<IConeTestMethodSink> action) {

@@ -6,62 +6,23 @@ using Cone.Core;
 
 namespace Cone.Runners
 {
-	public abstract class ConeTestMethodSink : IConeTestMethodSink
-	{
-		readonly ConeTestNamer names;
-		readonly RowSuiteLookup<IRowSuite> rowSuites;
-
-
-		public ConeTestMethodSink(ConeTestNamer names) {
-			this.names = names;
-			this.rowSuites = new RowSuiteLookup<IRowSuite>(CreateRowSuite);
-		}
-
-		public void Test(MethodInfo method) { TestCore(method); }
-
-		public void RowTest(MethodInfo method, IEnumerable<IRowData> rows) {
-			GetRowSuite(method).Add(rows);
-		}
-
-		public void RowSource(MethodInfo method) {                 
-			var rows = ((IEnumerable<IRowTestData>)FixtureInvoke(method))
-				.GroupBy(x => x.Method, x => x as IRowData);
-			foreach(var item in rows)
-				RowTest(item.Key, item);
-		}
-
-		protected abstract void TestCore(MethodInfo method);
-		protected abstract object FixtureInvoke(MethodInfo method);
-		protected abstract IRowSuite CreateRowSuite(MethodInfo method, string context);
-
-		protected ConeMethodThunk CreateMethodThunk(MethodInfo method) {
-			return new ConeMethodThunk(method, names);
-		}
-
-		IRowSuite GetRowSuite(MethodInfo method) {
-			return rowSuites.GetSuite(CreateMethodThunk(method));
-        }
-	}
-
 	public class ConePadSuite : IConeSuite
     {
         class ConePadTestMethodSink : ConeTestMethodSink
         {
             readonly IConeFixture fixture;
-			readonly string context;
 			readonly ConePadSuite suite;
 
-            public ConePadTestMethodSink(ConeTestNamer names, IConeFixture fixture, string context, ConePadSuite suite) : base(names) {
+            public ConePadTestMethodSink(ConeTestNamer names, IConeFixture fixture, ConePadSuite suite) : base(names) {
                 this.fixture = fixture;
-				this.context = context;
             	this.suite = suite;
             }
 
-            public Action<string, ConeMethodThunk, object[], object> TestFound;
+            public Action<ConeMethodThunk, object[], object> TestFound;
 
             protected override void TestCore(MethodInfo method) {
 				var thunk = CreateMethodThunk(method);
-				TestFound(context, thunk, null, null); 
+				TestFound(thunk, null, null); 
 			}
 
 			protected override object FixtureInvoke(MethodInfo method) {
@@ -130,8 +91,8 @@ namespace Cone.Runners
         }
 
 		public void DiscoverTests(ConeTestNamer names) {
-			var testSink = new ConePadTestMethodSink(names, fixture, Name, this);
-			testSink.TestFound += (context, thunk, args, result) => NewTest(thunk.TestNameFor(context, args), thunk, args, result);
+			var testSink = new ConePadTestMethodSink(names, fixture, this);
+			testSink.TestFound += (thunk, args, result) => NewTest(thunk.TestNameFor(Name, args), thunk, args, result);
 			var setup = new ConeFixtureSetup(GetMethodClassifier(fixture, testSink));
 			setup.CollectFixtureMethods(fixture.FixtureType);
 		}

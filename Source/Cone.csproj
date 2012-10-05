@@ -80,6 +80,7 @@
     <Compile Include="Runners\ConePadSuite.cs" />
     <Compile Include="Runners\ConePadSuiteBuilder.cs" />
     <Compile Include="Runners\ConePadTest.cs" />
+    <Compile Include="Runners\ConeTestMethodSink.cs" />
     <Compile Include="Runners\NUnitSuiteBuilder.cs" />
     <Compile Include="Runners\TestSession.cs" />
     <Compile Include="Runners\ConsoleLogger.cs" />
