@@ -65,6 +65,9 @@ namespace Cone.Runners
 
 			public void a_test(){ TestCalled = ++Calls; }
 
+			public int NotATest() { return 42; }
+
+
 			[TearDown]
 			public void TearDown() { TearDownCalled = ++Calls; }
 

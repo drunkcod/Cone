@@ -74,8 +74,9 @@ namespace Cone.Runners
 						sunk = true;
 					}
 
-					if(!sunk)
-						Test(method);					
+					if(!sunk && method.ReturnType == typeof(void))
+						Test(method);
+					else Unintresting(method);
 				}
 
 				void ClassifyParameterized(MethodInfo method, object[] attributes) {

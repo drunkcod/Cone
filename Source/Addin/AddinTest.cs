@@ -6,7 +6,7 @@ using NUnit.Core;
 
 namespace Cone.Addin
 { 
-    public abstract class ConeTest : Test, IConeTest
+    public abstract class AddinTest : Test, IConeTest
     {
         internal readonly TestExecutor testExecutor;
 
@@ -21,7 +21,7 @@ namespace Cone.Addin
             return testName;
         }
 
-        protected ConeTest(Test suite, TestExecutor testExecutor, string name): base(BuildTestName(suite, name)) {
+        protected AddinTest(Test suite, TestExecutor testExecutor, string name): base(BuildTestName(suite, name)) {
             Parent = suite;
             this.testExecutor = testExecutor; 
         }

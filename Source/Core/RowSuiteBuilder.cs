@@ -4,7 +4,12 @@ using System.Reflection;
 
 namespace Cone.Core
 {
-    public class RowSuiteLookup<T>
+	public interface IRowSuite
+	{
+		void Add(IEnumerable<IRowData> rows);
+	}
+
+    public class RowSuiteLookup<T> where T : IRowSuite
     {
         readonly Dictionary<string, T> items = new Dictionary<string,T>();
         readonly Func<MethodInfo, string, T> create;
@@ -13,7 +18,11 @@ namespace Cone.Core
             this.create = create;
         }
 
-        public T GetSuite(MethodInfo method, string name) {
+        public T GetSuite(ConeMethodThunk thunk) {
+			return GetSuite(thunk.Method, thunk.GetHeading());
+		}
+
+		public T GetSuite(MethodInfo method, string name) {
             T suite;
             var key = method.Name + "." + name;
             if(!items.TryGetValue(key, out suite))

@@ -10,7 +10,7 @@ namespace Cone.Runners
     {
         readonly IConeSuiteBuilder<ConePadSuite>[] suiteBuilders = new [] {
 			new ConePadSuiteBuilder(),
-			new NUnitSuiteBuilder()
+			new NUnitSuiteBuilder(),
 		};
             
         public void RunTests(TestSession results, IEnumerable<Assembly> assemblies) {

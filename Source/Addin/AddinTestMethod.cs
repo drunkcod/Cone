@@ -4,11 +4,11 @@ using NUnit.Core;
 
 namespace Cone.Addin
 {
-    class ConeTestMethod : ConeTest
+    class AddinTestMethod : AddinTest
     {
         readonly ConeMethodThunk thunk;
 
-        public ConeTestMethod(ConeMethodThunk thunk, Test suite, TestExecutor testExecutor, string name)
+        public AddinTestMethod(ConeMethodThunk thunk, Test suite, TestExecutor testExecutor, string name)
             : base(suite, testExecutor, name) {
             this.thunk = thunk;
         }

@@ -66,10 +66,10 @@
     </Compile>
     <Compile Include="AddinSuiteBuilder.cs" />
     <Compile Include="ConeNUnitAddin.cs" />
-    <Compile Include="ConeRowSuite.cs" />
+    <Compile Include="AddinRowSuite.cs" />
     <Compile Include="AddinSuite.cs" />
-    <Compile Include="ConeTest.cs" />
-    <Compile Include="ConeTestMethod.cs" />
+    <Compile Include="AddinTest.cs" />
+    <Compile Include="AddinTestMethod.cs" />
     <Compile Include="NUnitTestExtensions.cs" />
     <Compile Include="NUnitTestNameAdapter.cs" />
     <Compile Include="NUnitTestResultAdapter.cs" />

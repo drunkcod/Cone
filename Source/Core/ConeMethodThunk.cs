@@ -11,22 +11,31 @@ namespace Cone.Core
 
     public class ConeMethodThunk : ICallable, IConeAttributeProvider
     {
-        readonly MethodInfo method;
+        public readonly MethodInfo Method;
+
         readonly ConeTestNamer namer;
 
         public ConeMethodThunk(MethodInfo method, ConeTestNamer namer) {
-            this.method = method;
+            this.Method = method;
             this.namer = namer;
         }
 
-        public void Invoke(object obj, object[] parameters) { method.Invoke(obj, parameters); }
+        public void Invoke(object obj, object[] parameters) { Method.Invoke(obj, parameters); }
+
+		public string GetHeading() {
+			return namer.NameFor(Method);
+		}
 
         public string NameFor(object[] parameters) {
-            return namer.NameFor(method, parameters);
+            return namer.NameFor(Method, parameters);
         }
 
+		public ITestName TestNameFor(string context, object[] parameters) {
+			return namer.TestNameFor(context, Method, parameters);
+		}
+
         IEnumerable<object> IConeAttributeProvider.GetCustomAttributes(Type attributeType) {
-            return method.GetCustomAttributes(attributeType, true);
+            return Method.GetCustomAttributes(attributeType, true);
         }
     }
 }
