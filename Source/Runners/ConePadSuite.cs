@@ -45,7 +45,7 @@ namespace Cone.Runners
 
 			public void Add(IEnumerable<IRowData> rows) {
 				foreach (var item in rows) {
-					var itemName = new ConeTestName(Name, thunk.NameFor(item.Parameters));
+					var itemName = new ConeTestName(Name, item.DisplayAs ?? thunk.NameFor(item.Parameters));
 					NewTest(itemName, thunk, item.Parameters, item.Result);
                 }
 			}
@@ -70,6 +70,7 @@ namespace Cone.Runners
 		}
 
 		public object Fixture { get { return fixture.Fixture; } }
+		public Type FixtureType { get { return fixture.FixtureType; } }
 		public int TestCount { get { return tests.Count + Subsuites.Sum(x => x.TestCount); } }
 
         public void AddSubSuite(Lazy<ConePadSuite> suite) {

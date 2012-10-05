@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -46,8 +47,12 @@ namespace Cone.Runners
 		{
 			class NUnitMethodClassifier : MethodClassifier
 			{
-				public NUnitMethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) : base(fixtureSink, testSink)
-				{ }
+				readonly Type fixtureType;
+
+				public NUnitMethodClassifier(Type fixtureType, IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) : base(fixtureSink, testSink)
+				{
+					this.fixtureType = fixtureType;
+				}
 
 				protected override void ClassifyCore(MethodInfo method) {
 					var attributes = method.GetCustomAttributes(true);
@@ -81,11 +86,21 @@ namespace Cone.Runners
 
 				void ClassifyParameterized(MethodInfo method, object[] attributes) {
 					var testCases = attributes.Where(x => x.GetType().FullName == "NUnit.Framework.TestCaseAttribute").ToList();
-					if(testCases.Count == 0) {
+					var testSources = attributes.Where(x => x.GetType().FullName == "NUnit.Framework.TestCaseSourceAttribute").ToList();
+					if(testCases.Count == 0 && testSources.Count == 0) {
 						Unintresting(method);
 						return;
 					}
-					RowTest(method, testCases.Select(x => (IRowData)new NUnitRowDataAdapter(x)));
+					RowTest(method, testCases.Select(x => (IRowData)new NUnitRowDataAdapter(x)).Concat(ReadSources(testSources)));
+				}
+
+				IEnumerable<IRowData> ReadSources(IEnumerable<object> testSources)
+				{
+					foreach(var item in testSources) {
+						var source = new NUnitTestCaseSource(fixtureType, item);
+						foreach(var testCase in source.GetTestCases())
+							yield return testCase;
+					}
 				}
 
 				class NUnitRowDataAdapter : IRowData 
@@ -119,6 +134,31 @@ namespace Cone.Runners
 					}
 				}
 
+				class NUnitTestCaseSource
+				{
+					readonly Type sourceType;
+					readonly object testCaseSource;
+
+					public NUnitTestCaseSource(Type defaultSource, object testCaseSource) {
+						this.testCaseSource = testCaseSource;
+						this.sourceType = (Type)testCaseSource.GetPropertyValue("SourceType") ?? defaultSource;
+					}
+
+					public IEnumerable<IRowData> GetTestCases() {
+						var sourceObject = GetSourceObject();
+						var sourceName = (string)testCaseSource.GetPropertyValue("SourceName");
+						var sourceMethod = sourceType.GetMethod(sourceName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+						if(sourceObject == null || sourceMethod == null)
+							throw new NotSupportedException("Failed to locate TestCaseSource:" + sourceType.FullName + "." + sourceName);
+						foreach(var item in ((IEnumerable)sourceMethod.Invoke(sourceObject, null)))
+							yield return new NUnitRowDataAdapter(item);
+					}
+
+					private object GetSourceObject() {
+						var ctor = sourceType.GetConstructor(Type.EmptyTypes);						
+						return ctor == null ? null : ctor.Invoke(null);
+					}
+				}
 			}
 
 			public NUnitSuite(ConeFixture fixture) : base(fixture) 
@@ -126,7 +166,7 @@ namespace Cone.Runners
 
 			protected override IMethodClassifier GetMethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink)
 			{
-				return new NUnitMethodClassifier(fixtureSink, testSink);
+				return new NUnitMethodClassifier(FixtureType, fixtureSink, testSink);
 			}
 		}
 

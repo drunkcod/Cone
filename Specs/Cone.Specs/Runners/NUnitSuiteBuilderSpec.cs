@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 
@@ -39,6 +40,32 @@ namespace NUnit.Framework
 		public object[] Arguments { get { return arguments; } }
 		public object Result { get; set; }
 		public string TestName { get; set; }
+	}
+
+	[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+	public class TestCaseSourceAttribute : Attribute
+	{
+		private readonly string sourceName;
+
+		public TestCaseSourceAttribute(string sourceName) {
+			this.sourceName = sourceName;
+		}
+
+		public string SourceName { get { return sourceName; } }
+		public Type SourceType { get; set; }
+	}
+
+	public class TestCaseData 
+	{
+		readonly object[] arguments;
+
+		public TestCaseData(params object[] arguments) {
+			this.arguments = arguments;
+		}
+
+		public object[] Arguments { get { return arguments; } }
+		public string TestName { get; set; }
+		public object Result { get; set; }
 	}
 }
 
@@ -151,7 +178,7 @@ namespace Cone.Runners
 				public int add(int a, int b) { return a + b; }
 			}
 
-			private ConePadSuite NUnitSuite;
+			ConePadSuite NUnitSuite;
 
 			[BeforeEach]
 			public void GivenFixtureWithTestCases() {
@@ -161,6 +188,40 @@ namespace Cone.Runners
 			public void theres_one_test_per_case() {
 				Verify.That(() => NUnitSuite.TestCount == 2);
 			}
+		}
+
+		[Context("given fixture with TestCaseSoruce")]
+		public class NUnitSuiteBuilderTestCaseSourceSpec
+		{
+			class FixtureWithTestCaseSource
+			{
+				[TestCaseSource("AddTestCaseSource")
+				,TestCaseSource("PrivateTestCaseSource")]
+				public int add(int a, int b) { return a + b; }
+
+				public IEnumerable<TestCaseData> AddTestCaseSource() {
+					yield return new TestCaseData(1, 1) {
+						TestName = "one + one = two",
+						Result = 2,
+					};
+				}
+
+				private IEnumerable<TestCaseData> PrivateTestCaseSource() {
+					yield return new TestCaseData(1, 1);
+				}
+			}
+
+			ConePadSuite NUnitSuite;
+
+			[BeforeEach]
+			public void GivenFixtureWithTestCases() {
+				NUnitSuite = new NUnitSuiteBuilder().BuildSuite(typeof(FixtureWithTestCaseSource)); 
+			}
+
+			public void locates_TestCaseData_source_method_in_same_class() {
+				Verify.That(() => NUnitSuite.TestCount == 2);
+			}
+
 		}
 	}
 

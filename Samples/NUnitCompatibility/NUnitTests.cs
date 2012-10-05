@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Collections.Generic;
+using NUnit.Framework;
 
 namespace Cone.Samples.NUnitCompatibility
 {
@@ -21,8 +22,13 @@ namespace Cone.Samples.NUnitCompatibility
 
 		public void MyTest() { Assert.That(SetUpCalled);}
 
-		[TestCase(1, 2, Result = 3)]
-		[TestCase(1, 1, Result = 5, TestName = "1 + 1 = 5")]
+		[TestCase(1, 2, Result = 3)
+		,TestCase(1, 1, Result = 5, TestName = "1 + 1 = 5")
+		,TestCaseSource("AddTestCaseSource")]
 		public int Add(int a, int b) { return a + b; } 
+
+		public IEnumerable<TestCaseData> AddTestCaseSource() {
+			yield return new TestCaseData(3, 4).Returns(7).SetName("one + one == two");
+		}
 	}
 }
