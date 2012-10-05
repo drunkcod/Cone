@@ -6,6 +6,7 @@ using NUnit.Framework;
 //mimic the NUnit framework attributes, matches must be name based to avoid referenceing nunit.
 namespace NUnit.Framework
 {
+	public class TestAttribute : Attribute { }
 	public class TestFixtureAttribute : Attribute { }
 
 	public class TestFixtureSetUpAttribute : Attribute { }
@@ -90,9 +91,10 @@ namespace Cone.Runners
 			[SetUp]
 			public void SetUp() { SetUpCalled = ++Calls; }
 
+			[Test]
 			public void a_test(){ TestCalled = ++Calls; }
 
-			public int NotATest() { return 42; }
+			public void NotATest() { }
 
 
 			[TearDown]

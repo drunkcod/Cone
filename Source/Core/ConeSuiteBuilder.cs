@@ -10,7 +10,7 @@ namespace Cone.Core
 		TSuite BuildSuite(Type suiteType);
 	}
 
-	public abstract class ConeSuiteBuilder<TSuite> : IConeSuiteBuilder<TSuite> where TSuite : IConeSuite
+	public abstract class ConeSuiteBuilder<TSuite> : IConeSuiteBuilder<TSuite> where TSuite : class, IConeSuite
     {
 		static readonly Type[] FixtureAttributes = new[]{ typeof(DescribeAttribute), typeof(FeatureAttribute) };
         readonly ConeTestNamer names = new ConeTestNamer(); 
@@ -26,14 +26,16 @@ namespace Cone.Core
         public virtual bool SupportedType(Type type) { return type.HasAny(FixtureAttributes); }
 
         public TSuite BuildSuite(Type suiteType) {
-            return BuildSuite(suiteType, DescriptionOf(suiteType));
+            return BuildSuite(null, suiteType, DescriptionOf(suiteType));
         }
 
         protected abstract TSuite NewSuite(Type type, IFixtureDescription description);
         protected abstract void AddSubSuite(TSuite suite, Lazy<TSuite> subsuite);
 
-        TSuite BuildSuite(Type type, IFixtureDescription description) {
+        TSuite BuildSuite(TSuite parent, Type type, IFixtureDescription description) {
             var suite = NewSuite(type, description);
+			if(parent != null)
+				suite.AddCategories(parent.Categories);
             suite.AddCategories(description.Categories);
 			suite.DiscoverTests(names);
             AddNestedContexts(type, suite);
@@ -49,7 +51,7 @@ namespace Cone.Core
 	                    Categories = contextDescription.Categories,
 						TestName = contextDescription.Context
 					};
-                    AddSubSuite(suite, new Lazy<TSuite>(() => BuildSuite(item, description)));
+                    AddSubSuite(suite, new Lazy<TSuite>(() => BuildSuite(suite, item, description)));
                 }
             });
         }

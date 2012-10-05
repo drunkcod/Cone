@@ -5,7 +5,8 @@ namespace Cone.Runners
 {
     public enum LoggerVerbosity {
         Default,
-        TestName
+		TestNames,
+        Labels
     }
 
     public class ConsoleLogger : IConeLogger
@@ -25,21 +26,24 @@ namespace Cone.Runners
         public void Failure(ConeTestFailure failure) {
 			switch(Verbosity) {
 				case LoggerVerbosity.Default: Write("F"); break;
-                case LoggerVerbosity.TestName: WriteTestName(failure.Context, failure.TestName, ConsoleColor.Red); break;
+				case LoggerVerbosity.TestNames: WriteTestName(failure.Context, failure.TestName, ConsoleColor.Red); break;
+                case LoggerVerbosity.Labels: WriteTestLabel(failure.Context, failure.TestName, ConsoleColor.Red); break;
 			}
         }
 
         public void Success(IConeTest test) {
             switch(Verbosity) {
                 case LoggerVerbosity.Default: Write("."); break;
-                case LoggerVerbosity.TestName: WriteTestName(test, SuccessColor); break;
+                case LoggerVerbosity.TestNames: WriteTestName(test, SuccessColor); break;
+                case LoggerVerbosity.Labels: WriteTestLabel(test, SuccessColor); break;
             }
         }
 
         public void Pending(IConeTest test) {
 			switch(Verbosity) {
 				case LoggerVerbosity.Default: Write("?"); break;
-                case LoggerVerbosity.TestName: WriteTestName(test, ConsoleColor.Yellow); break;
+                case LoggerVerbosity.TestNames: WriteTestName(test, ConsoleColor.Yellow); break;
+                case LoggerVerbosity.Labels: WriteTestLabel(test, ConsoleColor.Yellow); break;
 			}
         }
 
@@ -48,6 +52,17 @@ namespace Cone.Runners
 		}
 
 		void WriteTestName(string contextName, string testName, ConsoleColor color) {
+			var tmp = Console.ForegroundColor;
+			Console.ForegroundColor = color;
+			Write("{0}.{1}\n", contextName, testName);
+			Console.ForegroundColor = tmp;
+		}
+
+		void WriteTestLabel(IConeTest test, ConsoleColor color) {
+			WriteTestLabel(test.Name.Context, test.Name.Name, color);
+		}
+
+		void WriteTestLabel(string contextName, string testName, ConsoleColor color) {
 			var parts = contextName.Split('.');
 			var skip = 0;
 			while(skip != context.Length && context[skip] == parts[skip])

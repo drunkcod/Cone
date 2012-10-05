@@ -61,25 +61,20 @@ namespace Cone.Runners
 						return;
 					}
 					var attributeNames = attributes.Select(x => x.GetType().FullName).ToArray();
-					var sunk = false;
-					if(attributeNames.Any(x => x == "NUnit.Framework.SetUpAttribute")) {
+					if(attributeNames.Contains("NUnit.Framework.SetUpAttribute")) {
 						BeforeEach(method);
-						sunk = true;
 					}
-					if(attributeNames.Any(x => x == "NUnit.Framework.TearDownAttribute")) {
+					if(attributeNames.Contains("NUnit.Framework.TearDownAttribute")) {
 						AfterEach(method);
-						sunk = true;
 					}
-					if(attributeNames.Any(x => x == "NUnit.Framework.TestFixtureSetUpAttribute")) {
+					if(attributeNames.Contains("NUnit.Framework.TestFixtureSetUpAttribute")) {
 						BeforeAll(method);
-						sunk = true;
 					}
-					if(attributeNames.Any(x => x == "NUnit.Framework.TestFixtureTearDownAttribute")) {
+					if(attributeNames.Contains("NUnit.Framework.TestFixtureTearDownAttribute")) {
 						AfterAll(method);
-						sunk = true;
 					}
 
-					if(!sunk && method.ReturnType == typeof(void))
+					if(method.ReturnType == typeof(void) && attributeNames.Contains("NUnit.Framework.TestAttribute"))
 						Test(method);
 					else Unintresting(method);
 				}

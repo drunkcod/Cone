@@ -42,9 +42,14 @@ namespace Conesole
 				return;
 
 			if(item == "--labels") {
-				Verbosity = LoggerVerbosity.TestName;
+				Verbosity = LoggerVerbosity.Labels;
 				return;
 			} 
+
+			if(item == "--test-names") {
+				Verbosity = LoggerVerbosity.TestNames;
+				return;
+			}
 			
 			if(item == "--dry-run") {
 				IsDryRun = true;
