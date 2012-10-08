@@ -75,8 +75,10 @@ namespace Cone.Core
 
         public void Release(Action<Exception> error) {
             try {				
-				if(fixtureInitialized)
+				if(fixtureInitialized) {
+					fixtureInitialized = false;
 					InvokeAll(afterAll);
+				}
                 DoCleanup();
                 DoDispose();
             } catch(Exception ex) {

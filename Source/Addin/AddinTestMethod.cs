@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Cone.Core;
+﻿using Cone.Core;
 using NUnit.Core;
 
 namespace Cone.Addin
@@ -15,6 +14,9 @@ namespace Cone.Addin
 
 		public override IConeAttributeProvider Attributes { get { return thunk; } }
 
-        public override void Run(ITestResult testResult) { thunk.Invoke(Fixture, null); }
+        public override void Run(ITestResult testResult) { 
+			thunk.Invoke(Fixture, null); 
+			testResult.Success();
+		}
     }
 }

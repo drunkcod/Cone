@@ -20,7 +20,7 @@ namespace Cone.Runners
             this.fixture = fixture;
             this.method = method;
             this.args = args;
-			this.expectedResult= result;
+			this.expectedResult = result;
             this.attributes = attributes;
         }
 

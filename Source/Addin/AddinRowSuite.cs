@@ -21,7 +21,10 @@ namespace Cone.Addin
 
 		    public override IConeAttributeProvider Attributes { get { return Suite.Attributes; } }
 
-            public override void Run(ITestResult testResult) { Thunk.Invoke(Fixture, parameters); }
+            public override void Run(ITestResult testResult) { 
+				Thunk.Invoke(Fixture, parameters); 
+				testResult.Success();
+			}
 
             ICallable Thunk { get { return Suite.thunk; } }
 
