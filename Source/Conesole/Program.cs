@@ -99,20 +99,8 @@ namespace Conesole
 		}
     }
 
-	interface IConesoleResult 
-	{
-		int ExitCode { get; set;}
-	}
-
-	class ConesoleResult : MarshalByRefObject, IConesoleResult
-	{
-		public int ExitCode { get; set; }
-	}
-
-	[Serializable]
-    class Program
+    class Program : MarshalByRefObject
     {
-		public IConesoleResult Result = new ConesoleResult();
 		public string[] AssemblyPaths;
 		public string[] Options;
 
@@ -137,16 +125,15 @@ namespace Conesole
 				domainSetup, 
 				new PermissionSet(PermissionState.Unrestricted));
 
-			var runner = new Program {
-				AssemblyPaths = assemblyPaths,
-				Options = args,
-			};
+			var runner = (Program)testDomain.CreateInstanceFrom(new Uri(typeof(Program).Assembly.CodeBase).LocalPath, typeof(Program).FullName).Unwrap();
+			runner.AssemblyPaths = assemblyPaths;
+			runner.Options = args;
 
 			testDomain.AssemblyResolve += AssemblyResolve;
-			testDomain.DoCallBack(runner.Execute);
+			var result = runner.Execute();
 			AppDomain.Unload(testDomain);
 
-			return runner.Result.ExitCode;
+			return result;
         }
 
 		static Assembly AssemblyResolve(object sender, ResolveEventArgs e) {
@@ -165,7 +152,7 @@ namespace Conesole
 			return Path.GetDirectoryName(new Uri(e.RequestingAssembly.CodeBase).LocalPath);
 		}
 
-		void Execute(){
+		int Execute(){
             try {
 				var config = ConesoleConfiguration.Parse(Options);
 				var logger = CreateLogger(config);
@@ -180,17 +167,19 @@ namespace Conesole
             	
 				new SimpleConeRunner().RunTests(results, LoadTestAssemblies());
 
-	            Result.ExitCode = 0;
             } catch (ReflectionTypeLoadException tle) {
                 foreach (var item in tle.LoaderExceptions)
                     Console.Error.WriteLine("{0}\n---", item);
+				return -1;
 			} catch(ArgumentException e) {
 				Console.Error.WriteLine(e.Message);
-				Result.ExitCode = DisplayUsage();
+				return DisplayUsage();
             } catch (Exception e) {
                 Console.Error.WriteLine(e);
-                Result.ExitCode = -1;
+                return -1;
             }
+
+			return 0;
 		}
 
 		static IConeLogger CreateLogger(ConesoleConfiguration config) {

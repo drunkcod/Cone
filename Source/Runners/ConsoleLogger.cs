@@ -54,7 +54,7 @@ namespace Cone.Runners
 		void WriteTestName(string contextName, string testName, ConsoleColor color) {
 			var tmp = Console.ForegroundColor;
 			Console.ForegroundColor = color;
-			Write("{0}.{1}\n", contextName, testName);
+			Write("{0}.{1}\n", contextName, testName.Replace("\n", "\\n").Replace("\r", ""));
 			Console.ForegroundColor = tmp;
 		}
 
