@@ -113,7 +113,7 @@ namespace Conesole
 				.ToArray();
 
 			var domainSetup = new AppDomainSetup {
-				ApplicationBase = AppDomain.CurrentDomain.SetupInformation.ApplicationBase
+				ApplicationBase = Path.GetDirectoryName(Path.GetFullPath(assemblyPaths[0]))
 			};
 			if(assemblyPaths.Length == 1) {
 				var configPath = Path.GetFullPath(assemblyPaths[0] + ".config");
@@ -129,28 +129,11 @@ namespace Conesole
 			runner.AssemblyPaths = assemblyPaths;
 			runner.Options = args;
 
-			testDomain.AssemblyResolve += AssemblyResolve;
 			var result = runner.Execute();
 			AppDomain.Unload(testDomain);
 
 			return result;
         }
-
-		static Assembly AssemblyResolve(object sender, ResolveEventArgs e) {
-			var baseName = e.Name.Substring(0, e.Name.IndexOf(','));
-			foreach(var ext in new[]{ ".dll", ".exe" }) {
-				var probe = Path.Combine(GetBaseDir(e), baseName) + ext;
-				if(File.Exists(probe))
-					return Assembly.LoadFile(probe);
-			}
-			return null;
-		}
-
-		static string GetBaseDir(ResolveEventArgs e) {
-			if(e.RequestingAssembly == null)
-				return Environment.CurrentDirectory;
-			return Path.GetDirectoryName(new Uri(e.RequestingAssembly.CodeBase).LocalPath);
-		}
 
 		int Execute(){
             try {
