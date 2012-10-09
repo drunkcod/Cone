@@ -6,13 +6,14 @@ using Cone.Core;
 
 namespace Cone.Runners
 {
-	enum ExpectedTestResultType 
+	public enum ExpectedTestResultType 
 	{
 		None,
 		Value,
+		Exception
 	}
 
-	struct ExpectedTestResult
+	public struct ExpectedTestResult
 	{
 		public readonly ExpectedTestResultType ResultType;
 		public readonly object ExpectedResult;
@@ -27,6 +28,10 @@ namespace Cone.Runners
 
 		public static ExpectedTestResult Value(object value) {
 			return new ExpectedTestResult(ExpectedTestResultType.Value, value);
+		}
+
+		public static ExpectedTestResult Exception(Type exceptionType) {
+			return new ExpectedTestResult(ExpectedTestResultType.Exception, exceptionType);
 		}
 	}
 
@@ -44,9 +49,9 @@ namespace Cone.Runners
 
             public Action<ConeMethodThunk, object[], ExpectedTestResult> TestFound;
 
-            protected override void TestCore(MethodInfo method) {
+            protected override void TestCore(MethodInfo method, ExpectedTestResult expectedResult) {
 				var thunk = CreateMethodThunk(method);
-				TestFound(thunk, null, ExpectedTestResult.None); 
+				TestFound(thunk, null, expectedResult); 
 			}
 
 			protected override object FixtureInvoke(MethodInfo method) {
@@ -122,6 +127,7 @@ namespace Cone.Runners
 			switch(result.ResultType) {
 				case ExpectedTestResultType.None: return new ConeTestMethod(fixture, method);
 				case ExpectedTestResultType.Value: return new ValueResultTestMethod(fixture, method, result.ExpectedResult);
+				case ExpectedTestResultType.Exception: return new ExpectedExceptionTestMethod(fixture, method, (Type)result.ExpectedResult);
 				default: throw new NotSupportedException();
 			}
 		}

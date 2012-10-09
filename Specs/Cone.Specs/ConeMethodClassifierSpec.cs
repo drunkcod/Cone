@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Cone.Runners;
 using Moq;
 
 namespace Cone.Core
@@ -27,7 +28,7 @@ namespace Cone.Core
 
         public void public_niladic_methods_are_tests() {
             var method = Method(x => x.Test());
-            Classify(method).Verify(x => x.Test(method));
+            Classify(method).Verify(x => x.Test(method, ExpectedTestResult.None));
         }
 
         public void public_with_RowAttribute_are_row_tests() {

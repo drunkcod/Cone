@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using Cone.Runners;
 
 namespace Cone.Core
 {
@@ -34,7 +35,7 @@ namespace Cone.Core
         protected void AfterEachWithResult(MethodInfo method) { fixtureSink.AfterEachWithResult(method); }
         protected void AfterAll(MethodInfo method) { fixtureSink.AfterAll(method); }
         protected void Unintresting(MethodInfo method) { fixtureSink.Unintresting(method); }
-		protected void Test(MethodInfo method) { testSink.Test(method); }
+		protected void Test(MethodInfo method, ExpectedTestResult expectedResult) { testSink.Test(method, expectedResult); }
 		protected void RowTest(MethodInfo method, IEnumerable<IRowData> rows) { testSink.RowTest(method, rows); }
 		protected void RowSource(MethodInfo method) { testSink.RowSource(method); }
 	}
@@ -86,7 +87,7 @@ namespace Cone.Core
             if(sunk)
                 return;
             
-            Test(method);
+            Test(method, ExpectedTestResult.None);
         }
 
         void Monadic(MethodInfo method, ParameterInfo parameter) {

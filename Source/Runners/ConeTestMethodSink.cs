@@ -16,7 +16,7 @@ namespace Cone.Runners
 			this.rowSuites = new RowSuiteLookup<IRowSuite>(CreateRowSuite);
 		}
 
-		public void Test(MethodInfo method) { TestCore(method); }
+		public void Test(MethodInfo method, ExpectedTestResult expectedResult) { TestCore(method, expectedResult); }
 
 		public void RowTest(MethodInfo method, IEnumerable<IRowData> rows) {
 			GetRowSuite(method).Add(rows);
@@ -29,7 +29,7 @@ namespace Cone.Runners
 				RowTest(item.Key, item);
 		}
 
-		protected abstract void TestCore(MethodInfo method);
+		protected abstract void TestCore(MethodInfo method, ExpectedTestResult expectedResult);
 		protected abstract object FixtureInvoke(MethodInfo method);
 		protected abstract IRowSuite CreateRowSuite(MethodInfo method, string context);
 

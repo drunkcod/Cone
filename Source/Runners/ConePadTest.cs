@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using Cone.Core;
 using Cone.Expectations;
@@ -21,6 +22,7 @@ namespace Cone.Runners
 
 		public virtual void Invoke(object[] parameters, ITestResult result) {
 			method.Invoke(fixture.Fixture, parameters);
+			result.Success();
 		}
 
 		public ParameterInfo[] GetParameters() { return method.GetParameters(); } 
@@ -28,7 +30,6 @@ namespace Cone.Runners
 		protected object Invoke(object[] parameters) {
 			return method.Invoke(fixture.Fixture, parameters);
 		}
-
 	}
 
 	class ValueResultTestMethod : ConeTestMethod
@@ -39,15 +40,36 @@ namespace Cone.Runners
 			this.expectedResult = expectedResult;
 		}
 
-		public override void Invoke(object[] parameters, ITestResult result)
-		{
+		public override void Invoke(object[] parameters, ITestResult result) {
 			var x = Invoke(parameters);
-			if(!Equals(expectedResult, x))
-				result.TestFailure(new Exception("\n" + string.Format(ExpectMessages.EqualFormat, x, expectedResult)));
+			if(Equals(expectedResult, x))
+				result.Success();
+			else result.TestFailure(new Exception("\n" + string.Format(ExpectMessages.EqualFormat, x, expectedResult)));
 		}
 
 		bool Equals(object expected, object actual) {
 			return Convert.ChangeType(actual, expected.GetType()).Equals(expected);
+		}
+	}
+
+	class ExpectedExceptionTestMethod : ConeTestMethod
+	{
+		readonly Type expectedExceptionType;
+
+		public ExpectedExceptionTestMethod(IConeFixture fixture, MethodInfo method, Type expectedExceptionType) : base(fixture, method) {
+			this.expectedExceptionType = expectedExceptionType;
+		}
+
+		public override void Invoke(object[] parameters, ITestResult result) {
+			try {
+				Invoke(parameters);
+				result.TestFailure(new Exception("Expected exception of type " + expectedExceptionType.FullName));
+			} catch(TargetInvocationException te) {
+				var e = te.InnerException;
+				if(e.GetType() != expectedExceptionType)
+					result.TestFailure(new Exception("Expected exception of type " + expectedExceptionType.FullName + " but was " + e.GetType()));
+				else result.Success();
+			}
 		}
 	}
 
@@ -71,7 +93,6 @@ namespace Cone.Runners
 		IEnumerable<string> IConeTest.Categories { get { return test.Categories; } }
         void IConeTest.Run(ITestResult result) {
 			test.Invoke(ConvertArgs(test.GetParameters()), result);
-			result.Success();
 		}
 
     	private object[] ConvertArgs(ParameterInfo[] parameters) {

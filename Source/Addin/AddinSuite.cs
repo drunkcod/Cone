@@ -18,7 +18,7 @@ namespace Cone.Addin
                 this.suite = suite;
             }
 
-            protected override void TestCore(MethodInfo method) {
+            protected override void TestCore(MethodInfo method, ExpectedTestResult expectedResult) {
                 suite.AddTestMethod(CreateMethodThunk(method));
             }
 
