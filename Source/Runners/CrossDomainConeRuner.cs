@@ -1,5 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Security;
+using System.Security.Permissions;
 using Cone.Core;
 
 namespace Cone.Runners
@@ -48,7 +53,7 @@ namespace Cone.Runners
 
     public class CrossDomainConeRunner
     {
-        [Serializable]
+		[Serializable]
         class RunTestsCommand
         {
             public ICrossDomainLogger Logger;
@@ -58,24 +63,53 @@ namespace Cone.Runners
 				var log = new CrossDomainLoggerAdapater(Logger) {
                     ShowProgress = false
                 };
-                new SimpleConeRunner().RunTests(new TestSession(log), LoadTestAssemblies());             
+                new SimpleConeRunner().RunTests(new TestSession(log), LoadTestAssemblies(AssemblyPaths));             
             }
-
-        	Assembly[] LoadTestAssemblies() {
-        		return AssemblyPaths.ConvertAll(Assembly.LoadFrom);
-        	}
         }
 
+		static T WithTestDomain<T>(string applicationBase, string[] assemblyPaths, Func<AppDomain,T> @do) {
+			var domainSetup = new AppDomainSetup {
+				ApplicationBase = applicationBase
+			};
+			if(assemblyPaths.Length == 1) {
+				var configPath = Path.GetFullPath(assemblyPaths[0] + ".config");
+				if(File.Exists(configPath))
+					domainSetup.ConfigurationFile = configPath;
+			}
+			var testDomain = AppDomain.CreateDomain("Cone.TestDomain", 
+				null, 
+				domainSetup, 
+				new PermissionSet(PermissionState.Unrestricted));
+			try {
+				return @do(testDomain);
+			} finally {
+				AppDomain.Unload(testDomain);
+			}
+		}
+
+		public static TResult WithProxyInDomain<T,TResult>(string applicationBase, string[] assemblyPaths, Func<T, TResult> @do) {
+			return WithTestDomain(applicationBase, assemblyPaths, testDomain => {
+				var proxy = (T)testDomain.CreateInstanceFrom(typeof(T).Assembly.Location, typeof(T).FullName).Unwrap();
+				return @do(proxy);
+			});
+		}
+
+		public static IEnumerable<Assembly> LoadTestAssemblies(string[] assemblyPaths) {
+			if(assemblyPaths.IsEmpty())
+				throw new ArgumentException("No test assemblies specified");
+			return assemblyPaths.Select(item => Assembly.LoadFile(Path.GetFullPath(item)));
+    	}
+
         public static void RunTestsInTemporaryDomain(ICrossDomainLogger logger, string applicationBase, string[] assemblyPaths) {
-            var testDomain = AppDomain.CreateDomain("TestDomain", null, new AppDomainSetup {
-                    ApplicationBase = applicationBase,
-                    ShadowCopyFiles = "true"
-                });
-                testDomain.DoCallBack(new RunTestsCommand {
-                    Logger = logger,
-                    AssemblyPaths = assemblyPaths
-                }.Execute);
-                AppDomain.Unload(testDomain);
+			WithTestDomain(applicationBase, assemblyPaths, testDomin => {
+			    var runTests = new RunTestsCommand
+			    {
+					Logger = logger,
+					AssemblyPaths = assemblyPaths
+			    };
+			    testDomin.DoCallBack(runTests.Execute);
+				return 0;
+			});
         }
     }
 }

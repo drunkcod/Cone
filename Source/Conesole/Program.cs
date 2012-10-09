@@ -112,27 +112,14 @@ namespace Conesole
 				.Where(x => !ConesoleConfiguration.IsOption(x))
 				.ToArray();
 
-			var domainSetup = new AppDomainSetup {
-				ApplicationBase = Path.GetDirectoryName(Path.GetFullPath(assemblyPaths[0]))
-			};
-			if(assemblyPaths.Length == 1) {
-				var configPath = Path.GetFullPath(assemblyPaths[0] + ".config");
-				if(File.Exists(configPath))
-					domainSetup.ConfigurationFile = configPath;
-			}
-			var testDomain = AppDomain.CreateDomain("Conesole.TestDomain", 
-				null, 
-				domainSetup, 
-				new PermissionSet(PermissionState.Unrestricted));
-
-			var runner = (Program)testDomain.CreateInstanceFrom(new Uri(typeof(Program).Assembly.CodeBase).LocalPath, typeof(Program).FullName).Unwrap();
-			runner.AssemblyPaths = assemblyPaths;
-			runner.Options = args;
-
-			var result = runner.Execute();
-			AppDomain.Unload(testDomain);
-
-			return result;
+			return CrossDomainConeRunner.WithProxyInDomain<Program, int>(
+				Path.GetDirectoryName(Path.GetFullPath(assemblyPaths[0])), 
+				assemblyPaths, 
+				runner => {
+					runner.AssemblyPaths = assemblyPaths;
+					runner.Options = args;
+					return runner.Execute();
+			});
         }
 
 		int Execute(){
@@ -148,7 +135,7 @@ namespace Conesole
 					results.GetResultCollector = _ => (test, result) => result.Success();
 				}
             	
-				new SimpleConeRunner().RunTests(results, LoadTestAssemblies());
+				new SimpleConeRunner().RunTests(results, CrossDomainConeRunner.LoadTestAssemblies(AssemblyPaths));
 
             } catch (ReflectionTypeLoadException tle) {
                 foreach (var item in tle.LoaderExceptions)
@@ -182,12 +169,6 @@ namespace Conesole
     			Console.WriteLine(reader.ReadToEnd());
     		}
     		return -1;
-    	}
-
-    	IEnumerable<Assembly> LoadTestAssemblies() {
-			if(AssemblyPaths.IsEmpty())
-				throw new ArgumentException("No test assemblies specified");
-			return AssemblyPaths.Select(item => Assembly.LoadFile(Path.GetFullPath(item)));
     	}
     }
 }
