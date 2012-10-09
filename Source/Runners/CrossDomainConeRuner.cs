@@ -69,7 +69,8 @@ namespace Cone.Runners
 
 		static T WithTestDomain<T>(string applicationBase, string[] assemblyPaths, Func<AppDomain,T> @do) {
 			var domainSetup = new AppDomainSetup {
-				ApplicationBase = applicationBase
+				ApplicationBase = applicationBase,
+				ShadowCopyFiles = "True",
 			};
 			if(assemblyPaths.Length == 1) {
 				var configPath = Path.GetFullPath(assemblyPaths[0] + ".config");
@@ -77,7 +78,7 @@ namespace Cone.Runners
 					domainSetup.ConfigurationFile = configPath;
 			}
 			var testDomain = AppDomain.CreateDomain("Cone.TestDomain", 
-				null, 
+				null,
 				domainSetup, 
 				new PermissionSet(PermissionState.Unrestricted));
 			try {
