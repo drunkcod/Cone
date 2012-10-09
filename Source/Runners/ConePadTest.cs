@@ -6,33 +6,90 @@ using Cone.Expectations;
 
 namespace Cone.Runners
 {
+	class ConeTestMethod 
+	{
+		readonly IConeFixture fixture;
+		readonly MethodInfo method;
+
+		public ConeTestMethod(IConeFixture fixture, MethodInfo method) {
+			this.fixture = fixture;
+			this.method = method;
+		}
+
+		public IEnumerable<string> Categories { get { return fixture.Categories; } }
+ 		public Type ReturnType { get { return method.ReturnType; } }
+
+		public virtual void Invoke(object[] parameters, ITestResult result) {
+			method.Invoke(fixture.Fixture, parameters);
+		}
+
+		public ParameterInfo[] GetParameters() { return method.GetParameters(); } 
+
+		protected object Invoke(object[] parameters) {
+			return method.Invoke(fixture.Fixture, parameters);
+		}
+
+	}
+
+	class ValueResultTestMethod : ConeTestMethod
+	{
+		readonly object expectedResult;
+
+		public ValueResultTestMethod(IConeFixture fixture, MethodInfo method, object expectedResult) : base(fixture, method) {
+			this.expectedResult = expectedResult;
+		}
+
+		public override void Invoke(object[] parameters, ITestResult result)
+		{
+			var x = Invoke(parameters);
+			if(!Equals(expectedResult, x))
+				result.TestFailure(new Exception("\n" + string.Format(ExpectMessages.EqualFormat, x, expectedResult)));
+		}
+
+		bool Equals(object expected, object actual) {
+			return Convert.ChangeType(actual, expected.GetType()).Equals(expected);
+		}
+	}
+
     class ConePadTest : IConeTest
     {
         readonly ITestName name;
-        readonly IConeFixture fixture;
-        readonly MethodInfo method;
         readonly object[] args;
         readonly IConeAttributeProvider attributes;
-    	readonly object expectedResult;
+		readonly ConeTestMethod test;
 
-    	public ConePadTest(ITestName name, IConeFixture fixture, MethodInfo method, object[] args, object result, IConeAttributeProvider attributes) {
+    	public ConePadTest(ITestName name, ConeTestMethod test, object[] args, IConeAttributeProvider attributes) {
             this.name = name;
-            this.fixture = fixture;
-            this.method = method;
             this.args = args;
-			this.expectedResult = result;
             this.attributes = attributes;
+			this.test = test;
         }
 
         public ITestName Name { get { return name; } }
 
         IConeAttributeProvider IConeTest.Attributes { get { return attributes; } }
-		IEnumerable<string> IConeTest.Categories { get { return fixture.Categories; } }
+		IEnumerable<string> IConeTest.Categories { get { return test.Categories; } }
         void IConeTest.Run(ITestResult result) {
-			var x = method.Invoke(fixture.Fixture, args);
-			if(method.ReturnType == typeof(void) || x.Equals(expectedResult))
-				result.Success();
-			else result.TestFailure(new Exception("\n" + string.Format(ExpectMessages.EqualFormat, x, expectedResult)));
+			test.Invoke(ConvertArgs(test.GetParameters()), result);
+			result.Success();
+		}
+
+    	private object[] ConvertArgs(ParameterInfo[] parameters) {
+			if(args == null)
+				return null;
+			var x = new object[args.Length];
+			for(var i = 0; i != x.Length; ++i) {
+				var parameterType = parameters[i].ParameterType;
+				var arg = args[i];
+				x[i] = KeepOriginalArg(arg, parameterType) ? arg : Convert.ChangeType(arg, parameterType);
+			}
+			return x;
+    	}
+
+		bool KeepOriginalArg(object arg, Type parameterType) {
+			return arg == null
+				|| parameterType == typeof(object)
+				|| parameterType.IsInstanceOfType(arg);
 		}
     }
 }

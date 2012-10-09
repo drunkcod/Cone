@@ -68,10 +68,50 @@ namespace NUnit.Framework
 		public string TestName { get; set; }
 		public object Result { get; set; }
 	}
+
+	public class ExpectedExceptionAttribute : Attribute
+	{
+		public ExpectedExceptionAttribute(Type expectedException) {
+			this.ExpectedException = expectedException;
+		}
+
+		public Type ExpectedException { get; private set; }
+	}
 }
 
 namespace Cone.Runners
 {
+	[TestFixture]
+	public class NUnitCompatibilityTests
+	{
+		[TestCase(1, 1, Result = 2.0)
+		,TestCaseSource("AddTestCases")]
+		public double add(float a, float b) {
+			return a + b;
+		}
+
+		[TestCase(1, 1, Result = 2)]
+		public decimal decimal_add(decimal a, decimal b) {
+			return a + b;
+		}
+
+		[TestCase(new[]{ 1, 2, 3 } ,Result = 6)]
+		public int sum(int[] xs) {
+			return xs.Sum();
+		}
+
+		IEnumerable<TestCaseData> AddTestCases() {
+			yield return new TestCaseData(1, 1) {
+				Result = new decimal(2)
+			};
+		}
+
+		[Test, ExpectedException(typeof(ArgumentException))]
+		public void handle_expected_exception() {
+			throw new ArgumentException();
+		}
+	}
+
 	[Describe(typeof(NUnitSuiteBuilder))]
 	public class NUnitSuiteBuilderSpec
 	{

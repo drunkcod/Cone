@@ -120,6 +120,7 @@ namespace Cone.Runners
 						get { return (object[])GetPropertyValue("Arguments"); }
 					}
 
+					public bool HasResult { get { return true; } }
 					public object Result {
 						get { return GetPropertyValue("Result"); }
 					}

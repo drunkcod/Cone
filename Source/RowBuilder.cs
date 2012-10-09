@@ -24,6 +24,7 @@ namespace Cone
 
         public object[] Parameters { get { return parameters; } }
 
+		bool IRowData.HasResult { get { return false; } }
 		object IRowData.Result { get { return null; } }
 
         public bool IsPending { get { return isPending; } }

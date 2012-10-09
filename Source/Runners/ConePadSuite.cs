@@ -6,6 +6,30 @@ using Cone.Core;
 
 namespace Cone.Runners
 {
+	enum ExpectedTestResultType 
+	{
+		None,
+		Value,
+	}
+
+	struct ExpectedTestResult
+	{
+		public readonly ExpectedTestResultType ResultType;
+		public readonly object ExpectedResult;
+
+		ExpectedTestResult(ExpectedTestResultType resultType, object value)
+		{
+			this.ResultType = resultType;
+			this.ExpectedResult = value;
+		}
+
+		public static readonly ExpectedTestResult None = new ExpectedTestResult(ExpectedTestResultType.None, null);
+
+		public static ExpectedTestResult Value(object value) {
+			return new ExpectedTestResult(ExpectedTestResultType.Value, value);
+		}
+	}
+
 	public class ConePadSuite : IConeSuite
     {
         class ConePadTestMethodSink : ConeTestMethodSink
@@ -18,11 +42,11 @@ namespace Cone.Runners
             	this.suite = suite;
             }
 
-            public Action<ConeMethodThunk, object[], object> TestFound;
+            public Action<ConeMethodThunk, object[], ExpectedTestResult> TestFound;
 
             protected override void TestCore(MethodInfo method) {
 				var thunk = CreateMethodThunk(method);
-				TestFound(thunk, null, null); 
+				TestFound(thunk, null, ExpectedTestResult.None); 
 			}
 
 			protected override object FixtureInvoke(MethodInfo method) {
@@ -46,7 +70,10 @@ namespace Cone.Runners
 			public void Add(IEnumerable<IRowData> rows) {
 				foreach (var item in rows) {
 					var itemName = new ConeTestName(Name, item.DisplayAs ?? thunk.NameFor(item.Parameters));
-					NewTest(itemName, thunk, item.Parameters, item.Result);
+					NewTest(itemName, thunk, item.Parameters, 
+						item.HasResult 
+							? ExpectedTestResult.Value(item.Result)
+							: ExpectedTestResult.None);
                 }
 			}
 		}
@@ -87,9 +114,17 @@ namespace Cone.Runners
 
         public void AddCategories(IEnumerable<string> categories) { this.categories.AddRange(categories); }
             
-        internal void NewTest(ITestName displayName, ConeMethodThunk thunk, object[] args, object result) {
-			tests.Add(new ConePadTest(displayName, fixture, thunk.Method, args, result, thunk));
+        void NewTest(ITestName displayName, ConeMethodThunk thunk, object[] args, ExpectedTestResult result) {
+			tests.Add(new ConePadTest(displayName, NewTestMethod(thunk.Method, result), args, thunk));
         }
+
+		ConeTestMethod NewTestMethod(MethodInfo method, ExpectedTestResult result) {
+			switch(result.ResultType) {
+				case ExpectedTestResultType.None: return new ConeTestMethod(fixture, method);
+				case ExpectedTestResultType.Value: return new ValueResultTestMethod(fixture, method, result.ExpectedResult);
+				default: throw new NotSupportedException();
+			}
+		}
 
 		public void DiscoverTests(ConeTestNamer names) {
 			var testSink = new ConePadTestMethodSink(names, fixture, this);

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Cone
 {
@@ -32,7 +29,6 @@ namespace Cone
                 .Add(x => x.Lambda(lambda));
             Verify.That(() => (Func<int>)rows[0].Parameters[0] == lambda);
         }
-
 
         public void collect_inline_lambda() {
             var rows = new RowBuilder<RowBuilderSpec>()

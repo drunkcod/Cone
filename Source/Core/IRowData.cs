@@ -5,6 +5,7 @@ namespace Cone.Core
         bool IsPending { get; }
         string DisplayAs { get; }
         object[] Parameters { get; }
+		bool HasResult { get; }
 		object Result { get; }
     }
 }
