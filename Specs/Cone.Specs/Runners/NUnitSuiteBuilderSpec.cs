@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using NUnit.Framework;
 
 //mimic the NUnit framework attributes, matches must be name based to avoid referenceing nunit.
@@ -96,7 +95,7 @@ namespace Cone.Runners
 			return a + b;
 		}
 
-		[TestCase(new[]{ 1, 2, 3 } ,Result = 6)]
+		[TestCase(new[]{ 1, 2, 3 }, Result = 6)]
 		public int sum(int[] xs) {
 			return xs.Sum();
 		}

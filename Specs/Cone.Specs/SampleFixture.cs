@@ -15,6 +15,8 @@ namespace Cone
 
         public void Test(){}
 
+		public int Uninteresting() { return 42; }
+
         [Row(42)]
         public void RowTest(int input){ }
 

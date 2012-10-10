@@ -65,6 +65,7 @@
     <Compile Include="Core\ILGeneratorExtensions.cs" />
     <Compile Include="Core\IRowData.cs" />
     <Compile Include="Core\Lazy.cs" />
+    <Compile Include="Core\MethodClassifier.cs" />
     <Compile Include="Core\PendingGuardTestContext.cs" />
     <Compile Include="Core\PredicateExtensions.cs" />
     <Compile Include="Core\TimedTestContext.cs" />

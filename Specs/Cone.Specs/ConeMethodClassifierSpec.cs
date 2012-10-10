@@ -31,7 +31,12 @@ namespace Cone.Core
             Classify(method).Verify(x => x.Test(method, ExpectedTestResult.None));
         }
 
-        public void public_with_RowAttribute_are_row_tests() {
+        public void public_niladic_methods_with_returnvalues_are_not_tests() {
+            var method = Method(x => x.Test());
+            Classify(method).Verify(x => x.Unintresting(method));
+        }
+
+		public void public_with_RowAttribute_are_row_tests() {
             var method = Method(x => x.RowTest(42));
             Classify(method).Verify(x => x.RowTest(method, It.IsAny<IRowData[]>()));
         }

@@ -42,12 +42,12 @@ namespace Cone.Runners
 
 		public override void Invoke(object[] parameters, ITestResult result) {
 			var x = Invoke(parameters);
-			if(Equals(expectedResult, x))
+			if(ReturnType == typeof(void) || ResultEquals(expectedResult, x))
 				result.Success();
 			else result.TestFailure(new Exception("\n" + string.Format(ExpectMessages.EqualFormat, x, expectedResult)));
 		}
 
-		bool Equals(object expected, object actual) {
+		bool ResultEquals(object expected, object actual) {
 			return Convert.ChangeType(actual, expected.GetType()).Equals(expected);
 		}
 	}
