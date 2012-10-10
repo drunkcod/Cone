@@ -18,8 +18,10 @@ namespace Cone.Core
         public void CollectFixtureMethods(Type type) {
             if(type == typeof(object))
                 return;
-            var seenVirtuals = new HashSet<MethodInfo>();
-            CollectFixtureMethods(type, x => Classify(x, seenVirtuals));
+            var virtuals = new Dictionary<MethodInfo, MethodInfo>();
+            CollectFixtureMethods(type, x => Classify(x, virtuals));
+			foreach(var item in virtuals.Values)
+				classifier.Classify(item);
         }
 
         void CollectFixtureMethods(Type type, Action<MethodInfo> classify) {
@@ -29,11 +31,10 @@ namespace Cone.Core
             GetMethods(type).ForEach(classify);
         }
 
-        void Classify(MethodInfo method, HashSet<MethodInfo> seenVirtuals) { 
+        void Classify(MethodInfo method, Dictionary<MethodInfo, MethodInfo> virtuals) { 
             if(method.IsVirtual) {
-                if(seenVirtuals.Contains(method.GetBaseDefinition()))
-                    return;
-                seenVirtuals.Add(method);
+				virtuals[method.GetBaseDefinition()] = method;
+				return;
             }
             classifier.Classify(method); 
         }
