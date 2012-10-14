@@ -1,6 +1,6 @@
 ﻿namespace Cone
 {
-    public interface ITestInterceptor
+    public interface ITestContext
     {
         void Before();
         void After(ITestResult result);

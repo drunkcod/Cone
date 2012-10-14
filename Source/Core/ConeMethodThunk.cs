@@ -34,7 +34,7 @@ namespace Cone.Core
 			return namer.TestNameFor(context, Method, parameters);
 		}
 
-        IEnumerable<object> IConeAttributeProvider.GetCustomAttributes(Type attributeType) {
+        public IEnumerable<object> GetCustomAttributes(Type attributeType) {
             return Method.GetCustomAttributes(attributeType, true);
         }
     }

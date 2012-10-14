@@ -24,8 +24,8 @@ namespace Cone
 
         public object[] Parameters { get { return parameters; } }
 
-		bool IRowData.HasResult { get { return false; } }
-		object IRowData.Result { get { return null; } }
+		public bool HasResult { get { return false; } }
+		public object Result { get { return null; } }
 
         public bool IsPending { get { return isPending; } }
 
@@ -76,12 +76,18 @@ namespace Cone
                 .SetName(testNamer.NameFor(call.Method, parameters));
         }
 
-        object Collect(Expression expression, Expression context) { return evaluator.Evaluate(expression, context).Result; }
+        object Collect(Expression expression, Expression context) { 
+            return evaluator.Evaluate(expression, context).Result; 
+        }
 
-        IEnumerator<IRowTestData> IEnumerable<IRowTestData>.GetEnumerator() { return rows.GetEnumerator(); }
+        IEnumerator<IRowTestData> IEnumerable<IRowTestData>.GetEnumerator() { 
+            return GetEnumerator(); 
+        }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
-            return rows.GetEnumerator(); 
+            return GetEnumerator(); 
         }
+
+        protected IEnumerator<IRowTestData> GetEnumerator() { return rows.GetEnumerator(); }
     }
 }

@@ -79,8 +79,8 @@ namespace Cone.Core
 			    FixtureMethods.BeforeAll( ((Action)FixtureInstance.BeforeAll).Method);
 			    FixtureMethods.BeforeEach( ((Action)FixtureInstance.BeforeEach).Method);
                 Fixture.Create(Nop);
-			    (Fixture as ITestInterceptor).Before();
-			    (Fixture as ITestInterceptor).Before();
+			    (Fixture as ITestContext).Before();
+			    (Fixture as ITestContext).Before();
 
 			    Verify.That(() => FixtureInstance.ExecutionPath == "BeforeAll->BeforeEach->BeforeEach");
 		    }

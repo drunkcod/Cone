@@ -16,9 +16,10 @@ namespace Cone
             this.method = method;
         }
 
-        IEnumerator<IRowTestData> IEnumerable<IRowTestData>.GetEnumerator() { return rows.GetEnumerator(); }
+        IEnumerator<IRowTestData> IEnumerable<IRowTestData>.GetEnumerator() { return GetEnumerator(); }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() { return GetEnumerator(); }
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() { return rows.GetEnumerator(); }
+        protected IEnumerator<IRowTestData> GetEnumerator() { return rows.GetEnumerator(); }
     
         protected void AddRow(params object[] parameters) {
             rows.Add(new RowTestData(method, parameters).SetName(testNamer.NameFor(method, parameters)));

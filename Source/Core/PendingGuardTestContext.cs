@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Cone.Core
 {
-	public class PendingGuardTestContext : ITestContext
+	public class PendingGuardTestContext : ITestExecutionContext
 	{
 		public TestContextStep Establish(IFixtureContext context, TestContextStep next) {
 			var pending = FirstPendingOrDefault(context.Attributes, FirstPendingOrDefault(context.Fixture.FixtureType.AsConeAttributeProvider(), null));

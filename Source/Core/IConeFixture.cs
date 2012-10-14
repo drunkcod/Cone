@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Cone.Core
 {
-    public interface IConeFixture : ITestInterceptor
+    public interface IConeFixture : ITestContext
     {
         object Fixture { get; }
         Type FixtureType { get; }

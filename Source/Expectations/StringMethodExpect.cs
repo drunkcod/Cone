@@ -29,11 +29,11 @@ namespace Cone.Expectations
             };
         }
 
-        IEnumerable<MethodInfo> IMethodExpectProvider.GetSupportedMethods() {
+        public IEnumerable<MethodInfo> GetSupportedMethods() {
             return methodDisplay.Keys;
         }
 
-        IExpect IMethodExpectProvider.GetExpectation(Expression body, MethodInfo method, object target, object[] args) {
+        public IExpect GetExpectation(Expression body, MethodInfo method, object target, object[] args) {
             return new StringMethodExpect(methodDisplay[method], body, method, target, args);
         }
     }

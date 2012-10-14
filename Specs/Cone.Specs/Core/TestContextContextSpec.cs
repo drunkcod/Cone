@@ -3,24 +3,24 @@ using Moq;
 
 namespace Cone.Core
 {
-    [Describe(typeof(InterceptorContext))]
-    public class InterceptorContextSpec
+    [Describe(typeof(TestContextContext))]
+    public class TestContextContextSpec
     {
         class Fixture {
-            public ITestInterceptor Interceptor;
+            public ITestContext Interceptor;
         }
 
-        Mock<ITestInterceptor> Interceptor;
+        Mock<ITestContext> Interceptor;
         Mock<ITestResult> Result;
-        InterceptorContext Context;
+        TestContextContext Context;
 
         [BeforeEach]
         public void EstablishContext() {
-            Interceptor = new Mock<ITestInterceptor>();
+            Interceptor = new Mock<ITestContext>();
             Result = new Mock<ITestResult>();
             
             var fixture = new Fixture { Interceptor = Interceptor.Object };
-            Context = InterceptorContext.For(fixture.GetType(), () => fixture);
+            Context = TestContextContext.For(fixture.GetType(), () => fixture);
         }
 
         public void report_before_failures_and_cleanup() {

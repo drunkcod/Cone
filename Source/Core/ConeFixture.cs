@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Cone.Core
@@ -72,14 +73,15 @@ namespace Cone.Core
 			fixtureInitialized = true;
 		}
 
-        void ITestInterceptor.Before() {
+        [SuppressMessage("Microsoft.Design", "CA1033", Justification = "Should never be called directly")]
+        void ITestContext.Before() {
 			Initialize();
             fixtureMethods.InvokeBeforeEach(Fixture);
             Before.Raise(this, EventArgs.Empty);
         }
 
-        void ITestInterceptor.After(ITestResult testResult) {
-            
+        [SuppressMessage("Microsoft.Design", "CA1033", Justification = "Should never be called directly")]
+        void ITestContext.After(ITestResult testResult) {           
             fixtureMethods.InvokeAfterEach(Fixture, testResult);
         }
 

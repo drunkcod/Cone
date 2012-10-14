@@ -27,7 +27,7 @@ namespace Cone.Expectations
             return method.Name; 
         }
 
-        ExpectResult IExpect.Check() {
+        public ExpectResult Check() {
             return new ExpectResult {
                 Actual = Actual,
                 Success = (bool)method.Invoke(Target, arguments)

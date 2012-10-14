@@ -115,7 +115,7 @@
     <Compile Include="Core\ExpressionFormatter.cs" />
     <Compile Include="Core\CustomAttributeProviderExtensions.cs" />
     <Compile Include="FeatureAttribute.cs" />
-    <Compile Include="Core\InterceptorContext.cs" />
+    <Compile Include="Core\TestContextContext.cs" />
     <Compile Include="Core\IConeSuite.cs" />
     <Compile Include="Core\IConeFixture.cs" />
     <Compile Include="Core\IConeTest.cs" />

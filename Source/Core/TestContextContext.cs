@@ -4,20 +4,20 @@ using System.Reflection;
 
 namespace Cone.Core
 {
-    public class InterceptorContext : ITestContext
+    public class TestContextContext : ITestExecutionContext
     {
         readonly Func<object> fixtureProvider; 
         readonly List<FieldInfo> interceptors = new List<FieldInfo>();
  
-        InterceptorContext(Func<object> fixtureProvider) {
+        TestContextContext(Func<object> fixtureProvider) {
             this.fixtureProvider = fixtureProvider;
         }
 
-        public static InterceptorContext For(Type type, Func<object> fixtureProvider) {
-            var context = new InterceptorContext(fixtureProvider);
+        public static TestContextContext For(Type type, Func<object> fixtureProvider) {
+            var context = new TestContextContext(fixtureProvider);
             type.GetFields()
                 .ForEachIf(
-                    x => x.FieldType.Implements<ITestInterceptor>(),
+                    x => x.FieldType.Implements<ITestContext>(),
                     context.interceptors.Add);
             return context;
         }
@@ -42,11 +42,11 @@ namespace Cone.Core
             }
         }
 
-        ITestInterceptor GetInterceptor(object fixture, FieldInfo field) {
-            return (ITestInterceptor)field.GetValue(fixture);
+        ITestContext GetInterceptor(object fixture, FieldInfo field) {
+            return (ITestContext)field.GetValue(fixture);
         }
 
-        void ForEachInterceptor(Action<ITestInterceptor> @do) {
+        void ForEachInterceptor(Action<ITestContext> @do) {
             var fixture = fixtureProvider();
             interceptors.ForEach(x => @do(GetInterceptor(fixture, x)));
         }

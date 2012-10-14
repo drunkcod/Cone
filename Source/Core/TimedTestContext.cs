@@ -2,7 +2,7 @@
 
 namespace Cone.Core
 {
-    public class TimedTestContext : ITestContext
+    public class TimedTestContext : ITestExecutionContext
     {
 	    readonly Action<IConeTest> before;
         readonly Action<IConeTest, TimeSpan> after;
@@ -12,7 +12,7 @@ namespace Cone.Core
             this.after = after;
 	    }
 
-	    TestContextStep ITestContext.Establish(IFixtureContext context, TestContextStep next) {
+	    public TestContextStep Establish(IFixtureContext context, TestContextStep next) {
 		    return (test, r) => {
                 before(test);
                 test.Timed(_ => next(test, r), after);

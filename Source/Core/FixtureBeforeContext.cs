@@ -2,7 +2,7 @@
 
 namespace Cone.Core
 {
-    class FixtureBeforeContext : ITestContext
+    class FixtureBeforeContext : ITestExecutionContext
     {
         public TestContextStep Establish(IFixtureContext context, TestContextStep next) {
             var fixture = context.Fixture;

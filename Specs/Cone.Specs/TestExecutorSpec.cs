@@ -92,7 +92,7 @@ namespace Cone.Core
         {
             StringBuilder ExecutionSequence = new StringBuilder();
 
-            public class MyInterceptor : ITestInterceptor
+            public class MyInterceptor : ITestContext
             {
                 readonly StringBuilder target;
 

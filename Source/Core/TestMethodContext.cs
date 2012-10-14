@@ -2,7 +2,7 @@
 
 namespace Cone.Core
 {
-    class TestMethodContext : ITestContext 
+    class TestMethodContext : ITestExecutionContext 
     {
         public TestContextStep Establish(IFixtureContext context, TestContextStep next) {
 			return (test, result) => {
