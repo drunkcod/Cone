@@ -50,7 +50,6 @@ namespace Cone.Runners
             this.log = log;
         }
 
-        public bool ShowProgress { get; set; }
 		public Predicate<IConeTest> ShouldSkipTest = _ => false; 
 		public Predicate<IConeSuite> IncludeSuite = _ => true;
 		public Func<IConeFixture, Action<IConeTest, ITestResult>> GetResultCollector = x => new TestExecutor(x).Run; 
@@ -81,26 +80,26 @@ namespace Cone.Runners
 				collectResult(test, result);
 				switch(result.Status) {
 					case TestStatus.Success:
-						AddSuccess(test);
+						Success(test);
 						break;
 					case TestStatus.SetupFailure: goto case TestStatus.Failure;
 					case TestStatus.TeardownFailure: goto case TestStatus.Failure;
 					case TestStatus.Failure:
-						AddFailure(test, result.Error);
+						Failure(test, result.Error);
 						break;
 					case TestStatus.Pending:
-						AddPending(test);
+						Pending(test);
 						break;
 				}
 			});
         }
 
-        void AddSuccess(IConeTest test) {
+        void Success(IConeTest test) {
             ++Passed;
             log.Success(test);
         }
 
-        void AddFailure(IConeTest test, Exception error) {
+        void Failure(IConeTest test, Exception error) {
             var invocationException = error as TargetInvocationException;
             if (invocationException != null)
                 error = invocationException.InnerException;
@@ -109,7 +108,7 @@ namespace Cone.Runners
             log.Failure(failure);
         }
 
-        void AddPending(IConeTest test) {
+        void Pending(IConeTest test) {
             log.Pending(test);
         }
         

@@ -22,12 +22,18 @@ namespace Cone.Core
 			return self.Count == 0;
 		}
 
-        public static void ForEachIf<T>(this T[] self, Func<T, bool> predicate, Action<T> @do) {
+        public static void EachWhere<T>(this T[] self, Func<T, bool> predicate, Action<T> @do) {
             for(var i = 0; i != self.Length; ++i) {
                 var x = self[i];
                 if(predicate(x))
                     @do(x);
-            }        
+            }   
+        }
+
+        public static void EachWhere<T>(this IEnumerable<T> self, Func<T, bool> predicate, Action<T> @do) {
+            foreach (var item in self)
+                if (predicate(item))
+                    @do(item);
         }
 
         public static void ForEach<T>(this T[] self, Action<T> @do) {

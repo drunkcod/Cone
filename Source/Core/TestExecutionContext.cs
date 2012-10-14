@@ -4,29 +4,29 @@ using System.Reflection;
 
 namespace Cone.Core
 {
-    public class TestContextContext : ITestExecutionContext
+    public class TestExecutionContext : ITestExecutionContext
     {
         readonly Func<object> fixtureProvider; 
-        readonly List<FieldInfo> interceptors = new List<FieldInfo>();
+        readonly List<FieldInfo> testContexts = new List<FieldInfo>();
  
-        TestContextContext(Func<object> fixtureProvider) {
+        TestExecutionContext(Func<object> fixtureProvider) {
             this.fixtureProvider = fixtureProvider;
         }
 
-        public static TestContextContext For(Type type, Func<object> fixtureProvider) {
-            var context = new TestContextContext(fixtureProvider);
+        public static TestExecutionContext For(Type type, Func<object> fixtureProvider) {
+            var context = new TestExecutionContext(fixtureProvider);
             type.GetFields()
-                .ForEachIf(
+                .EachWhere(
                     x => x.FieldType.Implements<ITestContext>(),
-                    context.interceptors.Add);
+                    context.testContexts.Add);
             return context;
         }
 
-        public bool IsEmpty { get { return interceptors.Count == 0; } }
+        public bool IsEmpty { get { return testContexts.Count == 0; } }
 
         bool Before(ITestResult result) { 
             try {
-                ForEachInterceptor(x => x.Before());
+                EachInterceptor(x => x.Before());
                 return true;
             } catch(Exception ex) {
                 result.BeforeFailure(ex);
@@ -36,19 +36,19 @@ namespace Cone.Core
 
         void After(ITestResult result) { 
             try {
-                ForEachInterceptor(x => x.After(result));
+                EachInterceptor(x => x.After(result));
             } catch(Exception ex) {
                 result.AfterFailure(ex);
             }
         }
 
-        ITestContext GetInterceptor(object fixture, FieldInfo field) {
+        ITestContext GetTestContext(object fixture, FieldInfo field) {
             return (ITestContext)field.GetValue(fixture);
         }
 
-        void ForEachInterceptor(Action<ITestContext> @do) {
+        void EachInterceptor(Action<ITestContext> @do) {
             var fixture = fixtureProvider();
-            interceptors.ForEach(x => @do(GetInterceptor(fixture, x)));
+            testContexts.ForEach(x => @do(GetTestContext(fixture, x)));
         }
 
         public TestContextStep Establish(IFixtureContext context, TestContextStep next) {

@@ -1,14 +1,12 @@
-﻿using System;
+﻿using Cone.Core;
+using Cone.Runners;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security;
-using System.Security.Permissions;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Cone.Core;
-using Cone.Runners;
 
 namespace Conesole
 {

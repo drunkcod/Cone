@@ -8,33 +8,39 @@ namespace Cone.Runners
 {
     public class SimpleConeRunner
     {
-        readonly IConeSuiteBuilder<ConePadSuite>[] suiteBuilders = new [] {
+        class NullSuiteBuilder : IConeSuiteBuilder<ConePadSuite>
+        {
+            public bool SupportedType(Type type) { return true; }
+
+            public ConePadSuite BuildSuite(Type suiteType) {
+                return null;
+            }
+        }
+
+        readonly IConeSuiteBuilder<ConePadSuite>[] suiteBuilders = new IConeSuiteBuilder<ConePadSuite>[] {
 			new ConePadSuiteBuilder(),
 			new NUnitSuiteBuilder(),
+            new NullSuiteBuilder(),
 		};
             
         public void RunTests(TestSession results, IEnumerable<Assembly> assemblies) {
         	RunTests(results, assemblies.SelectMany(x => x.GetTypes()));
         }
 
-        public void RunTests(TestSession results ,IEnumerable<Type> suiteTypes) {
+        public void RunTests(TestSession results, IEnumerable<Type> suiteTypes) {
             results.BeginSession();
             suiteTypes
 				.Choose<Type, ConePadSuite>(TryBuildSuite)
 				.SelectMany(Flatten)
-				.Where(x => results.IncludeSuite(x))
-                .ForEach(x => x.Run(results));
+				.EachWhere(x => results.IncludeSuite(x), x => x.Run(results));
             results.Report();
 			results.EndSession();
         }
 
 		bool TryBuildSuite(Type input, out ConePadSuite suite) {
-			var builder = suiteBuilders.FirstOrDefault(x => x.SupportedType(input));
-			if(builder == null) {
-				suite = null;
-				return false;
-			}
-			suite = builder.BuildSuite(input);
+			suite = suiteBuilders
+                .First(x => x.SupportedType(input))
+                .BuildSuite(input);
 			return suite != null;
 		}
 
