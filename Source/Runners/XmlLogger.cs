@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
+using System.IO;
 using System.Xml;
 using Cone.Core;
 
@@ -22,7 +24,7 @@ namespace Cone.Runners
 			xml.Flush();
 		}
 
-		public void Info(string format, params object[] args) { }
+		public void WriteInfo(Action<TextWriter> output) { }
 
 		public void Failure(ConeTestFailure failure) {
 			
@@ -58,5 +60,7 @@ namespace Cone.Runners
 				xml.WriteAttributeString("executed", "False");
 			xml.WriteEndElement();
 		}
+
+        public void Skipped(IConeTest test) { }
 	}
 }

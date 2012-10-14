@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Cone.Core;
+using System.IO;
 
 namespace Cone.Runners
 {
     public class TestSession
     {
-        class SessionTestResult : ITestResult
+        class TestResult : ITestResult
         {
             readonly IConeTest test;
 
-            public SessionTestResult(IConeTest test) {
+            public TestResult(IConeTest test) {
                 this.test = test;
             }
 
@@ -42,9 +43,49 @@ namespace Cone.Runners
             }
         }
 
+        class TestSessionReport : IConeLogger
+        {
+            int Passed;
+            int Failed { get { return failures.Count; } }
+            int Excluded;
+            int Total { get { return Passed + Failed + Excluded; } }
+            Stopwatch timeTaken;
+            readonly List<ConeTestFailure> failures = new List<ConeTestFailure>();
+
+            public void BeginSession() {
+                timeTaken = Stopwatch.StartNew();
+            }
+
+            public void EndSession() {
+                timeTaken.Stop();
+            }
+
+            public void WriteInfo(Action<System.IO.TextWriter> output) { }
+
+            public void Success(IConeTest test) { ++Passed; }
+
+            public void Failure(ConeTestFailure failure) { failures.Add(failure); }
+
+            public void Pending(IConeTest test) { }
+
+            public void Skipped(IConeTest test) { ++Excluded; }
+
+            public void WriteReport(TextWriter output) {
+                output.WriteLine();
+                output.WriteLine("{0} tests found. {1} Passed. {2} Failed. ({3} Skipped)", Total, Passed, Failed, Excluded);
+
+                if (failures.Count > 0) {
+                    output.WriteLine("Failures:");
+                    failures.ForEach((n, failure) => output.WriteLine("{0}) {1}", n, failure));
+                }
+                output.WriteLine();
+                output.WriteLine("Done in {0}.", timeTaken.Elapsed);
+            }
+
+        }
+
         readonly IConeLogger log;
-        readonly List<ConeTestFailure> failures = new List<ConeTestFailure>();
-        Stopwatch timeTaken;
+        readonly TestSessionReport report = new TestSessionReport();
 
         public TestSession(IConeLogger log) {
             this.log = log;
@@ -54,74 +95,66 @@ namespace Cone.Runners
 		public Predicate<IConeSuite> IncludeSuite = _ => true;
 		public Func<IConeFixture, Action<IConeTest, ITestResult>> GetResultCollector = x => new TestExecutor(x).Run; 
 
-        int Passed;
-        int Failed { get { return failures.Count; } }
-        int Total { get { return Passed + Failed + Skipped; } }
-		int Skipped;
+        public void RunSession(Action<Action<IEnumerable<IConeTest>, IConeFixture>> @do) {
+            log.BeginSession();
+            report.BeginSession();
 
-        public void BeginSession() { 
-			log.BeginSession();
-			timeTaken = Stopwatch.StartNew(); 
-		}
-        public void EndSession() { 
-			timeTaken.Stop(); 
-			log.EndSession();
-		}
+            @do(CollectResults);
 
-        public void CollectResults(IEnumerable<IConeTest> tests, IConeFixture fixture) {
+            log.EndSession();
+            report.EndSession();
+        }
+
+        void CollectResults(IEnumerable<IConeTest> tests, IConeFixture fixture) {
 			var collectResult = GetResultCollector(fixture);
 			tests.ForEach(test => {
-				if(ShouldSkipTest(test)) { 
-					++Skipped;
-					return;
-				}
-
-				var result = new SessionTestResult(test);
-				collectResult(test, result);
-				switch(result.Status) {
-					case TestStatus.Success:
-						Success(test);
-						break;
-					case TestStatus.SetupFailure: goto case TestStatus.Failure;
-					case TestStatus.TeardownFailure: goto case TestStatus.Failure;
-					case TestStatus.Failure:
-						Failure(test, result.Error);
-						break;
-					case TestStatus.Pending:
-						Pending(test);
-						break;
-				}
+				if(ShouldSkipTest(test))
+                    Skipped(test);
+                else 
+                    CollectResult(collectResult, test);
 			});
         }
 
-        void Success(IConeTest test) {
-            ++Passed;
-            log.Success(test);
+        void CollectResult(Action<IConeTest, ITestResult> collectResult, IConeTest test) {
+            var result = new TestResult(test);
+            collectResult(test, result);
+            switch (result.Status) {
+                case TestStatus.Success:
+                    Success(test);
+                    break;
+                case TestStatus.SetupFailure: goto case TestStatus.Failure;
+                case TestStatus.TeardownFailure: goto case TestStatus.Failure;
+                case TestStatus.Failure:
+                    Failure(new ConeTestFailure(test.Name, result.Error));
+                    break;
+                case TestStatus.Pending:
+                    Pending(test);
+                    break;
+            }
         }
 
-        void Failure(IConeTest test, Exception error) {
-            var invocationException = error as TargetInvocationException;
-            if (invocationException != null)
-                error = invocationException.InnerException;
-        	var failure = new ConeTestFailure(failures.Count + 1, test.Name, error);
-			failures.Add(failure);
+        void Success(IConeTest test) {
+            log.Success(test);
+            report.Success(test);
+        }
+
+        void Failure(ConeTestFailure failure) {
             log.Failure(failure);
+            report.Failure(failure);
         }
 
         void Pending(IConeTest test) {
             log.Pending(test);
+            report.Pending(test);
+        }
+
+        void Skipped(IConeTest test) {
+            log.Skipped(test);
+            report.Skipped(test);
         }
         
         public void Report() {
-			log.Info(string.Empty);
-            log.Info("{0} tests found. {1} Passed. {2} Failed. ({3} Skipped)", Total, Passed, Failed, Skipped);
-
-            if(failures.Count > 0) {
-                log.Info("Failures:");
-                failures.ForEach(failure => log.Info("{0}", failure));
-            }
-			log.Info(string.Empty);
-            log.Info("Done in {0}.", timeTaken.Elapsed);
+            log.WriteInfo(output => report.WriteReport(output));
         }
     }
 }

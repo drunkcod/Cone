@@ -28,13 +28,14 @@ namespace Cone.Runners
         }
 
         public void RunTests(TestSession results, IEnumerable<Type> suiteTypes) {
-            results.BeginSession();
-            suiteTypes
-				.Choose<Type, ConePadSuite>(TryBuildSuite)
-				.SelectMany(Flatten)
-				.EachWhere(x => results.IncludeSuite(x), x => x.Run(results));
+            var toRun = suiteTypes
+                .Choose<Type, ConePadSuite>(TryBuildSuite)
+                .SelectMany(Flatten)
+                .Where(x => results.IncludeSuite(x));
+            
+            results.RunSession(
+                collectResults => toRun.ForEach(x => x.Run(collectResults)));
             results.Report();
-			results.EndSession();
         }
 
 		bool TryBuildSuite(Type input, out ConePadSuite suite) {

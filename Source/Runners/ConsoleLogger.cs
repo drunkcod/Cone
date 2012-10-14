@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Cone.Core;
 
 namespace Cone.Runners
@@ -13,8 +14,8 @@ namespace Cone.Runners
     {
 		string[] context = new string[0];
 
-		public void Info(string format, params object[] args) {
-            Console.Out.WriteLine(format, args);
+		public void WriteInfo(Action<TextWriter> output) {
+            output(Console.Out);
         }
 
         public LoggerVerbosity Verbosity;
@@ -46,6 +47,8 @@ namespace Cone.Runners
                 case LoggerVerbosity.Labels: WriteTestLabel(test, ConsoleColor.Yellow); break;
 			}
         }
+
+        public void Skipped(IConeTest test) { }
 
 		void WriteTestName(IConeTest test, ConsoleColor color) {
 			WriteTestName(test.Name.Context, test.Name.Name, color);

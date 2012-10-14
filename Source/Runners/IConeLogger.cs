@@ -1,4 +1,6 @@
 ﻿using Cone.Core;
+using System;
+using System.IO;
 
 namespace Cone.Runners
 {
@@ -7,9 +9,10 @@ namespace Cone.Runners
 		void BeginSession();
 		void EndSession();
 
-        void Info(string format, params object[] args);
+        void WriteInfo(Action<TextWriter> output);
         void Failure(ConeTestFailure failure);
         void Success(IConeTest test);
         void Pending(IConeTest test);
+        void Skipped(IConeTest test);
     }
 }

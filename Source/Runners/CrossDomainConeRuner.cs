@@ -28,8 +28,10 @@ namespace Cone.Runners
 		void IConeLogger.BeginSession() { }
 		void IConeLogger.EndSession() { }
 
-        void IConeLogger.Info(string format, params object[] args) {
-            crossDomainLog.Info(string.Format(format, args));
+        void IConeLogger.WriteInfo(Action<TextWriter> output) {
+            var result = new StringWriter();
+            output(result);
+            crossDomainLog.Info(result.ToString());
         }
 
         void IConeLogger.Failure(ConeTestFailure failure) {
@@ -49,6 +51,8 @@ namespace Cone.Runners
             if(ShowProgress)
                 crossDomainLog.Info("?");
         }
+
+        void IConeLogger.Skipped(IConeTest test) { }
     }
 
     public class CrossDomainConeRunner

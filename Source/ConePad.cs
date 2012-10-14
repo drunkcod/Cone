@@ -12,27 +12,30 @@ namespace Cone
     {
         class ConePadLogger : IConeLogger
         {
+            int failureCount;
             TextWriter Output { get { return Console.Out; } }
 
-			public void BeginSession() { }
+            public void BeginSession() { failureCount = 0; }
 			public void EndSession() { }
 
-            public void Info(string format, params object[] args) {
-                Output.Write(format, args);
+            public void WriteInfo(Action<TextWriter> output) {
+                output(Output);
             }
 
             public void Failure(ConeTestFailure failure) {                
-                Output.WriteLine(" {0}) {1}", failure.SequenceNumber, failure.Context);
+                Output.WriteLine(" {0}) {1}", ++failureCount, failure.Context);
                 Output.WriteLine("\t\t{0}: {1}", failure.TestName, failure.Message);
             }
 
             public void Success(IConeTest test) {
-                Info(".");
+                Output.Write(".");
             }
 
             public void Pending(IConeTest test) {
-                Info("?");
+                Output.Write("?");
             }
+
+            public void Skipped(IConeTest test) { }
         }
 
 		static ConePadSuiteBuilder SuiteBuilder = new ConePadSuiteBuilder();
@@ -52,7 +55,7 @@ namespace Cone
         }
 
         public static void RunTests(IConeLogger log, IEnumerable<Type> suites) {
-            log.Info("Running tests!\n----------------------------------\n");
+            log.WriteInfo(writer => writer.WriteLine("Running tests!\n----------------------------------"));
         	new SimpleConeRunner().RunTests(new TestSession(log), suites);
         }
     }
