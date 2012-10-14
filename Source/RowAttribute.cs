@@ -13,7 +13,7 @@ namespace Cone
         public string DisplayAs { get; set; }
         public object[] Parameters { get { return args; } } 
         public bool IsPending { get; set; }
-		bool IRowData.HasResult { get { return false; } }
-		object IRowData.Result { get { return null; } }
+		public bool HasResult { get { return false; } }
+		public object Result { get { return null; } }
     }
 }
