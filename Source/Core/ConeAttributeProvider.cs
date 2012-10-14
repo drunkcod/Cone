@@ -13,7 +13,7 @@ namespace Cone.Core
             this.attributes = attributes;
         }
 
-        IEnumerable<object> IConeAttributeProvider.GetCustomAttributes(Type type) {
+        public IEnumerable<object> GetCustomAttributes(Type type) {
             return attributes.Where(x => type.IsAssignableFrom(x.GetType()));
         }
     }

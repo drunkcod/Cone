@@ -114,7 +114,7 @@ namespace Cone.Addin
         }
 
         public void WithFixtureMethodSink(Action<IConeFixtureMethodSink> action) {
-            action(fixture);
+            action(fixture.FixtureMethods);
         }
 
 		public void DiscoverTests(ConeTestNamer names) {

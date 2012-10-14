@@ -135,7 +135,7 @@ namespace Cone.Runners
 		public void DiscoverTests(ConeTestNamer names) {
 			var testSink = new ConePadTestMethodSink(names, fixture, this);
 			testSink.TestFound += (thunk, args, result) => NewTest(thunk.TestNameFor(Name, args), thunk, args, result);
-			var setup = new ConeFixtureSetup(GetMethodClassifier(fixture, testSink));
+			var setup = new ConeFixtureSetup(GetMethodClassifier(fixture.FixtureMethods, testSink));
 			setup.CollectFixtureMethods(fixture.FixtureType);
 		}
 

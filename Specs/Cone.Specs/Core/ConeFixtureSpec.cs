@@ -7,7 +7,7 @@ namespace Cone.Core
     [Describe(typeof(ConeFixture))]
     public class ConeFixtureSpec
     {
-        Action<Exception> Nop = _ => { };
+        static Action<Exception> Nop = _ => { };
 
         public void disposes_disposable_fixtures() {
             var disposableFixture = new Mock<IDisposable>();
@@ -45,60 +45,61 @@ namespace Cone.Core
             }
         }
 
-		class SimpleFixture
-		{
-			public readonly List<string> Executed = new List<string>();
-			public string ExecutionPath { get { return string.Join("->", Executed); } }
+        [Context("given a SimpleFixture")]
+        public class ConeFixtureSimpleFixtureSpec
+        {
+		    class SimpleFixture
+		    {
+			    public readonly List<string> Executed = new List<string>();
+			    public string ExecutionPath { get { return string.Join("->", Executed); } }
 
-			public void BeforeAll() { Executed.Add("BeforeAll"); }
-			public void AfterAll() { Executed.Add("AfterAll"); }
-			public void BeforeEach() { Executed.Add("BeforeEach"); }
-		}
+			    public void BeforeAll() { Executed.Add("BeforeAll"); }
+			    public void AfterAll() { Executed.Add("AfterAll"); }
+			    public void BeforeEach() { Executed.Add("BeforeEach"); }
+		    }
 
-		public void create_does_not_execute_BeforeAll() {
-            var fixtureInstance = new SimpleFixture();
-            var fixture = new ConeFixture(fixtureInstance.GetType(), new string[0], _ => fixtureInstance);
-			IConeFixtureMethodSink fixtureMethods = fixture;
-			fixtureMethods.BeforeAll( ((Action)fixtureInstance.BeforeAll).Method);
-            fixture.Create(Nop);
+            SimpleFixture FixtureInstance;
+            ConeFixture Fixture;
+            IConeFixtureMethodSink FixtureMethods { get { return Fixture.FixtureMethods; } }
 
-			Verify.That(() => fixtureInstance.Executed.Count == 0);
-		}
+            [BeforeEach]
+            public void given_SimpleFixture_instance() {
+                FixtureInstance = new SimpleFixture();
+                Fixture = new ConeFixture(FixtureInstance.GetType(), new string[0], _ => FixtureInstance);
+            }
 
-		public void BeforeAll_executed_exactly_once() {
-            var fixtureInstance = new SimpleFixture();
-            var fixture = new ConeFixture(fixtureInstance.GetType(), new string[0], _ => fixtureInstance);
-			IConeFixtureMethodSink fixtureMethods = fixture;
-			fixtureMethods.BeforeAll( ((Action)fixtureInstance.BeforeAll).Method);
-			fixtureMethods.BeforeEach( ((Action)fixtureInstance.BeforeEach).Method);
-            fixture.Create(Nop);
-			(fixture as ITestInterceptor).Before();
-			(fixture as ITestInterceptor).Before();
+		    public void create_does_not_execute_BeforeAll() {
+			    FixtureMethods.BeforeAll( ((Action)FixtureInstance.BeforeAll).Method);
+                Fixture.Create(Nop);
 
-			Verify.That(() => fixtureInstance.ExecutionPath == "BeforeAll->BeforeEach->BeforeEach");
-		}
+			    Verify.That(() => FixtureInstance.Executed.Count == 0);
+		    }
 
-		public void AfterAll_executeted_for_initialized_fixture_when_released() {
-            var fixtureInstance = new SimpleFixture();
-            var fixture = new ConeFixture(fixtureInstance.GetType(), new string[0], _ => fixtureInstance);
-			IConeFixtureMethodSink fixtureMethods = fixture;
-			fixtureMethods.AfterAll(((Action)fixtureInstance.AfterAll).Method);
-            fixture.WithInitialized(x => x.Before(), Nop, Nop);
+		    public void BeforeAll_executed_exactly_once() {
+			    FixtureMethods.BeforeAll( ((Action)FixtureInstance.BeforeAll).Method);
+			    FixtureMethods.BeforeEach( ((Action)FixtureInstance.BeforeEach).Method);
+                Fixture.Create(Nop);
+			    (Fixture as ITestInterceptor).Before();
+			    (Fixture as ITestInterceptor).Before();
 
-			Verify.That(() => fixtureInstance.ExecutionPath == "AfterAll");
-		}
+			    Verify.That(() => FixtureInstance.ExecutionPath == "BeforeAll->BeforeEach->BeforeEach");
+		    }
 
+		    public void AfterAll_executeted_for_initialized_fixture_when_released() {
+			    FixtureMethods.AfterAll(((Action)FixtureInstance.AfterAll).Method);
+                Fixture.WithInitialized(x => x.Before(), Nop, Nop);
 
-		public void only_runs_AfterAll_if_fixture_has_been_initialized() {
-            var fixtureInstance = new SimpleFixture();
-            var fixture = new ConeFixture(fixtureInstance.GetType(), new string[0], _ => fixtureInstance);
-			IConeFixtureMethodSink fixtureMethods = fixture;
-			fixtureMethods.AfterAll(((Action)fixtureInstance.AfterAll).Method);
-            fixture.Create(Nop);
-			fixture.Release(_ => { });
+			    Verify.That(() => FixtureInstance.ExecutionPath == "AfterAll");
+		    }
 
-			Verify.That(() => fixtureInstance.Executed.Count == 0);
-		}
+		    public void only_runs_AfterAll_if_fixture_has_been_initialized() {
+			    FixtureMethods.AfterAll(((Action)FixtureInstance.AfterAll).Method);
+                Fixture.Create(Nop);
+			    Fixture.Release(_ => { });
+
+			    Verify.That(() => FixtureInstance.Executed.Count == 0);
+		    }
+    }
 
 		ConeFixture FixtureFor(Type type) { return new ConeFixture(type, new string[0]); }
         

@@ -4,16 +4,50 @@ using System.Reflection;
 
 namespace Cone.Core
 {
-    public class ConeFixture : IConeFixture, IConeFixtureMethodSink
+    public class ConeFixture : IConeFixture
     {
+        class ConeFixtureMethodCollection : IConeFixtureMethodSink
+        {
+            readonly List<MethodInfo> beforeAll = new List<MethodInfo>();
+            readonly List<MethodInfo> beforeEach = new List<MethodInfo>();
+            readonly List<MethodInfo> afterEach = new List<MethodInfo>();
+            readonly List<MethodInfo> afterEachWithResult = new List<MethodInfo>();
+            readonly List<MethodInfo> afterAll = new List<MethodInfo>();
+
+            public void Unintresting(MethodInfo method) { }
+            public void BeforeAll(MethodInfo method) { beforeAll.Add(method); }
+            public void BeforeEach(MethodInfo method) { beforeEach.Add(method); }
+            public void AfterEach(MethodInfo method) { afterEach.Add(method); }
+            public void AfterEachWithResult(MethodInfo method) { afterEachWithResult.Add(method); }
+            public void AfterAll(MethodInfo method) { afterAll.Add(method); }
+
+            public void InvokeBeforeAll(object target) {
+                InvokeAll(target, beforeAll);
+            }
+
+            public void InvokeBeforeEach(object target) {
+                InvokeAll(target, beforeEach);
+            }
+
+            public void InvokeAfterEach(object target, ITestResult result) {
+                InvokeAll(target, afterEachWithResult, result);
+                InvokeAll(target, afterEach);
+            }
+
+            public void InvokeAfterAll(object target) {
+                InvokeAll(target, afterAll);
+            }
+
+            void InvokeAll(object target, List<MethodInfo> methods, params object[] parameters) {
+                for (int i = 0; i != methods.Count; ++i)
+                    methods[i].Invoke(target, parameters);
+            }
+        }
+
         readonly Func<Type, object> fixtureBuilder;
         readonly Type fixtureType;
-        readonly List<MethodInfo> beforeAll = new List<MethodInfo>();
-        readonly List<MethodInfo> beforeEach = new List<MethodInfo>();
-        readonly List<MethodInfo> afterEach = new List<MethodInfo>();
-        readonly List<MethodInfo> afterEachWithResult = new List<MethodInfo>();
-        readonly List<MethodInfo> afterAll = new List<MethodInfo>();
         object fixture;
+        readonly ConeFixtureMethodCollection fixtureMethods = new ConeFixtureMethodCollection();
 		bool fixtureInitialized = false;
 
 		IEnumerable<string> categories; 
@@ -33,21 +67,20 @@ namespace Cone.Core
 
 		public void Initialize() {
 			if(fixtureInitialized) 
-				return;
-			
-			InvokeAll(beforeAll);
+				return;	
+			fixtureMethods.InvokeBeforeAll(Fixture);
 			fixtureInitialized = true;
 		}
 
         void ITestInterceptor.Before() {
 			Initialize();
-            InvokeAll(beforeEach, null);
+            fixtureMethods.InvokeBeforeEach(Fixture);
             Before.Raise(this, EventArgs.Empty);
         }
 
         void ITestInterceptor.After(ITestResult testResult) {
-            InvokeAll(afterEachWithResult, testResult);
-            InvokeAll(afterEach);
+            
+            fixtureMethods.InvokeAfterEach(Fixture, testResult);
         }
 
         public object Invoke(MethodInfo method, params object[] parameters) {
@@ -77,7 +110,7 @@ namespace Cone.Core
             try {				
 				if(fixtureInitialized) {
 					fixtureInitialized = false;
-					InvokeAll(afterAll);
+					fixtureMethods.InvokeAfterAll(fixture);
 				}
                 DoCleanup();
                 DoDispose();
@@ -110,24 +143,14 @@ namespace Cone.Core
             return ctor.Invoke(null);
         }
 
-        void InvokeAll(List<MethodInfo> methods, params object[] parameters) {
-            for (int i = 0; i != methods.Count; ++i)
-                Invoke(methods[i], parameters);
-        }
-
         public Type FixtureType { get { return fixtureType; } }
+
+        public IConeFixtureMethodSink FixtureMethods { get { return fixtureMethods; } }
 
         public object Fixture { get { return EnsureFixture(); } }
 
         object EnsureFixture() {
             return fixture ?? (fixture = fixtureBuilder(FixtureType));
         }
-
-        void IConeFixtureMethodSink.Unintresting(MethodInfo method) { }
-        void IConeFixtureMethodSink.BeforeAll(MethodInfo method) { beforeAll.Add(method); }
-        void IConeFixtureMethodSink.BeforeEach(MethodInfo method) { beforeEach.Add(method); }
-        void IConeFixtureMethodSink.AfterEach(MethodInfo method) { afterEach.Add(method); }
-        void IConeFixtureMethodSink.AfterEachWithResult(MethodInfo method) { afterEachWithResult.Add(method); }
-        void IConeFixtureMethodSink.AfterAll(MethodInfo method) { afterAll.Add(method); }
     }
 }
