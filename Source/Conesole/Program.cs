@@ -21,6 +21,7 @@ namespace Conesole
 		public LoggerVerbosity Verbosity = LoggerVerbosity.Default;
 		public bool IsDryRun;
 		public bool XmlOutput;
+        public bool Multicore;
 
         public static ConesoleConfiguration Parse(params string[] args) {
 			var result = new ConesoleConfiguration();
@@ -59,7 +60,12 @@ namespace Conesole
 				return;
 			}
 
-			var m = OptionPattern.Match(item);
+            if (item == "--multicore") {
+                Multicore = true;
+                return;
+            }
+            
+            var m = OptionPattern.Match(item);
 			if(!m.Success)
 				throw new ArgumentException("Unknown option:" + item);
 
@@ -132,8 +138,10 @@ namespace Conesole
 				if(config.IsDryRun) {
 					results.GetResultCollector = _ => (test, result) => result.Success();
 				}
-            	
-				new SimpleConeRunner().RunTests(results, CrossDomainConeRunner.LoadTestAssemblies(AssemblyPaths));
+
+                new SimpleConeRunner() {
+                    Workers = config.Multicore ? Environment.ProcessorCount : 1,
+                }.RunTests(results, CrossDomainConeRunner.LoadTestAssemblies(AssemblyPaths));
 
             } catch (ReflectionTypeLoadException tle) {
                 foreach (var item in tle.LoaderExceptions)

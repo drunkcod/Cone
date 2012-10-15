@@ -16,6 +16,7 @@
     <BuildPath>$(SolutionDir)</BuildPath>
     <OutputPath>$(BuildPath)Bin</OutputPath>
     <IntermediateOutputPath>$(SolutionDir)Build\</IntermediateOutputPath>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />

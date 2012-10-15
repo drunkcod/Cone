@@ -75,7 +75,7 @@ namespace Cone.Runners
 
                 if (failures.Count > 0) {
                     output.WriteLine("Failures:");
-                    failures.ForEach((n, failure) => output.WriteLine("{0}) {1}\n", n, failure));
+                    failures.Each((n, failure) => output.WriteLine("{0}) {1}\n", n, failure));
                 }
                 output.WriteLine();
                 output.WriteLine("Done in {0}.", timeTaken.Elapsed);
@@ -144,7 +144,7 @@ namespace Cone.Runners
 
         void CollectResults(IEnumerable<IConeTest> tests, IConeFixture fixture) {
 			var collectResult = GetResultCollector(fixture);
-			tests.ForEach(test => {
+			tests.Each(test => {
 				if(ShouldSkipTest(test))
                     Skipped(test);
                 else
