@@ -6,22 +6,17 @@ namespace Cone.Runners
 {
     public interface ISessionLogger
     {
+        void WriteInfo(Action<TextWriter> output);
         void BeginSession();
+        IConeLogger BeginTest(IConeTest test);
         void EndSession();
-    }
-
-    public class NullSessionLogger : ISessionLogger
-    {
-        public void BeginSession() { }
-        public void EndSession() { }
     }
 
     public interface IConeLogger
     {
-        void WriteInfo(Action<TextWriter> output);
         void Failure(ConeTestFailure failure);
-        void Success(IConeTest test);
-        void Pending(IConeTest test);
-        void Skipped(IConeTest test);
+        void Success();
+        void Pending();
+        void Skipped();
     }
 }

@@ -48,7 +48,7 @@ namespace Cone.Runners
                         suite.Run(collectResults);
                     }
                 };
-                var workers = new Thread[Workers];
+                var workers = new Thread[Workers - 1];
                 for (var i = 0; i != workers.Length; ++i) {
                     var worker = workers[i] = new Thread(runSuite);
                     worker.Start();

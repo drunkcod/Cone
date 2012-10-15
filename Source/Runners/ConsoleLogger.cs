@@ -10,16 +10,49 @@ namespace Cone.Runners
         Labels
     }
 
-    public class ConsoleLogger : IConeLogger
+    public class ConsoleLoggerSettings
     {
-		string[] context = new string[0];
+        internal string[] Context = new string[0];
+        public LoggerVerbosity Verbosity;
+        public ConsoleColor SuccessColor = ConsoleColor.Green;
 
-		public void WriteInfo(Action<TextWriter> output) {
+    }
+
+    public class ConsoleSessionLogger : ISessionLogger
+    {
+        public void WriteInfo(Action<TextWriter> output) {
             output(Console.Out);
         }
 
-        public LoggerVerbosity Verbosity;
-		public ConsoleColor SuccessColor = ConsoleColor.Green;
+        public ConsoleLoggerSettings Settings = new ConsoleLoggerSettings();
+
+        public void BeginSession() { }
+
+        public IConeLogger BeginTest(IConeTest test) {
+            return new ConsoleLogger(test) {
+                Settings = Settings
+            };
+        }
+
+        public void EndSession() { }
+    }
+
+    public class ConsoleLogger : IConeLogger
+    {
+        readonly IConeTest test;
+
+        public ConsoleLogger(IConeTest test) {
+            this.test = test;
+        }
+
+        public ConsoleLoggerSettings Settings;
+
+        LoggerVerbosity Verbosity { get { return Settings.Verbosity; } }
+        ConsoleColor SuccessColor { get { return Settings.SuccessColor; } }
+        string[] Context {
+            get { return Settings.Context; }
+            set { Settings.Context = value; }
+        }
 
         public void Failure(ConeTestFailure failure) {
 			switch(Verbosity) {
@@ -29,7 +62,7 @@ namespace Cone.Runners
 			}
         }
 
-        public void Success(IConeTest test) {
+        public void Success() {
             switch(Verbosity) {
                 case LoggerVerbosity.Default: Write("."); break;
                 case LoggerVerbosity.TestNames: WriteTestName(test, SuccessColor); break;
@@ -37,7 +70,7 @@ namespace Cone.Runners
             }
         }
 
-        public void Pending(IConeTest test) {
+        public void Pending() {
 			switch(Verbosity) {
 				case LoggerVerbosity.Default: Write("?"); break;
                 case LoggerVerbosity.TestNames: WriteTestName(test, ConsoleColor.Yellow); break;
@@ -45,7 +78,7 @@ namespace Cone.Runners
 			}
         }
 
-        public void Skipped(IConeTest test) { }
+        public void Skipped() { }
 
 		void WriteTestName(IConeTest test, ConsoleColor color) {
 			WriteTestName(test.Name.Context, test.Name.Name, color);
@@ -65,11 +98,11 @@ namespace Cone.Runners
 		void WriteTestLabel(string contextName, string testName, ConsoleColor color) {
 			var parts = contextName.Split('.');
 			var skip = 0;
-			while(skip != context.Length && context[skip] == parts[skip])
+			while(skip != Context.Length && Context[skip] == parts[skip])
 				++skip;
-			context = parts;
-			for(; skip != context.Length; ++skip)
-				Write("{0}{1}\n", new string(' ', skip << 1), context[skip]);
+			Context = parts;
+			for(; skip != Context.Length; ++skip)
+				Write("{0}{1}\n", new string(' ', skip << 1), Context[skip]);
 			var tmp = Console.ForegroundColor;
 			Console.ForegroundColor = color;
 			Write("{0}* {1}\n", new string(' ', skip << 1), testName);

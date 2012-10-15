@@ -59,15 +59,19 @@ namespace Cone.Runners
                 timeTaken.Stop();
             }
 
-            public void WriteInfo(Action<System.IO.TextWriter> output) { }
+            public IConeLogger BeginTest(IConeTest test) {
+                return this;
+            }
 
-            public void Success(IConeTest test) { ++Passed; }
+            public void WriteInfo(Action<TextWriter> output) { }
+
+            public void Success() { ++Passed; }
 
             public void Failure(ConeTestFailure failure) { failures.Add(failure); }
 
-            public void Pending(IConeTest test) { }
+            public void Pending() { }
 
-            public void Skipped(IConeTest test) { ++Excluded; }
+            public void Skipped() { ++Excluded; }
 
             public void WriteReport(TextWriter output) {
                 output.WriteLine();
@@ -83,61 +87,71 @@ namespace Cone.Runners
 
         }
 
-        class MulticastLogger : IConeLogger, ISessionLogger
+        class MulticastSessionLogger : ISessionLogger
         {
-            readonly List<ISessionLogger> sessionLoggers = new List<ISessionLogger>();
-            readonly List<IConeLogger> loggers = new List<IConeLogger>();
+            readonly List<ISessionLogger> children = new List<ISessionLogger>();
 
-            public void AddLogger(IConeLogger log) {
-                loggers.Add(log);
+            public MulticastSessionLogger(params ISessionLogger[] sessionLoggers) {
+                this.children.AddRange(sessionLoggers);
             }
 
-            public void AddSessionLogger(ISessionLogger log) {
-                sessionLoggers.Add(log);
+            public void Add(ISessionLogger log) {
+                children.Add(log);
             }
 
             public void BeginSession() {
-                sessionLoggers.ForEach(x => x.BeginSession());
+                children.ForEach(x => x.BeginSession());
+            }
+
+            public IConeLogger BeginTest(IConeTest test) {
+                var log = new MulticastLogger();
+                children.ForEach(x => log.Add(x.BeginTest(test)));
+                return log;
             }
 
             public void EndSession() {
-                sessionLoggers.ForEach(x => x.EndSession());
+                children.ForEach(x => x.EndSession());
             }
 
             public void WriteInfo(Action<TextWriter> output) {
                 using (var outputResult = new StringWriter()) {
                     output(outputResult);
                     var result = outputResult.ToString();
-                    loggers.ForEach(x => x.WriteInfo(writer => writer.Write(result))); 
+                    children.ForEach(x => x.WriteInfo(writer => writer.Write(result)));
                 }
-            }
-
-            public void Failure(ConeTestFailure failure) {
-                loggers.ForEach(x => x.Failure(failure));
-            }
-
-            public void Success(IConeTest test) {
-                loggers.ForEach(x => x.Success(test));
-            }
-
-            public void Pending(IConeTest test) {
-                loggers.ForEach(x => x.Pending(test));
-            }
-
-            public void Skipped(IConeTest test) {
-                loggers.ForEach(x => x.Skipped(test));
             }
         }
 
-        readonly MulticastLogger log = new MulticastLogger();
+        class MulticastLogger : IConeLogger
+        {
+            readonly List<IConeLogger> children = new List<IConeLogger>();
+
+            public void Add(IConeLogger log) {
+                children.Add(log);
+            }
+
+            public void Failure(ConeTestFailure failure) {
+                children.ForEach(x => x.Failure(failure));
+            }
+
+            public void Success() {
+                children.ForEach(x => x.Success());
+            }
+
+            public void Pending() {
+                children.ForEach(x => x.Pending());
+            }
+
+            public void Skipped() {
+                children.ForEach(x => x.Skipped());
+            }
+        }
+
+        readonly ISessionLogger sessionLog;
         readonly TestSessionReport report = new TestSessionReport();
 
-        public TestSession(IConeLogger log, ISessionLogger sessionLog) {
-            this.log.AddLogger(log);
-            this.log.AddLogger(report);
-
-            this.log.AddSessionLogger(sessionLog);
-            this.log.AddSessionLogger(report);
+        public TestSession(ISessionLogger sessionLog) {
+            this.sessionLog = new MulticastSessionLogger(sessionLog, report);
         }
 
 		public Predicate<IConeTest> ShouldSkipTest = _ => false; 
@@ -145,57 +159,42 @@ namespace Cone.Runners
 		public Func<IConeFixture, Action<IConeTest, ITestResult>> GetResultCollector = x => new TestExecutor(x).Run; 
 
         public void RunSession(Action<Action<IEnumerable<IConeTest>, IConeFixture>> @do) {
-            log.BeginSession();
+            sessionLog.BeginSession();
             @do(CollectResults);
-            log.EndSession();
+            sessionLog.EndSession();
         }
 
         void CollectResults(IEnumerable<IConeTest> tests, IConeFixture fixture) {
 			var collectResult = GetResultCollector(fixture);
 			tests.Each(test => {
+                var log = sessionLog.BeginTest(test);
 				if(ShouldSkipTest(test))
-                    Skipped(test);
+                    log.Skipped();
                 else
-                    CollectResult(collectResult, test);
+                    CollectResult(collectResult, test, log);
 			});
         }
 
-        void CollectResult(Action<IConeTest, ITestResult> collectResult, IConeTest test) {
+        void CollectResult(Action<IConeTest, ITestResult> collectResult, IConeTest test, IConeLogger log) {
             var result = new TestResult(test);
             collectResult(test, result);
             switch (result.Status) {
                 case TestStatus.Success:
-                    Success(test);
+                    log.Success();
                     break;
                 case TestStatus.SetupFailure: goto case TestStatus.Failure;
                 case TestStatus.TeardownFailure: goto case TestStatus.Failure;
                 case TestStatus.Failure:
-                    Failure(new ConeTestFailure(test.Name, result.Error));
+                    log.Failure(new ConeTestFailure(test.Name, result.Error));
                     break;
                 case TestStatus.Pending:
-                    Pending(test);
+                    log.Pending();
                     break;
             }
         }
-
-        void Success(IConeTest test) {
-            log.Success(test);
-        }
-
-        void Failure(ConeTestFailure failure) {
-            log.Failure(failure);
-        }
-
-        void Pending(IConeTest test) {
-            log.Pending(test);
-        }
-
-        void Skipped(IConeTest test) {
-            log.Skipped(test);
-        }
-        
+       
         public void Report() {
-            log.WriteInfo(output => report.WriteReport(output));
+            sessionLog.WriteInfo(output => report.WriteReport(output));
         }
     }
 }

@@ -155,23 +155,23 @@ namespace Conesole
 		}
 
         static TestSession CreateTestSession(ConesoleConfiguration config) {
-            IConeLogger logger;
-            ISessionLogger sessionLogger = new NullSessionLogger();
+            ISessionLogger sessionLogger;
             if (config.XmlOutput) {
-                var xml = new XmlLogger(new XmlTextWriter(Console.Out) {
+                var xml = new XmlSessionLogger(new XmlTextWriter(Console.Out){
                     Formatting = Formatting.Indented
                 });
 
                 sessionLogger = xml;
-                logger = xml;
             } else {
-                var consoleLogger = new ConsoleLogger { Verbosity = config.Verbosity };
+                var consoleLogger = new ConsoleSessionLogger();
+                consoleLogger.Settings.Verbosity = config.Verbosity;
                 if (config.IsDryRun)
-                    consoleLogger.SuccessColor = ConsoleColor.DarkGreen;
-                logger = consoleLogger;
+                    consoleLogger.Settings.SuccessColor = ConsoleColor.DarkGreen;
+
+                sessionLogger = consoleLogger;
             }
 
-            return new TestSession(logger, sessionLogger) {
+            return new TestSession(sessionLogger) {
                 IncludeSuite = config.IncludeSuite,
                 ShouldSkipTest = x => !config.IncludeTest(x)
             };;

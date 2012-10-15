@@ -191,7 +191,7 @@ namespace Cone.Runners
 			public void GivenFixtureInstance() {
 				NUnitSuite = new NUnitSuiteBuilder().BuildSuite(typeof(MyNUnitFixture)); 
 				NUnitFixture = (MyNUnitFixture)NUnitSuite.Fixture;
-                new TestSession(new NullLogger(), new NullSessionLogger()).RunSession(collectResult => NUnitSuite.Run(collectResult));
+                new TestSession(new NullSessionLogger()).RunSession(collectResult => NUnitSuite.Run(collectResult));
 			}
 
 			public void FixtureSetUp_is_called_to_initialize_fixture() {
@@ -268,27 +268,27 @@ namespace Cone.Runners
 		}
 	}
 
+    public class NullSessionLogger : ISessionLogger
+    {
+        public void BeginSession() { }
+
+        public IConeLogger BeginTest(Core.IConeTest test) {
+            return new NullLogger();
+        }
+
+        public void EndSession() { }
+
+        public void WriteInfo(Action<TextWriter> output) { }
+
+    }
+
 	public class NullLogger : IConeLogger
 	{
-		public void BeginSession()
-		{ }
-
-		public void EndSession()
-		{ }
-
-		public void WriteInfo(Action<TextWriter> output)
-		{ }
-
 		public void Failure(ConeTestFailure failure)
 		{ }
 
-		public void Success(Core.IConeTest test)
-		{ }
-
-		public void Pending(Core.IConeTest test)
-		{ }
-
-        public void Skipped(Core.IConeTest test) 
-        { }
+		public void Success() { }
+		public void Pending() { }
+        public void Skipped() { }
 	}
 }

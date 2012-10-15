@@ -14,22 +14,30 @@ namespace Cone.Runners
         void Info(string message);
         void Failure(string file, int line, int column, string message);
     }
- 
-    class CrossDomainLoggerAdapater : IConeLogger
+
+    class CrossDomainSessionLoggerAdapter : ISessionLogger, IConeLogger
     {
         readonly ICrossDomainLogger crossDomainLog;
-            
-        public bool ShowProgress { get; set; }
 
-        public CrossDomainLoggerAdapater(ICrossDomainLogger crossDomainLog) {
+        public CrossDomainSessionLoggerAdapter(ICrossDomainLogger crossDomainLog) {
             this.crossDomainLog = crossDomainLog;
         }
 
-        void IConeLogger.WriteInfo(Action<TextWriter> output) {
+        public bool ShowProgress { get; set; }
+
+        public void WriteInfo(Action<TextWriter> output) {
             var result = new StringWriter();
             output(result);
             crossDomainLog.Info(result.ToString());
         }
+
+        public void BeginSession() { }
+
+        public IConeLogger BeginTest(IConeTest test) {
+            return this;
+        }
+
+        public void EndSession() { }
 
         void IConeLogger.Failure(ConeTestFailure failure) {
             crossDomainLog.Failure(
@@ -39,17 +47,17 @@ namespace Cone.Runners
                 failure.Message);
         }
 
-        void IConeLogger.Success(IConeTest test) {
-            if(ShowProgress)
+        void IConeLogger.Success() {
+            if (ShowProgress)
                 crossDomainLog.Info(".");
         }
 
-        void IConeLogger.Pending(IConeTest test) {
-            if(ShowProgress)
+        void IConeLogger.Pending() {
+            if (ShowProgress)
                 crossDomainLog.Info("?");
         }
 
-        void IConeLogger.Skipped(IConeTest test) { }
+        void IConeLogger.Skipped() { }
     }
 
     public class CrossDomainConeRunner
@@ -61,10 +69,10 @@ namespace Cone.Runners
             public string[] AssemblyPaths;
 
             public void Execute() {
-				var log = new CrossDomainLoggerAdapater(Logger) {
+                var logger = new CrossDomainSessionLoggerAdapter(Logger) {
                     ShowProgress = false
                 };
-                new SimpleConeRunner().RunTests(new TestSession(log, new NullSessionLogger()), LoadTestAssemblies(AssemblyPaths));             
+                new SimpleConeRunner().RunTests(new TestSession(logger), LoadTestAssemblies(AssemblyPaths));             
             }
         }
 
