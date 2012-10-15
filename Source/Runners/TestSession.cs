@@ -191,6 +191,7 @@ namespace Cone.Runners
         void CollectSuite(ConePadSuite suite) {
             var log = sessionLog.BeginSuite(suite);
             suite.Run((tests, fixture) => CollectResults(tests, fixture, log));
+            log.Done();
         }
 
         void CollectResults(IEnumerable<IConeTest> tests, IConeFixture fixture, ISuiteLogger suiteLog) {

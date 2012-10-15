@@ -29,14 +29,19 @@ namespace Cone.Runners
         public void BeginSession() { }
 
         public ISuiteLogger BeginSuite(IConeSuite suite) {
-            return this;
+            return new ConsoleSessionLogger {
+                Settings = new ConsoleLoggerSettings {
+                    Verbosity = Settings.Verbosity,
+                    SuccessColor = Settings.SuccessColor,
+                }
+            };
         }
 
         public void Done() { }
 
         public ITestLogger BeginTest(IConeTest test) {
             return new ConsoleLogger(test) {
-                Settings = Settings
+                Settings = Settings,
             };
         }
 
@@ -91,10 +96,7 @@ namespace Cone.Runners
 		}
 
 		void WriteTestName(string contextName, string testName, ConsoleColor color) {
-			var tmp = Console.ForegroundColor;
-			Console.ForegroundColor = color;
-			Write("{0}.{1}\n", contextName, testName.Replace("\n", "\\n").Replace("\r", ""));
-			Console.ForegroundColor = tmp;
+			Write(color, "{0}.{1}\n", contextName, testName.Replace("\n", "\\n").Replace("\r", ""));
 		}
 
 		void WriteTestLabel(IConeTest test, ConsoleColor color) {
@@ -109,13 +111,19 @@ namespace Cone.Runners
 			Context = parts;
 			for(; skip != Context.Length; ++skip)
 				Write("{0}{1}\n", new string(' ', skip << 1), Context[skip]);
-			var tmp = Console.ForegroundColor;
-			Console.ForegroundColor = color;
-			Write("{0}* {1}\n", new string(' ', skip << 1), testName);
-			Console.ForegroundColor = tmp;
+			Write(color, "{0}* {1}\n", new string(' ', skip << 1), testName);
 		}
 
-		void Write(string format, params object[] args) {
+        void Write(ConsoleColor color, string format, params object[] args) {
+            lock (Console.Out) {
+                var tmp = Console.ForegroundColor;
+                Console.ForegroundColor = color;
+                Console.Out.Write(format, args);
+                Console.ForegroundColor = tmp;
+            }
+        }
+        
+        void Write(string format, params object[] args) {
 			Console.Out.Write(format, args);
 		}
     }
