@@ -8,11 +8,17 @@ namespace Cone.Runners
     {
         void WriteInfo(Action<TextWriter> output);
         void BeginSession();
-        IConeLogger BeginTest(IConeTest test);
+        ISuiteLogger BeginSuite(IConeSuite suite);
         void EndSession();
     }
 
-    public interface IConeLogger
+    public interface ISuiteLogger
+    {
+        ITestLogger BeginTest(IConeTest test);
+        void Done();
+    }
+
+    public interface ITestLogger
     {
         void Failure(ConeTestFailure failure);
         void Success();

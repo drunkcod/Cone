@@ -45,7 +45,7 @@ namespace Cone.Runners
                                 return;
                             suite = toRun.Dequeue();
                         }
-                        suite.Run(collectResults);
+                        collectResults(suite);
                     }
                 };
                 var workers = new Thread[Workers - 1];

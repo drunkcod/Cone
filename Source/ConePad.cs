@@ -10,14 +10,22 @@ namespace Cone
 {
     public static class ConePad
     {
-        class ConePadLogger : IConeLogger, ISessionLogger
+        class ConePadLogger : ISessionLogger, ISuiteLogger, ITestLogger
         {
             int failureCount;
             TextWriter Output { get { return Console.Out; } }
 
             public void BeginSession() { failureCount = 0; }
-			public void EndSession() { }
-            public IConeLogger BeginTest(IConeTest test) {
+
+            public ISuiteLogger BeginSuite(IConeSuite suite) {
+                return this;
+            }
+
+            public void Done() { }
+
+            public void EndSession() { }
+
+            public ITestLogger BeginTest(IConeTest test) {
                 return this;
             }
 
@@ -60,7 +68,7 @@ namespace Cone
             RunTests(log, log, suiteTypes);
         }
 
-        public static void RunTests(IConeLogger log, ISessionLogger sessionLog, IEnumerable<Type> suites) {
+        public static void RunTests(ITestLogger log, ISessionLogger sessionLog, IEnumerable<Type> suites) {
             sessionLog.WriteInfo(writer => writer.WriteLine("Running tests!\n----------------------------------"));
             new SimpleConeRunner().RunTests(new TestSession(sessionLog), suites);
         }

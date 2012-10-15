@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 
 namespace Cone.Runners
 {
@@ -42,7 +43,7 @@ namespace Cone.Runners
             }
         }
 
-        class TestSessionReport : IConeLogger, ISessionLogger
+        class TestSessionReport : ISessionLogger, ISuiteLogger, ITestLogger
         {
             int Passed;
             int Failed { get { return failures.Count; } }
@@ -59,19 +60,25 @@ namespace Cone.Runners
                 timeTaken.Stop();
             }
 
-            public IConeLogger BeginTest(IConeTest test) {
+            public ISuiteLogger BeginSuite(IConeSuite suite) {
+                return this;
+            }
+
+            public void Done() { }
+
+            public ITestLogger BeginTest(IConeTest test) {
                 return this;
             }
 
             public void WriteInfo(Action<TextWriter> output) { }
 
-            public void Success() { ++Passed; }
+            public void Success() { Interlocked.Increment(ref Passed); }
 
-            public void Failure(ConeTestFailure failure) { failures.Add(failure); }
+            public void Failure(ConeTestFailure failure) { lock(failures) failures.Add(failure); }
 
             public void Pending() { }
 
-            public void Skipped() { ++Excluded; }
+            public void Skipped() { Interlocked.Increment(ref Excluded); }
 
             public void WriteReport(TextWriter output) {
                 output.WriteLine();
@@ -89,6 +96,50 @@ namespace Cone.Runners
 
         class MulticastSessionLogger : ISessionLogger
         {
+            class MultiCastSuiteLogger : ISuiteLogger
+            {
+                readonly ISuiteLogger[] children;
+
+                public MultiCastSuiteLogger(ISuiteLogger[] children) {
+                    this.children = children;
+                }
+
+                public ITestLogger BeginTest(IConeTest test) {
+                    var log = new MulticastLogger();
+                    children.Each(x => log.Add(x.BeginTest(test)));
+                    return log;
+                }
+
+                public void Done() {
+                    children.Each(x => x.Done());
+                }
+            }
+
+            class MulticastLogger : ITestLogger
+            {
+                readonly List<ITestLogger> children = new List<ITestLogger>();
+
+                public void Add(ITestLogger log) {
+                    children.Add(log);
+                }
+
+                public void Failure(ConeTestFailure failure) {
+                    children.ForEach(x => x.Failure(failure));
+                }
+
+                public void Success() {
+                    children.ForEach(x => x.Success());
+                }
+
+                public void Pending() {
+                    children.ForEach(x => x.Pending());
+                }
+
+                public void Skipped() {
+                    children.ForEach(x => x.Skipped());
+                }
+            }
+
             readonly List<ISessionLogger> children = new List<ISessionLogger>();
 
             public MulticastSessionLogger(params ISessionLogger[] sessionLoggers) {
@@ -103,10 +154,8 @@ namespace Cone.Runners
                 children.ForEach(x => x.BeginSession());
             }
 
-            public IConeLogger BeginTest(IConeTest test) {
-                var log = new MulticastLogger();
-                children.ForEach(x => log.Add(x.BeginTest(test)));
-                return log;
+            public ISuiteLogger BeginSuite(IConeSuite suite) {
+                return new MultiCastSuiteLogger(children.ConvertAll(x => x.BeginSuite(suite)).ToArray());
             }
 
             public void EndSession() {
@@ -122,31 +171,6 @@ namespace Cone.Runners
             }
         }
 
-        class MulticastLogger : IConeLogger
-        {
-            readonly List<IConeLogger> children = new List<IConeLogger>();
-
-            public void Add(IConeLogger log) {
-                children.Add(log);
-            }
-
-            public void Failure(ConeTestFailure failure) {
-                children.ForEach(x => x.Failure(failure));
-            }
-
-            public void Success() {
-                children.ForEach(x => x.Success());
-            }
-
-            public void Pending() {
-                children.ForEach(x => x.Pending());
-            }
-
-            public void Skipped() {
-                children.ForEach(x => x.Skipped());
-            }
-        }
-
         readonly ISessionLogger sessionLog;
         readonly TestSessionReport report = new TestSessionReport();
 
@@ -158,16 +182,21 @@ namespace Cone.Runners
 		public Predicate<IConeSuite> IncludeSuite = _ => true;
 		public Func<IConeFixture, Action<IConeTest, ITestResult>> GetResultCollector = x => new TestExecutor(x).Run; 
 
-        public void RunSession(Action<Action<IEnumerable<IConeTest>, IConeFixture>> @do) {
+        public void RunSession(Action<Action<ConePadSuite>> @do) {
             sessionLog.BeginSession();
-            @do(CollectResults);
+            @do(CollectSuite);
             sessionLog.EndSession();
         }
 
-        void CollectResults(IEnumerable<IConeTest> tests, IConeFixture fixture) {
+        void CollectSuite(ConePadSuite suite) {
+            var log = sessionLog.BeginSuite(suite);
+            suite.Run((tests, fixture) => CollectResults(tests, fixture, log));
+        }
+
+        void CollectResults(IEnumerable<IConeTest> tests, IConeFixture fixture, ISuiteLogger suiteLog) {
 			var collectResult = GetResultCollector(fixture);
 			tests.Each(test => {
-                var log = sessionLog.BeginTest(test);
+                var log = suiteLog.BeginTest(test);
 				if(ShouldSkipTest(test))
                     log.Skipped();
                 else
@@ -175,7 +204,7 @@ namespace Cone.Runners
 			});
         }
 
-        void CollectResult(Action<IConeTest, ITestResult> collectResult, IConeTest test, IConeLogger log) {
+        void CollectResult(Action<IConeTest, ITestResult> collectResult, IConeTest test, ITestLogger log) {
             var result = new TestResult(test);
             collectResult(test, result);
             switch (result.Status) {

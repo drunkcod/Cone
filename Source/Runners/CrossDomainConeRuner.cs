@@ -15,7 +15,7 @@ namespace Cone.Runners
         void Failure(string file, int line, int column, string message);
     }
 
-    class CrossDomainSessionLoggerAdapter : ISessionLogger, IConeLogger
+    class CrossDomainSessionLoggerAdapter : ISessionLogger, ISuiteLogger, ITestLogger
     {
         readonly ICrossDomainLogger crossDomainLog;
 
@@ -33,13 +33,19 @@ namespace Cone.Runners
 
         public void BeginSession() { }
 
-        public IConeLogger BeginTest(IConeTest test) {
+        public ISuiteLogger BeginSuite(IConeSuite suite) {
+            return this;
+        }
+
+        public void Done() { }
+
+        public ITestLogger BeginTest(IConeTest test) {
             return this;
         }
 
         public void EndSession() { }
 
-        void IConeLogger.Failure(ConeTestFailure failure) {
+        void ITestLogger.Failure(ConeTestFailure failure) {
             crossDomainLog.Failure(
                 failure.File,
                 failure.Line,
@@ -47,17 +53,17 @@ namespace Cone.Runners
                 failure.Message);
         }
 
-        void IConeLogger.Success() {
+        void ITestLogger.Success() {
             if (ShowProgress)
                 crossDomainLog.Info(".");
         }
 
-        void IConeLogger.Pending() {
+        void ITestLogger.Pending() {
             if (ShowProgress)
                 crossDomainLog.Info("?");
         }
 
-        void IConeLogger.Skipped() { }
+        void ITestLogger.Skipped() { }
     }
 
     public class CrossDomainConeRunner

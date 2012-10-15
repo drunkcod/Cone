@@ -18,7 +18,7 @@ namespace Cone.Runners
 
     }
 
-    public class ConsoleSessionLogger : ISessionLogger
+    public class ConsoleSessionLogger : ISessionLogger, ISuiteLogger
     {
         public void WriteInfo(Action<TextWriter> output) {
             output(Console.Out);
@@ -28,7 +28,13 @@ namespace Cone.Runners
 
         public void BeginSession() { }
 
-        public IConeLogger BeginTest(IConeTest test) {
+        public ISuiteLogger BeginSuite(IConeSuite suite) {
+            return this;
+        }
+
+        public void Done() { }
+
+        public ITestLogger BeginTest(IConeTest test) {
             return new ConsoleLogger(test) {
                 Settings = Settings
             };
@@ -37,7 +43,7 @@ namespace Cone.Runners
         public void EndSession() { }
     }
 
-    public class ConsoleLogger : IConeLogger
+    public class ConsoleLogger : ITestLogger
     {
         readonly IConeTest test;
 

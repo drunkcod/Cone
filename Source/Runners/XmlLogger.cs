@@ -6,7 +6,7 @@ using Cone.Core;
 
 namespace Cone.Runners
 {
-    public class XmlSessionLogger : ISessionLogger
+    public class XmlSessionLogger : ISessionLogger, ISuiteLogger
     {
         readonly XmlWriter xml;
 
@@ -21,7 +21,13 @@ namespace Cone.Runners
             xml.WriteStartElement("test-results");
         }
 
-        public IConeLogger BeginTest(IConeTest test) {
+        public ISuiteLogger BeginSuite(IConeSuite suite) {
+            return this;
+        }
+
+        public void Done() { }
+
+        public ITestLogger BeginTest(IConeTest test) {
             return new XmlLogger(xml, test);
         }
 
@@ -31,7 +37,7 @@ namespace Cone.Runners
         }
     }
 
-	public class XmlLogger : IConeLogger
+	public class XmlLogger : ITestLogger
 	{
 		readonly XmlWriter xml;
         readonly IConeTest test;
