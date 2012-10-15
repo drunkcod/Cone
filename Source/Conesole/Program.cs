@@ -129,11 +129,7 @@ namespace Conesole
 		int Execute(){
             try {
 				var config = ConesoleConfiguration.Parse(Options);
-				var logger = CreateLogger(config);
-            	var results = new TestSession(logger) {
-					IncludeSuite = config.IncludeSuite,
-					ShouldSkipTest = x => !config.IncludeTest(x)
-				};
+            	var results = CreateTestSession(config);
 
 				if(config.IsDryRun) {
 					results.GetResultCollector = _ => (test, result) => result.Success();
@@ -158,16 +154,27 @@ namespace Conesole
 			return 0;
 		}
 
-		static IConeLogger CreateLogger(ConesoleConfiguration config) {
-			if(config.XmlOutput)
-				return new XmlLogger(new XmlTextWriter(Console.Out) {
-					Formatting = Formatting.Indented
-				});
+        static TestSession CreateTestSession(ConesoleConfiguration config) {
+            IConeLogger logger;
+            ISessionLogger sessionLogger = new NullSessionLogger();
+            if (config.XmlOutput) {
+                var xml = new XmlLogger(new XmlTextWriter(Console.Out) {
+                    Formatting = Formatting.Indented
+                });
 
-			var logger = new ConsoleLogger { Verbosity = config.Verbosity };
-			if(config.IsDryRun)
-				logger.SuccessColor = ConsoleColor.DarkGreen;
-			return logger;
+                sessionLogger = xml;
+                logger = xml;
+            } else {
+                var consoleLogger = new ConsoleLogger { Verbosity = config.Verbosity };
+                if (config.IsDryRun)
+                    consoleLogger.SuccessColor = ConsoleColor.DarkGreen;
+                logger = consoleLogger;
+            }
+
+            return new TestSession(logger, sessionLogger) {
+                IncludeSuite = config.IncludeSuite,
+                ShouldSkipTest = x => !config.IncludeTest(x)
+            };;
 		}
 
     	static int DisplayUsage() {

@@ -191,7 +191,7 @@ namespace Cone.Runners
 			public void GivenFixtureInstance() {
 				NUnitSuite = new NUnitSuiteBuilder().BuildSuite(typeof(MyNUnitFixture)); 
 				NUnitFixture = (MyNUnitFixture)NUnitSuite.Fixture;
-                new TestSession(new NullLogger()).RunSession(collectResult => NUnitSuite.Run(collectResult));
+                new TestSession(new NullLogger(), new NullSessionLogger()).RunSession(collectResult => NUnitSuite.Run(collectResult));
 			}
 
 			public void FixtureSetUp_is_called_to_initialize_fixture() {

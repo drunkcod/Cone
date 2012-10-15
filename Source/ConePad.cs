@@ -10,7 +10,7 @@ namespace Cone
 {
     public static class ConePad
     {
-        class ConePadLogger : IConeLogger
+        class ConePadLogger : IConeLogger, ISessionLogger
         {
             int failureCount;
             TextWriter Output { get { return Console.Out; } }
@@ -42,21 +42,24 @@ namespace Cone
 
         public static void RunTests() {
             Verify.GetPluginAssemblies = () => new[]{ typeof(Verify).Assembly };
-            RunTests(new ConePadLogger(), Assembly.GetCallingAssembly().GetTypes());
+            var log = new ConePadLogger();
+            RunTests(log, log, Assembly.GetCallingAssembly().GetTypes());
         }
 
         public static void RunTests(TextWriter output, IEnumerable<Assembly> assemblies) {
             Verify.GetPluginAssemblies = () => assemblies.Concat(new[]{ typeof(Verify).Assembly });
-            RunTests(new ConePadLogger(), assemblies.SelectMany(x => x.GetTypes()));
+            var log = new ConePadLogger();
+            RunTests(log, log, assemblies.SelectMany(x => x.GetTypes()));
         }
 
         public static void RunTests(params Type[] suiteTypes) {
-            RunTests(new ConePadLogger(), suiteTypes);
+            var log = new ConePadLogger();
+            RunTests(log, log, suiteTypes);
         }
 
-        public static void RunTests(IConeLogger log, IEnumerable<Type> suites) {
+        public static void RunTests(IConeLogger log, ISessionLogger sessionLog, IEnumerable<Type> suites) {
             log.WriteInfo(writer => writer.WriteLine("Running tests!\n----------------------------------"));
-        	new SimpleConeRunner().RunTests(new TestSession(log), suites);
+        	new SimpleConeRunner().RunTests(new TestSession(log, sessionLog), suites);
         }
     }
 }

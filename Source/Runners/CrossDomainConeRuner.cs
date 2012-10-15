@@ -25,9 +25,6 @@ namespace Cone.Runners
             this.crossDomainLog = crossDomainLog;
         }
 
-		void IConeLogger.BeginSession() { }
-		void IConeLogger.EndSession() { }
-
         void IConeLogger.WriteInfo(Action<TextWriter> output) {
             var result = new StringWriter();
             output(result);
@@ -67,7 +64,7 @@ namespace Cone.Runners
 				var log = new CrossDomainLoggerAdapater(Logger) {
                     ShowProgress = false
                 };
-                new SimpleConeRunner().RunTests(new TestSession(log), LoadTestAssemblies(AssemblyPaths));             
+                new SimpleConeRunner().RunTests(new TestSession(log, new NullSessionLogger()), LoadTestAssemblies(AssemblyPaths));             
             }
         }
 

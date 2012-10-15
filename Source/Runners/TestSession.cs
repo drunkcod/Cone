@@ -42,7 +42,7 @@ namespace Cone.Runners
             }
         }
 
-        class TestSessionReport : IConeLogger
+        class TestSessionReport : IConeLogger, ISessionLogger
         {
             int Passed;
             int Failed { get { return failures.Count; } }
@@ -83,20 +83,25 @@ namespace Cone.Runners
 
         }
 
-        class MulticastLogger : IConeLogger
+        class MulticastLogger : IConeLogger, ISessionLogger
         {
+            readonly List<ISessionLogger> sessionLoggers = new List<ISessionLogger>();
             readonly List<IConeLogger> loggers = new List<IConeLogger>();
 
-            public void Add(IConeLogger log) {
+            public void AddLogger(IConeLogger log) {
                 loggers.Add(log);
             }
 
+            public void AddSessionLogger(ISessionLogger log) {
+                sessionLoggers.Add(log);
+            }
+
             public void BeginSession() {
-                loggers.ForEach(x => x.BeginSession());
+                sessionLoggers.ForEach(x => x.BeginSession());
             }
 
             public void EndSession() {
-                loggers.ForEach(x => x.EndSession());
+                sessionLoggers.ForEach(x => x.EndSession());
             }
 
             public void WriteInfo(Action<TextWriter> output) {
@@ -127,9 +132,12 @@ namespace Cone.Runners
         readonly MulticastLogger log = new MulticastLogger();
         readonly TestSessionReport report = new TestSessionReport();
 
-        public TestSession(IConeLogger log) {
-            this.log.Add(log);
-            this.log.Add(report);
+        public TestSession(IConeLogger log, ISessionLogger sessionLog) {
+            this.log.AddLogger(log);
+            this.log.AddLogger(report);
+
+            this.log.AddSessionLogger(sessionLog);
+            this.log.AddSessionLogger(report);
         }
 
 		public Predicate<IConeTest> ShouldSkipTest = _ => false; 

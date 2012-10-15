@@ -6,7 +6,7 @@ using Cone.Core;
 
 namespace Cone.Runners
 {
-	public class XmlLogger : IConeLogger
+	public class XmlLogger : IConeLogger, ISessionLogger
 	{
 		readonly XmlWriter xml;
 
