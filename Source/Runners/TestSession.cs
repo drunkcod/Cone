@@ -18,14 +18,18 @@ namespace Cone.Runners
             }
 
             public Exception Error;
+			public string PendingReason;
 
-            public ITestName TestName { get { return test.Name; } }
+            public ITestName TestName { get { return test.TestName; } }
 
             public TestStatus Status { get; private set; }
 
             void ITestResult.Success() { Status = TestStatus.Success; }
 
-            void ITestResult.Pending(string reason) { Status = TestStatus.Pending; }
+            void ITestResult.Pending(string reason) { 
+				Status = TestStatus.Pending;
+				PendingReason = reason;
+			}
             
             void ITestResult.BeforeFailure(Exception ex) { 
                 Status = TestStatus.SetupFailure;
@@ -76,7 +80,7 @@ namespace Cone.Runners
 
             public void Failure(ConeTestFailure failure) { lock(failures) failures.Add(failure); }
 
-            public void Pending() { }
+            public void Pending(string reason) { }
 
             public void Skipped() { Interlocked.Increment(ref Excluded); }
 
@@ -131,8 +135,8 @@ namespace Cone.Runners
                     children.ForEach(x => x.Success());
                 }
 
-                public void Pending() {
-                    children.ForEach(x => x.Pending());
+                public void Pending(string reason) {
+                    children.ForEach(x => x.Pending(reason));
                 }
 
                 public void Skipped() {
@@ -215,10 +219,10 @@ namespace Cone.Runners
                 case TestStatus.SetupFailure: goto case TestStatus.Failure;
                 case TestStatus.TeardownFailure: goto case TestStatus.Failure;
                 case TestStatus.Failure:
-                    log.Failure(new ConeTestFailure(test.Name, result.Error));
+                    log.Failure(new ConeTestFailure(test.TestName, result.Error));
                     break;
                 case TestStatus.Pending:
-                    log.Pending();
+                    log.Pending(result.PendingReason);
                     break;
             }
         }

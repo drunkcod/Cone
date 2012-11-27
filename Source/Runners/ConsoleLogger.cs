@@ -81,7 +81,7 @@ namespace Cone.Runners
             }
         }
 
-        public void Pending() {
+        public void Pending(string reason) {
 			switch(Verbosity) {
 				case LoggerVerbosity.Default: Write("?"); break;
                 case LoggerVerbosity.TestNames: WriteTestName(test, ConsoleColor.Yellow); break;
@@ -92,7 +92,7 @@ namespace Cone.Runners
         public void Skipped() { }
 
 		void WriteTestName(IConeTest test, ConsoleColor color) {
-			WriteTestName(test.Name.Context, test.Name.Name, color);
+			WriteTestName(test.TestName.Context, test.TestName.Name, color);
 		}
 
 		void WriteTestName(string contextName, string testName, ConsoleColor color) {
@@ -100,7 +100,7 @@ namespace Cone.Runners
 		}
 
 		void WriteTestLabel(IConeTest test, ConsoleColor color) {
-			WriteTestLabel(test.Name.Context, test.Name.Name, color);
+			WriteTestLabel(test.TestName.Context, test.TestName.Name, color);
 		}
 
 		void WriteTestLabel(string contextName, string testName, ConsoleColor color) {

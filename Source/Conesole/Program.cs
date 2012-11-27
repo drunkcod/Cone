@@ -82,7 +82,7 @@ namespace Conesole
 				var suitePatternRegex = CreatePatternRegex(suitePattern);
 
 				IncludeSuite = IncludeSuite.Or(x => suitePatternRegex.IsMatch(x.Name));
-				IncludeTest = IncludeTest.Or(x => testPatternRegex.IsMatch(x.Name.FullName));
+				IncludeTest = IncludeTest.Or(x => testPatternRegex.IsMatch(x.TestName.FullName));
 			}
 			else if(option == "categories") {
 				var excluded = new HashSet<string>();

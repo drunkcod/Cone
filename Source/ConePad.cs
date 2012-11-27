@@ -42,7 +42,7 @@ namespace Cone
                 Output.Write(".");
             }
 
-            public void Pending() {
+            public void Pending(string reason) {
                 Output.Write("?");
             }
 

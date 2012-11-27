@@ -4,7 +4,7 @@ namespace Cone.Core
 {
     public interface IConeTest
     {
-        ITestName Name { get; }
+        ITestName TestName { get; }
 		IConeAttributeProvider Attributes { get; }
 		IEnumerable<string> Categories { get; }
 		void Run(ITestResult testResult);

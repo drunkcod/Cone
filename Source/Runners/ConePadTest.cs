@@ -87,7 +87,7 @@ namespace Cone.Runners
 			this.test = test;
         }
 
-        public ITestName Name { get { return name; } }
+        public ITestName TestName { get { return name; } }
 
         IConeAttributeProvider IConeTest.Attributes { get { return attributes; } }
 		IEnumerable<string> IConeTest.Categories { get { return test.Categories; } }

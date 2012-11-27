@@ -58,7 +58,7 @@ namespace Cone.Runners
                 crossDomainLog.Info(".");
         }
 
-        void ITestLogger.Pending() {
+        void ITestLogger.Pending(string reason) {
             if (ShowProgress)
                 crossDomainLog.Info("?");
         }

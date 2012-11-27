@@ -52,7 +52,7 @@ namespace Cone.Addin
 
         public override string TestType { get { return GetType().Name; } }
 
-        ITestName IConeTest.Name { get { return new NUnitTestNameAdapter(TestName); } }
+        ITestName IConeTest.TestName { get { return new NUnitTestNameAdapter(TestName); } }
 
 		public abstract IConeAttributeProvider Attributes { get; }
 

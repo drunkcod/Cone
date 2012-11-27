@@ -84,6 +84,7 @@
     <Compile Include="Runners\ConePadTest.cs" />
     <Compile Include="Runners\ConeTestMethodSink.cs" />
     <Compile Include="Runners\NUnitSuiteBuilder.cs" />
+    <Compile Include="Runners\TeamCityLogger.cs" />
     <Compile Include="Runners\TestSession.cs" />
     <Compile Include="Runners\ConsoleLogger.cs" />
     <Compile Include="Runners\CrossDomainConeRuner.cs" />

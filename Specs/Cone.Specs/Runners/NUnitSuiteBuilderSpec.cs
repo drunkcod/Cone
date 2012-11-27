@@ -285,7 +285,7 @@ namespace Cone.Runners
         public void WriteInfo(Action<TextWriter> output) { }
         public void Failure(ConeTestFailure failure) { }
         public void Success() { }
-        public void Pending() { }
+        public void Pending(string reason) { }
         public void Skipped() { }
     }
 

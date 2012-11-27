@@ -22,7 +22,7 @@ namespace Cone.Runners
     {
         void Failure(ConeTestFailure failure);
         void Success();
-        void Pending();
+        void Pending(string reason);
         void Skipped();
     }
 }

@@ -66,17 +66,17 @@ namespace Cone.Runners
 
 		public void Success() {
 			xml.WriteStartElement("test-case");
-				xml.WriteAttributeString("context", test.Name.Context);
-				xml.WriteAttributeString("name", test.Name.Name);
+				xml.WriteAttributeString("context", test.TestName.Context);
+				xml.WriteAttributeString("name", test.TestName.Name);
 				xml.WriteAttributeString("executed", "True");
 				xml.WriteAttributeString("success", "True");
 			xml.WriteEndElement();
 		}
 
-		public void Pending() {
+		public void Pending(string reason) {
 			xml.WriteStartElement("test-case");
-				xml.WriteAttributeString("context", test.Name.Context);
-				xml.WriteAttributeString("name", test.Name.Name);
+				xml.WriteAttributeString("context", test.TestName.Context);
+				xml.WriteAttributeString("name", test.TestName.Name);
 				xml.WriteAttributeString("executed", "False");
 			xml.WriteEndElement();
 		}
