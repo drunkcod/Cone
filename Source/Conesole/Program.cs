@@ -113,7 +113,7 @@ namespace Conesole
 				.ToArray();
 
 			return CrossDomainConeRunner.WithProxyInDomain<Program, int>(
-				Path.GetDirectoryName(Path.GetFullPath(assemblyPaths[0])), 
+				Path.GetDirectoryName(Path.GetFullPath(assemblyPaths.FirstOrDefault() ?? ".")), 
 				assemblyPaths, 
 				runner => {
 					runner.AssemblyPaths = assemblyPaths;
