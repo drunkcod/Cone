@@ -56,31 +56,47 @@ namespace Cone.Conesole
 		{
 			public void ignores_context_when_only_test_name_given() {
 				var includeFoo = ConesoleConfiguration.Parse("--include-tests=Foo");
-				Verify.That(() => includeFoo.IncludeTest(new ConeTestStub().WithName("Foo")));
-				Verify.That(() => !includeFoo.IncludeTest(new ConeTestStub().WithName("Bar")));
+				Verify.That(() => includeFoo.IncludeTest(Test().WithName("Foo")));
+				Verify.That(() => !includeFoo.IncludeTest(Test().WithName("Bar")));
 			}
 
 			public void merges_multiple_includes() {
 				var includeFoo = ConesoleConfiguration.Parse("--include-tests=*.Foo", "--include-tests=*.Bar");
-				Verify.That(() => includeFoo.IncludeTest(new ConeTestStub().WithName("A.Foo")));
-				Verify.That(() => includeFoo.IncludeTest(new ConeTestStub().WithName("A.Bar")));
+				Verify.That(() => includeFoo.IncludeTest(Test().WithName("A.Foo")));
+				Verify.That(() => includeFoo.IncludeTest(Test().WithName("A.Bar")));
 			}
 
 			public void understands_context_separator() {
 				var includeFoo = ConesoleConfiguration.Parse("--include-tests=Context.Foo");
-				Verify.That(() => includeFoo.IncludeTest(new ConeTestStub().InContext("Context").WithName("Foo")));
-				Verify.That(() => !includeFoo.IncludeTest(new ConeTestStub().InContext("OtherContext").WithName("Foo")));
+				Verify.That(() => includeFoo.IncludeTest(Test().InContext("Context").WithName("Foo")));
+				Verify.That(() => !includeFoo.IncludeTest(Test().InContext("OtherContext").WithName("Foo")));
 			}
 
 			public void supports_wildcards() {
 				var includeFoo = ConesoleConfiguration.Parse("--include-tests=Context.*.B*");
-				Verify.That(() => includeFoo.IncludeTest(new ConeTestStub().InContext("Context.A").WithName("Bar")));
-				Verify.That(() => includeFoo.IncludeTest(new ConeTestStub().InContext("Context.B").WithName("Baz")));
+				Verify.That(() => includeFoo.IncludeTest(Test().InContext("Context.A").WithName("Bar")));
+				Verify.That(() => includeFoo.IncludeTest(Test().InContext("Context.B").WithName("Baz")));
 			}
 
-			public void exclude_category() {
+			public void can_exclude_category() {
 				var includeFoo = ConesoleConfiguration.Parse("--categories=!Acceptance");
-				Verify.That(() => !includeFoo.IncludeTest(new ConeTestStub().WithCategories("Acceptance")));
+				Verify.That(() => !includeFoo.IncludeTest(Test().WithCategories("Acceptance")));
+			}
+
+			public void can_include_category() {
+				var includeWIP = ConesoleConfiguration.Parse("--categories=WIP");
+				Verify.That(() => includeWIP.IncludeTest(Test().WithCategories("WIP")));
+				Verify.That(() => !includeWIP.IncludeTest(Test().WithCategories("Acceptance")));
+			}
+
+			public void includes_if_any_matches() {
+				var includeWIP = ConesoleConfiguration.Parse("--categories=WIP,Acceptance");
+				Verify.That(() => includeWIP.IncludeTest(Test().WithCategories("WIP")));
+				Verify.That(() => includeWIP.IncludeTest(Test().WithCategories("Acceptance")));
+			}
+
+			private static ConeTestStub Test() {
+				return new ConeTestStub();
 			}
 		}
 	}

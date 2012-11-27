@@ -86,11 +86,15 @@ namespace Conesole
 			}
 			else if(option == "categories") {
 				var excluded = new HashSet<string>();
+				var included = new HashSet<string>();
 				foreach(var category in valueRaw.Split(','))
 					if(category.StartsWith("!"))
 						excluded.Add(category.Substring(1));
-				IncludeSuite = IncludeSuite.And(x => !x.Categories.Any(excluded.Contains));
-				IncludeTest = IncludeTest.And(x => !x.Categories.Any(excluded.Contains));
+					else 
+						included.Add(category);
+				
+				IncludeSuite = IncludeSuite.And(x => (included.IsEmpty() || x.Categories.Any(included.Contains)) && !x.Categories.Any(excluded.Contains));
+				IncludeTest = IncludeTest.And(x => (included.IsEmpty() || x.Categories.Any(included.Contains)) && !x.Categories.Any(excluded.Contains));
 			}
 			else 
 				throw new ArgumentException("Unknown option:" + item);
