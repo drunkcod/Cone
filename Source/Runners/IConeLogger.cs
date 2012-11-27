@@ -1,15 +1,28 @@
 ﻿using Cone.Core;
+using System;
+using System.IO;
 
 namespace Cone.Runners
 {
-    public interface IConeLogger
+    public interface ISessionLogger
     {
-		void BeginSession();
-		void EndSession();
+        void WriteInfo(Action<TextWriter> output);
+        void BeginSession();
+        ISuiteLogger BeginSuite(IConeSuite suite);
+        void EndSession();
+    }
 
-        void Info(string format, params object[] args);
+    public interface ISuiteLogger
+    {
+        ITestLogger BeginTest(IConeTest test);
+        void Done();
+    }
+
+    public interface ITestLogger
+    {
         void Failure(ConeTestFailure failure);
-        void Success(IConeTest test);
-        void Pending(IConeTest test);
+        void Success();
+        void Pending();
+        void Skipped();
     }
 }

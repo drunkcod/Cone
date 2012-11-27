@@ -1,14 +1,12 @@
-﻿using System;
+﻿using Cone.Core;
+using Cone.Runners;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security;
-using System.Security.Permissions;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Cone.Core;
-using Cone.Runners;
 
 namespace Conesole
 {
@@ -23,6 +21,7 @@ namespace Conesole
 		public LoggerVerbosity Verbosity = LoggerVerbosity.Default;
 		public bool IsDryRun;
 		public bool XmlOutput;
+        public bool Multicore;
 
         public static ConesoleConfiguration Parse(params string[] args) {
 			var result = new ConesoleConfiguration();
@@ -61,7 +60,12 @@ namespace Conesole
 				return;
 			}
 
-			var m = OptionPattern.Match(item);
+            if (item == "--multicore") {
+                Multicore = true;
+                return;
+            }
+            
+            var m = OptionPattern.Match(item);
 			if(!m.Success)
 				throw new ArgumentException("Unknown option:" + item);
 
@@ -125,17 +129,15 @@ namespace Conesole
 		int Execute(){
             try {
 				var config = ConesoleConfiguration.Parse(Options);
-				var logger = CreateLogger(config);
-            	var results = new TestSession(logger) {
-					IncludeSuite = config.IncludeSuite,
-					ShouldSkipTest = x => !config.IncludeTest(x)
-				};
+            	var results = CreateTestSession(config);
 
 				if(config.IsDryRun) {
 					results.GetResultCollector = _ => (test, result) => result.Success();
 				}
-            	
-				new SimpleConeRunner().RunTests(results, CrossDomainConeRunner.LoadTestAssemblies(AssemblyPaths));
+
+                new SimpleConeRunner() {
+                    Workers = config.Multicore ? Environment.ProcessorCount : 1,
+                }.RunTests(results, CrossDomainConeRunner.LoadTestAssemblies(AssemblyPaths));
 
             } catch (ReflectionTypeLoadException tle) {
                 foreach (var item in tle.LoaderExceptions)
@@ -152,16 +154,27 @@ namespace Conesole
 			return 0;
 		}
 
-		static IConeLogger CreateLogger(ConesoleConfiguration config) {
-			if(config.XmlOutput)
-				return new XmlLogger(new XmlTextWriter(Console.Out) {
-					Formatting = Formatting.Indented
-				});
+        static TestSession CreateTestSession(ConesoleConfiguration config) {
+            ISessionLogger sessionLogger;
+            if (config.XmlOutput) {
+                var xml = new XmlSessionLogger(new XmlTextWriter(Console.Out){
+                    Formatting = Formatting.Indented
+                });
 
-			var logger = new ConsoleLogger { Verbosity = config.Verbosity };
-			if(config.IsDryRun)
-				logger.SuccessColor = ConsoleColor.DarkGreen;
-			return logger;
+                sessionLogger = xml;
+            } else {
+                var consoleLogger = new ConsoleSessionLogger();
+                consoleLogger.Settings.Verbosity = config.Verbosity;
+                if (config.IsDryRun)
+                    consoleLogger.Settings.SuccessColor = ConsoleColor.DarkGreen;
+
+                sessionLogger = consoleLogger;
+            }
+
+            return new TestSession(sessionLogger) {
+                IncludeSuite = config.IncludeSuite,
+                ShouldSkipTest = x => !config.IncludeTest(x)
+            };;
 		}
 
     	static int DisplayUsage() {

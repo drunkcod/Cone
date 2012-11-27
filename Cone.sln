@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cone", "Source\Cone.csproj", "{E557FD03-E249-4211-80CF-FB0923FD4C7D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cone.Addin", "Source\Addin\Cone.Addin.csproj", "{C1B2EAD0-140C-4D5F-A757-1092CB39AECE}"

@@ -1,31 +1,53 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
+using System.IO;
 using System.Xml;
 using Cone.Core;
 
 namespace Cone.Runners
 {
-	public class XmlLogger : IConeLogger
+    public class XmlSessionLogger : ISessionLogger, ISuiteLogger
+    {
+        readonly XmlWriter xml;
+
+        public XmlSessionLogger(XmlWriter xml) {
+            this.xml = xml;
+        }
+
+        public void WriteInfo(Action<TextWriter> output) { }
+
+        public void BeginSession() {
+            xml.WriteStartDocument();
+            xml.WriteStartElement("test-results");
+        }
+
+        public ISuiteLogger BeginSuite(IConeSuite suite) {
+            return this;
+        }
+
+        public void Done() { }
+
+        public ITestLogger BeginTest(IConeTest test) {
+            return new XmlLogger(xml, test);
+        }
+
+        public void EndSession() {
+            xml.WriteEndDocument();
+            xml.Flush();
+        }
+    }
+
+	public class XmlLogger : ITestLogger
 	{
 		readonly XmlWriter xml;
+        readonly IConeTest test;
 
-		public XmlLogger(XmlWriter xml) {
+		public XmlLogger(XmlWriter xml, IConeTest test) {
 			this.xml = xml;
+            this.test = test;
 		}
 
-		public void BeginSession() {
-			xml.WriteStartDocument();
-			xml.WriteStartElement("test-results");
-		}
-
-		public void EndSession() {
-			xml.WriteEndDocument();
-			xml.Flush();
-		}
-
-		public void Info(string format, params object[] args) { }
-
-		public void Failure(ConeTestFailure failure) {
-			
+		public void Failure(ConeTestFailure failure) {		
 			xml.WriteStartElement("test-case");
 				xml.WriteAttributeString("context", failure.Context);
 				xml.WriteAttributeString("name", failure.TestName);
@@ -42,7 +64,7 @@ namespace Cone.Runners
 			xml.WriteEndElement();
 		}
 
-		public void Success(IConeTest test) {
+		public void Success() {
 			xml.WriteStartElement("test-case");
 				xml.WriteAttributeString("context", test.Name.Context);
 				xml.WriteAttributeString("name", test.Name.Name);
@@ -51,12 +73,14 @@ namespace Cone.Runners
 			xml.WriteEndElement();
 		}
 
-		public void Pending(IConeTest test) {
+		public void Pending() {
 			xml.WriteStartElement("test-case");
 				xml.WriteAttributeString("context", test.Name.Context);
 				xml.WriteAttributeString("name", test.Name.Name);
 				xml.WriteAttributeString("executed", "False");
 			xml.WriteEndElement();
 		}
+
+        public void Skipped() { }
 	}
 }

@@ -145,9 +145,9 @@ namespace Cone.Runners
         	return new ConeMethodClassifier(fixtureSink, testSink);
         }
 
-        public void Run(TestSession session) {
+        public void Run(Action<IEnumerable<IConeTest>, IConeFixture> collectResults) {
 			fixture.WithInitialized(
-            	x => session.CollectResults(tests.Cast<IConeTest>(), x), 
+            	x => collectResults(tests.Cast<IConeTest>(), x), 
             	_ => { }, 
             	_ => { });
         }

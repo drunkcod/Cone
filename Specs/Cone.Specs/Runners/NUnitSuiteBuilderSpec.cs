@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using System.IO;
 
 //mimic the NUnit framework attributes, matches must be name based to avoid referenceing nunit.
 namespace NUnit.Framework
@@ -190,7 +191,7 @@ namespace Cone.Runners
 			public void GivenFixtureInstance() {
 				NUnitSuite = new NUnitSuiteBuilder().BuildSuite(typeof(MyNUnitFixture)); 
 				NUnitFixture = (MyNUnitFixture)NUnitSuite.Fixture;
-				NUnitSuite.Run(new TestSession(new NullLogger()));
+                new TestSession(new NullSessionLogger()).RunSession(collectResult => collectResult(NUnitSuite));
 			}
 
 			public void FixtureSetUp_is_called_to_initialize_fixture() {
@@ -267,24 +268,25 @@ namespace Cone.Runners
 		}
 	}
 
-	public class NullLogger : IConeLogger
-	{
-		public void BeginSession()
-		{ }
+    public class NullSessionLogger : ISessionLogger, ISuiteLogger, ITestLogger
+    {
+        public void BeginSession() { }
 
-		public void EndSession()
-		{ }
+        public ITestLogger BeginTest(Core.IConeTest test) {
+            return this;
+        }
 
-		public void Info(string format, params object[] args)
-		{ }
+        public ISuiteLogger BeginSuite(Core.IConeSuite suite) {
+            return this;
+        }
 
-		public void Failure(ConeTestFailure failure)
-		{ }
+        public void Done() { }
+        public void EndSession() { }
+        public void WriteInfo(Action<TextWriter> output) { }
+        public void Failure(ConeTestFailure failure) { }
+        public void Success() { }
+        public void Pending() { }
+        public void Skipped() { }
+    }
 
-		public void Success(Core.IConeTest test)
-		{ }
-
-		public void Pending(Core.IConeTest test)
-		{ }
-	}
 }

@@ -1,40 +1,68 @@
-﻿using System;
+﻿using Cone.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Cone.Core;
+using System.Threading;
 
 namespace Cone.Runners
 {
     public class SimpleConeRunner
     {
-        readonly IConeSuiteBuilder<ConePadSuite>[] suiteBuilders = new [] {
+        class NullSuiteBuilder : IConeSuiteBuilder<ConePadSuite>
+        {
+            public bool SupportedType(Type type) { return true; }
+
+            public ConePadSuite BuildSuite(Type suiteType) {
+                return null;
+            }
+        }
+
+        readonly IConeSuiteBuilder<ConePadSuite>[] suiteBuilders = new IConeSuiteBuilder<ConePadSuite>[] {
 			new ConePadSuiteBuilder(),
 			new NUnitSuiteBuilder(),
+            new NullSuiteBuilder(),
 		};
+
+        public int Workers = 1;
             
         public void RunTests(TestSession results, IEnumerable<Assembly> assemblies) {
         	RunTests(results, assemblies.SelectMany(x => x.GetTypes()));
         }
 
-        public void RunTests(TestSession results ,IEnumerable<Type> suiteTypes) {
-            results.BeginSession();
-            suiteTypes
-				.Choose<Type, ConePadSuite>(TryBuildSuite)
-				.SelectMany(Flatten)
-				.Where(x => results.IncludeSuite(x))
-                .ForEach(x => x.Run(results));
+        public void RunTests(TestSession results, IEnumerable<Type> suiteTypes) {
+            var toRun = new Queue<ConePadSuite>(suiteTypes
+                .Choose<Type, ConePadSuite>(TryBuildSuite)
+                .SelectMany(Flatten)
+                .Where(x => results.IncludeSuite(x)));
+
+            Verify.Initialize();
+            results.RunSession(collectResults => {
+                ThreadStart runSuite = () => {
+                    for (ConePadSuite suite; ; ) {
+                        lock (toRun) {
+                            if (toRun.Count == 0)
+                                return;
+                            suite = toRun.Dequeue();
+                        }
+                        collectResults(suite);
+                    }
+                };
+                var workers = new Thread[Workers - 1];
+                for (var i = 0; i != workers.Length; ++i) {
+                    var worker = workers[i] = new Thread(runSuite);
+                    worker.Start();
+                }
+                runSuite();
+                workers.Each(x => x.Join());
+            });
             results.Report();
-			results.EndSession();
         }
 
 		bool TryBuildSuite(Type input, out ConePadSuite suite) {
-			var builder = suiteBuilders.FirstOrDefault(x => x.SupportedType(input));
-			if(builder == null) {
-				suite = null;
-				return false;
-			}
-			suite = builder.BuildSuite(input);
+			suite = suiteBuilders
+                .First(x => x.SupportedType(input))
+                .BuildSuite(input);
 			return suite != null;
 		}
 

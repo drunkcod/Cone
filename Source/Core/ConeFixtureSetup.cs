@@ -28,7 +28,7 @@ namespace Cone.Core
             if(type == typeof(object))
                 return;
             CollectFixtureMethods(type.BaseType, classify);
-            GetMethods(type).ForEach(classify);
+            GetMethods(type).Each(classify);
         }
 
         void Classify(MethodInfo method, Dictionary<MethodInfo, MethodInfo> virtuals) { 

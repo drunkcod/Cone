@@ -14,25 +14,38 @@ namespace Cone.Runners
         void Info(string message);
         void Failure(string file, int line, int column, string message);
     }
- 
-    class CrossDomainLoggerAdapater : IConeLogger
+
+    class CrossDomainSessionLoggerAdapter : ISessionLogger, ISuiteLogger, ITestLogger
     {
         readonly ICrossDomainLogger crossDomainLog;
-            
-        public bool ShowProgress { get; set; }
 
-        public CrossDomainLoggerAdapater(ICrossDomainLogger crossDomainLog) {
+        public CrossDomainSessionLoggerAdapter(ICrossDomainLogger crossDomainLog) {
             this.crossDomainLog = crossDomainLog;
         }
 
-		void IConeLogger.BeginSession() { }
-		void IConeLogger.EndSession() { }
+        public bool ShowProgress { get; set; }
 
-        void IConeLogger.Info(string format, params object[] args) {
-            crossDomainLog.Info(string.Format(format, args));
+        public void WriteInfo(Action<TextWriter> output) {
+            var result = new StringWriter();
+            output(result);
+            crossDomainLog.Info(result.ToString());
         }
 
-        void IConeLogger.Failure(ConeTestFailure failure) {
+        public void BeginSession() { }
+
+        public ISuiteLogger BeginSuite(IConeSuite suite) {
+            return this;
+        }
+
+        public void Done() { }
+
+        public ITestLogger BeginTest(IConeTest test) {
+            return this;
+        }
+
+        public void EndSession() { }
+
+        void ITestLogger.Failure(ConeTestFailure failure) {
             crossDomainLog.Failure(
                 failure.File,
                 failure.Line,
@@ -40,15 +53,17 @@ namespace Cone.Runners
                 failure.Message);
         }
 
-        void IConeLogger.Success(IConeTest test) {
-            if(ShowProgress)
+        void ITestLogger.Success() {
+            if (ShowProgress)
                 crossDomainLog.Info(".");
         }
 
-        void IConeLogger.Pending(IConeTest test) {
-            if(ShowProgress)
+        void ITestLogger.Pending() {
+            if (ShowProgress)
                 crossDomainLog.Info("?");
         }
+
+        void ITestLogger.Skipped() { }
     }
 
     public class CrossDomainConeRunner
@@ -60,10 +75,10 @@ namespace Cone.Runners
             public string[] AssemblyPaths;
 
             public void Execute() {
-				var log = new CrossDomainLoggerAdapater(Logger) {
+                var logger = new CrossDomainSessionLoggerAdapter(Logger) {
                     ShowProgress = false
                 };
-                new SimpleConeRunner().RunTests(new TestSession(log), LoadTestAssemblies(AssemblyPaths));             
+                new SimpleConeRunner().RunTests(new TestSession(logger), LoadTestAssemblies(AssemblyPaths));             
             }
         }
 

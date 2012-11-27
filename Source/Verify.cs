@@ -12,12 +12,19 @@ namespace Cone
         public static Action<string> ExpectationFailed = message => { throw new ExpectationFailedException(message); };
         static readonly ParameterFormatter ParameterFormatter = new ParameterFormatter();
         static ExpectFactory expect;
+
+        [ThreadStatic]
         public static Type Context;
+
         static ExpressionFormatter ExpressionFormatter = new ExpressionFormatter(typeof(Verify), ParameterFormatter);
 
         public static Func<IEnumerable<Assembly>> GetPluginAssemblies = () => AppDomain.CurrentDomain.GetAssemblies();
 
         static ExpectFactory Expect { get { return expect ?? (expect = new ExpectFactory(GetPluginAssemblies())); } }
+
+        static internal void Initialize() {
+            Verify.That(() => 1 == 1);
+        }
 
         public static object That(Expression<Func<bool>> expr) {
             return Check(From(expr.Body));
