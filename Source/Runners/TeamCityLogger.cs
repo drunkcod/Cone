@@ -20,14 +20,14 @@ namespace Cone.Runners
 		void ISessionLogger.WriteInfo(Action<TextWriter> output) {
 			var message = new StringWriter();
 			output(message);
-			this.output.WriteLine("##teamcity[message text='{0}' status='NORMAL']", message);
+			WriteLine("##teamcity[message text='{0}' status='NORMAL']", message);
 		}
 
 		void ISessionLogger.BeginSession() { }
 
 		ISuiteLogger ISessionLogger.BeginSuite(IConeSuite suite) {
 			activeSuite = suite;
-			output.WriteLine("##teamcity[testSuiteStarted name='{0}']", activeSuite.Name);
+			WriteLine("##teamcity[testSuiteStarted name='{0}']", activeSuite.Name);
 			return this; 
 		}
 
@@ -35,17 +35,17 @@ namespace Cone.Runners
 
 		ITestLogger ISuiteLogger.BeginTest(IConeTest test) {
 			activeTest = test;
-			output.WriteLine("##teamcity[testStarted name='{0}']", activeTest.TestName.Name);
+			WriteLine("##teamcity[testStarted name='{0}']", activeTest.TestName.Name);
 			return this;
 		}
 
 		void ISuiteLogger.Done() {
-			output.WriteLine("##teamcity[testSuiteFinished name='{0}']", activeSuite.Name);
+			WriteLine("##teamcity[testSuiteFinished name='{0}']", activeSuite.Name);
 			activeSuite = null;
 		}
 
 		void ITestLogger.Failure(ConeTestFailure failure) {
-			output.WriteLine("##teamcity[testFailed name='{0}' message='{1}' details='{2}']", activeTest.TestName.Name, failure.Message, failure);
+			WriteLine("##teamcity[testFailed name='{0}' message='{1}' details='{2}']", activeTest.TestName.Name, failure.Message, failure);
 			TestDone();
 		}
 
@@ -54,14 +54,27 @@ namespace Cone.Runners
 		}
 
 		void ITestLogger.Pending(string reason) {
-			output.WriteLine("##teamcity[testIgnored name='{0}' message='{1}']", activeTest.TestName.Name, reason);
+			WriteLine("##teamcity[testIgnored name='{0}' message='{1}']", activeTest.TestName.Name, reason);
 			TestDone();
 		}
 
 		void ITestLogger.Skipped() { }
 
 		void TestDone() { 
-			output.WriteLine("##teamcity[testFinished name='{0}']", activeTest.TestName.Name);
+			WriteLine("##teamcity[testFinished name='{0}']", activeTest.TestName.Name);
+		}
+
+		void WriteLine(string format, params object[] args) {
+			output.WriteLine(format, Array.ConvertAll(args, x => Escape((x ?? string.Empty).ToString())));
+		}
+
+		string Escape(string input) {
+			return input
+				.Replace("|", "||")
+				.Replace("'", "|'")
+				.Replace("\n", "|n")
+				.Replace("\r", "|r")
+				.Replace("]", "|]");
 		}
 	}
 }

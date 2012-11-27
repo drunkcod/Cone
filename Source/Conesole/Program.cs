@@ -21,6 +21,7 @@ namespace Conesole
 		public LoggerVerbosity Verbosity = LoggerVerbosity.Default;
 		public bool IsDryRun;
 		public bool XmlOutput;
+		public bool TeamCityOutput;
         public bool Multicore;
 
         public static ConesoleConfiguration Parse(params string[] args) {
@@ -57,6 +58,11 @@ namespace Conesole
 
 			if(item == "--xml-console") {
 				XmlOutput = true;
+				return;
+			}
+
+			if(item == "--team-city") {
+				TeamCityOutput  = true;
 				return;
 			}
 
@@ -166,6 +172,8 @@ namespace Conesole
                 });
 
                 sessionLogger = xml;
+			} else if(config.TeamCityOutput) {
+				sessionLogger = new TeamCityLogger(Console.Out);
             } else {
                 var consoleLogger = new ConsoleSessionLogger();
                 consoleLogger.Settings.Verbosity = config.Verbosity;

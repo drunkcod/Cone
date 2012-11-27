@@ -77,6 +77,11 @@ namespace Cone.Runners
 			Verify.That(() => Result.Last() == "##teamcity[testFinished name='MyTest']");
 		}
 
+		public void escapes_values() {
+			Logger.WriteInfo(output => output.Write("'\n\r|]"));
+			Verify.That(() => Result.Last() == "##teamcity[message text='|'|n|r|||]' status='NORMAL']");
+		}
+
 		ConeSuiteStub Suite() {
 			return new ConeSuiteStub();
 		}
