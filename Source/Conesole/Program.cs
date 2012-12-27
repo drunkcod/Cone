@@ -61,7 +61,7 @@ namespace Conesole
 				return;
 			}
 
-			if(item == "--team-city") {
+			if(item == "--teamcity") {
 				TeamCityOutput  = true;
 				return;
 			}
