@@ -26,7 +26,7 @@ namespace Cone.Addin
             this.testExecutor = testExecutor; 
         }
 		
-		IEnumerable<string> IConeTest.Categories { get { return Categories.Cast<string>(); } }
+		IEnumerable<string> IConeEntity.Categories { get { return Categories.Cast<string>(); } }
 
         public override object Fixture {
             get { return Parent.Fixture; }
@@ -52,6 +52,7 @@ namespace Cone.Addin
 
         public override string TestType { get { return GetType().Name; } }
 
+		string IConeEntity.Name { get { return TestName.FullName; } }
         ITestName IConeTest.TestName { get { return new NUnitTestNameAdapter(TestName); } }
 
 		public abstract IConeAttributeProvider Attributes { get; }

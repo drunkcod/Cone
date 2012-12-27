@@ -4,10 +4,14 @@ using System.Reflection;
 
 namespace Cone.Core
 {
-    public interface IConeSuite
-    {
-        string Name { get; }
+	public interface IConeEntity
+	{
+		string Name { get; }
 		IEnumerable<string> Categories { get; }
+	}
+
+    public interface IConeSuite : IConeEntity
+    {
         void AddCategories(IEnumerable<string> categories);
 		IRowSuite AddRowSuite(ConeMethodThunk thunk, string suiteName);
 		void DiscoverTests(ConeTestNamer names);

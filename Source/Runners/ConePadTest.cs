@@ -90,7 +90,8 @@ namespace Cone.Runners
         public ITestName TestName { get { return name; } }
 
         IConeAttributeProvider IConeTest.Attributes { get { return attributes; } }
-		IEnumerable<string> IConeTest.Categories { get { return test.Categories; } }
+		string IConeEntity.Name { get { return TestName.FullName; } }
+		IEnumerable<string> IConeEntity.Categories { get { return test.Categories; } }
         void IConeTest.Run(ITestResult result) {
 			test.Invoke(ConvertArgs(test.GetParameters()), result);
 		}

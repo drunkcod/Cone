@@ -27,6 +27,8 @@ namespace Cone.Stubs
 			return this;
 		}
 
+		string IConeEntity.Name { get { return TestName.FullName; } }
+
 		public ITestName TestName
 		{
 			get { return new ConeTestName(context, name); }

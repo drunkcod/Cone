@@ -15,8 +15,15 @@ namespace Conesole
 		const string OptionPrefix = "--";
 		readonly Regex OptionPattern = new Regex(string.Format("^{0}(?<option>.+)=(?<value>.+$)", OptionPrefix));
 
-		public Predicate<IConeTest> IncludeTest;
-		public Predicate<IConeSuite> IncludeSuite = _ => true;  
+		readonly HashSet<string> includedCategories = new HashSet<string>();
+		readonly HashSet<string> excludedCategories = new HashSet<string>();
+
+		Predicate<IConeEntity> categoryFilter = _=> true;
+		Predicate<IConeTest> testFilter;
+		Predicate<IConeSuite> suiteFilter;
+
+		public bool IncludeTest(IConeTest test) { return CategoryCheck(test) && testFilter(test); }
+		public bool IncludeSuite(IConeSuite suite) { return CategoryCheck(suite) && suiteFilter(suite); }  
 
 		public LoggerVerbosity Verbosity = LoggerVerbosity.Default;
 		public bool IsDryRun;
@@ -28,13 +35,20 @@ namespace Conesole
 			var result = new ConesoleConfiguration();
 			foreach(var item in args)
         		result.ParseOption(item);
-			if(result.IncludeTest == null)
-				result.IncludeTest = _ => true;
+			if(result.testFilter == null)
+				result.testFilter = _ => true;
+			if(result.suiteFilter == null)
+				result.suiteFilter = _ => true;
         	return result;
         }
 
 		public static bool IsOption(string value) {
 			return value.StartsWith(OptionPrefix);
+		}
+
+		bool CategoryCheck(IConeEntity entity) {
+			return (includedCategories.IsEmpty() || entity.Categories.Any(includedCategories.Contains)) 
+				&& !entity.Categories.Any(excludedCategories.Contains);
 		}
 
 		void ParseOption(string item) {
@@ -87,20 +101,15 @@ namespace Conesole
 				var testPatternRegex = CreatePatternRegex(suitePattern + "." + parts.Last());
 				var suitePatternRegex = CreatePatternRegex(suitePattern);
 
-				IncludeSuite = IncludeSuite.Or(x => suitePatternRegex.IsMatch(x.Name));
-				IncludeTest = IncludeTest.Or(x => testPatternRegex.IsMatch(x.TestName.FullName));
+				suiteFilter = suiteFilter.Or(x => suitePatternRegex.IsMatch(x.Name));
+				testFilter = testFilter.Or(x => testPatternRegex.IsMatch(x.Name));
 			}
 			else if(option == "categories") {
-				var excluded = new HashSet<string>();
-				var included = new HashSet<string>();
 				foreach(var category in valueRaw.Split(','))
 					if(category.StartsWith("!"))
-						excluded.Add(category.Substring(1));
+						excludedCategories.Add(category.Substring(1));
 					else 
-						included.Add(category);
-				
-				IncludeSuite = IncludeSuite.And(x => (included.IsEmpty() || x.Categories.Any(included.Contains)) && !x.Categories.Any(excluded.Contains));
-				IncludeTest = IncludeTest.And(x => (included.IsEmpty() || x.Categories.Any(included.Contains)) && !x.Categories.Any(excluded.Contains));
+						includedCategories.Add(category);
 			}
 			else 
 				throw new ArgumentException("Unknown option:" + item);

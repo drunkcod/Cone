@@ -57,6 +57,12 @@ namespace Cone.Conesole
 				Verify.That(() => includeWIP.IncludeTest(Test().WithCategories("Acceptance")));
 			}
 
+			public void supports_combining_test_pattern_and_categories() {
+				var pattern = ConesoleConfiguration.Parse("--categories=WIP", "--include-tests=*.Foo");
+				Verify.That(() => pattern.IncludeTest(Test().WithName("A.Foo")) == false);
+				Verify.That(() => pattern.IncludeTest(Test().WithCategories("WIP").WithName("A.Bar")) == false);
+			}
+
 			private static ConeTestStub Test() {
 				return new ConeTestStub();
 			}

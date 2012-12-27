@@ -15,12 +15,12 @@ namespace Cone.Stubs
 			return this;
 		}
 
-		string IConeSuite.Name
+		string IConeEntity.Name
 		{
 			get { return name; }
 		}
 
-		IEnumerable<string> IConeSuite.Categories
+		IEnumerable<string> IConeEntity.Categories
 		{
 			get { throw new NotImplementedException(); }
 		}

@@ -51,7 +51,7 @@ namespace Cone.Addin
         }
 
         public string Name { get { return TestName.FullName; } }
-		IEnumerable<string> IConeSuite.Categories { get { return Categories.Cast<string>(); } }
+		IEnumerable<string> IConeEntity.Categories { get { return Categories.Cast<string>(); } }
 
         public override Type FixtureType { get { return fixture.FixtureType; } }
 
