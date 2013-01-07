@@ -116,7 +116,12 @@ namespace Cone.Runners
 	[Describe(typeof(NUnitSuiteBuilder))]
 	public class NUnitSuiteBuilderSpec
 	{
-		[TestFixture, Category("SomeCategory"), Category("Integration")]
+		class DerivedCategoryAttribute : CategoryAttribute 
+		{
+			public DerivedCategoryAttribute() : base("DerivedCategory") { }
+		}
+
+		[TestFixture, Category("SomeCategory"), Category("Integration"), DerivedCategory]
 		class MyNUnitFixture
 		{ 
 			public int Calls;
@@ -175,9 +180,13 @@ namespace Cone.Runners
 				Verify.That(() => Description.SuiteName == typeof(MyNUnitFixture).Namespace);
 			}
 
-			public void categories_found_via_Category_attribute() {
+			public void categories_found_via_CategoryAttribute() {
 				Verify.That(() => Description.Categories.Contains("SomeCategory"));
 				Verify.That(() => Description.Categories.Contains("Integration"));
+			}
+
+			public void categories_from_attributes_deriving_CategoryAttribute_are_found() {
+				Verify.That(() => Description.Categories.Contains("DerivedCategory"));
 			}
 		}
 
@@ -191,7 +200,7 @@ namespace Cone.Runners
 			public void GivenFixtureInstance() {
 				NUnitSuite = new NUnitSuiteBuilder().BuildSuite(typeof(MyNUnitFixture)); 
 				NUnitFixture = (MyNUnitFixture)NUnitSuite.Fixture;
-                new TestSession(new NullSessionLogger()).RunSession(collectResult => collectResult(NUnitSuite));
+                new TestSession(new NullLogger()).RunSession(collectResult => collectResult(NUnitSuite));
 			}
 
 			public void FixtureSetUp_is_called_to_initialize_fixture() {
@@ -267,26 +276,4 @@ namespace Cone.Runners
 
 		}
 	}
-
-    public class NullSessionLogger : ISessionLogger, ISuiteLogger, ITestLogger
-    {
-        public void BeginSession() { }
-
-        public ITestLogger BeginTest(Core.IConeTest test) {
-            return this;
-        }
-
-        public ISuiteLogger BeginSuite(Core.IConeSuite suite) {
-            return this;
-        }
-
-        public void Done() { }
-        public void EndSession() { }
-        public void WriteInfo(Action<TextWriter> output) { }
-        public void Failure(ConeTestFailure failure) { }
-        public void Success() { }
-        public void Pending(string reason) { }
-        public void Skipped() { }
-    }
-
 }

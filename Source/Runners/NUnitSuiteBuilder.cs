@@ -22,9 +22,15 @@ namespace Cone.Runners
 				get { 
 					return type.GetCustomAttributes(true)
 						.Select(x => new { Type = x.GetType(), Item = x })
-						.Where(x => x.Type.FullName == "NUnit.Framework.CategoryAttribute")
+						.Where(x => IsCategoryAttribute(x.Type))
 						.Select(x => x.Type.GetProperty("Name").GetValue(x.Item, null).ToString());
 				}
+			}
+
+			static bool IsCategoryAttribute(Type type) {
+				if(type == null)
+					return false;
+				return type.FullName == "NUnit.Framework.CategoryAttribute" || IsCategoryAttribute(type.BaseType); 
 			}
 
 			public string SuiteName
