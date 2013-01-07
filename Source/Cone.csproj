@@ -36,6 +36,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assume.cs" />
     <Compile Include="ConePad.cs" />
     <Compile Include="Core\ConeTestFailure.cs" />
     <Compile Include="Core\Action.cs" />

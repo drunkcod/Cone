@@ -7,7 +7,7 @@ using Cone.Expectations;
 
 namespace Cone
 {
-    public class Verify
+    public static class Verify
     {
         public static Action<string> ExpectationFailed = message => { throw new ExpectationFailedException(message); };
         static readonly ParameterFormatter ParameterFormatter = new ParameterFormatter();
