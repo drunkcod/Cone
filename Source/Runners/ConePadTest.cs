@@ -103,15 +103,22 @@ namespace Cone.Runners
 			for(var i = 0; i != x.Length; ++i) {
 				var parameterType = parameters[i].ParameterType;
 				var arg = args[i];
-				x[i] = KeepOriginalArg(arg, parameterType) ? arg : Convert.ChangeType(arg, parameterType);
+				x[i] = ChangeType(arg, parameterType);
 			}
 			return x;
     	}
 
-		bool KeepOriginalArg(object arg, Type parameterType) {
+		object ChangeType(object value, Type conversionType) {
+			return KeepOriginal(value, conversionType) 
+				? value 
+				: Convert.ChangeType(value, conversionType);
+		}
+
+		bool KeepOriginal(object arg, Type targetType) {
 			return arg == null
-				|| parameterType == typeof(object)
-				|| parameterType.IsInstanceOfType(arg);
+				|| targetType == typeof(object)
+				|| targetType.IsInstanceOfType(arg)
+				|| (targetType.IsEnum && arg.GetType() == typeof(int));
 		}
     }
 }

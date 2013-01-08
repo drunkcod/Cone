@@ -62,7 +62,22 @@ namespace Cone.Core
             VerifyFormat(() => a + b == 2, "(a + b) == 2");
         }
 
-        public void property_access() {
+		public void modulo() {
+            int a = 1, b = 1;
+            VerifyFormat(() => a % b == 1, "(a % b) == 1");
+		}
+
+		public void left_shift() {
+            int a = 1, b = 1;
+			VerifyFormat(() => a << b == 4, "(a << b) == 4");
+		}
+
+		public void right_shift() {
+            int a = 1, b = 1;
+			VerifyFormat(() => a >> b == 4, "(a >> b) == 4");
+		}
+
+		public void property_access() {
             var date = DateTime.Now;
             VerifyFormat(() => date.Year, "date.Year");
         }

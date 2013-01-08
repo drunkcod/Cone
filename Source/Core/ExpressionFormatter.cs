@@ -277,6 +277,7 @@ namespace Cone.Core
                 case ExpressionType.Subtract: return "{0} - {1}";
                 case ExpressionType.Multiply: return "{0} * {1}";
                 case ExpressionType.Divide: return "{0} / {1}";
+				case ExpressionType.Modulo: return "{0} % {1}";
                 case ExpressionType.Equal: return "{0} == {1}";
                 case ExpressionType.NotEqual: return "{0} != {1}";
                 case ExpressionType.GreaterThan: return "{0} > {1}";
@@ -287,7 +288,9 @@ namespace Cone.Core
                 case ExpressionType.AndAlso: return "{0} && {1}";
                 case ExpressionType.OrElse: return "{0} || {1}";
                 case ExpressionType.ExclusiveOr: return "{0} ^ {1}";
-                default: throw new NotSupportedException("Unsupported BinaryExression type " + nodeType);
+				case ExpressionType.LeftShift: return "{0} << {1}";
+				case ExpressionType.RightShift: return "{0} >> {1}";
+				default: throw new NotSupportedException("Unsupported BinaryExression type " + nodeType);
             }
         }
     }
