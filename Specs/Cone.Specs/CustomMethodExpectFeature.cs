@@ -37,11 +37,8 @@ namespace Cone
 
         public class MyIntegerExpect : IExpect
         {
-            public ExpectResult Check() {
-                return new ExpectResult {
-                    Actual = 42,
-                    Success = false
-                };
+            public CheckResult Check() {
+                return new CheckResult(false, Maybe<object>.Some(42), Maybe<object>.None);
             }
 
             public string FormatExpression(IFormatter<System.Linq.Expressions.Expression> formatter) {

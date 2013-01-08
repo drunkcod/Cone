@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
+using Cone.Core;
 
 namespace Cone
 {
@@ -12,19 +13,27 @@ namespace Cone
         public readonly string Context;
         public readonly string TestName;
         public readonly string Message;
+		public readonly Maybe<object> Actual;
+		public readonly Maybe<object> Expected;
 
         public ConeTestFailure(ITestName testName, Exception error) {
-            error = Unwrap(error);
             TestName = testName.Name;
             Context = testName.Context;
-            var stackTrace= new StackTrace(error, 0, true);
+
+			var testError = Unwrap(error);
+            var stackTrace = new StackTrace(testError, 0, true);
 			var errorLocation = stackTrace.GetFrame(stackTrace.FrameCount - 1);
 			if(errorLocation != null) {
 				File = errorLocation.GetFileName();
 				Line = errorLocation.GetFileLineNumber();
 				Column = errorLocation.GetFileColumnNumber();
 			}
-            Message = error.Message;
+            Message = testError.Message;
+			var expectationFailed = testError as ExpectationFailedException;
+			if(expectationFailed != null) {
+				Actual = expectationFailed.Actual;
+				Expected = expectationFailed.Expected;
+			}
         }
 
         public override string ToString() {

@@ -1,4 +1,5 @@
 ﻿using System;
+using Cone.Core;
 
 namespace Cone
 {
@@ -199,7 +200,7 @@ namespace Cone
             
             Type GetAssertionExceptionType() {
                 try {
-                    Verify.ExpectationFailed(string.Empty);
+                    Verify.ExpectationFailed(string.Empty, Maybe<object>.None, Maybe<object>.None);
                 } catch(Exception e) {
                     return e.GetType();
                 }
@@ -253,7 +254,7 @@ namespace Cone
 
             Type ExpectedExcpetionType() {
                 try {
-                    Verify.ExpectationFailed(string.Empty);
+                    Verify.ExpectationFailed(string.Empty, Maybe<object>.None, Maybe<object>.None);
                 } catch (Exception e) { 
                     return e.GetType(); 
                 }

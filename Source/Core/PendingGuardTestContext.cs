@@ -15,7 +15,7 @@ namespace Cone.Core
         static void ExpectFailure(string reason, TestContextStep runTest, IConeTest test, ITestResult result) {
             runTest(test, result);
             if(result.Status == TestStatus.Success)
-                result.TestFailure(new ExpectationFailedException("Test passed"));
+                result.TestFailure(new ExpectationFailedException("Test passed", Maybe<object>.None, Maybe<object>.None));
             else
                 result.Pending(reason);
         }

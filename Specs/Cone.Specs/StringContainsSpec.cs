@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using Cone.Core;
 using Cone.Expectations;
 
 namespace Cone
@@ -10,13 +11,13 @@ namespace Cone
         public void check_success() {
             Expression<Func<bool>> body = () => "Hello".Contains("ll");
             IExpect expect = ContainsExpect(body, "Hello", "ll");
-            Verify.That(() => expect.Check().Equals(new ExpectResult { Success = true, Actual = "Hello" }));
+            Verify.That(() => expect.Check().Equals(new CheckResult(true, Maybe<object>.Some("Hello"), Maybe<object>.None)));
         }
 
         public void check_fail() {
             Expression<Func<bool>> body = () => "123".Contains("ABC");
             IExpect expect = ContainsExpect(body, "123", "ABC");
-            Verify.That(() => expect.Check().Equals(new ExpectResult { Success = false, Actual = "123" }));
+            Verify.That(() => expect.Check().Equals(new CheckResult(false, Maybe<object>.Some("123"), Maybe<object>.None)));
         }
 
         public void example() {

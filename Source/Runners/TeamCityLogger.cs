@@ -45,7 +45,10 @@ namespace Cone.Runners
 		}
 
 		void ITestLogger.Failure(ConeTestFailure failure) {
-			WriteLine("##teamcity[testFailed name='{0}' message='{1}' details='{2}']", activeTest.TestName.Name, failure.Message, failure);
+			WriteLine(Maybe.Map(failure.Actual, failure.Expected, (actual, expected) => new { actual, expected })
+				.Do( x => string.Format("##teamcity[testFailed type='comparisionFailure' name='{0}' message='{1}' details='{2}'] actual='{3}' expected='{4}'", activeTest.TestName.Name, failure.Message, failure, x.actual, x.expected),
+					() => string.Format("##teamcity[testFailed name='{0}' message='{1}' details='{2}']", activeTest.TestName.Name, failure.Message, failure))
+			);
 			TestDone();
 		}
 

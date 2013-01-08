@@ -26,6 +26,7 @@
     <DebugType>full</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <PropertyGroup>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
@@ -67,6 +68,7 @@
     <Compile Include="Core\ILGeneratorExtensions.cs" />
     <Compile Include="Core\IRowData.cs" />
     <Compile Include="Core\Lazy.cs" />
+    <Compile Include="Core\Maybe.cs" />
     <Compile Include="Core\MethodClassifier.cs" />
     <Compile Include="Core\PendingGuardTestContext.cs" />
     <Compile Include="Core\PredicateExtensions.cs" />

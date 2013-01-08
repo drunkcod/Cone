@@ -48,11 +48,8 @@ namespace Cone.Expectations
             return Expected.ToString(formatter);
         }
 
-        public ExpectResult Check() {
-            return new ExpectResult {
-                Actual = ActualValue, 
-                Success = CheckCore()
-            };
+        public CheckResult Check() {
+            return new CheckResult(CheckCore(), Maybe<object>.Some(ActualValue), Maybe<object>.Some(ExpectedValue));
         }
 
         public virtual object ActualValue { get { return actual.Value; } }

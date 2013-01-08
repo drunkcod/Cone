@@ -67,13 +67,23 @@ namespace Cone.Runners
 			Verify.That(() => Result.Last() == "##teamcity[testFinished name='MyTest']");
 		}
 
-		[DisplayAs("test failed: ##teamcity[testFailed type='comparisonFailure' name='testname' message='failure message' details='message and stack trace'")]
+		[DisplayAs("test failed: ##teamcity[testFailed name='testname' message='failure message' details='message and stack trace'")]
 		public void test_failed() {
 			var test = Test().InContext("Namespace.SuiteName").WithName("MyTest");
 			Logger.BeginSuite(Suite().WithName("Namespace.SuiteName"))
 				.BeginTest(test)
 				.Failure(new ConeTestFailure(test.TestName, new Exception("Teh Error!")));
 			Verify.That(() => Result.Any(line => line == "##teamcity[testFailed name='MyTest' message='Teh Error!' details='Namespace.SuiteName.MyTest: Teh Error!']"));
+			Verify.That(() => Result.Last() == "##teamcity[testFinished name='MyTest']");
+		}
+
+		[DisplayAs("test failed: ##teamcity[testFailed type='comparisionFailure' name='testname' message='failure message' details='message and stack trace'")]
+		public void comparision_test_failed() {
+			var test = Test().InContext("Namespace.SuiteName").WithName("MyTest");
+			Logger.BeginSuite(Suite().WithName("Namespace.SuiteName"))
+				.BeginTest(test)
+				.Failure(new ConeTestFailure(test.TestName, new ExpectationFailedException("Teh Error!", Maybe<object>.Some(1), Maybe<object>.Some(2))));
+			Verify.That(() => Result.Any(line => line == "##teamcity[testFailed type='comparisionFailure' name='MyTest' message='Teh Error!' details='Namespace.SuiteName.MyTest: Teh Error!'] actual='1' expected='2'"));
 			Verify.That(() => Result.Last() == "##teamcity[testFinished name='MyTest']");
 		}
 

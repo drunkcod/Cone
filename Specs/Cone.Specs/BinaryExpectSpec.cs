@@ -55,7 +55,7 @@ namespace Cone
             var expect = new BinaryExpect((BinaryExpression)expression.Body, new ExpectValue(actual), new ExpectValue(expected));
 
             Verify.That(() => (actual == expected) == true);
-            Verify.That(() => expect.Check() == new ExpectResult { Actual = actual, Success = true });
+            Verify.That(() => expect.Check() == new CheckResult(true, Maybe<object>.Some(actual), Maybe<object>.Some(expected)));
         }
     }
 }

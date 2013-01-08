@@ -9,10 +9,9 @@ namespace Cone.Expectations
 
         public NotExpect(IExpect inner) { this.inner = inner; }
 
-        public ExpectResult Check() {
+        public CheckResult Check() {
             var innerResult = inner.Check();
-            innerResult.Success = !innerResult.Success;
-            return innerResult;
+            return new CheckResult(!innerResult.IsSuccess, innerResult.Actual, innerResult.Expected);
         }
 
         public string FormatExpression(IFormatter<Expression> formatter) {

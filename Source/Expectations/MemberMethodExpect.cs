@@ -27,11 +27,8 @@ namespace Cone.Expectations
             return method.Name; 
         }
 
-        public ExpectResult Check() {
-            return new ExpectResult {
-                Actual = Actual,
-                Success = (bool)method.Invoke(Target, arguments)
-            };
+        public CheckResult Check() {
+            return new CheckResult((bool)method.Invoke(Target, arguments), Maybe<object>.Some(Actual), Maybe<object>.None);
         }
 
         public virtual string FormatExpression(IFormatter<Expression> formatter) {

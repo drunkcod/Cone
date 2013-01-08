@@ -1,4 +1,5 @@
 ﻿using System;
+using Cone.Core;
 using NUnit.Core;
 using NUnit.Core.Extensibility;
 using NUnit.Framework;
@@ -23,7 +24,7 @@ namespace Cone.Addin
 
         bool ISuiteBuilder.CanBuildFrom(Type type) { return type.IsPublic && SuiteBuilder.SupportedType(type); }
 
-        static void AssertionFailed(string message) {
+        static void AssertionFailed(string message, Maybe<object> actual, Maybe<object> expected) {
             throw new AssertionException(message);
         }
     }

@@ -9,7 +9,7 @@ namespace Cone
 {
     public static class Verify
     {
-        public static Action<string> ExpectationFailed = message => { throw new ExpectationFailedException(message); };
+        public static Action<string, Maybe<object>, Maybe<object>> ExpectationFailed = (message, actual, expected) => { throw new ExpectationFailedException(message, actual, expected); };
         static readonly ParameterFormatter ParameterFormatter = new ParameterFormatter();
         static ExpectFactory expect;
 
@@ -28,16 +28,6 @@ namespace Cone
 
         public static object That(Expression<Func<bool>> expr) {
             return Check(From(expr.Body));
-        }
-
-        public static void Guard(Action action) {
-            try {
-                action();
-            } catch(TargetInvocationException e) {
-                ExpectationFailed(e.InnerException.Message);
-            } catch(Exception e) {
-                ExpectationFailed(e.Message);
-            }
         }
 
         public static class Throws<TException> where TException : Exception
@@ -65,19 +55,19 @@ namespace Cone
                 return build();
             } catch(ExceptionExpressionException e) {
                 var formatter = GetExpressionFormatter();
-                ExpectationFailed(string.Format("{0}\nraised by '{1}' in\n'{2}'", e.InnerException, formatter.Format(e.Expression), formatter.Format(e.Subexpression)));
+                ExpectationFailed(string.Format("{0}\nraised by '{1}' in\n'{2}'", e.InnerException, formatter.Format(e.Expression), formatter.Format(e.Subexpression)), Maybe<object>.None, Maybe<object>.None);
             } catch(NullSubexpressionException e) {
                 var formatter = GetExpressionFormatter();
-                ExpectationFailed(string.Format("Null subexpression '{1}' in\n'{0}'", formatter.Format(e.Expression), formatter.Format(e.Context)));
+                ExpectationFailed(string.Format("Null subexpression '{1}' in\n'{0}'", formatter.Format(e.Expression), formatter.Format(e.Context)), Maybe<object>.None, Maybe<object>.None);
             }
             return null;
         }
         
         static object Check(IExpect expect) {
             var result = expect.Check();
-            if (!result.Success)
-                ExpectationFailed(expect.FormatExpression(GetExpressionFormatter()) + "\n" + expect.FormatMessage(ParameterFormatter));
-            return result.Actual;
+            if (!result.IsSuccess)
+                ExpectationFailed(expect.FormatExpression(GetExpressionFormatter()) + "\n" + expect.FormatMessage(ParameterFormatter), result.Actual, result.Expected);
+            return result.Actual.Value;
         }       
  
         static ExpressionFormatter GetExpressionFormatter() { return ExpressionFormatter.Rebind(Context); }
