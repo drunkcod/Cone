@@ -133,6 +133,7 @@ namespace Conesole
 
 			var assemblyPaths = args
 				.Where(x => !ConesoleConfiguration.IsOption(x))
+				.Select(Path.GetFullPath)
 				.ToArray();
 
 			return CrossDomainConeRunner.WithProxyInDomain<Program, int>(

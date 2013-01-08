@@ -85,8 +85,9 @@ namespace Cone.Runners
 		static T WithTestDomain<T>(string applicationBase, string[] assemblyPaths, Func<AppDomain,T> @do) {
 			var domainSetup = new AppDomainSetup {
 				ApplicationBase = applicationBase,
-				ShadowCopyFiles = "True",
+				ShadowCopyFiles = "False",
 			};
+			Environment.CurrentDirectory = applicationBase;
 			if(assemblyPaths.Length == 1) {
 				var configPath = Path.GetFullPath(assemblyPaths[0] + ".config");
 				if(File.Exists(configPath))
