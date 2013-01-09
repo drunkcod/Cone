@@ -192,29 +192,24 @@ namespace Conesole
                     Formatting = Formatting.Indented
                 }));
 			} 
+			else if(config.TeamCityOutput)
+				loggers.Add(new TeamCityLogger(Console.Out));
+			else {
+				var consoleLogger = new ConsoleSessionLogger();
+				consoleLogger.Settings.Verbosity = config.Verbosity;
+				if (config.IsDryRun)
+					consoleLogger.Settings.SuccessColor = ConsoleColor.DarkGreen;
+				loggers.Add(consoleLogger);
+			}
 
 			if (config.XmlOutput.IsSomething) {
                 loggers.Add(new XmlSessionLogger(new XmlTextWriter(config.XmlOutput.Value, Encoding.UTF8){
                     Formatting = Formatting.Indented
                 }));
 			} 
-
-			if(config.TeamCityOutput)
-				loggers.Add(new TeamCityLogger(Console.Out));
-
-			switch(loggers.Count) {	
-				case 0:
-					var consoleLogger = new ConsoleSessionLogger();
-					consoleLogger.Settings.Verbosity = config.Verbosity;
-					if (config.IsDryRun)
-						consoleLogger.Settings.SuccessColor = ConsoleColor.DarkGreen;
-
-					return consoleLogger;
-
-				case 1: return loggers[0];
-
-				default: return new MulticastSessionLogger(loggers);
-			}
+			return loggers.Count == 1
+				? loggers[0]
+				: new MulticastSessionLogger(loggers);
 		}
 
     	static int DisplayUsage() {
