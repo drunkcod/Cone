@@ -51,6 +51,7 @@ namespace Cone.Runners
     public class ConsoleLogger : ITestLogger
     {
         readonly IConeTest test;
+		bool hasFailed;
 
         public ConsoleLogger(IConeTest test) {
             this.test = test;
@@ -66,6 +67,9 @@ namespace Cone.Runners
         }
 
         public void Failure(ConeTestFailure failure) {
+			if(hasFailed)
+				return;
+			hasFailed = true;
 			switch(Verbosity) {
 				case LoggerVerbosity.Default: Write("F"); break;
 				case LoggerVerbosity.TestNames: WriteTestName(failure.Context, failure.TestName, ConsoleColor.Red); break;
