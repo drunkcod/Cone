@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Cone.Core;
@@ -58,5 +59,10 @@ namespace Cone.Addin
 		public abstract IConeAttributeProvider Attributes { get; }
 
         public virtual void Run(ITestResult testResult){}
+
+		public System.Reflection.Assembly Assembly
+		{
+			get { throw new NotSupportedException(); }
+		}
 	}
 }

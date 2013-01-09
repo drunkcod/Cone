@@ -45,5 +45,10 @@ namespace Cone.Stubs
 		{
 			throw new System.NotImplementedException();
 		}
+
+		public System.Reflection.Assembly Assembly
+		{
+			get { throw new NotImplementedException(); }
+		}
 	}
 }

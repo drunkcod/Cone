@@ -50,6 +50,7 @@ namespace Cone.Runners
 		public void Failure(ConeTestFailure failure) {		
 			xml.WriteStartElement("test-case");
 				xml.WriteAttributeString("context", failure.Context);
+				xml.WriteAttributeString("assembly", new Uri(test.Assembly.Location).LocalPath);
 				xml.WriteAttributeString("name", failure.TestName);
 				xml.WriteAttributeString("executed", "True");
 				xml.WriteAttributeString("success", "False");

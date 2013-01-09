@@ -17,6 +17,8 @@ namespace Cone.Runners
 			this.method = method;
 		}
 
+		public Assembly Assembly { get { return method.DeclaringType.Assembly; } }
+
 		public IEnumerable<string> Categories { get { return fixture.Categories; } }
  		public Type ReturnType { get { return method.ReturnType; } }
 
@@ -86,6 +88,8 @@ namespace Cone.Runners
             this.attributes = attributes;
 			this.test = test;
         }
+
+		public Assembly Assembly { get { return test.Assembly; } }
 
         public ITestName TestName { get { return name; } }
 
