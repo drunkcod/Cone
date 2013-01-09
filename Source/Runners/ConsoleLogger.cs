@@ -37,7 +37,7 @@ namespace Cone.Runners
             };
         }
 
-        public void Done() { }
+        public void EndSuite() { }
 
         public ITestLogger BeginTest(IConeTest test) {
             return new ConsoleLogger(test) {
@@ -90,6 +90,8 @@ namespace Cone.Runners
         }
 
         public void Skipped() { }
+
+		public void EndTest() { }
 
 		void WriteTestName(IConeTest test, ConsoleColor color) {
 			WriteTestName(test.TestName.Context, test.TestName.Name, color);

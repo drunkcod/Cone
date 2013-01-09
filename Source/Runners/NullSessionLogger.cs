@@ -15,11 +15,12 @@ namespace Cone.Runners
             return this;
         }
 
-        public void Done() { }
+        public void EndSuite() { }
         public void EndSession() { }
         public void WriteInfo(Action<TextWriter> output) { }
         public void Failure(ConeTestFailure failure) { }
         public void Success() { }
         public void Pending(string reason) { }
         public void Skipped() { }
+		public void EndTest() { }
     }}

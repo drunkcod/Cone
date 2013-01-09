@@ -68,7 +68,7 @@ namespace Cone.Runners
                 return this;
             }
 
-            public void Done() { }
+            public void EndSuite() { }
 
             public ITestLogger BeginTest(IConeTest test) {
                 return this;
@@ -83,6 +83,8 @@ namespace Cone.Runners
             public void Pending(string reason) { }
 
             public void Skipped() { Interlocked.Increment(ref Excluded); }
+
+			public void EndTest() { }
 
             public void WriteReport(TextWriter output) {
                 output.WriteLine();
@@ -118,17 +120,18 @@ namespace Cone.Runners
         void CollectSuite(ConePadSuite suite) {
             var log = sessionLog.BeginSuite(suite);
             suite.Run((tests, fixture) => CollectResults(tests, fixture, log));
-            log.Done();
+            log.EndSuite();
         }
 
         void CollectResults(IEnumerable<IConeTest> tests, IConeFixture fixture, ISuiteLogger suiteLog) {
 			var collectResult = GetResultCollector(fixture);
 			tests.Each(test => {
-                var log = suiteLog.BeginTest(test);
-				if(ShouldSkipTest(test))
-                    log.Skipped();
-                else
-                    CollectResult(collectResult, test, log);
+                suiteLog.WithTestLog(test, log => {
+					if(ShouldSkipTest(test))
+						log.Skipped();
+					else
+						CollectResult(collectResult, test, log);
+				});
 			});
         }
 

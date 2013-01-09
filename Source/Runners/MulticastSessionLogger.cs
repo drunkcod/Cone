@@ -22,8 +22,8 @@ namespace Cone.Runners
                 return log;
             }
 
-            public void Done() {
-                children.Each(x => x.Done());
+            public void EndSuite() {
+                children.Each(x => x.EndSuite());
             }
         }
 
@@ -36,20 +36,28 @@ namespace Cone.Runners
             }
 
             public void Failure(ConeTestFailure failure) {
-                children.ForEach(x => x.Failure(failure));
+                EachChild(x => x.Failure(failure));
             }
 
             public void Success() {
-                children.ForEach(x => x.Success());
+                EachChild(x => x.Success());
             }
 
             public void Pending(string reason) {
-                children.ForEach(x => x.Pending(reason));
+                EachChild(x => x.Pending(reason));
             }
 
             public void Skipped() {
-                children.ForEach(x => x.Skipped());
+                EachChild(x => x.Skipped());
             }
+
+			public void EndTest() {
+				EachChild(x => x.EndTest());
+			}
+
+			void EachChild(Action<ITestLogger> action) {
+				children.ForEach(action);
+			}
         }
 
         readonly List<ISessionLogger> children = new List<ISessionLogger>();

@@ -25,7 +25,7 @@ namespace Cone.Runners
             return this;
         }
 
-        public void Done() { }
+        public void EndSuite() { }
 
         public ITestLogger BeginTest(IConeTest test) {
             return new XmlLogger(xml, test);
@@ -45,43 +45,42 @@ namespace Cone.Runners
 		public XmlLogger(XmlWriter xml, IConeTest test) {
 			this.xml = xml;
             this.test = test;
+			xml.WriteStartElement("test-case");
 		}
 
 		public void Failure(ConeTestFailure failure) {		
-			xml.WriteStartElement("test-case");
-				xml.WriteAttributeString("context", failure.Context);
-				xml.WriteAttributeString("assembly", new Uri(test.Assembly.Location).LocalPath);
-				xml.WriteAttributeString("name", failure.TestName);
-				xml.WriteAttributeString("executed", "True");
-				xml.WriteAttributeString("success", "False");
-				xml.WriteStartElement("failure");
-				xml.WriteAttributeString("file", failure.File);
-				xml.WriteAttributeString("line", failure.Line.ToString(CultureInfo.InvariantCulture));
-				xml.WriteAttributeString("column", failure.Column.ToString(CultureInfo.InvariantCulture));
-					xml.WriteStartElement("message");
-					xml.WriteCData(failure.Message);
-					xml.WriteEndElement();
+			xml.WriteAttributeString("context", failure.Context);
+			xml.WriteAttributeString("assembly", new Uri(test.Assembly.Location).LocalPath);
+			xml.WriteAttributeString("name", failure.TestName);
+			xml.WriteAttributeString("executed", "True");
+			xml.WriteAttributeString("success", "False");
+			xml.WriteStartElement("failure");
+			xml.WriteAttributeString("file", failure.File);
+			xml.WriteAttributeString("line", failure.Line.ToString(CultureInfo.InvariantCulture));
+			xml.WriteAttributeString("column", failure.Column.ToString(CultureInfo.InvariantCulture));
+				xml.WriteStartElement("message");
+				xml.WriteCData(failure.Message);
 				xml.WriteEndElement();
 			xml.WriteEndElement();
 		}
 
 		public void Success() {
-			xml.WriteStartElement("test-case");
-				xml.WriteAttributeString("context", test.TestName.Context);
-				xml.WriteAttributeString("name", test.TestName.Name);
-				xml.WriteAttributeString("executed", "True");
-				xml.WriteAttributeString("success", "True");
-			xml.WriteEndElement();
+			xml.WriteAttributeString("context", test.TestName.Context);
+			xml.WriteAttributeString("name", test.TestName.Name);
+			xml.WriteAttributeString("executed", "True");
+			xml.WriteAttributeString("success", "True");
 		}
 
 		public void Pending(string reason) {
-			xml.WriteStartElement("test-case");
-				xml.WriteAttributeString("context", test.TestName.Context);
-				xml.WriteAttributeString("name", test.TestName.Name);
-				xml.WriteAttributeString("executed", "False");
-			xml.WriteEndElement();
+			xml.WriteAttributeString("context", test.TestName.Context);
+			xml.WriteAttributeString("name", test.TestName.Name);
+			xml.WriteAttributeString("executed", "False");
 		}
 
         public void Skipped() { }
+
+		public void EndTest() {
+			xml.WriteEndElement();
+		}
 	}
 }

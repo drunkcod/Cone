@@ -39,7 +39,7 @@ namespace Cone.Runners
 			return this;
 		}
 
-		void ISuiteLogger.Done() {
+		void ISuiteLogger.EndSuite() {
 			WriteLine("##teamcity[testSuiteFinished name='{0}']", activeSuite.Name);
 			activeSuite = null;
 		}
@@ -49,21 +49,17 @@ namespace Cone.Runners
 				.Do( x => string.Format("##teamcity[testFailed type='comparisionFailure' name='{0}' message='{1}' details='{2}'] actual='{3}' expected='{4}'", activeTest.TestName.Name, failure.Message, failure, x.actual, x.expected),
 					() => string.Format("##teamcity[testFailed name='{0}' message='{1}' details='{2}']", activeTest.TestName.Name, failure.Message, failure))
 			);
-			TestDone();
 		}
 
-		void ITestLogger.Success() {
-			TestDone();
-		}
+		void ITestLogger.Success() { }
 
 		void ITestLogger.Pending(string reason) {
 			WriteLine("##teamcity[testIgnored name='{0}' message='{1}']", activeTest.TestName.Name, reason);
-			TestDone();
 		}
 
 		void ITestLogger.Skipped() { }
 
-		void TestDone() { 
+		public void EndTest() { 
 			WriteLine("##teamcity[testFinished name='{0}']", activeTest.TestName.Name);
 		}
 

@@ -37,7 +37,7 @@ namespace Cone.Runners
             return this;
         }
 
-        public void Done() { }
+        public void EndSuite() { }
 
         public ITestLogger BeginTest(IConeTest test) {
             return this;
@@ -64,6 +64,8 @@ namespace Cone.Runners
         }
 
         void ITestLogger.Skipped() { }
+
+		void ITestLogger.EndTest() { }
     }
 
     public class CrossDomainConeRunner

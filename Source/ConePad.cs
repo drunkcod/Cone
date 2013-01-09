@@ -21,7 +21,7 @@ namespace Cone
                 return this;
             }
 
-            public void Done() { }
+            public void EndSuite() { }
 
             public void EndSession() { }
 
@@ -47,6 +47,8 @@ namespace Cone
             }
 
             public void Skipped() { }
+
+			public void EndTest() { }
         }
 
 		static ConePadSuiteBuilder SuiteBuilder = new ConePadSuiteBuilder();
