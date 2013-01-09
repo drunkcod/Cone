@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using Cone.Core;
 
@@ -30,10 +31,7 @@ namespace Cone.Runners
 
         public ISuiteLogger BeginSuite(IConeSuite suite) {
             return new ConsoleSessionLogger {
-                Settings = new ConsoleLoggerSettings {
-                    Verbosity = Settings.Verbosity,
-                    SuccessColor = Settings.SuccessColor,
-                }
+                Settings = Settings
             };
         }
 
