@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
+using System.Text;
 
 namespace Conesole
 {
@@ -27,7 +28,8 @@ namespace Conesole
 
 		public LoggerVerbosity Verbosity = LoggerVerbosity.Default;
 		public bool IsDryRun;
-		public bool XmlOutput;
+		public bool XmlConsole;
+		public Maybe<string> XmlOutput;
 		public bool TeamCityOutput;
         public bool Multicore;
 
@@ -71,7 +73,7 @@ namespace Conesole
 			}
 
 			if(item == "--xml-console") {
-				XmlOutput = true;
+				XmlConsole = true;
 				return;
 			}
 
@@ -111,7 +113,9 @@ namespace Conesole
 					else 
 						includedCategories.Add(category);
 			}
-			else 
+			else if(option == "xml") {
+				XmlOutput = valueRaw.ToMaybe();
+			} else 
 				throw new ArgumentException("Unknown option:" + item);
 		}
 		static Regex CreatePatternRegex(string pattern) {
@@ -175,28 +179,42 @@ namespace Conesole
 		}
 
         static TestSession CreateTestSession(ConesoleConfiguration config) {
-            ISessionLogger sessionLogger;
-            if (config.XmlOutput) {
-                var xml = new XmlSessionLogger(new XmlTextWriter(Console.Out){
-                    Formatting = Formatting.Indented
-                });
-
-                sessionLogger = xml;
-			} else if(config.TeamCityOutput) {
-				sessionLogger = new TeamCityLogger(Console.Out);
-            } else {
-                var consoleLogger = new ConsoleSessionLogger();
-                consoleLogger.Settings.Verbosity = config.Verbosity;
-                if (config.IsDryRun)
-                    consoleLogger.Settings.SuccessColor = ConsoleColor.DarkGreen;
-
-                sessionLogger = consoleLogger;
-            }
-
-            return new TestSession(sessionLogger) {
+            return new TestSession(CreateLogger(config)) {
                 IncludeSuite = config.IncludeSuite,
                 ShouldSkipTest = x => !config.IncludeTest(x)
             };;
+		}
+
+		static ISessionLogger CreateLogger(ConesoleConfiguration config) {
+            var loggers = new List<ISessionLogger>();
+            if (config.XmlConsole) {
+                loggers.Add(new XmlSessionLogger(new XmlTextWriter(Console.Out){
+                    Formatting = Formatting.Indented
+                }));
+			} 
+
+			if (config.XmlOutput.IsSomething) {
+                loggers.Add(new XmlSessionLogger(new XmlTextWriter(config.XmlOutput.Value, Encoding.UTF8){
+                    Formatting = Formatting.Indented
+                }));
+			} 
+
+			if(config.TeamCityOutput)
+				loggers.Add(new TeamCityLogger(Console.Out));
+
+			switch(loggers.Count) {	
+				case 0:
+					var consoleLogger = new ConsoleSessionLogger();
+					consoleLogger.Settings.Verbosity = config.Verbosity;
+					if (config.IsDryRun)
+						consoleLogger.Settings.SuccessColor = ConsoleColor.DarkGreen;
+
+					return consoleLogger;
+
+				case 1: return loggers[0];
+
+				default: return new MulticastSessionLogger(loggers);
+			}
 		}
 
     	static int DisplayUsage() {

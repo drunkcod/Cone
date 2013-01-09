@@ -6,6 +6,8 @@ Options are:
 	--labels                              Display test names while running.
 
 	--xml-console                         Output results as XML.
+
+	--xml=<file>                          Writes results as XML to <file>
 	
 	--include-tests=<pattern>             Run only tests matchingt pattern.
 	                                      '*' acts as wildcard.
@@ -13,3 +15,7 @@ Options are:
 	--dry-run                             Show tests that would have run.
 	
 	--categories=<include>,!<exclude>     Select categories to run.
+
+	--multicore                           Uses multiple threads to run tests.
+
+	--teamcity                            TeamCity formatted output.
