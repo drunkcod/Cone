@@ -5,6 +5,14 @@ using Cone.Core;
 
 namespace Cone
 {
+	public enum FailureType
+	{
+		Unknown,
+		Setup,
+		Test,
+		Teardown
+	}
+
     public class ConeTestFailure
     {
         public readonly string File;
@@ -15,10 +23,12 @@ namespace Cone
         public readonly string Message;
 		public readonly Maybe<object> Actual;
 		public readonly Maybe<object> Expected;
+		public readonly FailureType FailureType;
 
-        public ConeTestFailure(ITestName testName, Exception error) {
+        public ConeTestFailure(ITestName testName, Exception error, FailureType failureType) {
             TestName = testName.Name;
             Context = testName.Context;
+			FailureType = failureType;
 
 			var testError = Unwrap(error);
             var stackTrace = new StackTrace(testError, 0, true);

@@ -12,38 +12,38 @@ namespace Cone.Runners
         class TestResult : ITestResult
         {
             readonly IConeTest test;
+			readonly ITestLogger log;
 
-            public TestResult(IConeTest test) {
+            public TestResult(IConeTest test, ITestLogger log) {
                 this.test = test;
+				this.log = log;
             }
 
-            public Exception Error;
-			public string PendingReason;
+			public TestStatus Status { get; private set; }
 
-            public ITestName TestName { get { return test.TestName; } }
-
-            public TestStatus Status { get; private set; }
-
-            void ITestResult.Success() { Status = TestStatus.Success; }
+            void ITestResult.Success() { 
+				Status = TestStatus.Success;
+				log.Success();
+			}
 
             void ITestResult.Pending(string reason) { 
 				Status = TestStatus.Pending;
-				PendingReason = reason;
+				log.Pending(reason);
 			}
             
-            void ITestResult.BeforeFailure(Exception ex) { 
-                Status = TestStatus.SetupFailure;
-                Error = ex;
+            void ITestResult.BeforeFailure(Exception ex) {
+				Status = TestStatus.SetupFailure;
+				log.Failure(new ConeTestFailure(test.TestName, ex, FailureType.Setup));
             }
 
             void ITestResult.TestFailure(Exception ex) {
-                Status = TestStatus.Failure;
-                Error = ex;
+				Status = TestStatus.TestFailure;
+				log.Failure(new ConeTestFailure(test.TestName, ex, FailureType.Test));
             }
             
             void ITestResult.AfterFailure(Exception ex) {
-                Status = TestStatus.TeardownFailure;
-                Error = ex;
+				Status = TestStatus.TeardownFailure;
+				log.Failure(new ConeTestFailure(test.TestName, ex, FailureType.Teardown));
             }
         }
 
@@ -136,21 +136,7 @@ namespace Cone.Runners
         }
 
         void CollectResult(Action<IConeTest, ITestResult> collectResult, IConeTest test, ITestLogger log) {
-            var result = new TestResult(test);
-            collectResult(test, result);
-            switch (result.Status) {
-                case TestStatus.Success:
-                    log.Success();
-                    break;
-                case TestStatus.SetupFailure: goto case TestStatus.Failure;
-                case TestStatus.TeardownFailure: goto case TestStatus.Failure;
-                case TestStatus.Failure:
-                    log.Failure(new ConeTestFailure(test.TestName, result.Error));
-                    break;
-                case TestStatus.Pending:
-                    log.Pending(result.PendingReason);
-                    break;
-            }
+            collectResult(test, new TestResult(test, log));
         }
        
         public void Report() {

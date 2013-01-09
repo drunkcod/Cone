@@ -12,8 +12,6 @@ namespace Cone.Addin
             this.result = result;
         }
 
-        ITestName ITestResult.TestName { get { return new NUnitTestNameAdapter(TestName); } }
-
         public TestName TestName {
             get { return result.Test.TestName; }
         }
@@ -25,7 +23,7 @@ namespace Cone.Addin
                     case ResultState.Failure: 
                         switch(result.FailureSite) {
                             case FailureSite.SetUp: return TestStatus.SetupFailure;
-                            default: return TestStatus.Failure;
+                            default: return TestStatus.TestFailure;
                         }
                     default: return TestStatus.Success;
                 }

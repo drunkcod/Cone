@@ -41,6 +41,7 @@ namespace Cone.Runners
 	{
 		readonly XmlWriter xml;
         readonly IConeTest test;
+		bool isFailing;
 
 		public XmlLogger(XmlWriter xml, IConeTest test) {
 			this.xml = xml;
@@ -49,11 +50,13 @@ namespace Cone.Runners
 		}
 
 		public void Failure(ConeTestFailure failure) {		
-			xml.WriteAttributeString("context", failure.Context);
-			xml.WriteAttributeString("assembly", new Uri(test.Assembly.Location).LocalPath);
-			xml.WriteAttributeString("name", failure.TestName);
-			xml.WriteAttributeString("executed", "True");
-			xml.WriteAttributeString("success", "False");
+			if(!isFailing) {
+				xml.WriteAttributeString("context", failure.Context);
+				xml.WriteAttributeString("assembly", new Uri(test.Assembly.Location).LocalPath);
+				xml.WriteAttributeString("name", failure.TestName);
+				xml.WriteAttributeString("executed", "True");
+				xml.WriteAttributeString("success", "False");
+			}
 			xml.WriteStartElement("failure");
 			xml.WriteAttributeString("file", failure.File);
 			xml.WriteAttributeString("line", failure.Line.ToString(CultureInfo.InvariantCulture));
@@ -62,6 +65,8 @@ namespace Cone.Runners
 				xml.WriteCData(failure.Message);
 				xml.WriteEndElement();
 			xml.WriteEndElement();
+
+			isFailing = true;
 		}
 
 		public void Success() {
@@ -77,7 +82,13 @@ namespace Cone.Runners
 			xml.WriteAttributeString("executed", "False");
 		}
 
-        public void Skipped() { }
+        public void Skipped() { 
+			xml.WriteAttributeString("context", test.TestName.Context);
+			xml.WriteAttributeString("name", test.TestName.Name);
+			xml.WriteAttributeString("executed", "False");
+			xml.WriteAttributeString("skipped", "True");
+
+		}
 
 		public void EndTest() {
 			xml.WriteEndElement();

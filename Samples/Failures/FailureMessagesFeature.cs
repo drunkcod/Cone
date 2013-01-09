@@ -45,4 +45,15 @@ namespace Cone.Samples.Failures
 		public void cleanup_fails() { }
 	}
 
+	[Feature("Test & AfterEach failure")]
+	public class TestAndAfterFailure
+	{
+		public void fail() { throw new Exception(); }
+
+		[AfterEach]
+		public void DieDieDie() {
+			throw new Exception();
+		}
+	}
+
 }
