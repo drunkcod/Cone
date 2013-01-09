@@ -195,11 +195,13 @@ namespace Conesole
 			else if(config.TeamCityOutput)
 				loggers.Add(new TeamCityLogger(Console.Out));
 			else {
-				var consoleLogger = new ConsoleSessionLogger();
-				consoleLogger.Settings.Verbosity = config.Verbosity;
-				if (config.IsDryRun)
-					consoleLogger.Settings.SuccessColor = ConsoleColor.DarkGreen;
-				loggers.Add(consoleLogger);
+				var settings = new ConsoleLoggerSettings {
+					Verbosity = config.Verbosity,
+					SuccessColor = config.IsDryRun 
+						? ConsoleColor.DarkGreen
+ 						: ConsoleColor.Green
+				};
+				loggers.Add(new ConsoleSessionLogger(settings));
 			}
 
 			if (config.XmlOutput.IsSomething) {
