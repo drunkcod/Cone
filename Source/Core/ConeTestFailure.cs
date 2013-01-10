@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Linq;
 using Cone.Core;
 using System.Text;
+using System.Collections.Generic;
 
 namespace Cone
 {
@@ -64,12 +65,11 @@ namespace Cone
 			FailureType = failureType;
 
 			var testError = Unwrap(error);
-            var stackTrace = new StackTrace(testError, 0, true);
-			var frames = stackTrace.GetFrames();
-			if(frames != null)
-				StackFrames = Array.ConvertAll(frames, frame => new ConeStackFrame(frame));
-			else 
-				StackFrames = new ConeStackFrame[0];
+			StackFrames = GetNestedStackFrames(testError)
+				.Where(ShouldIncludeFrame)
+				.Reverse()
+				.Select(x => new ConeStackFrame(x))
+				.ToArray();
 
 			Message = testError.Message;
 			var expectationFailed = testError as ExpectationFailedException;
@@ -78,6 +78,11 @@ namespace Cone
 				Expected = expectationFailed.Expected;
 			}
         }
+
+		bool ShouldIncludeFrame(StackFrame frame) {
+			var m = frame.GetMethod();
+			return m != null && m.DeclaringType.Assembly != Assembly.GetExecutingAssembly();
+		}
 
         public override string ToString() {
 			var prefix = string.IsNullOrEmpty(File) ? string.Empty : string.Format("{0}({1}:{2}) ", File, Line, Column);
@@ -91,8 +96,16 @@ namespace Cone
             if (invocationException != null)
                 return invocationException.InnerException;
             return error;
-
         }
+
+		IEnumerable<StackFrame> GetNestedStackFrames(Exception e) {
+			for(; e != null; e = e.InnerException) {
+				var frames = new StackTrace(e, 0, true).GetFrames();
+				if(frames != null)
+					foreach(var frame in frames)
+						yield return frame;
+			}
+		}
 
     } 
 }

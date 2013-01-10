@@ -24,8 +24,8 @@ namespace Cone.Addin
 
         bool ISuiteBuilder.CanBuildFrom(Type type) { return type.IsPublic && SuiteBuilder.SupportedType(type); }
 
-        static void AssertionFailed(string message, Maybe<object> actual, Maybe<object> expected) {
-            throw new AssertionException(message);
+        static void AssertionFailed(string message, Maybe<object> actual, Maybe<object> expected, Exception innerException) {
+            throw new AssertionException(message, innerException);
         }
     }
 }

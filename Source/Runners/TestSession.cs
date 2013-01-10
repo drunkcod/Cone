@@ -92,7 +92,7 @@ namespace Cone.Runners
 
                 if (failures.Count > 0) {
                     output.WriteLine("Failures:");
-                    failures.Each((n, failure) => output.WriteLine("{0}) {1}\n", 1 + n, failure));
+                    failures.Each((n, failure) => output.WriteLine("{0}) {1}", 1 + n, failure));
                 }
                 output.WriteLine();
                 output.WriteLine("Done in {0}.", timeTaken.Elapsed);

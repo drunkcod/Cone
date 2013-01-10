@@ -200,7 +200,7 @@ namespace Cone
             
             Type GetAssertionExceptionType() {
                 try {
-                    Verify.ExpectationFailed(string.Empty, Maybe<object>.None, Maybe<object>.None);
+                    Verify.ExpectationFailed(string.Empty, Maybe<object>.None, Maybe<object>.None, null);
                 } catch(Exception e) {
                     return e.GetType();
                 }
@@ -254,7 +254,7 @@ namespace Cone
 
             Type ExpectedExcpetionType() {
                 try {
-                    Verify.ExpectationFailed(string.Empty, Maybe<object>.None, Maybe<object>.None);
+                    Verify.ExpectationFailed(string.Empty, Maybe<object>.None, Maybe<object>.None, null);
                 } catch (Exception e) { 
                     return e.GetType(); 
                 }
