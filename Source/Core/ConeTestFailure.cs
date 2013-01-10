@@ -30,7 +30,16 @@ namespace Cone
 		public readonly int Column;
 
 		public override string ToString() {
-			return string.Format("{0}.{1} in {2}:line {3}", Method.DeclaringType.FullName, Method.Name,File, Line);
+			return string.Format("{0}{1}.{2}({3}) in {4}:line {5}",
+				"",
+				TypeFormatter.Format(Method.DeclaringType),
+				Method.Name,
+				string.Join(", ", Array.ConvertAll(Method.GetParameters(), Format)),
+				File, Line);
+		}
+
+		string Format(ParameterInfo parameter) {
+			return string.Format("{0} {1}", TypeFormatter.Format(parameter.ParameterType), parameter.Name);
 		}
 	}
 

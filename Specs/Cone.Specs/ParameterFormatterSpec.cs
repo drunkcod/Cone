@@ -16,9 +16,9 @@ namespace Cone.Core
 
         public IEnumerable<IRowTestData> VerifyFormatRows() {
             return new RowBuilder<ParameterFormatterSpec>()
-                .Add(x => x.VerifyFormat(typeof(Int32), "typeof(Int32)"))
+                .Add(x => x.VerifyFormat(typeof(Int32), "typeof(int)"))
                 .Add(x => x.VerifyFormat(DummyEnum.Value, "DummyEnum.Value"))
-                .Add(x => x.VerifyFormat(new[] { typeof(Int32) }, "new[] { typeof(Int32) }"));
+                .Add(x => x.VerifyFormat(new[] { typeof(Int32) }, "new[] { typeof(int) }"));
         }
     }
  }

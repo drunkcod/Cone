@@ -59,25 +59,6 @@ namespace Cone.Core
             return FormatUnary(arrayLength) + ".Length";
         }
 
-        string FormatType(Type type) {
-            switch(type.FullName) {
-                case "System.Object": return "object";
-                case "System.String": return "string";
-                case "System.Boolean": return "bool";
-                case "System.Int32": return "int";
-                default: 
-                    if(type.IsGenericType) {
-						if(type.GetGenericTypeDefinition() == typeof(Nullable<>))
-							return string.Format("{0}?", FormatType(type.GetGenericArguments()[0]));
-						else {
-							var genArgs = Array.ConvertAll(type.GetGenericArguments(), FormatType);
-							return type.Name.Replace(string.Format("`{0}", genArgs.Length), "<" + string.Join(", ", genArgs) + ">");
-						}
-					}
-                    return type.Name;
-            }
-        }
-
         string FormatCallTarget(MethodCallExpression call, out int firstArgument) {
             firstArgument = 0;
             var target = call.Object;
@@ -263,6 +244,10 @@ namespace Cone.Core
         string FormatInvoke(InvocationExpression invocation) {
             return Format(invocation.Expression) + FormatArgs(invocation.Arguments, 0, MethodArgumentsFormat);
         }
+
+		string FormatType(Type type) {
+			return TypeFormatter.Format(type);
+		}
 
         bool IsAnonymousOrContextMember(Expression expression) {
             if(expression == null || expression.NodeType != ExpressionType.Constant)

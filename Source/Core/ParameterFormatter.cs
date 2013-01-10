@@ -4,6 +4,29 @@ using System.Text;
 
 namespace Cone.Core
 {
+	class TypeFormatter 
+	{
+		public static string Format(Type type) {
+            switch(type.FullName) {
+                case "System.Object": return "object";
+                case "System.String": return "string";
+                case "System.Boolean": return "bool";
+                case "System.Int32": return "int";
+                default: 
+                    if(type.IsGenericType) {
+						if(type.GetGenericTypeDefinition() == typeof(Nullable<>))
+							return string.Format("{0}?", Format(type.GetGenericArguments()[0]));
+						else {
+							var genArgs = Array.ConvertAll(type.GetGenericArguments(), Format);
+							return type.Name.Replace(string.Format("`{0}", genArgs.Length), "<" + string.Join(", ", genArgs) + ">");
+						}
+					}
+                    return type.Name;
+            }
+        }
+
+	}
+
     public class ParameterFormatter : IFormatter<object>
     {
         readonly ICollectionFormatter<object> collectionFormatter;
@@ -27,7 +50,7 @@ namespace Cone.Core
                 return FormatCollection(collection);
             var type = obj as Type;
             if(type != null)
-                return string.Format("typeof({0})", type.Name);
+                return string.Format("typeof({0})", TypeFormatter.Format(type));
             var typeOfObj = obj.GetType();
             if(typeOfObj.IsEnum)
                 return WritableEnum(obj, typeOfObj);

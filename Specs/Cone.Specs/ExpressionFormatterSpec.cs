@@ -49,7 +49,7 @@ namespace Cone.Core
 
         public void extension_method() {
             var obj = this;
-            VerifyFormat(() => obj.IsOfType(typeof(object)), "obj.IsOfType(typeof(Object))");
+            VerifyFormat(() => obj.IsOfType(typeof(object)), "obj.IsOfType(typeof(object))");
         }
 
         public void equality() {
@@ -126,6 +126,10 @@ namespace Cone.Core
             var a = 42;
             VerifyFormat(() => a != 42, "a != 42");
         }
+
+		public void generic_type_instance() {
+			VerifyFormat(() => typeof(Maybe<int>), "typeof(Maybe<int>)");
+		}
 
         public void indexer_property() {
             var stuff = new Dictionary<string, int>();
