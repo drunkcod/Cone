@@ -10,6 +10,22 @@ namespace Cone.Samples.Failures
         public int TheAnswer = 42;
 
         public void member_access_example() { Verify.That(() => TheAnswer == 7); }
+
+		public void error_before_verification() {
+			DoDie();
+		}
+
+		public void error_during_verification() {
+			Verify.That(() => NestedDeath());
+		}
+
+		bool NestedDeath() {
+			return DoDie();
+		}
+
+		bool DoDie() {
+			throw new Exception();
+		}
     }
 
 	[Feature("BeforeAll failure")]

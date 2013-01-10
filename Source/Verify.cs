@@ -55,7 +55,7 @@ namespace Cone
                 return build();
             } catch(ExceptionExpressionException e) {
                 var formatter = GetExpressionFormatter();
-                ExpectationFailed(string.Format("{0}\nraised by '{1}' in\n'{2}'", e.InnerException, formatter.Format(e.Expression), formatter.Format(e.Subexpression)), Maybe<object>.None, Maybe<object>.None);
+                ExpectationFailed(string.Format("{0}\nraised by '{1}' in\n'{2}'", e.InnerException.Message, formatter.Format(e.Expression), formatter.Format(e.Subexpression)), Maybe<object>.None, Maybe<object>.None);
             } catch(NullSubexpressionException e) {
                 var formatter = GetExpressionFormatter();
                 ExpectationFailed(string.Format("Null subexpression '{1}' in\n'{0}'", formatter.Format(e.Expression), formatter.Format(e.Context)), Maybe<object>.None, Maybe<object>.None);
