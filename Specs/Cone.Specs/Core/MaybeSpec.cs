@@ -31,5 +31,10 @@ namespace Cone.Core
 		public void Map_supports_multiple_values() {
 			Verify.That(() => Maybe.Map(Maybe.Some(1), Maybe.Some(2), (x, y) => x + y) == Maybe.Some(3));
 		}
+
+		public void GetValueOrDefault_returns_default_value_for_none() {
+			Verify.That(() => Maybe<string>.None.GetValueOrDefault("") == "");
+			Verify.That(() => Maybe<string>.None.GetValueOrDefault(() => "") == "");
+		}
 	}
 }

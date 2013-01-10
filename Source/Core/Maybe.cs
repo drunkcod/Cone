@@ -20,12 +20,20 @@ namespace Cone.Core
 		
 		bool IsDefault { get { return value == Maybe.DefaultTag; } }
 
+		T RawValue { get { return IsDefault ? default(T) : (T)value; } }
+
 		public T Value {
-			get { 
-				if(IsNone) 
-					throw new InvalidOperationException();
-				return IsDefault ? default(T) : (T)value;
-			}
+			get { return GetValueOrDefault(() => { 
+				throw new InvalidOperationException("Can't get value from 'None'"); 
+			}); }
+		}
+
+		public T GetValueOrDefault(T defaultValue) {
+			return IsNone ? defaultValue : RawValue;
+		}
+
+		public T GetValueOrDefault(Func<T> getDefaultValue) {
+			return IsNone ? getDefaultValue() : RawValue;
 		}
 
 		public static bool operator==(Maybe<T> left, Maybe<T> right) {
