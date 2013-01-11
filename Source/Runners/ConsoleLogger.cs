@@ -62,10 +62,12 @@ namespace Cone.Runners
 		public ConsoleColor PendingColor = ConsoleColor.Yellow;
 
 		public void Write(ConsoleColor color, string format, params object[] args) {
-            var tmp = Console.ForegroundColor;
-            Console.ForegroundColor = color;
-            Console.Out.Write(format, args);
-            Console.ForegroundColor = tmp;
+			lock(Console.Out) {
+				var tmp = Console.ForegroundColor;
+				Console.ForegroundColor = color;
+				Console.Out.Write(format, args);
+				Console.ForegroundColor = tmp;
+			}
         }
 
 		public virtual void WriteFailure(string context, string testName) {
