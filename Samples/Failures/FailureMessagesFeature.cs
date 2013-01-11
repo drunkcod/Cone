@@ -26,6 +26,12 @@ namespace Cone.Samples.Failures
 		bool DoDie() {
 			throw new Exception();
 		}
+
+		public void I_fail_because_I_devide_by_zero_in_verify() 
+		{ 
+			int zero = 0; 
+			Verify.That(() => 2 / zero == 3); 
+		}
     }
 
 	[Feature("BeforeAll failure")]

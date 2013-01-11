@@ -29,6 +29,8 @@ namespace Cone.Addin
                 }
             }
         }
+		
+		ITestName ITestResult.TestName { get { return new NUnitTestNameAdapter(TestName); } }
 
         void ITestResult.Success() { result.Success(); }
         void ITestResult.Pending(string reason) { result.Ignore(reason); }

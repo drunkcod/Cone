@@ -7,7 +7,10 @@ namespace Cone.Core
 	class TypeFormatter 
 	{
 		public static string Format(Type type) {
-            switch(type.FullName) {
+			if(type == null)
+				throw new ArgumentNullException("type");
+
+			switch(type.FullName) {
                 case "System.Object": return "object";
                 case "System.String": return "string";
                 case "System.Boolean": return "bool";

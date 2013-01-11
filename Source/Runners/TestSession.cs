@@ -19,6 +19,7 @@ namespace Cone.Runners
 				this.log = log;
             }
 
+			public ITestName TestName { get { return test.TestName; } }
 			public TestStatus Status { get; private set; }
 
             void ITestResult.Success() { 

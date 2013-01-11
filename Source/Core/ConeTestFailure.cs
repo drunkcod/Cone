@@ -31,9 +31,9 @@ namespace Cone
 		public readonly int Column;
 
 		public override string ToString() {
-			return string.Format("{0}{1}.{2}({3}) in {4}:line {5}",
-				"",
-				TypeFormatter.Format(Method.DeclaringType),
+
+			return string.Format("{0}.{1}({2}) in {3}:line {4}",
+				Method.DeclaringType != null ? TypeFormatter.Format(Method.DeclaringType) : string.Empty,
 				Method.Name,
 				string.Join(", ", Array.ConvertAll(Method.GetParameters(), Format)),
 				File, Line);
@@ -80,13 +80,13 @@ namespace Cone
 
 		bool ShouldIncludeFrame(StackFrame frame) {
 			var m = frame.GetMethod();
-			return m != null && m.DeclaringType.Assembly != Assembly.GetExecutingAssembly();
+			return m != null && m.DeclaringType != null && m.Module.Assembly != typeof(Verify).Assembly;
 		}
 
         public override string ToString() {
 			var prefix = string.IsNullOrEmpty(File) ? string.Empty : string.Format("{0}({1}:{2}) ", File, Line, Column);
 			var stackTrace = new StringBuilder();
-			StackFrames.EachWhere(frame => frame.Method.DeclaringType != typeof(Verify), frame => stackTrace.AppendFormat("  at {0}\n", frame));
+			StackFrames.Each(frame => stackTrace.AppendFormat("  at {0}\n", frame));
             return string.Format("{0}{1}.{2}: {3}\n{4}", prefix, Context, TestName, Message, stackTrace);
         }
 
