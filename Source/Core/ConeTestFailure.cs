@@ -67,7 +67,6 @@ namespace Cone
 			var testError = Unwrap(error);
 			StackFrames = GetNestedStackFrames(testError)
 				.Where(ShouldIncludeFrame)
-				.Reverse()
 				.Select(x => new ConeStackFrame(x))
 				.ToArray();
 
@@ -99,12 +98,9 @@ namespace Cone
         }
 
 		IEnumerable<StackFrame> GetNestedStackFrames(Exception e) {
-			for(; e != null; e = e.InnerException) {
-				var frames = new StackTrace(e, 0, true).GetFrames();
-				if(frames != null)
-					foreach(var frame in frames)
-						yield return frame;
-			}
+			if(e == null) 
+				return new StackFrame[0];
+			return GetNestedStackFrames(e.InnerException).Concat(new StackTrace(e, 0, true).GetFrames() ?? new StackFrame[0]);
 		}
 
     } 
