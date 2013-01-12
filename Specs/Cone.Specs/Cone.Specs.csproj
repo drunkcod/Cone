@@ -56,7 +56,6 @@
     <Compile Include="Core\MethodExpectProviderLookupSpec.cs" />
     <Compile Include="Features\RowTests.cs" />
     <Compile Include="Runners\NUnitSuiteBuilderSpec.cs" />
-    <Compile Include="Core\PendingGuardTestContextSpec.cs" />
     <Compile Include="CustomMethodExpectFeature.cs" />
     <Compile Include="DisplayClassAttributeSpec.cs" />
     <Compile Include="Expectations\StringMethodExpectSpec.cs" />

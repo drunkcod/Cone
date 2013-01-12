@@ -21,7 +21,6 @@ namespace Cone.Core
     {
         static readonly IEnumerable<ITestExecutionContext> ExecutionContext = new ITestExecutionContext[] {
             new TestMethodContext(),
-		    new PendingGuardTestContext(),
             new FixtureBeforeContext(), 
             new FixtureAfterContext()
         };
