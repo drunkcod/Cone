@@ -6,20 +6,30 @@ namespace Cone.Core
     {
         public TestContextStep Establish(IFixtureContext context, TestContextStep next) {
 			var pending = FirstPendingOrDefault(context.Attributes, FirstPendingOrDefault(context.Fixture.FixtureType.AsConeAttributeProvider(), null));
-			var isPending = pending != null;
+			return (pending == null)
+				? Runnable(next)
+				: Pending(next, pending.Reason);
+		}
 
+		TestContextStep Runnable(TestContextStep next) {
 			return (test, result) => {
-                try {
+				try {
 					next(test, result);
-					if(isPending)
-						result.TestFailure(new ExpectationFailedException("Test passed"));
                 } catch(Exception ex) {
-					if(isPending)
-						result.Pending(pending.Reason);
-                    else
-						result.TestFailure(ex);                        
+					result.TestFailure(ex);                        
                 }
-            };
+			};
+		}
+
+		TestContextStep Pending(TestContextStep next, string reason) {
+			return (test, result) => {
+				try {
+					next(test, result);
+					result.TestFailure(new ExpectationFailedException("Test passed"));
+				} catch {
+					result.Pending(reason);
+				}
+			};
 		}
 		
 		static IPendingAttribute FirstPendingOrDefault(IConeAttributeProvider attributes, IPendingAttribute defaultValue) {
