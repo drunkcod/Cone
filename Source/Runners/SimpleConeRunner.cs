@@ -33,7 +33,7 @@ namespace Cone.Runners
         public void RunTests(TestSession results, IEnumerable<Type> suiteTypes) {
             var toRun = new Queue<ConePadSuite>(suiteTypes
                 .Choose<Type, ConePadSuite>(TryBuildSuite)
-                .SelectMany(Flatten)
+                .Flatten(x => x.Subsuites)
                 .Where(x => results.IncludeSuite(x)));
 
             Verify.Initialize();
@@ -64,12 +64,6 @@ namespace Cone.Runners
                 .First(x => x.SupportedType(input))
                 .BuildSuite(input);
 			return suite != null;
-		}
-
-		IEnumerable<ConePadSuite> Flatten(ConePadSuite suite) {
-			yield return suite;
-			foreach(var item in suite.Subsuites.SelectMany(Flatten))
-				yield return item;
 		}
     }
 }

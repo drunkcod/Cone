@@ -12,6 +12,10 @@ namespace Cone.Samples
             Verify.That(() => false); 
         }
 
+		[Row(typeof(object)), DisplayAs("{0}", Heading = "Format types")]
+		public void Format_types(Type type)
+		{ }
+
         [Context("null subexpression detection")]
         public class NullSubexpressionDetection
         {

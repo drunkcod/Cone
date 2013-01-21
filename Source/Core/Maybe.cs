@@ -72,10 +72,24 @@ namespace Cone.Core
 			return Maybe<T>.Some(self);
 		}
 
+		public static Maybe<T> Try<T>(Func<T> getSome) {
+			try {
+				return getSome().ToMaybe();
+			} catch {
+				return Maybe<T>.None;
+			}
+		}
+
 		public static TResult Do<T, TResult>(this Maybe<T> self, Func<T, TResult> whenSome, Func<TResult> whenNone) {
 			return self.IsSomething
 				? whenSome(self.Value)
 				: whenNone();
+		}
+
+		public static void Do<T>(this Maybe<T> self, Action<T> whenSome, Action whenNone) {
+			if(self.IsSomething)
+				whenSome(self.Value);
+			else whenNone();
 		}
 
 		public static Maybe<TResult> Map<T, TResult>(this Maybe<T> self, Func<T, TResult> projection) {

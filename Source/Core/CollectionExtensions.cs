@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Cone.Core
 {
@@ -74,5 +75,14 @@ namespace Cone.Core
 					yield return value;			
 		}
 
+		public static IEnumerable<T> Flatten<T>(this IEnumerable<T> self, Func<T, IEnumerable<T>> children) {
+			return self.SelectMany(x => Flatten(x, children));
+		}
+
+		static IEnumerable<T> Flatten<T>(T parent, Func<T, IEnumerable<T>> children) {
+			yield return parent;
+			foreach(var item in children(parent).Flatten(children))
+				yield return item;
+		}
     }
 }
