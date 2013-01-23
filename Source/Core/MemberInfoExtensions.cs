@@ -7,7 +7,9 @@ namespace Cone.Core
 {
     static class MemberInfoExtensions
     {
-        public static object GetValue(this MemberInfo self, object target) {
+		delegate object Getter(object source);
+
+		public static object GetValue(this MemberInfo self, object target) {
             switch(self.MemberType) {
                 case MemberTypes.Field: 
                     return (self as FieldInfo).GetValue(target);
@@ -25,27 +27,27 @@ namespace Cone.Core
             }            
         }
 
-        static Dictionary<MethodInfo, Func<object, object>> getterCache = new Dictionary<MethodInfo,Func<object,object>>();
+        static Dictionary<MethodInfo, Getter> getterCache = new Dictionary<MethodInfo, Getter>();
 
         static object InvokeGet(MethodInfo getMethod, object target) {
-            Func<object, object> getter;
+            Getter getter;
             if(!getterCache.TryGetValue(getMethod, out getter)) {
-                var name = getMethod.DeclaringType.Name + ".Get" + getMethod.Name;
-                getter = getterCache[getMethod] = getMethod.CreateBoxedInvoke(name);
+                var name = getMethod.DeclaringType.Name + "." + getMethod.Name;
+                getter = getterCache[getMethod] = getMethod.CreateGetter(name);
             }
             return getter(target);
         }
 
-        public static Func<object, object> CreateBoxedInvoke(this MethodInfo self, string name) {
+        static Getter CreateGetter(this MethodInfo self, string name) {
             var targetType = self.DeclaringType;
             var getter = new DynamicMethod(name, typeof(object), new[]{ typeof(object) }, true);
-            getter.GetILGenerator()
-                .Ldarg(0)
-                .UnboxAsCallable(targetType)
-                .CallAny(self)
-                .ToObject(self.ReturnType) 
-                .Ret();
-            return (Func<object,object>)getter.CreateDelegate(typeof(Func<object, object>));
+			getter.GetILGenerator()
+            .Ldarg(0)
+			.UnboxAsCallable(targetType)
+            .CallAny(self)
+            .ToObject(self.ReturnType) 
+            .Ret();
+            return (Getter)getter.CreateDelegate(typeof(Getter));
         }
     }
 }

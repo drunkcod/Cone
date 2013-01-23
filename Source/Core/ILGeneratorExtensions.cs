@@ -6,7 +6,17 @@ namespace Cone.Core
 {
     static class ILGeneratorExtensions
     {
-        public static ILGenerator Ldarg(this ILGenerator il, int index) {
+		public static ILGenerator Call(this ILGenerator il, MethodInfo method) {
+			il.Emit(OpCodes.Call, method);
+			return il;
+		}
+
+        public static ILGenerator CallAny(this ILGenerator il, MethodInfo method) {
+            il.Emit(method.IsVirtual && !method.DeclaringType.IsValueType ? OpCodes.Callvirt : OpCodes.Call, method);
+            return il;
+        }
+
+		public static ILGenerator Ldarg(this ILGenerator il, int index) {
             il.Emit(OpCodes.Ldarg, index);
             return il;
         }
@@ -15,18 +25,18 @@ namespace Cone.Core
             il.Emit(OpCodes.Ret);
         }
 
+		public static ILGenerator UnboxAny(this ILGenerator il, Type type) {
+			il.Emit(OpCodes.Unbox_Any, type);
+			return il;
+		}
+
         public static ILGenerator UnboxAsCallable(this ILGenerator il, Type boxedType) {
-            il.Emit(OpCodes.Unbox_Any, boxedType);
+			il.UnboxAny(boxedType);
             if(boxedType.IsValueType) {
                 var tmp = il.DeclareLocal(boxedType);
                 il.Emit(OpCodes.Stloc, tmp);
                 il.Emit(OpCodes.Ldloca, tmp);
             }
-            return il;
-        }
-
-        public static ILGenerator CallAny(this ILGenerator il, MethodInfo method) {
-            il.Emit(method.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, method);
             return il;
         }
 

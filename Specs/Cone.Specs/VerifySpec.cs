@@ -17,6 +17,18 @@ namespace Cone
         public bool ReturnsFalse() { return false; }
     }
 
+	interface IHasValue<T>
+	{
+		T Value { get; }
+	}
+
+	struct MyValue<T> : IHasValue<T>
+	{
+		public T Value { get; set; }
+
+		public static implicit operator T(MyValue<T> item){ return item.Value; }
+	}
+
     [Describe(typeof(Verify))]
     public class VerifySpec
     {
@@ -30,7 +42,7 @@ namespace Cone
             Verify.That(() => counter.Next() == 1);
         }
 
-        public void support_constant_expressions() {
+		public void support_constant_expressions() {
             Verify.That(() => 1 + 2 == 3);
         }
 
@@ -59,6 +71,16 @@ namespace Cone
         public void nullable_HasValue_with_value() {
             Verify.That(() => new Nullable<int>(42).HasValue == true);
         }
+
+		public void struct_with_interface_member_access() {
+			var thing = new MyValue<string> { Value = "Hello World" };
+			Verify.That(() => thing.Value == thing.Value);
+		}
+
+		public void value_type_return_values_are_properly_boxed() {
+			var thing = new MyValue<MyValue<string>> { Value = new MyValue<string> { Value = "Hello World" } };
+			Verify.That(() => thing.Value.Value == thing.Value.Value);
+		}
 
         public class PossiblyGreen
         {
