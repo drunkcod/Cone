@@ -16,9 +16,8 @@ namespace Cone.Core
                 case MemberTypes.Field:
                     return (self as FieldInfo).GetValue(target);
                 case MemberTypes.Property:
-                    var targetType = self.DeclaringType;
-                    var getMethod = ((PropertyInfo)self).GetGetMethod(true);
                     try {
+	                    var getMethod = ((PropertyInfo)self).GetGetMethod(true);
                         return InvokeGet(getMethod, target);
                     } catch(Exception e) {
                         throw new TargetInvocationException(e);
@@ -31,7 +30,8 @@ namespace Cone.Core
             Getter getter;
             if(!getterCache.TryGetValue(getMethod, out getter)) {
                 var name = getMethod.DeclaringType.Name + "." + getMethod.Name;
-                getter = getterCache[getMethod] = getMethod.CreateGetter(name);
+                getter = getMethod.CreateGetter(name);
+				getterCache.Add(getMethod, getter);
             }
             return getter(target);
         }
