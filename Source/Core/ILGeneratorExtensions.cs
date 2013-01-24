@@ -6,6 +6,10 @@ namespace Cone.Core
 {
     static class ILGeneratorExtensions
     {
+		public static ILGenerator If(this ILGenerator il, bool predicate, Func<ILGenerator, ILGenerator> ifTrue, Func<ILGenerator, ILGenerator> ifFalse) {
+			return (predicate ? ifTrue : ifFalse)(il);
+		}
+
 		public static ILGenerator Call(this ILGenerator il, MethodInfo method) {
 			il.Emit(OpCodes.Call, method);
 			return il;
