@@ -25,7 +25,17 @@ namespace Cone.Core
             return il;
         }
 
-        public static void Ret(this ILGenerator il) {
+		public static ILGenerator Ldfld(this ILGenerator il, FieldInfo field) {
+			il.Emit(OpCodes.Ldfld, field);
+			return il;
+		}
+
+		public static ILGenerator Ldsfld(this ILGenerator il, FieldInfo field) {
+			il.Emit(OpCodes.Ldsfld, field);
+			return il;
+		}
+
+		public static void Ret(this ILGenerator il) {
             il.Emit(OpCodes.Ret);
         }
 
