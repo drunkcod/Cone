@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Cone.Core
+namespace Cone.Reflection
 {
     static class ILGeneratorExtensions
     {

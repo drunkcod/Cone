@@ -65,7 +65,7 @@
     <Compile Include="Core\IConeAttributeProvider.cs" />
     <Compile Include="Core\IConeFixtureMethodSink.cs" />
     <Compile Include="Core\IConeTestMethodSink.cs" />
-    <Compile Include="Core\ILGeneratorExtensions.cs" />
+    <Compile Include="Reflection\ILGeneratorExtensions.cs" />
     <Compile Include="Core\IRowData.cs" />
     <Compile Include="Core\Lazy.cs" />
     <Compile Include="Core\Maybe.cs" />
@@ -129,7 +129,7 @@
     <Compile Include="ITestDescription.cs" />
     <Compile Include="ITestInterceptor.cs" />
     <Compile Include="ITestResult.cs" />
-    <Compile Include="Core\MemberInfoExtensions.cs" />
+    <Compile Include="Reflection\MemberInfoExtensions.cs" />
     <Compile Include="NullSubexpressionException.cs" />
     <Compile Include="Core\ObjectConverter.cs" />
     <Compile Include="Core\ObjectExtensions.cs" />

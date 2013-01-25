@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Cone.Core
+namespace Cone.Reflection
 {
     static class MemberInfoExtensions
     {
