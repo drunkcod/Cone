@@ -8,6 +8,17 @@ namespace Cone.Core
 
     public static class CollectionExtensions
     {
+		public static bool Any<T>(this T[] self, Predicate<T> predicate) {
+			for(var i = 0; i != self.Length; ++i)
+				if(predicate(self[i]))
+					return true;
+			return false;
+		}
+
+		public static T Last<T>(this T[] self) {
+			return self[self.Length - 1];
+		}
+
         public static TOutput[] ConvertAll<TInput,TOutput>(this IList<TInput> self, Converter<TInput, TOutput> converter) {
             var result = new TOutput[self.Count];
             for(var i = 0; i != result.Length; ++i)

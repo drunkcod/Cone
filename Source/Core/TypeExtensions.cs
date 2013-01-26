@@ -2,20 +2,6 @@
 
 namespace Cone.Core
 {
-	public static class ArrayExtensions
-	{
-		public static bool Any<T>(this T[] self, Predicate<T> predicate) {
-			for(var i = 0; i != self.Length; ++i)
-				if(predicate(self[i]))
-					return true;
-			return false;
-		}
-
-		public static T Last<T>(this T[] self) {
-			return self[self.Length - 1];
-		}
-	}
-
     public static class TypeExtensions
     {
         public static bool Has<T>(this Type type) {
