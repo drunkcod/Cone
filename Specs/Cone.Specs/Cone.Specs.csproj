@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="BinaryExpectSpec.cs" />
     <Compile Include="BooleanExpectSpec.cs" />
+    <Compile Include="BugSpec.cs" />
     <Compile Include="ConeFixtureSetupSpec.cs" />
     <Compile Include="ConeMethodClassifierSpec.cs" />
     <Compile Include="Conesole\ConesoleConfigurationSpec.cs" />
