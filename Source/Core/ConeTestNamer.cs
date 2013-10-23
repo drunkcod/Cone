@@ -12,7 +12,7 @@ namespace Cone.Core
  
         public ConeTestName(string context, string name) {
             this.context = context;
-            this.name = name;
+            this.name = name.TrimStart();
         }
 
         public string Context { get { return context; } }

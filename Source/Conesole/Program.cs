@@ -199,7 +199,8 @@ namespace Conesole
 					Verbosity = config.Verbosity,
 					SuccessColor = config.IsDryRun 
 						? ConsoleColor.DarkGreen
- 						: ConsoleColor.Green
+ 						: ConsoleColor.Green,
+					Multicore = config.Multicore,
 				};
 				loggers.Add(new ConsoleSessionLogger(settings));
 			}

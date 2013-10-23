@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using Cone.Core;
+using System.Collections.Generic;
 
 namespace Cone.Runners
 {
@@ -13,9 +14,10 @@ namespace Cone.Runners
 
     public class ConsoleLoggerSettings
     {
-        internal string[] Context = new string[0];
+        readonly internal List<string> Context = new List<string>();
         public LoggerVerbosity Verbosity;
         public ConsoleColor SuccessColor = ConsoleColor.Green;
+		public bool Multicore;
     }
 
     public class ConsoleSessionLogger : ISessionLogger, ISuiteLogger
@@ -27,7 +29,7 @@ namespace Cone.Runners
 			this.settings = settings;
 			switch(settings.Verbosity) {
 				case LoggerVerbosity.Default: writer = new ConsoleLoggerWriter(); break;
-				case LoggerVerbosity.Labels: writer = new LabledConsoleLoggerWriter(); break;
+				case LoggerVerbosity.Labels: writer = new LabledConsoleLoggerWriter(settings.Multicore ? new List<string>() : settings.Context); break;
 				case LoggerVerbosity.TestNames: writer = new TestNameConsoleLoggerWriter(); break;
 			}
 			writer.InfoColor = Console.ForegroundColor;
@@ -37,7 +39,6 @@ namespace Cone.Runners
         public void WriteInfo(Action<TextWriter> output) {
             output(Console.Out);
         }
-
 
         public void BeginSession() { }
 
@@ -85,7 +86,11 @@ namespace Cone.Runners
 
 	class LabledConsoleLoggerWriter : ConsoleLoggerWriter
 	{
-		string[] context = new string[0];
+		readonly List<string> context;
+
+		public LabledConsoleLoggerWriter(List<string> context) {
+			this.context = context;
+		}
 
 		public override void WriteFailure(string context, string testName) {
 			WriteTestLabel(FailureColor, context, testName);
@@ -99,19 +104,18 @@ namespace Cone.Runners
 			WriteTestLabel(PendingColor, test);
 		}
 
-		void WriteTestLabel(ConsoleColor color, IConeTest test)
-		{
+		void WriteTestLabel(ConsoleColor color, IConeTest test) {
 			WriteTestLabel(color, test.TestName.Context, test.TestName.Name);
 		}
 
-		void WriteTestLabel(ConsoleColor color, string contextName, string testName)
-		{
+		void WriteTestLabel(ConsoleColor color, string contextName, string testName) {
 			var parts = contextName.Split('.');
 			var skip = 0;
-			while(skip != context.Length && context[skip] == parts[skip])
+			while(skip != context.Count && context[skip] == parts[skip])
 				++skip;
-			context = parts;
-			for(; skip != context.Length; ++skip)
+			context.Clear();
+			context.AddRange(parts);
+			for(; skip != context.Count; ++skip)
 				Write(InfoColor, "{0}{1}\n", new string(' ', skip << 1), context[skip]);
 			Write(color, "{0}* {1}\n", new string(' ', skip << 1), testName);
 		}
@@ -131,13 +135,11 @@ namespace Cone.Runners
 			WriteTestName(PendingColor, test);
 		}
 
-		void WriteTestName(ConsoleColor color, IConeTest test)
-		{
+		void WriteTestName(ConsoleColor color, IConeTest test) {
 			WriteTestName(color, test.TestName.Context, test.TestName.Name);
 		}
 
-		void WriteTestName(ConsoleColor color, string contextName, string testName)
-		{
+		void WriteTestName(ConsoleColor color, string contextName, string testName) {
 			Write(color, "{0}.{1}\n", contextName, testName.Replace("\n", "\\n").Replace("\r", ""));
 		}
 	}
