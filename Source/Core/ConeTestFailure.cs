@@ -51,9 +51,7 @@ namespace Cone
         public int Column { get { return HasFrames ? StackFrames[StackFrames.Length - 1].Column : 0; } }
         public readonly string Context;
         public readonly string TestName;
-        public readonly string Message;
-		public readonly Maybe<object> Actual;
-		public readonly Maybe<object> Expected;
+		public readonly IEnumerable<FailedExpectation> Errors;
 		public readonly FailureType FailureType;
 		public readonly ConeStackFrame[] StackFrames;
 
@@ -70,13 +68,20 @@ namespace Cone
 				.Select(x => new ConeStackFrame(x))
 				.ToArray();
 
-			Message = testError.Message;
 			var expectationFailed = testError as ExpectationFailedException;
-			if(expectationFailed != null) {
-				Actual = expectationFailed.Failures.First().Actual;
-				Expected = expectationFailed.Failures.First().Expected;
-			}
+			if(expectationFailed != null) 
+				Errors = expectationFailed.Failures;
+			else
+				Errors = new List<FailedExpectation> {
+					new FailedExpectation(error.Message)
+				};
         }
+
+		public string Message {
+			get {
+				return string.Join("\n", Errors.Select(x => x.Message).ToArray());
+			}
+		}
 
 		bool ShouldIncludeFrame(StackFrame frame) {
 			var m = frame.GetMethod();

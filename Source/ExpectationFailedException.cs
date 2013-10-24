@@ -7,6 +7,7 @@ namespace Cone
 {
 	public class FailedExpectation
 	{
+		public FailedExpectation(string message) : this(message, Maybe<object>.None, Maybe<object>.None) { }
 		public FailedExpectation(string message, Maybe<object> actual, Maybe<object> expected) {
 			this.Message = message;
 			this.Actual = actual;
@@ -21,7 +22,7 @@ namespace Cone
 	[Serializable]
     public class ExpectationFailedException : Exception
     {
-        public ExpectationFailedException(string message) : this(new[]{ new FailedExpectation(message, Maybe<object>.None, Maybe<object>.None) }, null) { }
+        public ExpectationFailedException(string message) : this(new[]{ new FailedExpectation(message) }, null) { }
         public ExpectationFailedException(IEnumerable<FailedExpectation> fails, Exception innerException) : base(string.Join("\n", fails.Select(x => x.Message).ToArray()), innerException) { 
 			this.Failures = fails.ToList();
 		}
