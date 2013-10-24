@@ -1,18 +1,32 @@
 ﻿using System;
+using System.Linq;
 using Cone.Core;
+using System.Collections.Generic;
 
 namespace Cone
 {
-    [Serializable]
-    public class ExpectationFailedException : Exception
-    {
-        public ExpectationFailedException(string message) : this(message, Maybe<object>.None, Maybe<object>.None, null) { }
-        public ExpectationFailedException(string message, Maybe<object> actual, Maybe<object> expected, Exception innerException) : base(message, innerException) { 
+	public class FailedExpectation
+	{
+		public FailedExpectation(string message, Maybe<object> actual, Maybe<object> expected) {
+			this.Message = message;
 			this.Actual = actual;
 			this.Expected = expected;
 		}
 
+		public readonly string Message;
 		public readonly Maybe<object> Actual;
 		public readonly Maybe<object> Expected;
+	}
+
+	[Serializable]
+    public class ExpectationFailedException : Exception
+    {
+        public ExpectationFailedException(string message) : this(new[]{ new FailedExpectation(message, Maybe<object>.None, Maybe<object>.None) }, null) { }
+        public ExpectationFailedException(IEnumerable<FailedExpectation> fails, Exception innerException) : base(string.Join("\n", fails.Select(x => x.Message).ToArray()), innerException) { 
+			this.Failures = fails.ToList();
+		}
+
+		public readonly List<FailedExpectation> Failures;
+
     }
 }

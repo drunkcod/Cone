@@ -102,6 +102,14 @@ namespace Cone
             Verify.That(() => new PossiblyGreen());
         }
 
+		public void aggregate_checks() {
+			var e = Verify.Throws<ExpectationFailedException>.When(() =>
+				Verify.That(
+					() => 1 == 2,
+					() => 1 == 3));
+			Verify.That(() => e.Failures.Count == 2);
+		}
+
         [Context("binary expressions")]
         public class BinaryExpressions
         {
@@ -222,7 +230,7 @@ namespace Cone
             
             Type GetAssertionExceptionType() {
                 try {
-                    Verify.ExpectationFailed(string.Empty, Maybe<object>.None, Maybe<object>.None, null);
+                    Verify.Fail(new FailedExpectation(string.Empty, Maybe<object>.None, Maybe<object>.None), null);
                 } catch(Exception e) {
                     return e.GetType();
                 }
@@ -276,7 +284,7 @@ namespace Cone
 
             Type ExpectedExcpetionType() {
                 try {
-                    Verify.ExpectationFailed(string.Empty, Maybe<object>.None, Maybe<object>.None, null);
+                    Verify.Fail(new FailedExpectation(string.Empty, Maybe<object>.None, Maybe<object>.None), null);
                 } catch (Exception e) { 
                     return e.GetType(); 
                 }

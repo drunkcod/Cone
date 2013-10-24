@@ -14,7 +14,7 @@ namespace Cone.Runners
 
     public class ConsoleLoggerSettings
     {
-        readonly internal List<string> Context = new List<string>();
+        readonly internal LabledConsoleLoggerContext Context = new LabledConsoleLoggerContext();
         public LoggerVerbosity Verbosity;
         public ConsoleColor SuccessColor = ConsoleColor.Green;
 		public bool Multicore;
@@ -29,7 +29,7 @@ namespace Cone.Runners
 			this.settings = settings;
 			switch(settings.Verbosity) {
 				case LoggerVerbosity.Default: writer = new ConsoleLoggerWriter(); break;
-				case LoggerVerbosity.Labels: writer = new LabledConsoleLoggerWriter(settings.Multicore ? new List<string>() : settings.Context); break;
+				case LoggerVerbosity.Labels: writer = new LabledConsoleLoggerWriter(settings.Multicore ? new LabledConsoleLoggerContext() : settings.Context); break;
 				case LoggerVerbosity.TestNames: writer = new TestNameConsoleLoggerWriter(); break;
 			}
 			writer.InfoColor = Console.ForegroundColor;
@@ -84,11 +84,27 @@ namespace Cone.Runners
 		}
 	}
 
+	class LabledConsoleLoggerContext 
+	{
+		readonly List<string> parts = new List<string>();
+
+		public int Count { get { return parts.Count; } }
+
+		public string this[int index]{
+			get { return parts[index]; }
+		}
+
+		public void Set(string[] newContext) {
+			parts.Clear();
+			parts.AddRange(newContext);
+		}
+	}
+
 	class LabledConsoleLoggerWriter : ConsoleLoggerWriter
 	{
-		readonly List<string> context;
+		readonly LabledConsoleLoggerContext context;
 
-		public LabledConsoleLoggerWriter(List<string> context) {
+		public LabledConsoleLoggerWriter(LabledConsoleLoggerContext context) {
 			this.context = context;
 		}
 
@@ -113,8 +129,7 @@ namespace Cone.Runners
 			var skip = 0;
 			while(skip != context.Count && context[skip] == parts[skip])
 				++skip;
-			context.Clear();
-			context.AddRange(parts);
+			context.Set(parts);
 			for(; skip != context.Count; ++skip)
 				Write(InfoColor, "{0}{1}\n", new string(' ', skip << 1), context[skip]);
 			Write(color, "{0}* {1}\n", new string(' ', skip << 1), testName);

@@ -1,8 +1,9 @@
-﻿using System;
-using Cone.Core;
-using NUnit.Core;
+﻿using NUnit.Core;
 using NUnit.Core.Extensibility;
 using NUnit.Framework;
+using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Cone.Addin
 {
@@ -24,8 +25,8 @@ namespace Cone.Addin
 
         bool ISuiteBuilder.CanBuildFrom(Type type) { return type.IsPublic && SuiteBuilder.SupportedType(type); }
 
-        static void AssertionFailed(string message, Maybe<object> actual, Maybe<object> expected, Exception innerException) {
-            throw new AssertionException(message, innerException);
+        static void AssertionFailed(IEnumerable<FailedExpectation> failure, Exception innerException) {
+            throw new AssertionException(failure.First().Message, innerException);
         }
     }
 }

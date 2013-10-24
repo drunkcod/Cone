@@ -73,8 +73,8 @@ namespace Cone
 			Message = testError.Message;
 			var expectationFailed = testError as ExpectationFailedException;
 			if(expectationFailed != null) {
-				Actual = expectationFailed.Actual;
-				Expected = expectationFailed.Expected;
+				Actual = expectationFailed.Failures.First().Actual;
+				Expected = expectationFailed.Failures.First().Expected;
 			}
         }
 
