@@ -7,8 +7,12 @@ namespace Cone.Helpers
         public EventSpy() : base(new EventHandler<T>((s, e) => { })) { }
 
         public static implicit operator EventHandler<T>(EventSpy<T> self) {
-            return (s, e) => self.Called(s, e);
+            return self.HandleEvent;
         }
+
+		void HandleEvent(object sender, T args){ 
+			Called(sender, args);
+		}
 
         public void Then(EventHandler<T> then) {
             base.Then(then);

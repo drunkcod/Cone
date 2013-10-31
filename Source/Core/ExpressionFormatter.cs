@@ -253,8 +253,15 @@ namespace Cone.Core
             if(expression == null || expression.NodeType != ExpressionType.Constant)
                 return false;
             var valueType = (expression as ConstantExpression).Value.GetType();
-            return valueType == context || valueType.Has<CompilerGeneratedAttribute>();
+            return valueType == context || IsCompilerGenerated(valueType);
         }
+
+		bool IsCompilerGenerated(Type type) {
+			if(type == null)
+				return false;
+			return type.Has<CompilerGeneratedAttribute>() 
+				|| IsCompilerGenerated(type.DeclaringType);
+		}
 
         static string GetBinaryOp(ExpressionType nodeType) {
             switch (nodeType) {

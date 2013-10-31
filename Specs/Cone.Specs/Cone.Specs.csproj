@@ -57,6 +57,7 @@
     <Compile Include="Core\MaybeSpec.cs" />
     <Compile Include="Core\MethodExpectProviderLookupSpec.cs" />
     <Compile Include="Features\RowTests.cs" />
+    <Compile Include="Helpers\EventSpySpec.cs" />
     <Compile Include="Runners\NUnitSuiteBuilderSpec.cs" />
     <Compile Include="CustomMethodExpectFeature.cs" />
     <Compile Include="DisplayClassAttributeSpec.cs" />

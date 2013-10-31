@@ -71,8 +71,9 @@ namespace Cone.Core
             var target = ((MethodCallExpression)(e.Body)).Method;
 
             var format = new FormatString("{0}");
-            Verify.That(() => TestNamer.NameFor(target , new object[]{ true }, format) == "Valid");
-            Verify.That(() => TestNamer.NameFor(target , new object[]{ false }, format) == "Invalid");
+            Verify.That(
+				() => TestNamer.NameFor(target , new object[]{ true }, format) == "Valid",
+				() => TestNamer.NameFor(target , new object[]{ false }, format) == "Invalid");
         }
 
     }

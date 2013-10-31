@@ -34,7 +34,7 @@ namespace Cone.Core
 			return self.Count == 0;
 		}
 
-        public static void EachWhere<T>(this T[] self, Func<T, bool> predicate, Action<T> @do) {
+        public static void ForEachWhere<T>(this T[] self, Func<T, bool> predicate, Action<T> @do) {
             for(var i = 0; i != self.Length; ++i) {
                 var x = self[i];
                 if(predicate(x))
@@ -42,7 +42,7 @@ namespace Cone.Core
             }   
         }
 
-        public static void EachWhere<T>(this IEnumerable<T> self, Func<T, bool> predicate, Action<T> @do) {
+        public static void ForEachWhere<T>(this IEnumerable<T> self, Func<T, bool> predicate, Action<T> @do) {
             foreach (var item in self)
                 if (predicate(item))
                     @do(item);
@@ -53,17 +53,17 @@ namespace Cone.Core
                 @do(self[i]);
         }
 
-        public static void Each<T>(this T[] self, Action<T> @do) {
+        public static void ForEach<T>(this T[] self, Action<T> @do) {
             for (var i = 0; i != self.Length; ++i)
                 @do(self[i]);
         }
 
-        public static void Each<T>(this IEnumerable<T> self, Action<T> @do) {
+        public static void ForEach<T>(this IEnumerable<T> self, Action<T> @do) {
             foreach(var item in self)
                 @do(item);
         }
 
-        public static void Each<T>(this IEnumerable<T> self, Action<int, T> @do) {
+        public static void ForEach<T>(this IEnumerable<T> self, Action<int, T> @do) {
             using(var items = self.GetEnumerator())
                 for(var i = 0; items.MoveNext(); ++i)
                     @do(i, items.Current);

@@ -44,7 +44,7 @@ namespace Cone.Core
 
         void AddNestedContexts(Type suiteType, TSuite suite) {
             ContextAttribute contextDescription;
-            suiteType.GetNestedTypes(BindingFlags.Public).Each(item => {
+            suiteType.GetNestedTypes(BindingFlags.Public).ForEach(item => {
                 if (item.TryGetAttribute<ContextAttribute, ContextAttribute>(out contextDescription)) {
 					var description = new ContextDescription {
 						SuiteName = suite.Name,

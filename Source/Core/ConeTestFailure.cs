@@ -91,14 +91,14 @@ namespace Cone
         public override string ToString() {
 			var prefix = string.IsNullOrEmpty(File) ? string.Empty : string.Format("{0}({1}:{2}) ", File, Line, Column);
 			var stackTrace = new StringBuilder();
-			StackFrames.Each(frame => stackTrace.AppendFormat("  at {0}\n", frame));
+			StackFrames.ForEach(frame => stackTrace.AppendFormat("  at {0}\n", frame));
             return string.Format("{0}{1}.{2}: {3}\n{4}", prefix, Context, TestName, Message, stackTrace);
         }
 
         Exception Unwrap(Exception error) {
             var invocationException = error as TargetInvocationException;
             if (invocationException != null)
-                return invocationException.InnerException;
+                return Unwrap(invocationException.InnerException);
             return error;
         }
 

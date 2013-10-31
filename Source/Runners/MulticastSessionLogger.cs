@@ -18,12 +18,12 @@ namespace Cone.Runners
 
             public ITestLogger BeginTest(IConeTest test) {
                 var log = new MulticastLogger();
-                children.Each(x => log.Add(x.BeginTest(test)));
+                children.ForEach(x => log.Add(x.BeginTest(test)));
                 return log;
             }
 
             public void EndSuite() {
-                children.Each(x => x.EndSuite());
+                children.ForEach(x => x.EndSuite());
             }
         }
 

@@ -32,15 +32,16 @@ namespace Cone
 			return Check(ToExpect(expr.Body), Fail);
         }
 
-        public static List<object> That(Expression<Func<bool>> expr, params Expression<Func<bool>>[] extras) {
+        public static void That(Expression<Func<bool>> expr, params Expression<Func<bool>>[] extras) {
+			That(new[]{ expr }.Concat(extras));
+        }
+
+		public static void That(IEnumerable<Expression<Func<bool>>> exprs) {
 			var failed = new List<FailedExpectation>(); 
-			var result = new[]{ expr }.Concat(extras)
-				.Select(x => Check(ToExpect(x.Body), (fail, _) => failed.Add(fail)))
-				.ToList();
+			exprs.ForEach(x => Check(ToExpect(x.Body), (fail, _) => failed.Add(fail)));
 			if(failed.Count != 0)
 				ExpectationFailed(failed, null);
-			return result;
-        }
+		}
 
 		public static class Throws<TException> where TException : Exception
         {

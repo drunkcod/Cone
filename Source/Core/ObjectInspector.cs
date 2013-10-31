@@ -30,7 +30,7 @@ namespace Cone.Core
             var sep = " ";
             type.GetMembers(BindingFlags.Public | BindingFlags.Instance)
                 .OrderBy(x => x.Name)
-                .Each(item => {
+                .ForEach(item => {
                     object value;
                     if(!TryGetValue(obj, item, out value))
                         return;

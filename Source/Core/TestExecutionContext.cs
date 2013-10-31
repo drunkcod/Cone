@@ -16,7 +16,7 @@ namespace Cone.Core
         public static TestExecutionContext For(Type type, Func<object> fixtureProvider) {
             var context = new TestExecutionContext(fixtureProvider);
             type.GetFields()
-                .EachWhere(
+                .ForEachWhere(
                     x => x.FieldType.Implements<ITestContext>(),
                     context.testContexts.Add);
             return context;

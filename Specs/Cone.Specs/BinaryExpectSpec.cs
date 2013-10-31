@@ -51,8 +51,9 @@ namespace Cone
 			Expression<Func<bool>> expression = () => actual == expected;
 			var expect = new BinaryExpect((BinaryExpression)expression.Body, new ExpectValue(actual), new ExpectValue(expected));
 
-			Verify.That(() => (actual == expected) == true);
-			Verify.That(() => expect.Check() == new CheckResult(true, Maybe<object>.Some(actual), Maybe<object>.Some(expected)));
+			Verify.That(
+				() => (actual == expected) == true,
+				() => expect.Check() == new CheckResult(true, Maybe<object>.Some(actual), Maybe<object>.Some(expected)));
 		}
     }
 }

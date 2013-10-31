@@ -54,7 +54,7 @@ namespace Cone.Runners
                     worker.Start();
                 }
                 runSuite();
-                workers.Each(x => x.Join());
+                workers.ForEach(x => x.Join());
             });
             results.Report();
         }
