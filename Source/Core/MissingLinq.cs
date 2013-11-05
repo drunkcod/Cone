@@ -6,7 +6,7 @@ namespace Cone.Core
 {
 	public delegate bool TryConvert<TInput, TOutput>(TInput value, out TOutput result);
 
-    public static class CollectionExtensions
+    public static class MissingLinq
     {
 		public static bool Any<T>(this T[] self, Predicate<T> predicate) {
 			for(var i = 0; i != self.Length; ++i)

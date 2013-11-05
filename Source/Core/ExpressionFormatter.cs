@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -63,13 +64,17 @@ namespace Cone.Core
             firstArgument = 0;
             var target = call.Object;
             if (target == null) {
-                if(call.Method.GetCustomAttributes(typeof(System.Runtime.CompilerServices.ExtensionAttribute), false).Length == 0)
+                if(!IsExtensionMethod(call.Method))
                     return call.Method.DeclaringType.Name;
                 firstArgument = 1;
                 return Format(call.Arguments[0]);
             }
             return Format(target);
         }
+
+		static bool IsExtensionMethod(MethodInfo method) {
+			return method.GetCustomAttributes(typeof(System.Runtime.CompilerServices.ExtensionAttribute), false).Length != 0;
+		}
 
         string FormatCall(Expression expression) { return FormatCall((MethodCallExpression)expression); }
         string FormatCall(MethodCallExpression call) {
@@ -124,10 +129,7 @@ namespace Cone.Core
         }
 
         string FormatArgs(IList<ParameterExpression> args) {
-            var items = new string[args.Count];
-            for (int i = 0; i != items.Length; ++i)
-                items[i] = Format(args[i]);
-            return FormatJoin(items, MethodArgumentsFormat);
+            return FormatJoin(args.ConvertAll(Format), MethodArgumentsFormat);
         }
 
         string FormatArgs(IList<Expression> args, int first, string format) {
@@ -256,10 +258,10 @@ namespace Cone.Core
             return valueType == context || IsCompilerGenerated(valueType);
         }
 
-		bool IsCompilerGenerated(Type type) {
+		public static bool IsCompilerGenerated(Type type) {
 			if(type == null)
 				return false;
-			return type.Has<CompilerGeneratedAttribute>() 
+			return type.Has<CompilerGeneratedAttribute>()
 				|| IsCompilerGenerated(type.DeclaringType);
 		}
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 
 namespace Cone.Core
 {
@@ -219,6 +220,18 @@ namespace Cone.Core
 		public void as_expression() {
 			var items = new List<object[]>{ new[] { "Hello" } };
 			VerifyFormat(() => (items[0][0] as string), "(items[0][0] as string)");
+		}
+
+		[CompilerGenerated]
+		class CompilerGeneratedClass 
+		{
+			public class Nested { }
+		}
+
+		public void compiler_generated_class_detected() {
+			Verify.That(
+				() => ExpressionFormatter.IsCompilerGenerated(typeof(CompilerGeneratedClass)),
+				() => ExpressionFormatter.IsCompilerGenerated(typeof(CompilerGeneratedClass.Nested)));
 		}
 
         [Context("nested expressions")]
