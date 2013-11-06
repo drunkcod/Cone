@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection;
 
 namespace Cone.Core
@@ -45,7 +46,7 @@ namespace Cone.Core
             }
         }
 
-        readonly IFixtureCreator fixtureCreator;
+        readonly FixtureCreator fixtureCreator;
         readonly Type fixtureType;
         object fixture;
         readonly ConeFixtureMethodCollection fixtureMethods = new ConeFixtureMethodCollection();
@@ -59,7 +60,7 @@ namespace Cone.Core
 	    public ConeFixture(Type fixtureType, IEnumerable<string> categories, Func<Type, object> fixtureBuilder): 
 			this(fixtureType, categories, new LambdaFixtureCreator(fixtureBuilder)) { }
 
-	    public ConeFixture(Type fixtureType, IEnumerable<string> categories, IFixtureCreator fixtureCreator) {
+	    public ConeFixture(Type fixtureType, IEnumerable<string> categories, FixtureCreator fixtureCreator) {
             this.fixtureType = fixtureType;
 			this.categories = categories;
             this.fixtureCreator = fixtureCreator;
@@ -112,32 +113,20 @@ namespace Cone.Core
         }
 
         public void Release(Action<Exception> error) {
-            try {				
-				if(fixtureInitialized) {
-					fixtureInitialized = false;
-					fixtureMethods.InvokeAfterAll(fixture);
-				}
-                DoCleanup();
-                DoDispose();
+            try {
+				DoFixtureCleanup();
+                fixtureCreator.Release(fixture);
             } catch(Exception ex) {
                 error(ex);
             } finally { fixture = null; }
         }
 
-        private void DoDispose() {
-            var asDisposable = fixture as IDisposable;
-            if (asDisposable != null)
-                asDisposable.Dispose();
-        }
-
-        private void DoCleanup() {
-            var fields = fixtureType.GetFields(BindingFlags.Public | BindingFlags.Instance);
-            foreach (var item in fields)
-                if (typeof(ITestCleanup).IsAssignableFrom(item.FieldType)) {
-                    var cleaner = item.GetValue(fixture) as ITestCleanup;
-                    cleaner.Cleanup();
-                }
-        }
+	    private void DoFixtureCleanup() {
+		    if (!fixtureInitialized) 
+				return;
+		    fixtureInitialized = false;
+		    fixtureMethods.InvokeAfterAll(fixture);
+	    }
 
 	    public Type FixtureType { get { return fixtureType; } }
 
@@ -150,12 +139,29 @@ namespace Cone.Core
         }
     }
 
-	public interface IFixtureCreator
+	public abstract class FixtureCreator
 	{
-		object NewFixture(Type fixtureType);
+		public abstract object NewFixture(Type fixtureType);
+		
+		public void Release(object fixture) {
+			DoCleanup(fixture);
+
+			var asDisposable = fixture as IDisposable;
+            if (asDisposable != null)
+                asDisposable.Dispose();
+        }
+
+		private void DoCleanup(object fixture) {
+			var fixtureType = fixture.GetType();
+            var fields = fixtureType.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            foreach (var item in fields.Where(x => typeof(ITestCleanup).IsAssignableFrom(x.FieldType))) {
+				var cleaner = item.GetValue(fixture) as ITestCleanup;
+				cleaner.Cleanup();
+			}
+		}
 	}
 
-	class LambdaFixtureCreator : IFixtureCreator
+	class LambdaFixtureCreator : FixtureCreator
 	{
 		private readonly Func<Type, object> newFixture;
 
@@ -163,14 +169,14 @@ namespace Cone.Core
 			this.newFixture = newFixture;
 		}
 
-		public object NewFixture(Type fixtureType) {
+		public override object NewFixture(Type fixtureType) {
 			return newFixture(fixtureType);
 		}
 	}
 
-	class DefaultFixtureCreator : IFixtureCreator
+	class DefaultFixtureCreator : FixtureCreator
 	{
-		public object NewFixture(Type fixtureType) { 
+		public override object NewFixture(Type fixtureType) { 
             if(IsStatic(fixtureType))
                 return null;
             var ctor = fixtureType.GetConstructor(Type.EmptyTypes);
