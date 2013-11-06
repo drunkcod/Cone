@@ -47,7 +47,7 @@
     <Compile Include="BeforeAllAttribute.cs" />
     <Compile Include="BeforeEachAttribute.cs" />
     <Compile Include="BoolDisplay.cs" />
-    <Compile Include="Core\CollectionExtensions.cs" />
+    <Compile Include="Core\MissingLinq.cs" />
     <Compile Include="Core\ConeAttributeProvider.cs" />
     <Compile Include="Core\ConeFixture.cs" />
     <Compile Include="Core\ConeFixtureSetup.cs" />

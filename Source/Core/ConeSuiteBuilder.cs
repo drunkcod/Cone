@@ -12,7 +12,7 @@ namespace Cone.Core
 
 	public abstract class ConeSuiteBuilder<TSuite> : IConeSuiteBuilder<TSuite> where TSuite : class, IConeSuite
     {
-		static readonly Type[] FixtureAttributes = new[]{ typeof(DescribeAttribute), typeof(FeatureAttribute) };
+		static readonly Type[] FixtureAttributes = { typeof(DescribeAttribute), typeof(FeatureAttribute) };
         readonly ConeTestNamer names = new ConeTestNamer(); 
 
         class ContextDescription : IFixtureDescription

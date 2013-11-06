@@ -45,7 +45,7 @@ namespace Cone.Core
             }
         }
 
-        readonly Func<Type, object> fixtureBuilder;
+        readonly IFixtureCreator fixtureCreator;
         readonly Type fixtureType;
         object fixture;
         readonly ConeFixtureMethodCollection fixtureMethods = new ConeFixtureMethodCollection();
@@ -53,13 +53,16 @@ namespace Cone.Core
 
 		IEnumerable<string> categories; 
 
-        public ConeFixture(Type fixtureType, IEnumerable<string> categories): this(fixtureType, categories, NewFixture) 
-        { }
+        public ConeFixture(Type fixtureType, IEnumerable<string> categories): 
+			this(fixtureType, categories, new DefaultFixtureCreator()) { }
 
-        public ConeFixture(Type fixtureType, IEnumerable<string> categories, Func<Type,object> fixtureBuilder) {
+	    public ConeFixture(Type fixtureType, IEnumerable<string> categories, Func<Type, object> fixtureBuilder): 
+			this(fixtureType, categories, new LambdaFixtureCreator(fixtureBuilder)) { }
+
+	    public ConeFixture(Type fixtureType, IEnumerable<string> categories, IFixtureCreator fixtureCreator) {
             this.fixtureType = fixtureType;
 			this.categories = categories;
-            this.fixtureBuilder = fixtureBuilder;
+            this.fixtureCreator = fixtureCreator;
         }
 
         public event EventHandler Before;
@@ -136,8 +139,39 @@ namespace Cone.Core
                 }
         }
 
-        static object NewFixture(Type fixtureType) { 
-            if(fixtureType.IsSealed && fixtureType.GetConstructors().Length == 0)
+	    public Type FixtureType { get { return fixtureType; } }
+
+        public IConeFixtureMethodSink FixtureMethods { get { return fixtureMethods; } }
+
+        public object Fixture { get { return EnsureFixture(); } }
+
+        object EnsureFixture() {
+            return fixture ?? (fixture = fixtureCreator.NewFixture(FixtureType));
+        }
+    }
+
+	public interface IFixtureCreator
+	{
+		object NewFixture(Type fixtureType);
+	}
+
+	class LambdaFixtureCreator : IFixtureCreator
+	{
+		private readonly Func<Type, object> newFixture;
+
+		public LambdaFixtureCreator(Func<Type, object> newFixture) {
+			this.newFixture = newFixture;
+		}
+
+		public object NewFixture(Type fixtureType) {
+			return newFixture(fixtureType);
+		}
+	}
+
+	class DefaultFixtureCreator : IFixtureCreator
+	{
+		public object NewFixture(Type fixtureType) { 
+            if(IsStatic(fixtureType))
                 return null;
             var ctor = fixtureType.GetConstructor(Type.EmptyTypes);
             if(ctor == null)
@@ -145,14 +179,8 @@ namespace Cone.Core
             return ctor.Invoke(null);
         }
 
-        public Type FixtureType { get { return fixtureType; } }
-
-        public IConeFixtureMethodSink FixtureMethods { get { return fixtureMethods; } }
-
-        public object Fixture { get { return EnsureFixture(); } }
-
-        object EnsureFixture() {
-            return fixture ?? (fixture = fixtureBuilder(FixtureType));
-        }
-    }
+	    private static bool IsStatic(Type fixtureType) {
+		    return fixtureType.IsSealed && fixtureType.GetConstructors().Length == 0;
+	    }
+	}
 }

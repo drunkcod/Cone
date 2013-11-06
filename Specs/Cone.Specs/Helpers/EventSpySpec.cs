@@ -26,11 +26,10 @@ namespace Cone.Helpers
 			target.OnFoo += fooSpy;
 			target.Foo();
 			Verify.That(() => fooSpy.HasBeenCalled);
-			fooSpy.Then((s, e) => {
+			fooSpy.Then((s, e) =>
 				Verify.That(
 					() => Object.ReferenceEquals(s, target),
-					() => e == EventArgs.Empty);
-			});
+					() => e == EventArgs.Empty));
 		}
 	}
 }
