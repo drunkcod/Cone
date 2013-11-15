@@ -9,20 +9,20 @@ namespace Cone
     [Describe(typeof(ExpectFactory))]
     public class ExpectFactorySpec
     {
-        ExpectFactory Expectory = new ExpectFactory(new[]{ typeof(CustomMethodExpectProviders).Assembly, typeof(Verify).Assembly });
+        ExpectFactory Expectory = new ExpectFactory(new[]{ typeof(CustomMethodExpectProviders).Assembly, typeof(Check).Assembly });
         int A = 1, B = 2;
 
         public void string_equality() {
             string a = "a", b = "b";
 
-            Verify.That(() => ExpectFrom(() => a == b) is StringEqualExpect);
+            Check.That(() => ExpectFrom(() => a == b) is StringEqualExpect);
         }
 
         [DisplayAs("\"is\" test with null")]
         public void type_check_null() {
             object obj = null;
 
-            Verify.That(() => ExpectFrom(() => obj is string) is TypeIsExpect);
+            Check.That(() => ExpectFrom(() => obj is string) is TypeIsExpect);
         }
 
         class Base { }
@@ -30,49 +30,49 @@ namespace Cone
 
         [DisplayAs("\"is\" with inheritance")]
         public void type_check_with_inheritance() {
-            Verify.That(() => new Derived() is Base);
+            Check.That(() => new Derived() is Base);
         }
 
         [DisplayAs("A == B")]
         public void EqualExpect() {
-            Verify.That(() => ExpectFrom(() => A == B) is EqualExpect);
+            Check.That(() => ExpectFrom(() => A == B) is EqualExpect);
         }
 
         [DisplayAs("A != B")]
         public void NotEqualExpect() {
-            Verify.That(() => ExpectFrom(() => A != B) is NotEqualExpect);
+            Check.That(() => ExpectFrom(() => A != B) is NotEqualExpect);
         }
 
         [DisplayAs("A < B")]
         public void LessThanExpect() {
-            Verify.That(() => ExpectFrom(() => A < B) is LessThanExpect);
+            Check.That(() => ExpectFrom(() => A < B) is LessThanExpect);
         }
 
         [DisplayAs("A <= B")]
         public void LessThanOrEqualExpect() {
-            Verify.That(() => ExpectFrom(() => A <= B) is LessThanOrEqualExpect);
+            Check.That(() => ExpectFrom(() => A <= B) is LessThanOrEqualExpect);
         }
 
         [DisplayAs("A > B")]
         public void GreaterThanExpect() {
-            Verify.That(() => ExpectFrom(() => A > B) is GreaterThanExpect);
+            Check.That(() => ExpectFrom(() => A > B) is GreaterThanExpect);
         }
 
         [DisplayAs("A >= B")]
         public void GreaterThanOrEqualExpect() {
-            Verify.That(() => ExpectFrom(() => A >= B) is GreaterThanOrEqualExpect);
+            Check.That(() => ExpectFrom(() => A >= B) is GreaterThanOrEqualExpect);
         }
 
         [DisplayAs("String.Contains(\"Value\")")]
         public void StringContains() {
-            Verify.That(() => ExpectFrom(() => "Hello".Contains("World")) is StringMethodExpect);
+            Check.That(() => ExpectFrom(() => "Hello".Contains("World")) is StringMethodExpect);
         }
 
         enum MyEnum { Value };
         public void enum_equals() {
             var actual = new { Value = MyEnum.Value };
-            var eq = (EqualExpect)Verify.That(() => ExpectFrom(() => actual.Value == MyEnum.Value) is EqualExpect);
-            Verify.That(
+            var eq = (EqualExpect)Check.That(() => ExpectFrom(() => actual.Value == MyEnum.Value) is EqualExpect);
+            Check.That(
 				() => eq.FormatActual(new NullFormatter()) == "Value",
 				() => eq.FormatExpected(new NullFormatter()) == "Value");
         }
@@ -96,7 +96,7 @@ namespace Cone
             }
 
             public void public_nested_provider_is_detected() {
-                Verify.That(() => ExpectFactory.IsMethodExpectProvider(typeof(NestedProvider)));
+                Check.That(() => ExpectFactory.IsMethodExpectProvider(typeof(NestedProvider)));
             }
         }
     }

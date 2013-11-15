@@ -15,15 +15,15 @@ namespace Cone.Addin
         }
 
         public void Name_excludes_context() {
-            Verify.That(() => AdaptedName.Name == TestName.Name);
+            Check.That(() => AdaptedName.Name == TestName.Name);
         }
 
         public void Context_excludes_name() {
-            Verify.That(() => !AdaptedName.Context.Contains(TestName.Name));
+            Check.That(() => !AdaptedName.Context.Contains(TestName.Name));
         }
 
         public void FullName_matches_full_name() {
-            Verify.That(() => AdaptedName.FullName == TestName.FullName);
+            Check.That(() => AdaptedName.FullName == TestName.FullName);
         }
     }
 }

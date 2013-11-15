@@ -36,7 +36,7 @@ namespace Cone.Samples
             var browserMock = new Mock<IBrowser>();
             browserMock.Setup(x => x.GetLocation()).Returns("http://example.com/about");
             var browser = browserMock.Object;
-            Verify.That(() => browser.AtUrl("/"));
+            Check.That(() => browser.AtUrl("/"));
         }
 
         //here's one way to modify it

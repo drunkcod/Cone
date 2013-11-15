@@ -58,13 +58,13 @@ namespace Cone
             }
 
             public void base_BeforeAll_before_derived() {
-                Verify.That(() => 
+                Check.That(() => 
                     FixtureMethods.BeforeAll.IndexOf(Base(x => x.BeforeAll())) <
                     FixtureMethods.BeforeAll.IndexOf(Derived(x => x.DerivedBeforeAll())));
             }
 
             public void base_BeforeEach_before_derived() {
-                Verify.That(() => 
+                Check.That(() => 
                     FixtureMethods.BeforeEach.IndexOf(Base(x => x.BeforeEach())) <
                     FixtureMethods.BeforeEach.IndexOf(Derived(x => x.DerivedBeforeEach())));
             }
@@ -89,7 +89,7 @@ namespace Cone
 				var testSink = new Mock<IConeTestMethodSink>().Object;
                 var setup = new ConeFixtureSetup(new ConeMethodClassifier(methods, testSink));
                 setup.CollectFixtureMethods(typeof(DerivedFixture));
-                Verify.That(() => methods.BeforeEach.Count == 1);
+                Check.That(() => methods.BeforeEach.Count == 1);
             }
         }
 

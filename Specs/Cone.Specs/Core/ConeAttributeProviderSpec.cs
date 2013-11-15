@@ -10,7 +10,7 @@ namespace Cone.Core
     {
         public void supports_attribute_lookup_by_basetype() {
             IConeAttributeProvider provider = new ConeAttributeProvider(new[] { new PendingAttribute() });
-            Verify.That(() => provider.GetCustomAttributes(typeof(IPendingAttribute)).Any());
+            Check.That(() => provider.GetCustomAttributes(typeof(IPendingAttribute)).Any());
         }
     }
 }

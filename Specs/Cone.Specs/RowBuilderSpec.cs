@@ -13,27 +13,27 @@ namespace Cone
             var rows = new RowBuilder<RowBuilderSpec>()
                 .Add(x => x.DoStuff(42));
             
-            Verify.That(() => rows[0].Parameters[0] == (object)42);
+            Check.That(() => rows[0].Parameters[0] == (object)42);
         }
 
         public void collects_computed_parameters() {
             var rows = new RowBuilder<RowBuilderSpec>()
                 .Add(x => x.DoStuff(Double(21)));
             
-            Verify.That(() => rows[0].Parameters[0] == (object)42);
+            Check.That(() => rows[0].Parameters[0] == (object)42);
         }
 
         public void collect_lambda() {
             Func<int> lambda = () => 42;
             var rows = new RowBuilder<RowBuilderSpec>()
                 .Add(x => x.Lambda(lambda));
-            Verify.That(() => (Func<int>)rows[0].Parameters[0] == lambda);
+            Check.That(() => (Func<int>)rows[0].Parameters[0] == lambda);
         }
 
         public void collect_inline_lambda() {
             var rows = new RowBuilder<RowBuilderSpec>()
                 .Add(x => x.Lambda(() => 42));
-            Verify.That(() => rows[0].Parameters[0] is Func<int>);
+            Check.That(() => rows[0].Parameters[0] is Func<int>);
         }
 }
 }

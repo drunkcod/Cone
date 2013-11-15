@@ -12,7 +12,7 @@ namespace Cone.Core
         [Row(new[] { 1, 2, 3 }, "new[] { 1, 2, 3 }", DisplayAs="array elements")
         ,Row("Hello World", "\"Hello World\"", DisplayAs = "quote strings")
         ,Row(null, "null", DisplayAs= "null"), DisplayAs("format {0} as {1}")]
-        public void VerifyFormat(object input, string expected) { Verify.That(() => Formatter.Format(input) == expected); }
+        public void VerifyFormat(object input, string expected) { Check.That(() => Formatter.Format(input) == expected); }
 
         public IEnumerable<IRowTestData> VerifyFormatRows() {
             return new RowBuilder<ParameterFormatterSpec>()

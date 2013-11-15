@@ -24,7 +24,7 @@ namespace Cone.Core
         string FormatBody<T>(Expression<Func<T>> expression) { return new ExpressionFormatter(GetType()).Format(expression.Body); }
 
         void VerifyFormat<T>(Expression<Func<T>> expression, string result) {
-            Verify.That(() => FormatBody(expression) == result);
+            Check.That(() => FormatBody(expression) == result);
         }
 
         string Format<T>(Expression<Func<T>> expression) { return FormatBody(expression); }
@@ -229,7 +229,7 @@ namespace Cone.Core
 		}
 
 		public void compiler_generated_class_detected() {
-			Verify.That(
+			Check.That(
 				() => ExpressionFormatter.IsCompilerGenerated(typeof(CompilerGeneratedClass)),
 				() => ExpressionFormatter.IsCompilerGenerated(typeof(CompilerGeneratedClass.Nested)));
 		}
@@ -240,7 +240,7 @@ namespace Cone.Core
             string FormatBody<T>(Expression<Func<T>> expression) { return new ExpressionFormatter(GetType()).Format(expression.Body); }
 
             void VerifyFormat<T>(Expression<Func<T>> expression, string result) {
-                Verify.That(() => FormatBody(expression) == result);
+                Check.That(() => FormatBody(expression) == result);
             }
 
             bool Foo(object obj) { return true; }

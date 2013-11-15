@@ -5,18 +5,18 @@ namespace Cone.Samples.Failures
     [Feature("Failure")]
     public class FailureMessagesFeature
     {
-        public void string_example() { Verify.That(() => "Hello World".Length == 3); }
+        public void string_example() { Check.That(() => "Hello World".Length == 3); }
 
         public int TheAnswer = 42;
 
-        public void member_access_example() { Verify.That(() => TheAnswer == 7); }
+        public void member_access_example() { Check.That(() => TheAnswer == 7); }
 
 		public void error_before_verification() {
 			DoDie();
 		}
 
 		public void error_during_verification() {
-			Verify.That(() => NestedDeath());
+			Check.That(() => NestedDeath());
 		}
 
 		bool NestedDeath() {
@@ -30,7 +30,7 @@ namespace Cone.Samples.Failures
 		public void I_fail_because_I_devide_by_zero_in_verify() 
 		{ 
 			int zero = 0; 
-			Verify.That(() => 2 / zero == 3); 
+			Check.That(() => 2 / zero == 3); 
 		}
     }
 

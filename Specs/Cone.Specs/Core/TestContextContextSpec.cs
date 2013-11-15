@@ -51,7 +51,7 @@ namespace Cone.Core
 
         public void propagate_exceptions_raised_by_test() {
             TestContextStep raiseException = (_, __) => { throw new Exception(); };
-            Verify.Throws<Exception>.When(() => ExecutionContext.Establish(null, raiseException)(null, Result.Object));
+            Check<Exception>.When(() => ExecutionContext.Establish(null, raiseException)(null, Result.Object));
         }
     }
 }

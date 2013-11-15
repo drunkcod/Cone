@@ -15,18 +15,18 @@ namespace Cone.Addin
 
         public void should_expose_TestName() {
             var adapter = new NUnitTestResultAdapter(TestResult);
-            Verify.That(() => adapter.TestName.Name == "TestName");
+            Check.That(() => adapter.TestName.Name == "TestName");
         }
 
         public void should_expose_Context() {
             var adapter = new NUnitTestResultAdapter(TestResult);
-            Verify.That(() => adapter.TestName.FullName == "Context.TestName");
+            Check.That(() => adapter.TestName.FullName == "Context.TestName");
         }
 
         public void reports_setup_failure() {
             ITestResult adapter = new NUnitTestResultAdapter(TestResult);
             adapter.BeforeFailure(new Exception());
-            Verify.That(() => adapter.Status == TestStatus.SetupFailure);
+            Check.That(() => adapter.Status == TestStatus.SetupFailure);
         }
     }
 }

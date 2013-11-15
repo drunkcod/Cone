@@ -9,7 +9,7 @@ namespace Cone.Samples
     {
         [Explicit]
         public void this_test_should_be_explicit() {          
-            Verify.That(() => false); 
+            Check.That(() => false); 
         }
 
 		[Row(typeof(object)), DisplayAs("{0}", Heading = "Format types")]
@@ -21,11 +21,11 @@ namespace Cone.Samples
         {
             public void member_access_would_raise_NullReferenceException() {
                 var foo = new { ThisValueIsNull = (string)null };
-                Verify.That(() => foo.ThisValueIsNull.Length != 0); 
+                Check.That(() => foo.ThisValueIsNull.Length != 0); 
             }
             public void method_call_would_raise_NullReferenceException() {
                 var foo = new { ThisValueIsNull = (string)null };
-                Verify.That(() => foo.ThisValueIsNull.Contains("hello")); 
+                Check.That(() => foo.ThisValueIsNull.Contains("hello")); 
             }
         }
 
@@ -35,13 +35,13 @@ namespace Cone.Samples
             [DisplayAs("{0} + {1} == {2}")
             ,Row(1, 2, 3)]
             public void Add(int a, int b, int result) {
-                Verify.That(() => a + b == result);
+                Check.That(() => a + b == result);
             }
 
             [DisplayAs("{0} - {1} == {2}", Heading = "When subtracting {1} from {0} the we get {2}")
             ,Row(3, 2, 1)]
             public void Subtract(int a, int b, int result) {
-                Verify.That(() => a - b == result);
+                Check.That(() => a - b == result);
             }
 
             public enum MyEnum { Zero, One }
@@ -49,37 +49,36 @@ namespace Cone.Samples
             public void enums(MyEnum value) { }
 
             [Row(MyEnum.Zero), DisplayAs("{0}")]
-            public void formatted_enums(MyEnum value) { Verify.That(() => value == MyEnum.One); }
-
+            public void formatted_enums(MyEnum value) { Check.That(() => value == MyEnum.One); }
         }
 
         public void report_failing_subexpression()
         {
             Func<int> throws = () => { throw new InvalidOperationException(); }; 
-            Verify.That(() => throws() == 42); 
+            Check.That(() => throws() == 42); 
         }
 
         public void report_failing_subexpression_member_access() {
             Func<string> throws = () => { throw new InvalidOperationException(); }; 
 
-            Verify.That(() => throws().Length == 42); 
+            Check.That(() => throws().Length == 42); 
         }
 
         int Throws() { throw new NotImplementedException(); }
         
         public void wrong_subexpression_raises_exception() {
             Func<TutorialSpec> getTarget = () => { throw new InvalidOperationException(); };
-            Verify.Throws<NotImplementedException>.When(() => getTarget().Throws());
+            Check<NotImplementedException>.When(() => getTarget().Throws());
         }
 
         public void report_failing_subexpression_call()
         {
-            Verify.That(() => Throws() == 42); 
+            Check.That(() => Throws() == 42); 
         }
 
         public void funky(Func<int, int> fun, int input, int result) {
             if(fun != null)
-                Verify.That(() => fun(input) == result);
+                Check.That(() => fun(input) == result);
         }
 
         public IEnumerable<IRowTestData> FunkyRows() {
@@ -102,12 +101,12 @@ namespace Cone.Samples
             }
 
             public void when_things_throw() {
-                Verify.That(() => new MyDsl.Stuff().ThisThrows().Length == 0);
+                Check.That(() => new MyDsl.Stuff().ThisThrows().Length == 0);
 
             }
 
             public void when_nested_things_throw() {
-                Verify.That(() => new MyDsl().TakeItToAnohterLevel.ThisThrows() == "");
+                Check.That(() => new MyDsl().TakeItToAnohterLevel.ThisThrows() == "");
 
             }
         }

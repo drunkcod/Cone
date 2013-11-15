@@ -12,7 +12,7 @@ namespace Cone
 	{
 		public static void That(Expression<Func<bool>> expr) {
 			try {
-				Verify.That(expr);
+				Check.That(expr);
 			} catch(Exception e) {
 				throw new InvalidAssumptionException("Invalid assumption detected", e);
 			}

@@ -153,7 +153,7 @@ namespace Cone.Runners
 		NUnitSuiteBuilder SuiteBuilder = new NUnitSuiteBuilder();
 
 		public void supports_building_suites_for_types_with_NUnit_TestFixture_attribute() {
-			Verify.That(() => SuiteBuilder.SupportedType(typeof(MyNUnitFixture)));
+			Check.That(() => SuiteBuilder.SupportedType(typeof(MyNUnitFixture)));
 		}
 
 		[Context("given description of MyNunitFixture")]
@@ -169,24 +169,24 @@ namespace Cone.Runners
 			}
 
 			public void suite_type_is_TestFixture() {
-				Verify.That(() => Description.SuiteType == "TestFixture");
+				Check.That(() => Description.SuiteType == "TestFixture");
 			}
 
 			public void test_name_is_name_of_fixture() {
-				Verify.That(() => Description.TestName == typeof(MyNUnitFixture).Name);
+				Check.That(() => Description.TestName == typeof(MyNUnitFixture).Name);
 			}
 
 			public void suite_name_is_namespace_of_fixture() {
-				Verify.That(() => Description.SuiteName == typeof(MyNUnitFixture).Namespace);
+				Check.That(() => Description.SuiteName == typeof(MyNUnitFixture).Namespace);
 			}
 
 			public void categories_found_via_CategoryAttribute() {
-				Verify.That(() => Description.Categories.Contains("SomeCategory"));
-				Verify.That(() => Description.Categories.Contains("Integration"));
+				Check.That(() => Description.Categories.Contains("SomeCategory"));
+				Check.That(() => Description.Categories.Contains("Integration"));
 			}
 
 			public void categories_from_attributes_deriving_CategoryAttribute_are_found() {
-				Verify.That(() => Description.Categories.Contains("DerivedCategory"));
+				Check.That(() => Description.Categories.Contains("DerivedCategory"));
 			}
 		}
 
@@ -204,19 +204,19 @@ namespace Cone.Runners
 			}
 
 			public void FixtureSetUp_is_called_to_initialize_fixture() {
-				Verify.That(() => NUnitFixture.FixtureSetUpCalled == 1);
+				Check.That(() => NUnitFixture.FixtureSetUpCalled == 1);
 			}
 
 			public void SetUp_is_called_as_BeforeEach() {
-				Verify.That(() => NUnitFixture.SetUpCalled == NUnitFixture.TestCalled - 1);
+				Check.That(() => NUnitFixture.SetUpCalled == NUnitFixture.TestCalled - 1);
 			}
 			
 			public void TearDown_is_called_as_AfterEach() {
-				Verify.That(() => NUnitFixture.TearDownCalled == NUnitFixture.TestCalled + 1);
+				Check.That(() => NUnitFixture.TearDownCalled == NUnitFixture.TestCalled + 1);
 			}
 
 			public void TestFixtureTearDown_is_used_to_release_fixture() {
-				Verify.That(() => NUnitFixture.FixtureTearDownCalled == NUnitFixture.Calls);
+				Check.That(() => NUnitFixture.FixtureTearDownCalled == NUnitFixture.Calls);
 			}
 		}
 
@@ -238,7 +238,7 @@ namespace Cone.Runners
 			}
 
 			public void theres_one_test_per_case() {
-				Verify.That(() => NUnitSuite.TestCount == 2);
+				Check.That(() => NUnitSuite.TestCount == 2);
 			}
 		}
 
@@ -271,7 +271,7 @@ namespace Cone.Runners
 			}
 
 			public void locates_TestCaseData_source_method_in_same_class() {
-				Verify.That(() => NUnitSuite.TestCount == 2);
+				Check.That(() => NUnitSuite.TestCount == 2);
 			}
 
 		}

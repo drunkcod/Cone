@@ -36,12 +36,12 @@ namespace Cone.Addin
             }
 
             public void the_magic_is_ready() {
-                Verify.That(() => Magic == 21);
-                Verify.That(() => LocalMagic == 42);
+                Check.That(() => Magic == 21);
+                Check.That(() => LocalMagic == 42);
             }
 
             public void the_magic_can_be_reused() {
-                Verify.That(() => LocalMagic == 42);
+                Check.That(() => LocalMagic == 42);
             }
         }
 
@@ -62,12 +62,12 @@ namespace Cone.Addin
             }
 
             public void AfterEach_called_between_tests() {
-                Verify.That(() => Shared == 0);
+                Check.That(() => Shared == 0);
                 Shared = 1;
             }
 
             public void AfterEach_called_between_tests_2() {
-                Verify.That(() => Shared == 0);
+                Check.That(() => Shared == 0);
                 Shared = 1;
             }
 
@@ -77,13 +77,13 @@ namespace Cone.Addin
                 static int Product = 1;
                 [AfterAll]
                 public void VerifyProduct() {
-                    Verify.That(() => Product == 21);
+                    Check.That(() => Product == 21);
                     Product = 1;
                 }
 
                 [AfterEach]
                 public void Silly(ITestResult result) {
-                   Verify.That(() => result.Status == TestStatus.Success);
+                   Check.That(() => result.Status == TestStatus.Success);
                     Product *= int.Parse(((NUnitTestResultAdapter)result).TestName.Name);
                 }
 
@@ -103,7 +103,7 @@ namespace Cone.Addin
             }
 
             public void zzz_inherited_after_each_in_context() {
-                Verify.That(() => SampleFixture.AfterEachCalled == Contexts.TestCount);
+                Check.That(() => SampleFixture.AfterEachCalled == Contexts.TestCount);
             }
         }
 
@@ -116,7 +116,7 @@ namespace Cone.Addin
 
         [AfterAll]
         public void StaticFixture_was_run() {
-            Verify.That(() => StaticFixture.StaticMethowWasCalled);
+            Check.That(() => StaticFixture.StaticMethowWasCalled);
         }
 
         [Describe(typeof(EmptySpec), Category = "Empty")]
@@ -128,17 +128,17 @@ namespace Cone.Addin
 
         public void attaches_Category_to_described_suite() {
             var suite = BuildSuite(typeof(EmptySpec));
-            Verify.That(() => suite.Categories.Contains("Empty"));
+            Check.That(() => suite.Categories.Contains("Empty"));
         }
 
         public void multiple_categories_can_be_comma_seperated() {
             var suite = BuildSuite(typeof(EmptySpec)).Tests[0] as AddinSuite;
-            Verify.That(() => suite.Categories.Contains("Empty"));
-            Verify.That(() => suite.Categories.Contains("Context"));
+            Check.That(() => suite.Categories.Contains("Empty"));
+            Check.That(() => suite.Categories.Contains("Context"));
         }
 
         public void zzz_rely_on_sorting_to_check_that_AfterAll_is_triggered() {
-            //Verify.That(() => After.AfterAllExecuted == true);
+            //Check.That(() => After.AfterAllExecuted == true);
             Assert.That(After.AfterAllExecuted, Is.True);
         }
     }

@@ -121,11 +121,11 @@ namespace Cone.Core
 
             public void before_sequence() {
                 ExecutionSequence.Append("->Test");
-                Verify.That(() => ExecutionSequence.ToString() == "->Interceptor.Before->Test.Before->Test");
+                Check.That(() => ExecutionSequence.ToString() == "->Interceptor.Before->Test.Before->Test");
             }
 
             public void zzz_after_sequence() {
-                Verify.That(() => ExecutionSequence.ToString().StartsWith("->Interceptor.Before->Test.Before->Test->Test.After->Interceptor.After"));
+                Check.That(() => ExecutionSequence.ToString().StartsWith("->Interceptor.Before->Test.Before->Test->Test.After->Interceptor.After"));
             }
         }
 

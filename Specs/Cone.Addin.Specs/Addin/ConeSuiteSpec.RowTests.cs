@@ -11,13 +11,13 @@ namespace Cone.Addin
         [Row(1, 1, 2)]
         [Row(4, 2, 42, IsPending = true)]
         [Row(1, 1, 2, DisplayAs = "One + One is Two")]
-        public void Add(int a, int b, int r) { Verify.That(() => a + b == r); }
+        public void Add(int a, int b, int r) { Check.That(() => a + b == r); }
     }
 
     [Describe(typeof(DynamicRowTestFixture))]
     public class DynamicRowTestFixture
     {
-        public void Add(int a, int b, int r) { Verify.That(() => a + b == r); }
+        public void Add(int a, int b, int r) { Check.That(() => a + b == r); }
 
         public IEnumerable<IRowTestData> Tests() {
             return new RowBuilder<DynamicRowTestFixture>()
@@ -49,26 +49,26 @@ namespace Cone.Addin
             {
                 protected TestSuite Suite { get { return BuildSuite(typeof(T)); } }
 
-                public void create_test_per_input_row() { Verify.That(() => Suite.TestCount == 3); }            
+                public void create_test_per_input_row() { Check.That(() => Suite.TestCount == 3); }            
 
                 public void rows_named_by_their_arguments() {
                     var testNames = Suite.AllTests().Select(x => x.TestName.Name);
 
-                    Verify.That(() => testNames.Contains("Add(1, 1, 2)"));
-                    Verify.That(() => testNames.Contains("Add(4, 2, 42)"));
+                    Check.That(() => testNames.Contains("Add(1, 1, 2)"));
+                    Check.That(() => testNames.Contains("Add(4, 2, 42)"));
                 }
 
                 public void can_use_custom_name() {
                     var testNames = Suite.AllTests().Select(x => x.TestName.Name);
 
-                    Verify.That(() => testNames.Contains("One + One is Two"));                
+                    Check.That(() => testNames.Contains("One + One is Two"));                
                 }
             }
 
             public void format_of_row_test_methods_should_equal_normal_test_methods() {
                 var suite = BuildSuite(typeof(RowTestWithDescriptiveName));
                 var testNames = suite.AllTests().Select(x => x.TestName.Name);
-                Verify.That(() => testNames.Contains("when adding numbers"));
+                Check.That(() => testNames.Contains("when adding numbers"));
             }
 
             [Context("static row fixture")]
@@ -93,7 +93,7 @@ namespace Cone.Addin
 
                 [BeforeEach]
                 public void BeforeEach() {
-                    Verify.That(() => Magic == 1);
+                    Check.That(() => Magic == 1);
                     Mojo = Magic + Magic;
                 }
 
@@ -113,14 +113,14 @@ namespace Cone.Addin
 
                 [Row(2, 0), Row(0, 2), Row(1, 1, IsPending = true)]
                 public void calculate_magic(int a, int b) {
-                    Verify.That(() => a + b == Mojo);
+                    Check.That(() => a + b == Mojo);
                 }
             }
 
             public void zzz_put_me_last_to_check_that_AfterAll_for_rows_was_executed() {
-                Verify.That(() => BeforeAndAfterRows.Magic == 0);
-                Verify.That(() => BeforeAndAfterRows.Passed == 2);
-                Verify.That(() => BeforeAndAfterRows.Pending == 0);//Should not execute for pending tests
+                Check.That(() => BeforeAndAfterRows.Magic == 0);
+                Check.That(() => BeforeAndAfterRows.Passed == 2);
+                Check.That(() => BeforeAndAfterRows.Pending == 0);//Should not execute for pending tests
             }
         }
     }

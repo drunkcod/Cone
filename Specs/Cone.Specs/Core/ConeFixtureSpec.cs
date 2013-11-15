@@ -72,7 +72,7 @@ namespace Cone.Core
 			    FixtureMethods.BeforeAll( ((Action)FixtureInstance.BeforeAll).Method);
                 Fixture.Create(Nop);
 
-			    Verify.That(() => FixtureInstance.Executed.Count == 0);
+			    Check.That(() => FixtureInstance.Executed.Count == 0);
 		    }
 
 		    public void BeforeAll_executed_exactly_once() {
@@ -82,14 +82,14 @@ namespace Cone.Core
 			    (Fixture as ITestContext).Before();
 			    (Fixture as ITestContext).Before();
 
-			    Verify.That(() => FixtureInstance.ExecutionPath == "BeforeAll->BeforeEach->BeforeEach");
+			    Check.That(() => FixtureInstance.ExecutionPath == "BeforeAll->BeforeEach->BeforeEach");
 		    }
 
 		    public void AfterAll_executeted_for_initialized_fixture_when_released() {
 			    FixtureMethods.AfterAll(((Action)FixtureInstance.AfterAll).Method);
                 Fixture.WithInitialized(x => x.Before(), Nop, Nop);
 
-			    Verify.That(() => FixtureInstance.ExecutionPath == "AfterAll");
+			    Check.That(() => FixtureInstance.ExecutionPath == "AfterAll");
 		    }
 
 		    public void only_runs_AfterAll_if_fixture_has_been_initialized() {
@@ -97,7 +97,7 @@ namespace Cone.Core
                 Fixture.Create(Nop);
 			    Fixture.Release(_ => { });
 
-			    Verify.That(() => FixtureInstance.Executed.Count == 0);
+			    Check.That(() => FixtureInstance.Executed.Count == 0);
 		    }
     }
 

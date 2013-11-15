@@ -10,7 +10,7 @@ namespace Cone.Samples
     {
         [Row(1, 2, 3), DisplayAs("{0} + {1} == {2}")]
         public void Addition(int a, int b, int result) {
-            Verify.That(() => a + b == result);
+            Check.That(() => a + b == result);
         }
 
         public IEnumerable<IRowTestData> AdditionExamples() {

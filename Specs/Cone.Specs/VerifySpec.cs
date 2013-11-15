@@ -29,7 +29,7 @@ namespace Cone
 		public static implicit operator T(MyValue<T> item){ return item.Value; }
 	}
 
-    [Describe(typeof(Verify))]
+    [Describe(typeof(Check))]
     public class VerifySpec
     {
         static int TheAnswer = 42;
@@ -37,49 +37,49 @@ namespace Cone
         public void evaluates_expression_only_once() {
             var counter = new Counter();
             try {
-                Verify.That(() => counter.Next() != 0);
+                Check.That(() => counter.Next() != 0);
             } catch { }
-            Verify.That(() => counter.Next() == 1);
+            Check.That(() => counter.Next() == 1);
         }
 
 		public void support_constant_expressions() {
-            Verify.That(() => 1 + 2 == 3);
+            Check.That(() => 1 + 2 == 3);
         }
 
         public void support_identity_checking() {
             var obj = new Counter();
-            Verify.That(() => object.ReferenceEquals(obj, obj) == true);
+            Check.That(() => object.ReferenceEquals(obj, obj) == true);
         }
 
         public void support_static_fields() {
-            Verify.That(() => TheAnswer == 42);
+            Check.That(() => TheAnswer == 42);
         }
 
         public void negated_expression() {
-            Verify.That(() => !(TheAnswer == 7));
+            Check.That(() => !(TheAnswer == 7));
         }
 
         public void type_test() {
             var objAnswer = (object)TheAnswer;
-            Verify.That(() => objAnswer is Int32);
+            Check.That(() => objAnswer is Int32);
         }
 
         public void nullable_HasValue_when_empty() {
-            Verify.That(() => new Nullable<int>().HasValue == false);
+            Check.That(() => new Nullable<int>().HasValue == false);
         }
 
         public void nullable_HasValue_with_value() {
-            Verify.That(() => new Nullable<int>(42).HasValue == true);
+            Check.That(() => new Nullable<int>(42).HasValue == true);
         }
 
 		public void struct_with_interface_member_access() {
 			var thing = new MyValue<string> { Value = "Hello World" };
-			Verify.That(() => thing.Value == thing.Value);
+			Check.That(() => thing.Value == thing.Value);
 		}
 
 		public void value_type_return_values_are_properly_boxed() {
 			var thing = new MyValue<MyValue<string>> { Value = new MyValue<string> { Value = "Hello World" } };
-			Verify.That(() => thing.Value.Value == thing.Value.Value);
+			Check.That(() => thing.Value.Value == thing.Value.Value);
 		}
 
         public class PossiblyGreen
@@ -90,24 +90,24 @@ namespace Cone
 
         public void bool_member_access() {
             var obj = new PossiblyGreen();
-            Verify.That(() => obj.IsGreen);
+            Check.That(() => obj.IsGreen);
         }
 
         public void predicate() {
             Func<bool, bool> isTrue = x => x == true;
-            Verify.That(() => isTrue(true));
+            Check.That(() => isTrue(true));
         }
 
         public void supports_implicit_bool_conversion() {
-            Verify.That(() => new PossiblyGreen());
+            Check.That(() => new PossiblyGreen());
         }
 
 		public void aggregate_checks() {
-			var e = Verify.Throws<ExpectationFailedException>.When(() =>
-				Verify.That(
+			var e = Check<ExpectationFailedException>.When(() =>
+				Check.That(
 					() => 1 == 2,
 					() => 1 == 3));
-			Verify.That(() => e.Failures.Count == 2);
+			Check.That(() => e.Failures.Count == 2);
 		}
 
         [Context("binary expressions")]
@@ -118,32 +118,32 @@ namespace Cone
 
             public void equal() {
                 var a2 = a;
-                Verify.That(() => a == a2);
+                Check.That(() => a == a2);
             }
 
             public void not_equal() {
-                Verify.That(() => a != b);
+                Check.That(() => a != b);
             }
 
             public void less() {
-                Verify.That(() => a < b);
+                Check.That(() => a < b);
             }
 
             public void less_or_equal() {
                 var a2 = a;
-                Verify.That(() => a <= a2);
+                Check.That(() => a <= a2);
             }
 
             public void greater() {
-                Verify.That(() => b > a);
+                Check.That(() => b > a);
             }
 
             public void greater_or_equal() {
-                Verify.That(() => b >= a);
+                Check.That(() => b >= a);
             }
 
             public void and_also() {
-                Verify.That(() => (a == 1) && (b == 2));
+                Check.That(() => (a == 1) && (b == 2));
             }
 
             public void and_also_short_circuit_eval() {
@@ -151,13 +151,13 @@ namespace Cone
                 Func<bool> right = () => { rightEvaled = true; return true; };
                 var notTrue = false;
                 try {
-                    Verify.That(() => notTrue && right());
+                    Check.That(() => notTrue && right());
                 } catch { }
-                Verify.That(() => rightEvaled == false);
+                Check.That(() => rightEvaled == false);
             }
 
             public void return_value_is_same_as_actual() {
-                Verify.That(() => Object.ReferenceEquals(Verify.That(() => obj == (object)b), obj));
+                Check.That(() => Object.ReferenceEquals(Check.That(() => obj == (object)b), obj));
             }
 
             class True 
@@ -167,8 +167,8 @@ namespace Cone
 
             public void return_value_is_actual_when_using_implict_conversion() {
                 var @true = new True();
-                var obj = Verify.That(() => @true);
-                Verify.That(() => Object.ReferenceEquals(obj, @true));
+                var obj = Check.That(() => @true);
+                Check.That(() => Object.ReferenceEquals(obj, @true));
             }
             
             class WithCustomEquality
@@ -193,7 +193,7 @@ namespace Cone
             }
 
             public void custom_equality() {
-                Verify.That(() => new WithCustomEquality(42) == 42);
+                Check.That(() => new WithCustomEquality(42) == 42);
             }
         }
 
@@ -202,35 +202,35 @@ namespace Cone
         {
             public void expected_is_null() {
                 object obj = null;
-                Verify.That(() => obj == null);
+                Check.That(() => obj == null);
             }
 
             public void actual_and_expected_is_null() {
                 Counter x = null;
-                Verify.That(() => x == null);
+                Check.That(() => x == null);
             }
             
             public void expected_is_not_null() {
                 var obj = "";
-                Verify.That(() => obj != null);
+                Check.That(() => obj != null);
             }
 
             public void actual_is_null_but_is_expected_not_to_be() {
                 string obj = null;
-                var e = Verify.Throws<Exception>.When(() => Verify.That(() => obj != null));
-                Verify.That(() => e.GetType() == GetAssertionExceptionType());
+                var e = Check<Exception>.When(() => Check.That(() => obj != null));
+                Check.That(() => e.GetType() == GetAssertionExceptionType());
             }
 
             public void actual_is_null_string() 
             {
                 string obj = null;
-                var e = Verify.Throws<Exception>.When(() => Verify.That(() => obj == ""));
-                Verify.That(() => e.GetType() == GetAssertionExceptionType());
+                var e = Check<Exception>.When(() => Check.That(() => obj == ""));
+                Check.That(() => e.GetType() == GetAssertionExceptionType());
             }
             
             Type GetAssertionExceptionType() {
                 try {
-                    Verify.Fail(new FailedExpectation(string.Empty, Maybe<object>.None, Maybe<object>.None), null);
+                    Check.Fail(new FailedExpectation(string.Empty, Maybe<object>.None, Maybe<object>.None), null);
                 } catch(Exception e) {
                     return e.GetType();
                 }
@@ -243,15 +243,15 @@ namespace Cone
         {
             public void raises_expectation_failed_when_wrong_type_of_excpetion_raised() {
                 try {
-                    Verify.Throws<NotSupportedException>.When(() => NotImplemented());
+                    Check<NotSupportedException>.When(() => NotImplemented());
                     throw new NotSupportedException();
                 } catch (Exception e) {
-                    Verify.That(() => e.GetType() == ExpectedExcpetionType());
+                    Check.That(() => e.GetType() == ExpectedExcpetionType());
                 }
             }
 
             public void passes_when_Exception_types_match() {
-                Verify.Throws<NotImplementedException>.When(() => NotImplemented());
+                Check<NotImplementedException>.When(() => NotImplemented());
             }
 
             class Dummy 
@@ -261,22 +261,23 @@ namespace Cone
 
             public void supports_value_expressions() {
                 var obj = new Dummy();
-                Verify.Throws<NotImplementedException>.When(() => obj.NotImplemented);
+                Check<NotImplementedException>.When(() => obj.NotImplemented);
             }
            
             public void raises_expectation_failed_when_exception_missing() {
                 try {
-                    Verify.Throws<Exception>.When(() => Nothing());
+                    Check<Exception>.When(() => Nothing());
                     throw new NotSupportedException();
                 } catch (Exception e) {
-                    Verify.That(() => e.GetType() == ExpectedExcpetionType());
+                    Check.That(() => e.GetType() == ExpectedExcpetionType());
                 }
             }
 
             public void verify_Exception_message() {
-                var e = Verify.Throws<NotImplementedException>.When(() => NotImplemented());
-                Verify.That(() => e.GetType() == typeof(NotImplementedException));
-                Verify.That(() => e.Message == new NotImplementedException().Message);
+                var e = Check<NotImplementedException>.When(() => NotImplemented());
+                Check.That(
+					() => e.GetType() == typeof(NotImplementedException),
+					() => e.Message == new NotImplementedException().Message);
             }
 
             void Nothing() { }
@@ -284,7 +285,7 @@ namespace Cone
 
             Type ExpectedExcpetionType() {
                 try {
-                    Verify.Fail(new FailedExpectation(string.Empty, Maybe<object>.None, Maybe<object>.None), null);
+                    Check.Fail(new FailedExpectation(string.Empty, Maybe<object>.None, Maybe<object>.None), null);
                 } catch (Exception e) { 
                     return e.GetType(); 
                 }

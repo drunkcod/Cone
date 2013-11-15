@@ -17,7 +17,7 @@ namespace Cone.Addin
             if (suiteBuilders == null)
                 return false;
             suiteBuilders.Install(this);
-            Verify.ExpectationFailed = AssertionFailed;
+            Check.ExpectationFailed = AssertionFailed;
             return true;
         }
 

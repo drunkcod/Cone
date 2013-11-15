@@ -54,11 +54,11 @@ namespace Cone.NUnitIntegration
             public class ExampleFeature
             {
                 public void was_executed() {
-                    Verify.That(() => SamplesResult.Count("//test-suite[@type='Feature'][@name='ExampleFeature'][@executed='True']") == 1);
+                    Check.That(() => SamplesResult.Count("//test-suite[@type='Feature'][@name='ExampleFeature'][@executed='True']") == 1);
                 }
 
                 public void supports_nested_context() {
-                    Verify.That(() => SamplesResult.Count("//test-suite[@type='Feature'][@name='ExampleFeature'][@executed='True']//test-suite[@type='Context']") == 1);
+                    Check.That(() => SamplesResult.Count("//test-suite[@type='Feature'][@name='ExampleFeature'][@executed='True']//test-suite[@type='Context']") == 1);
                 }
             }
 
@@ -66,13 +66,13 @@ namespace Cone.NUnitIntegration
             public class Failures
             {
                 public void member_access_failure() {
-                    var node = (XPathNavigator)Verify.That(() => SamplesResult.SelectSingleNode("//test-case[@name='Features.Failure.member access example']") != null);
-                    Verify.That(() => node.Value.StartsWith("TheAnswer == 7"));
+                    var node = (XPathNavigator)Check.That(() => SamplesResult.SelectSingleNode("//test-case[@name='Features.Failure.member access example']") != null);
+                    Check.That(() => node.Value.StartsWith("TheAnswer == 7"));
                 }
 
                 public void string_failure() {
-                    var node = (XPathNavigator)Verify.That(() => SamplesResult.SelectSingleNode("//test-case[@name='Features.Failure.string example']") != null);
-                    Verify.That(() => node.Value.StartsWith("\"Hello World\".Length == 3"));
+                    var node = (XPathNavigator)Check.That(() => SamplesResult.SelectSingleNode("//test-case[@name='Features.Failure.string example']") != null);
+                    Check.That(() => node.Value.StartsWith("\"Hello World\".Length == 3"));
                 }
             }
 
@@ -80,12 +80,12 @@ namespace Cone.NUnitIntegration
             public class Pending
             {
                 public void without_reason() {
-                    var node = (XPathNavigator)Verify.That(() => SamplesResult.SelectSingleNode("//test-case[@name='Cone.PendingAttribute.without reason']") != null);
-                    Verify.That(() => node.Value == "");
+                    var node = (XPathNavigator)Check.That(() => SamplesResult.SelectSingleNode("//test-case[@name='Cone.PendingAttribute.without reason']") != null);
+                    Check.That(() => node.Value == "");
                 }
                 public void for_some_reason() {
-                    var node = (XPathNavigator)Verify.That(() => SamplesResult.SelectSingleNode("//test-case[@name='Cone.PendingAttribute.for some reason']") != null);
-                    Verify.That(() => node.Value == "for some reason");
+                    var node = (XPathNavigator)Check.That(() => SamplesResult.SelectSingleNode("//test-case[@name='Cone.PendingAttribute.for some reason']") != null);
+                    Check.That(() => node.Value == "for some reason");
                 }
             }
         }

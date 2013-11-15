@@ -16,91 +16,91 @@ namespace Cone
 		T Evaluate<T>(Expression<Func<T>> lambda, Func<EvaluationResult, EvaluationResult> onError){ return (T)Evaluator.Evaluate(lambda.Body, lambda, onError).Result; }
 		void EvaluateError<T>(Expression<Func<T>> lambda, Func<EvaluationResult, EvaluationResult> onError) {
 			var result = Evaluator.Evaluate(lambda.Body, lambda, onError);
-			Verify.That(() => result.IsError);
+			Check.That(() => result.IsError);
 		}
 
 		public void unwrapping_conversions() {
-			Verify.That(() => Evaluator.Unwrap(Expression.Convert(Expression.Constant(MyEnum.Value), typeof(int))).Type == typeof(MyEnum));
+			Check.That(() => Evaluator.Unwrap(Expression.Convert(Expression.Constant(MyEnum.Value), typeof(int))).Type == typeof(MyEnum));
 		}
 
 		public void constant_evaluation() {
-			Verify.That(() => Evaluate(() => 42) == 42);
+			Check.That(() => Evaluate(() => 42) == 42);
 		}
 
 		public void subexpression_null_check_not_equal() {
 			var foo = new { ThisValueIsNull = (string)null };
-			Verify.Throws<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Length != 0);
+			Check<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Length != 0);
 		}
 
 		public void subexpression_null_check_equal() {
 			var foo = new { ThisValueIsNull = (string)null };
-			Verify.Throws<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Length == 0);
+			Check<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Length == 0);
 		}
 
 		public void subexpression_null_check_method_call() {
 			var foo = new { ThisValueIsNull = (string)null };
-			Verify.Throws<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Contains("foo") == true);
+			Check<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Contains("foo") == true);
 		}
 
 		public void null_check_unary_expression() {
 			var foo = new { ThisValueIsNull = (string)null };
-			Verify.Throws<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Contains("foo"));
+			Check<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Contains("foo"));
 		}
 
 		public void new_expression_propagates_correct_exception() {
-			Verify.Throws<ArgumentNullException>.When(() => new List<object>(null));
+			Check<ArgumentNullException>.When(() => new List<object>(null));
 		}
 
 		public void not_equals() {
 			int a = 2, b = 1;
 			Expression<Func<bool>> binaryOp = () => (a != b) == true;
-			Verify.That(() => Evaluate(binaryOp) == true);
+			Check.That(() => Evaluate(binaryOp) == true);
 		}
 
 		public void value_type_promotion() {
 			var a = new byte[]{ 1 };
 			var b = a;
-			Verify.That(() => Evaluate(() => a[0] == b[0]));
+			Check.That(() => Evaluate(() => a[0] == b[0]));
 		}
 
 		public void null_equality() {
-			Verify.That(() => Evaluate(() => (DateTime?)null) == null);
+			Check.That(() => Evaluate(() => (DateTime?)null) == null);
 		}
 
 		public void implicit_convesion_operators() {
-			Verify.That(() => new MyValue<int>{ Value = 42 } == 42);
+			Check.That(() => new MyValue<int>{ Value = 42 } == 42);
 		}
 
 		public void invoke_niladic() {
 			Func<int> getAnswer = () => 42;
 
-			Verify.That(() => Evaluate(() => getAnswer()) == 42);
+			Check.That(() => Evaluate(() => getAnswer()) == 42);
 		}
 
 		public void invoke_target_raises_exception() {
 			Func<int> getAnswer = () => { throw new NotImplementedException(); };
 
-			Verify.Throws<NotImplementedException>.When(() => Evaluate(() => getAnswer()));
+			Check<NotImplementedException>.When(() => Evaluate(() => getAnswer()));
 		}
 
 		public void lambda_parameters() {
 			Func<Func<int>, int> addOne = f => f() + 1;
 
-			Verify.That(() => Evaluate(() => addOne(() => 1)) == 2);
+			Check.That(() => Evaluate(() => addOne(() => 1)) == 2);
 		}
 
 		struct MyValueObject { }
 
 		public void construct_value_object() {
-			Verify.That(() => new MyValueObject().Equals(new MyValueObject()));
+			Check.That(() => new MyValueObject().Equals(new MyValueObject()));
 		}
 
 		public void out_parameters() {
 			var item = new object();
 			var stuff = new Dictionary<string, object> { { "Key", item } };
 			object value = null;
-			Verify.That(() => stuff.TryGetValue("Key", out value));
-			Verify.That(() => value == item);
+			Check.That(() => stuff.TryGetValue("Key", out value));
+			Check.That(() => value == item);
 		}
 
 
@@ -111,14 +111,14 @@ namespace Cone
 		}
 
 		public void static_out_parameter() {
-			Verify.That(() => WriteOut(42, out MyStaticOutputValue));
+			Check.That(() => WriteOut(42, out MyStaticOutputValue));
 		}
 
 		public void subexpression_null_check_provides_proper_supexpression() {
 			var foo = new { ThisValueIsNull = (string)null };
-			var error = Verify.Throws<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Length == 0);
+			var error = Check<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Length == 0);
 			var formatter = new ExpressionFormatter(GetType());
-			Verify.That(
+			Check.That(
 				() => formatter.Format(error.Expression) == "foo.ThisValueIsNull",
 				() => formatter.Format(error.Context) == "foo.ThisValueIsNull.Length == 0");
 		}
@@ -127,7 +127,7 @@ namespace Cone
 			var formatter = new ExpressionFormatter(GetType());
 
 			EvaluateError(() => Throws<string>().Length, x => {
-				Verify.That(() => formatter.Format(x.Expression) == "Throws()");
+				Check.That(() => formatter.Format(x.Expression) == "Throws()");
 				return x;
 			});
 		}
@@ -135,7 +135,7 @@ namespace Cone
 		public void detect_errors_when_computing_arguments() {
 			var formatter = new ExpressionFormatter(GetType());
 			EvaluateError(() => Object.Equals(Throws<string>(), ""), x => {
-				Verify.That(() => formatter.Format(x.Expression) == "Throws()");
+				Check.That(() => formatter.Format(x.Expression) == "Throws()");
 				return x;
 			});
 		}

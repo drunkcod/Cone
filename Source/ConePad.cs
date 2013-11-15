@@ -54,13 +54,13 @@ namespace Cone
 		static ConePadSuiteBuilder SuiteBuilder = new ConePadSuiteBuilder();
 
         public static void RunTests() {
-            Verify.GetPluginAssemblies = () => new[]{ typeof(Verify).Assembly };
+            Check.GetPluginAssemblies = () => new[]{ typeof(Check).Assembly };
             var log = new ConePadLogger();
             RunTests(log, log, Assembly.GetCallingAssembly().GetTypes());
         }
 
         public static void RunTests(TextWriter output, IEnumerable<Assembly> assemblies) {
-            Verify.GetPluginAssemblies = () => assemblies.Concat(new[]{ typeof(Verify).Assembly });
+            Check.GetPluginAssemblies = () => assemblies.Concat(new[]{ typeof(Check).Assembly });
             var log = new ConePadLogger();
             RunTests(log, log, assemblies.SelectMany(x => x.GetTypes()));
         }

@@ -11,7 +11,7 @@ namespace Cone
         ,Row("aa", "a", 1)
         ,Row("a", "aa", 1), DisplayAs("{0}.IndexOfDifference({1}) == {2}")]
         public void IndexOfFirstDifference(string self, string other, int expected) {
-            Verify.That(() => self.IndexOfDifference(other) == expected);
+            Check.That(() => self.IndexOfDifference(other) == expected);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Cone.Core
         public void ignore_redundant_casts() {
             var expression = Expression.Constant("Hello World");
 
-            Verify.That(() => Object.ReferenceEquals(expression, expression.CastTo<string>()));
+            Check.That(() => Object.ReferenceEquals(expression, expression.CastTo<string>()));
         }
     }
 }

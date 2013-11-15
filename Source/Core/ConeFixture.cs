@@ -51,8 +51,7 @@ namespace Cone.Core
         object fixture;
         readonly ConeFixtureMethodCollection fixtureMethods = new ConeFixtureMethodCollection();
 		bool fixtureInitialized = false;
-
-		IEnumerable<string> categories; 
+		readonly IEnumerable<string> categories; 
 
         public ConeFixture(Type fixtureType, IEnumerable<string> categories): 
 			this(fixtureType, categories, new DefaultFixtureCreator()) { }

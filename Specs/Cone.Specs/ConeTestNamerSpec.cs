@@ -24,19 +24,19 @@ namespace Cone.Core
 
         public void converts_underscores_to_whitespace(){
             var thisMethod = MethodInfo.GetCurrentMethod();
-            Verify.That(() => TestNamer.NameFor(thisMethod) == "converts underscores to whitespace");
+            Check.That(() => TestNamer.NameFor(thisMethod) == "converts underscores to whitespace");
         }
 
         [DisplayAs("can be renamed via attribute")]
         public void Renamed() {
             var thisMethod = MethodInfo.GetCurrentMethod();
-            Verify.That(() => TestNamer.NameFor(thisMethod) == "can be renamed via attribute");
+            Check.That(() => TestNamer.NameFor(thisMethod) == "can be renamed via attribute");
         }
 
         [DisplayAs("", Heading = "override heading")]
         public void WithFunkyHeading() {
             var thisMethod = MethodInfo.GetCurrentMethod();
-            Verify.That(() => TestNamer.NameFor(thisMethod) == "override heading");       
+            Check.That(() => TestNamer.NameFor(thisMethod) == "override heading");       
         }
 
         void MyMethod(int arg){}
@@ -49,7 +49,7 @@ namespace Cone.Core
             Expression<Action<int>> e = x => MyMethod(x);
             var myMethod = ((MethodCallExpression)(e.Body)).Method;
 
-            Verify.That(() => TestNamer.NameFor(myMethod, new object[]{ value }, new FormatString(format)) == string.Format(format, value));
+            Check.That(() => TestNamer.NameFor(myMethod, new object[]{ value }, new FormatString(format)) == string.Format(format, value));
         }
 
         [Row("{0:D}", MyEnum.Value, "0")
@@ -61,7 +61,7 @@ namespace Cone.Core
             Expression<Action<object>> e = x => MyMethod(x);
             var myMethod = ((MethodCallExpression)(e.Body)).Method;
 
-            Verify.That(() => TestNamer.NameFor(myMethod, new object[]{ value }, new FormatString(format)) == expected);
+            Check.That(() => TestNamer.NameFor(myMethod, new object[]{ value }, new FormatString(format)) == expected);
         }
 
         void MyMethodWithDisplayClass([DisplayClass(typeof(ValidDisplay))]  bool isValid) { }
@@ -71,7 +71,7 @@ namespace Cone.Core
             var target = ((MethodCallExpression)(e.Body)).Method;
 
             var format = new FormatString("{0}");
-            Verify.That(
+            Check.That(
 				() => TestNamer.NameFor(target , new object[]{ true }, format) == "Valid",
 				() => TestNamer.NameFor(target , new object[]{ false }, format) == "Invalid");
         }

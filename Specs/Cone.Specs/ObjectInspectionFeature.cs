@@ -6,19 +6,19 @@ namespace Cone
     public class ObjectInspectionFeature
     {
         public void displays_public_properties() {
-            Verify.That(() => new { Int = 1, String = "s", Float = 3.14 }.Inspect() == "{ Float = 3.14, Int = 1, String = \"s\" }");
+            Check.That(() => new { Int = 1, String = "s", Float = 3.14 }.Inspect() == "{ Float = 3.14, Int = 1, String = \"s\" }");
         }
 
         public void displays_public_fields() {
-            Verify.That(() => new MyValue<int> { Value = 42 }.Inspect() == "{ Value = 42 }");
+            Check.That(() => new MyValue<int> { Value = 42 }.Inspect() == "{ Value = 42 }");
         }
 
         public void quote_strings() {
-            Verify.That(() => "Hello".Inspect() == "\"Hello\"");
+            Check.That(() => "Hello".Inspect() == "\"Hello\"");
         }
 
         public void sequence_formatting() {
-            Verify.That(() => new[]{1, 2, 3}.Inspect() == "new[] { 1, 2, 3 }");
+            Check.That(() => new[]{1, 2, 3}.Inspect() == "new[] { 1, 2, 3 }");
         }
     }
 }

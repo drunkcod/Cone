@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Cone.Helpers
 {
@@ -25,9 +22,9 @@ namespace Cone.Helpers
 
 			target.OnFoo += fooSpy;
 			target.Foo();
-			Verify.That(() => fooSpy.HasBeenCalled);
+			Check.That(() => fooSpy.HasBeenCalled);
 			fooSpy.Then((s, e) =>
-				Verify.That(
+				Check.That(
 					() => Object.ReferenceEquals(s, target),
 					() => e == EventArgs.Empty));
 		}

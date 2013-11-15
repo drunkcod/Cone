@@ -59,17 +59,17 @@ namespace Cone
         }
 
         public void my_method_expect_provider_is_valid() {
-            Verify.That(() => ExpectFactory.IsMethodExpectProvider(typeof(MyIntegerMethodExpectProvider)));
+            Check.That(() => ExpectFactory.IsMethodExpectProvider(typeof(MyIntegerMethodExpectProvider)));
         }
 
         public void obeys_result_and_formatting_from_expect() {
-            var e = Verify.Throws<Exception>.When(() => Verify.That(() => new MyInteger(42).IsEven()));
-            Verify.That(() => e.Message == "<expr>\n<message>");
+            var e = Check<Exception>.When(() => Check.That(() => new MyInteger(42).IsEven()));
+            Check.That(() => e.Message == "<expr>\n<message>");
         }
 
         public void supports_static_method() {
-            var e = Verify.Throws<Exception>.When(() => Verify.That(() => MyInteger.IsEven(42)));
-            Verify.That(() => e.Message == "<expr>\n<message>");
+            var e = Check<Exception>.When(() => Check.That(() => MyInteger.IsEven(42)));
+            Check.That(() => e.Message == "<expr>\n<message>");
         }
     }
 }

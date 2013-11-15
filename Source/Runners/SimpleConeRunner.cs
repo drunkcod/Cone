@@ -36,7 +36,7 @@ namespace Cone.Runners
                 .Flatten(x => x.Subsuites)
                 .Where(x => results.IncludeSuite(x)));
 
-            Verify.Initialize();
+            Check.Initialize();
             results.RunSession(collectResults => {
                 ThreadStart runSuite = () => {
                     for (ConePadSuite suite; ; ) {

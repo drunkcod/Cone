@@ -28,8 +28,8 @@ namespace Cone.Core
 			lookup.Insert(method, provider);
 
 			IMethodExpectProvider foundProvider = null;
-			Verify.That(() => lookup.TryGetExpectProvider(method.MakeGenericMethod(typeof(int)), out foundProvider));
-            Verify.That(() => foundProvider == provider);
+			Check.That(() => lookup.TryGetExpectProvider(method.MakeGenericMethod(typeof(int)), out foundProvider));
+            Check.That(() => foundProvider == provider);
 
 		}
 	}
