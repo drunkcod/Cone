@@ -79,7 +79,7 @@
     <Compile Include="Stubs\ConeTestStub.cs" />
     <Compile Include="TestExecutorSpec.cs" />
     <Compile Include="ExpressionFormatterSpec.cs" />
-    <Compile Include="VerifySpec.cs" />
+    <Compile Include="CheckSpec.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Addin\Cone.Addin.csproj">

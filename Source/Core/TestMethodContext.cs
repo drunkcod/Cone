@@ -25,7 +25,7 @@ namespace Cone.Core
 			return (test, result) => {
 				try {
 					next(test, result);
-					result.TestFailure(new ExpectationFailedException("Test passed"));
+					result.TestFailure(new CheckFailed("Test passed"));
 				} catch {
 					result.Pending(reason);
 				}

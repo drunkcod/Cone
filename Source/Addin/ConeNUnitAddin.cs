@@ -17,16 +17,11 @@ namespace Cone.Addin
             if (suiteBuilders == null)
                 return false;
             suiteBuilders.Install(this);
-            Check.ExpectationFailed = AssertionFailed;
             return true;
         }
 
         Test ISuiteBuilder.BuildFrom(Type type) { return SuiteBuilder.BuildSuite(type); }
 
         bool ISuiteBuilder.CanBuildFrom(Type type) { return type.IsPublic && SuiteBuilder.SupportedType(type); }
-
-        static void AssertionFailed(IEnumerable<FailedExpectation> failure, Exception innerException) {
-            throw new AssertionException(failure.First().Message, innerException);
-        }
     }
 }

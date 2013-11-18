@@ -30,7 +30,7 @@ namespace Cone
 	}
 
     [Describe(typeof(Check))]
-    public class VerifySpec
+    public class CheckSpec
     {
         static int TheAnswer = 42;
 
@@ -103,7 +103,7 @@ namespace Cone
         }
 
 		public void aggregate_checks() {
-			var e = Check<ExpectationFailedException>.When(() =>
+			var e = Check<CheckFailed>.When(() =>
 				Check.That(
 					() => 1 == 2,
 					() => 1 == 3));
@@ -218,25 +218,16 @@ namespace Cone
             public void actual_is_null_but_is_expected_not_to_be() {
                 string obj = null;
                 var e = Check<Exception>.When(() => Check.That(() => obj != null));
-                Check.That(() => e.GetType() == GetAssertionExceptionType());
+                Check.That(() => e.GetType() == ExpectedExcpetionType());
             }
 
             public void actual_is_null_string() 
             {
                 string obj = null;
                 var e = Check<Exception>.When(() => Check.That(() => obj == ""));
-                Check.That(() => e.GetType() == GetAssertionExceptionType());
+                Check.That(() => e.GetType() == ExpectedExcpetionType());
             }
-            
-            Type GetAssertionExceptionType() {
-                try {
-                    Check.Fail(new FailedExpectation(string.Empty, Maybe<object>.None, Maybe<object>.None), null);
-                } catch(Exception e) {
-                    return e.GetType();
-                }
-                return null;
-            }
-        }
+		}
         
         [Context("Exceptions")]
         public class Exceptions
@@ -282,15 +273,15 @@ namespace Cone
 
             void Nothing() { }
             void NotImplemented() { throw new NotImplementedException(); }
+        }
 
-            Type ExpectedExcpetionType() {
-                try {
-                    Check.Fail(new FailedExpectation(string.Empty, Maybe<object>.None, Maybe<object>.None), null);
-                } catch (Exception e) { 
-                    return e.GetType(); 
-                }
-                return null;
+		static Type ExpectedExcpetionType() {
+            try {
+                Check.That(() => 1 == 2);
+            } catch(Exception e) {
+                return e.GetType();
             }
+            return null;
         }
     }
 }

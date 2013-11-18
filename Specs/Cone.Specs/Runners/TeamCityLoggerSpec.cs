@@ -78,7 +78,7 @@ namespace Cone.Runners
 		public void comparision_test_failed() {
 			var test = Test().InContext("Namespace.SuiteName").WithName("MyTest");
 			Logger.BeginSuite(Suite().WithName("Namespace.SuiteName"))
-				.WithTestLog(test, log => log.Failure(new ConeTestFailure(test.TestName, new ExpectationFailedException(new[]{ new FailedExpectation("Teh Error!", Maybe<object>.Some(1), Maybe<object>.Some(2)) }, null), FailureType.Test)));		
+				.WithTestLog(test, log => log.Failure(new ConeTestFailure(test.TestName, new CheckFailed(new[]{ new FailedExpectation("Teh Error!", Maybe<object>.Some(1), Maybe<object>.Some(2)) }, null), FailureType.Test)));		
 			//Check.That(() => Result.Any(line => line == "##teamcity[testFailed type='comparisionFailure' name='MyTest' message='Teh Error!' details='Namespace.SuiteName.MyTest: Teh Error!'] actual='1' expected='2'"));
 			Check.That(() => Result.Last() == "##teamcity[testFinished name='MyTest']");
 		}

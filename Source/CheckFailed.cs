@@ -20,10 +20,13 @@ namespace Cone
 	}
 
 	[Serializable]
-    public class ExpectationFailedException : Exception
+    public class CheckFailed : Exception
     {
-        public ExpectationFailedException(string message) : this(new[]{ new FailedExpectation(message) }, null) { }
-        public ExpectationFailedException(IEnumerable<FailedExpectation> fails, Exception innerException) : base(string.Join("\n", fails.Select(x => x.Message).ToArray()), innerException) { 
+        public CheckFailed(string message) : this(new[]{ new FailedExpectation(message) }, null) { }
+
+		public CheckFailed(FailedExpectation fail, Exception innerException) : this(new[] {fail}, innerException) { }
+
+		public CheckFailed(IEnumerable<FailedExpectation> fails, Exception innerException) : base(string.Join("\n", fails.Select(x => x.Message).ToArray()), innerException) { 
 			this.Failures = fails.ToList();
 		}
 

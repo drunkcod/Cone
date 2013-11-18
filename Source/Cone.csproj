@@ -101,7 +101,7 @@
     <Compile Include="Core\EvaluationResult.cs" />
     <Compile Include="Examples.cs" />
     <Compile Include="ExceptionExpressionException.cs" />
-    <Compile Include="ExpectationFailedException.cs" />
+    <Compile Include="CheckFailed.cs" />
     <Compile Include="Expectations\BinaryExpect.cs" />
     <Compile Include="Expectations\ExceptionExpect.cs" />
     <Compile Include="Expectations\BooleanExpect.cs" />

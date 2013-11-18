@@ -35,12 +35,9 @@ namespace Cone.Addin
         readonly string suiteType;
         readonly ConeFixture fixture;
 
-        static EventHandler EnterVerifyContext = (s, e) => Check.Context = ((IConeFixture)s).FixtureType;
-
         internal AddinSuite(Type type, IFixtureDescription description) : base(description.SuiteName, description.TestName) {
             this.suiteType = description.SuiteType;
             this.fixture = new ConeFixture(type, description.Categories);
-            this.fixture.Before += EnterVerifyContext;          
             this.testExecutor = new TestExecutor(this.fixture);
 
             var pending = type.AsConeAttributeProvider().FirstOrDefault((IPendingAttribute x) => x.IsPending);
