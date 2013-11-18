@@ -2,4 +2,4 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
-[assembly: AssemblyVersion("2013.11.15.1")]
+[assembly: AssemblyVersion("2013.11.18.1")]

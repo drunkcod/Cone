@@ -14,9 +14,9 @@ namespace Cone
 	 * The not so good reason for it is to keep stack frames cleaner for test runners that simply spew
 	 * out the complete frame without attempting to prettify it.
 	 */
-
     public static class Check
     {
+	    private static readonly Assembly ThisAssembly = typeof (Check).Assembly;
         static readonly ParameterFormatter ParameterFormatter = new ParameterFormatter();
         static ExpectFactory expect;
 
@@ -48,8 +48,8 @@ namespace Cone
 				    Expression.New(nunit.GetConstructor(new[] {typeof (string), typeof (Exception)}),
 					    new[] {message, innerException}), message, innerException);
 
-				var baked = lambda.Compile();
-			    DoMakeFail = (f, i) => baked(string.Join("\n", f.Select(x => x.Message).ToArray()), i);
+				var newNUnitAssertException = lambda.Compile();
+			    DoMakeFail = (f, i) => newNUnitAssertException(string.Join("\n", f.Select(x => x.Message).ToArray()), i);
 		    }
 			return DoMakeFail(fail, inner);
 	    };
@@ -113,8 +113,8 @@ namespace Cone
         }
 
 	    static ExpressionFormatter GetExpressionFormatter() {
-		    var frames = new StackTrace(1);
-		    var context = frames.GetFrames().Select(x => x.GetMethod()).First(x => x.DeclaringType != typeof (Check));
+		    var frames = new StackTrace();
+		    var context = frames.GetFrames().Select(x => x.GetMethod()).First(x => x.DeclaringType.Assembly != ThisAssembly);
 		    return ExpressionFormatter.Rebind(context.DeclaringType);
 	    }
     }
