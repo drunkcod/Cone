@@ -1,0 +1,16 @@
+﻿<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Cone</id>
+    <version>$Version$</version>
+    <authors>Torbjörn Gyllebring</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>a more ergonomic checkin/testing framework for .Net</description>
+    <releaseNotes>Let's get this NuGet party started.</releaseNotes>
+    <copyright>Copyright 2013</copyright>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="Build\Cone.dll" target="lib\Net35" />
+  </files>
+</package>
