@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -249,7 +250,8 @@ namespace Cone.Runners
 			{
 				[TestCaseSource("AddTestCaseSource")
 				,TestCaseSource("PrivateTestCaseSource")
-				,TestCaseSource("StaticTestCaseSource")]
+				,TestCaseSource("StaticTestCaseSource")
+				,TestCaseSource("PropertyTestCaseSource")]
 				public int add(int a, int b) { return a + b; }
 
 				public IEnumerable<TestCaseData> AddTestCaseSource() {
@@ -263,8 +265,12 @@ namespace Cone.Runners
 					yield return new TestCaseData(1, 1);
 				}
 
-				private static IEnumerable<TestCaseData> StaticTestCaseSource() {
+				private static IEnumerable StaticTestCaseSource() {
 					yield return new TestCaseData(1, 1);
+				}
+
+				private static IEnumerable PropertyTestCaseSource {
+					get { yield return new TestCaseData(1, 1); }
 				}
 			}
 
@@ -276,7 +282,7 @@ namespace Cone.Runners
 			}
 
 			public void locates_TestCaseData_source_method_in_same_class() {
-				Check.That(() => NUnitSuite.TestCount == 3);
+				Check.That(() => NUnitSuite.TestCount == 4);
 			}
 
 		}
