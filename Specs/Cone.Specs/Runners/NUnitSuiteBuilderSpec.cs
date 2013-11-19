@@ -248,7 +248,8 @@ namespace Cone.Runners
 			class FixtureWithTestCaseSource
 			{
 				[TestCaseSource("AddTestCaseSource")
-				,TestCaseSource("PrivateTestCaseSource")]
+				,TestCaseSource("PrivateTestCaseSource")
+				,TestCaseSource("StaticTestCaseSource")]
 				public int add(int a, int b) { return a + b; }
 
 				public IEnumerable<TestCaseData> AddTestCaseSource() {
@@ -261,6 +262,10 @@ namespace Cone.Runners
 				private IEnumerable<TestCaseData> PrivateTestCaseSource() {
 					yield return new TestCaseData(1, 1);
 				}
+
+				private static IEnumerable<TestCaseData> StaticTestCaseSource() {
+					yield return new TestCaseData(1, 1);
+				}
 			}
 
 			ConePadSuite NUnitSuite;
@@ -271,7 +276,7 @@ namespace Cone.Runners
 			}
 
 			public void locates_TestCaseData_source_method_in_same_class() {
-				Check.That(() => NUnitSuite.TestCount == 2);
+				Check.That(() => NUnitSuite.TestCount == 3);
 			}
 
 		}

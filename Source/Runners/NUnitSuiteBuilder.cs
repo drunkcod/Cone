@@ -151,8 +151,8 @@ namespace Cone.Runners
 					public IEnumerable<IRowData> GetTestCases() {
 						var sourceObject = GetSourceObject();
 						var sourceName = (string)testCaseSource.GetPropertyValue("SourceName");
-						var sourceMethod = sourceType.GetMethod(sourceName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-						if(sourceObject == null || sourceMethod == null)
+						var sourceMethod = sourceType.GetMethod(sourceName, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+						if(sourceMethod == null || (sourceObject == null && !sourceMethod.IsStatic))
 							throw new NotSupportedException("Failed to locate TestCaseSource:" + sourceType.FullName + "." + sourceName);
 						foreach(var item in ((IEnumerable)sourceMethod.Invoke(sourceObject, null)))
 							yield return new NUnitRowDataAdapter(item);
