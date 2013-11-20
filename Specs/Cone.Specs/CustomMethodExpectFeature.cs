@@ -41,7 +41,7 @@ namespace Cone
                 return new CheckResult(false, Maybe<object>.Some(42), Maybe<object>.None);
             }
 
-            public string FormatExpression(IFormatter<System.Linq.Expressions.Expression> formatter) {
+            public string FormatExpression(IFormatter<Expression> formatter) {
                 return "<expr>";
             }
 

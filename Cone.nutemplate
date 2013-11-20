@@ -13,7 +13,7 @@ and domain code share the same concepts. Checks are written in the same way as
 they would be written in the production code thus reducing cognitive load and
 nudging us towards a richer domain model over reliance on fancy matcher libraries.
 
-Say no to FluenCobol, say hello to Check.That(() => actual == expected);
+Say no to FluentCobol, say hello to Check.That(() => actual == expected);
 </description>
     <releaseNotes>Let's get this NuGet party started.</releaseNotes>
     <projectUrl>https://github.com/drunkcod/Cone</projectUrl>

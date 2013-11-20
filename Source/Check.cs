@@ -16,43 +16,64 @@ namespace Cone
 	 */
     public static class Check
     {
-	    private static readonly Assembly ThisAssembly = typeof (Check).Assembly;
+	    private static readonly Assembly ThisAssembly = typeof(Check).Assembly;
         static readonly ParameterFormatter ParameterFormatter = new ParameterFormatter();
         static ExpectFactory expect;
 
         static readonly ExpressionFormatter ExpressionFormatter = new ExpressionFormatter(typeof(Check), ParameterFormatter);
 
-        public static Func<IEnumerable<Assembly>> GetPluginAssemblies = () => AppDomain.CurrentDomain.GetAssemblies();
+        public static Func<IEnumerable<Assembly>> GetPluginAssemblies = GetDefaultPluginAssemblies;
 
-        static ExpectFactory Expect { get { return expect ?? (expect = new ExpectFactory(GetPluginAssemblies())); } }
+	    static IEnumerable<Assembly> GetDefaultPluginAssemblies() {
+			return new []{ ThisAssembly }
+				.Concat(
+					AppDomain.CurrentDomain.GetAssemblies()
+					.Where(ReferencesCone));
+	    }
+
+	    static bool ReferencesCone(Assembly assembly) {
+		    return assembly.GetReferencedAssemblies().Any(a => a.FullName == ThisAssembly.FullName);
+	    }
+
+	    static ExpectFactory Expect { get { return expect ?? (expect = new ExpectFactory(GetPluginAssemblies())); } }
 
         static internal void Initialize() {
 	        DoMakeFail = DefaultFail;
-            That(() => 1 == 1);
+            That(() => true);
         }
 
 	    internal static Exception MakeFail(FailedExpectation fail, Exception innerException) {
 		    return DoMakeFail(new[] { fail }, innerException);
 	    }
 
-	    private static Func<IEnumerable<FailedExpectation>, Exception, Exception> DoMakeFail = (fail, inner) =>
-	    {
-			var nunit = Type.GetType("NUnit.Framework.AssertionException, NUnit.Framework");
-		    if (nunit == null)
-			    DoMakeFail = DefaultFail;
-		    else
-		    {
-			    var message = Expression.Parameter(typeof(string), "message");
-			    var innerException = Expression.Parameter(typeof (Exception), "innerException");
-			    var lambda = Expression.Lambda<Func<string, Exception, Exception>>(
-				    Expression.New(nunit.GetConstructor(new[] {typeof (string), typeof (Exception)}),
-					    new[] {message, innerException}), message, innerException);
+		delegate Exception NewFailedExpectationException(IEnumerable<FailedExpectation> fails, Exception inner); 
 
-				var newNUnitAssertException = lambda.Compile();
-			    DoMakeFail = (f, i) => newNUnitAssertException(string.Join("\n", f.Select(x => x.Message).ToArray()), i);
-		    }
-			return DoMakeFail(fail, inner);
+	    static NewFailedExpectationException DoMakeFail = (fail, inner) =>
+	    {
+		    DoMakeFail = LateBindFailureException();
+		    return DoMakeFail(fail, inner);
 	    };
+
+	    static NewFailedExpectationException LateBindFailureException()
+	    {
+		    var nunit = Type.GetType("NUnit.Framework.AssertionException, NUnit.Framework");
+		    if (nunit == null)
+			    return DefaultFail;
+
+			var fails = Expression.Parameter(typeof (IEnumerable<FailedExpectation>), "fails");
+			var innerException = Expression.Parameter(typeof (Exception), "innerException");
+			
+			return Expression.Lambda<NewFailedExpectationException>(
+				Expression.New(nunit.GetConstructor(new[] {typeof (string), typeof (Exception)}),
+					Expression.Call(typeof (Check).GetMethod("FormatFailMessage", BindingFlags.Static | BindingFlags.NonPublic), fails),
+					innerException),
+				fails, innerException).Compile();
+	    }
+
+	    private static string FormatFailMessage(IEnumerable<FailedExpectation> fails)
+	    {
+		    return string.Join("\n", fails.Select(x => x.Message).ToArray());
+	    }
 
 	    static Exception DefaultFail(IEnumerable<FailedExpectation> fail, Exception innerException) {
 		    return new CheckFailed(fail, innerException);		    
@@ -113,8 +134,8 @@ namespace Cone
         }
 
 	    static ExpressionFormatter GetExpressionFormatter() {
-		    var frames = new StackTrace();
-		    var context = frames.GetFrames().Select(x => x.GetMethod()).First(x => x.DeclaringType.Assembly != ThisAssembly);
+		    var context = new StackTrace().GetFrames()
+				.Select(x => x.GetMethod()).First(x => x.DeclaringType.Assembly != ThisAssembly);
 		    return ExpressionFormatter.Rebind(context.DeclaringType);
 	    }
     }
