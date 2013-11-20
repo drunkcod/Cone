@@ -87,18 +87,18 @@ namespace Cone
 	    }
 
 		public static void That(Expression<Func<bool>> expr, params Expression<Func<bool>>[] extras) {
-			var failed = GetFailedExpectations(new[]{ expr }.Concat(extras));
-			if(failed.Count != 0)
-				throw DoMakeFail(failed, null);
+			var failed = Eval(new[]{ expr }.Concat(extras));
+			if(failed != null)
+				throw failed;
         }
 
 		public static void That(IEnumerable<Expression<Func<bool>>> exprs) {
-			var failed = GetFailedExpectations(exprs);
-			if(failed.Count != 0)
-				throw DoMakeFail(failed, null);
+			var failed = Eval(exprs);
+			if(failed != null)
+				throw failed;
 		}
 
-	    private static List<FailedExpectation> GetFailedExpectations(IEnumerable<Expression<Func<bool>>> exprs) {
+	    static Exception Eval(IEnumerable<Expression<Func<bool>>> exprs) {
 		    var failed = new List<FailedExpectation>();
 		    exprs.ForEach(x =>
 		    {
@@ -106,7 +106,10 @@ namespace Cone
 			    if (!TryEval(ToExpect(x.Body), out r))
 				    failed.Add((FailedExpectation) r);
 		    });
-		    return failed;
+
+		    return failed.Count > 0 
+				? DoMakeFail(failed, null) 
+				: null;
 	    }
 
 	    public static TException Exception<TException>(Expression<Action> expr) where TException : Exception {
@@ -114,12 +117,8 @@ namespace Cone
         }
 
         static IExpect ToExpect(Expression body) {
-            return ToExpect(() => Expect.From(body));
-        }
-
-        internal static IExpect ToExpect(Func<IExpect> build) {
             try {
-                return build();
+                return Expect.From(body);
             } catch(ExceptionExpressionException e) {
                 var formatter = GetExpressionFormatter();
 	            var fail = new FailedExpectation(string.Format("{0}\nraised by '{1}' in\n'{2}'", e.InnerException.Message, formatter.Format(e.Expression), formatter.Format(e.Subexpression)), Maybe<object>.None, Maybe<object>.None);
@@ -152,14 +151,14 @@ namespace Cone
     {
         public static TException When(Expression<Action> expr) {
 	        object r;
-			if(Check.TryEval(Check.ToExpect(() => ExceptionExpect.From(expr, typeof(TException))), out r))
+			if(Check.TryEval(ExceptionExpect.From(expr, typeof(TException)), out r))
 	            return (TException)r;
 	        throw Check.MakeFail((FailedExpectation)r, null);
         }
 
         public static TException When<TValue>(Expression<Func<TValue>> expr) {
 	        object r;
-			if(Check.TryEval(Check.ToExpect(() => ExceptionExpect.From(expr, typeof(TException))), out r))
+			if(Check.TryEval(ExceptionExpect.From(expr, typeof(TException)), out r))
 	            return (TException)r;
 	        throw Check.MakeFail((FailedExpectation)r, null);
         }
