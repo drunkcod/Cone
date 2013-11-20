@@ -87,21 +87,29 @@ namespace Cone
 	    }
 
 		public static void That(Expression<Func<bool>> expr, params Expression<Func<bool>>[] extras) {
-			That(new[]{ expr }.Concat(extras));
+			var failed = GetFailedExpectations(new[]{ expr }.Concat(extras));
+			if(failed.Count != 0)
+				throw DoMakeFail(failed, null);
         }
 
 		public static void That(IEnumerable<Expression<Func<bool>>> exprs) {
-			var failed = new List<FailedExpectation>();
-			exprs.ForEach(x => {
-				object r;
-				if(!TryEval(ToExpect(x.Body), out r))
-					failed.Add((FailedExpectation)r);
-			});
+			var failed = GetFailedExpectations(exprs);
 			if(failed.Count != 0)
 				throw DoMakeFail(failed, null);
 		}
 
-        public static TException Exception<TException>(Expression<Action> expr) where TException : Exception {
+	    private static List<FailedExpectation> GetFailedExpectations(IEnumerable<Expression<Func<bool>>> exprs) {
+		    var failed = new List<FailedExpectation>();
+		    exprs.ForEach(x =>
+		    {
+			    object r;
+			    if (!TryEval(ToExpect(x.Body), out r))
+				    failed.Add((FailedExpectation) r);
+		    });
+		    return failed;
+	    }
+
+	    public static TException Exception<TException>(Expression<Action> expr) where TException : Exception {
             return Check<TException>.When(expr);
         }
 
