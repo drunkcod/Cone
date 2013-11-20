@@ -34,7 +34,9 @@ namespace Cone.Expectations
             this.actual = actual;
         }
 
-        public virtual string FormatExpression(IFormatter<Expression> formatter){ return formatter.Format(body); }
+        public virtual string FormatExpression(IFormatter<Expression> formatter) { 
+			return formatter.Format(body); 
+		}
         
         public virtual string FormatMessage(IFormatter<object> formatter) { 
             return string.Format(MessageFormat, FormatActual(formatter), FormatExpected(formatter));

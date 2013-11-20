@@ -65,6 +65,7 @@
     <Compile Include="Core\IConeAttributeProvider.cs" />
     <Compile Include="Core\IConeFixtureMethodSink.cs" />
     <Compile Include="Core\IConeTestMethodSink.cs" />
+    <Compile Include="Expectations\CheckResult.cs" />
     <Compile Include="Reflection\ILGeneratorExtensions.cs" />
     <Compile Include="Core\IRowData.cs" />
     <Compile Include="Core\Lazy.cs" />
