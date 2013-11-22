@@ -80,6 +80,7 @@
     <Compile Include="TestExecutorSpec.cs" />
     <Compile Include="ExpressionFormatterSpec.cs" />
     <Compile Include="CheckSpec.cs" />
+    <Compile Include="VersionUpdaterSpec.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Addin\Cone.Addin.csproj">
