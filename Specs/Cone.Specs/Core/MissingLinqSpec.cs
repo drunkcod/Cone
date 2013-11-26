@@ -13,5 +13,11 @@ namespace Cone.Core
 				() => Enumerable.Empty<object>().IsEmpty(),
 				() => Enumerable.Range(0, 10).IsEmpty() == false);
 		}
+
+		public void Join_string() {
+			Check.That(
+				() => new[]{ "Hello" }.Join(",") == "Hello",
+				() => new[]{ "Hello", "World" }.Join(" ") == "Hello World");
+		}
 	}
 }

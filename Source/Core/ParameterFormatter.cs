@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using System.Text;
 
 namespace Cone.Core
@@ -20,8 +21,8 @@ namespace Cone.Core
 						if(type.GetGenericTypeDefinition() == typeof(Nullable<>))
 							return string.Format("{0}?", Format(type.GetGenericArguments()[0]));
 						else {
-							var genArgs = Array.ConvertAll(type.GetGenericArguments(), Format);
-							return type.Name.Replace(string.Format("`{0}", genArgs.Length), "<" + string.Join(", ", genArgs) + ">");
+							var genArgs = type.GetGenericArguments().Select(Format);
+							return type.Name.Replace(string.Format("`{0}", genArgs.Length), "<" + genArgs.Join(", ") + ">");
 						}
 					}
                     return type.Name;

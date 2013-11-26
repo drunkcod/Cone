@@ -72,7 +72,7 @@ namespace Cone
 
 	    private static string FormatFailMessage(IEnumerable<FailedExpectation> fails)
 	    {
-		    return string.Join("\n", fails.Select(x => x.Message).ToArray());
+		    return fails.Select(x => x.Message).Join("\n");
 	    }
 
 	    static Exception DefaultFail(IEnumerable<FailedExpectation> fail, Exception innerException) {

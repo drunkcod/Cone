@@ -51,7 +51,7 @@ namespace Cone.Core
 		    class SimpleFixture
 		    {
 			    public readonly List<string> Executed = new List<string>();
-			    public string ExecutionPath { get { return string.Join("->", Executed); } }
+			    public string ExecutionPath { get { return Executed.Join("->"); } }
 
 			    public void BeforeAll() { Executed.Add("BeforeAll"); }
 			    public void AfterAll() { Executed.Add("AfterAll"); }

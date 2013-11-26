@@ -140,7 +140,7 @@ namespace Cone.Core
         }
 
         string FormatJoin(string[] value, string format) {
-            return string.Format(format, string.Join(", ", value));
+            return string.Format(format, value.Join(", "));
         }
 
         string FormatBinary(BinaryExpression binary) {

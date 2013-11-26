@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Cone.Core
 {
@@ -31,6 +32,7 @@ namespace Cone.Core
         }
 
 		public static bool IsEmpty<T>(this IEnumerable<T> self){ return !self.Any(); } 
+		
 		public static bool IsEmpty<T>(this ICollection<T> self) {
 			return self.Count == 0;
 		}
@@ -95,6 +97,21 @@ namespace Cone.Core
 			yield return parent;
 			foreach(var item in children(parent).Flatten(children))
 				yield return item;
+		}
+
+		public static string Join(this IEnumerable<string> self, string separator) {
+			using(var items = self.GetEnumerator()) {
+				if(!items.MoveNext())
+					return string.Empty;
+				var result = new StringBuilder(items.Current);
+				while(items.MoveNext())
+					result.AppendFormat("{0}{1}", separator, items.Current);
+				return result.ToString();
+			}
+		}
+
+		public static TResult[] Select<T, TResult>(this T[] self, Converter<T, TResult> transform) {
+			return Array.ConvertAll(self, transform);
 		}
     }
 }

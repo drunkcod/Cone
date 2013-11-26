@@ -35,7 +35,7 @@ namespace Cone
 			return string.Format("{0}.{1}({2}) in {3}:line {4}",
 				Method.DeclaringType != null ? TypeFormatter.Format(Method.DeclaringType) : string.Empty,
 				Method.Name,
-				string.Join(", ", Array.ConvertAll(Method.GetParameters(), Format)),
+				Method.GetParameters().Select(Format).Join(", "),
 				File, Line);
 		}
 
@@ -79,7 +79,7 @@ namespace Cone
 
 		public string Message {
 			get {
-				return string.Join("\n", Errors.Select(x => x.Message).ToArray());
+				return Errors.Select(x => x.Message).Join("\n");
 			}
 		}
 

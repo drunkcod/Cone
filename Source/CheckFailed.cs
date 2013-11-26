@@ -26,7 +26,7 @@ namespace Cone
 
 		public CheckFailed(FailedExpectation fail, Exception innerException) : this(new[] {fail}, innerException) { }
 
-		public CheckFailed(IEnumerable<FailedExpectation> fails, Exception innerException) : base(string.Join("\n", fails.Select(x => x.Message).ToArray()), innerException) { 
+		public CheckFailed(IEnumerable<FailedExpectation> fails, Exception innerException) : base(fails.Select(x => x.Message).Join("\n"), innerException) { 
 			this.Failures = fails.ToList();
 		}
 
