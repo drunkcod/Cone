@@ -30,6 +30,7 @@ namespace Cone.Core
             return Array.ConvertAll(self, converter);
         }
 
+		public static bool IsEmpty<T>(this IEnumerable<T> self){ return !self.Any(); } 
 		public static bool IsEmpty<T>(this ICollection<T> self) {
 			return self.Count == 0;
 		}
