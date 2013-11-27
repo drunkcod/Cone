@@ -41,11 +41,11 @@ namespace Cone
 	        DoMakeFail = DefaultFail;
             That(() => true);
         }
-
+		
 	    internal static Exception MakeFail(FailedExpectation fail, Exception innerException) {
 		    return DoMakeFail(new[] { fail }, innerException);
 	    }
-
+		
 		delegate Exception NewFailedExpectationException(IEnumerable<FailedExpectation> fails, Exception inner); 
 
 	    static NewFailedExpectationException DoMakeFail = (fail, inner) =>
@@ -121,7 +121,7 @@ namespace Cone
                 return Expect.From(body);
             } catch(ExceptionExpressionException e) {
                 var formatter = GetExpressionFormatter();
-	            var fail = new FailedExpectation(string.Format("{0}\nraised by '{1}' in\n'{2}'", e.InnerException.Message, formatter.Format(e.Expression), formatter.Format(e.Subexpression)), Maybe<object>.None, Maybe<object>.None);
+	            var fail = new FailedExpectation(string.Format("{0}\nraised by '{1}' in\n'{2}'",e.InnerException.Message, formatter.Format(e.Expression), formatter.Format(e.Subexpression)), Maybe<object>.None, Maybe<object>.None);
 	            throw MakeFail(fail, e);
             } catch(NullSubexpressionException e) {
                 var formatter = GetExpressionFormatter();

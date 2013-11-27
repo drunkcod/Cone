@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="Assume.cs" />
     <Compile Include="ConePad.cs" />
+    <Compile Include="Core\ConeFixtureMethodCollection.cs" />
     <Compile Include="Core\ConeTestFailure.cs" />
     <Compile Include="Core\Action.cs" />
     <Compile Include="AfterAllAttribute.cs" />

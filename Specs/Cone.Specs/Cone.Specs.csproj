@@ -52,6 +52,7 @@
     <Compile Include="Conesole\ConesoleConfigurationSpec.cs" />
     <Compile Include="ConeTestNamerSpec.cs" />
     <Compile Include="Core\ConeAttributeProviderSpec.cs" />
+    <Compile Include="Core\ConeFixtureMethodCollectionSpec.cs" />
     <Compile Include="Core\ConeFixtureSpec.cs" />
     <Compile Include="Core\ConeTestNameSpec.cs" />
     <Compile Include="Core\MaybeSpec.cs" />

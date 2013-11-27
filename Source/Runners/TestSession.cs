@@ -33,19 +33,26 @@ namespace Cone.Runners
 			}
             
             void ITestResult.BeforeFailure(Exception ex) {
-				Status = TestStatus.SetupFailure;
-				log.Failure(new ConeTestFailure(test.TestName, ex, FailureType.Setup));
+				Fail(TestStatus.SetupFailure, FailureType.Setup, ex);
             }
 
             void ITestResult.TestFailure(Exception ex) {
-				Status = TestStatus.TestFailure;
-				log.Failure(new ConeTestFailure(test.TestName, ex, FailureType.Test));
+				Fail(TestStatus.TestFailure, FailureType.Test, ex);
             }
             
             void ITestResult.AfterFailure(Exception ex) {
-				Status = TestStatus.TeardownFailure;
-				log.Failure(new ConeTestFailure(test.TestName, ex, FailureType.Teardown));
+				Fail(TestStatus.TeardownFailure, FailureType.Teardown, ex);
             }
+
+			void Fail(TestStatus status, FailureType failureType, Exception ex) {
+				Status = status;
+				var fixtureFailure = ex as FixtureException;
+				if(fixtureFailure != null)
+					for(var i = 0; i != fixtureFailure.Count; ++i)
+						log.Failure(new ConeTestFailure(test.TestName, fixtureFailure[i], failureType));
+				else
+					log.Failure(new ConeTestFailure(test.TestName, ex, failureType));
+			}
         }
 
         class TestSessionReport : ISessionLogger, ISuiteLogger, ITestLogger
@@ -126,14 +133,13 @@ namespace Cone.Runners
 
         void CollectResults(IEnumerable<IConeTest> tests, IConeFixture fixture, ISuiteLogger suiteLog) {
 			var collectResult = GetResultCollector(fixture);
-			tests.ForEach(test => {
+			tests.ForEach(test =>
                 suiteLog.WithTestLog(test, log => {
 					if(ShouldSkipTest(test))
 						log.Skipped();
 					else
 						CollectResult(collectResult, test, log);
-				});
-			});
+				}));
         }
 
         void CollectResult(Action<IConeTest, ITestResult> collectResult, IConeTest test, ITestLogger log) {
