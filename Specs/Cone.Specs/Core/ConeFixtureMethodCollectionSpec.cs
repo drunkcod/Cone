@@ -33,7 +33,7 @@ namespace Cone.Core
 				() => fixture.SuccessCount == 2);
 		}
 
-		MethodInfo GetMethod<T>(T target, Expression<Action<T>> act) {
+		MethodInfo GetMethod<T>(T _, Expression<Action<T>> act) {
 			return ((MethodCallExpression)act.Body).Method;
 		}
 

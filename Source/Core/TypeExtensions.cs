@@ -20,13 +20,13 @@ namespace Cone.Core
             return found(Array.ConvertAll(attributes, x => (TAttribute)x));
         }
 
-        public static bool TryGetAttribute<TAttribute, TOut>(this Type type, out TOut value) where TAttribute : TOut {
+        public static bool TryGetAttribute<TAttribute>(this Type type, out TAttribute value) {
             var attributes = type.GetCustomAttributes(typeof(TAttribute), true);
             if (attributes.Length == 1) {
                 value = (TAttribute)attributes[0];
                 return true;
             }
-            value = default(TOut);
+            value = default(TAttribute);
             return false;
         }
 

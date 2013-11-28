@@ -18,7 +18,11 @@ namespace Cone.Runners
             }
         }
 
-        readonly IConeSuiteBuilder<ConePadSuite>[] suiteBuilders = new IConeSuiteBuilder<ConePadSuite>[] {
+		public static void RunTests(ISessionLogger logger, IEnumerable<Type> suiteTypes) {
+			new SimpleConeRunner().RunTests(new TestSession(logger), suiteTypes);
+		}
+
+        readonly IConeSuiteBuilder<ConePadSuite>[] suiteBuilders = {
 			new ConePadSuiteBuilder(),
 			new NUnitSuiteBuilder(),
             new NullSuiteBuilder(),

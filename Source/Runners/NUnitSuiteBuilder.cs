@@ -183,6 +183,8 @@ namespace Cone.Runners
 			}
 		}
 
+		readonly ObjectProvider fixtureCreator = new DefaultObjectProvider();
+
 		public override bool SupportedType(Type type)
 		{
 			return type.GetCustomAttributes(true)
@@ -195,7 +197,7 @@ namespace Cone.Runners
 		}
 
 		protected override ConePadSuite NewSuite(Type type, IFixtureDescription description) {
-            return new NUnitSuite(new ConeFixture(type, description.Categories)) { 
+            return new NUnitSuite(new ConeFixture(type, description.Categories, fixtureCreator)) { 
 				Name = description.SuiteName + "." + description.TestName
 			};
 		}

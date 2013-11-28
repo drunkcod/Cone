@@ -6,14 +6,14 @@ namespace Cone.Core
 {
     public class TestExecutionContext : ITestExecutionContext
     {
-        readonly Func<object> fixtureProvider; 
+        readonly Lazy<object> fixture; 
         readonly List<FieldInfo> testContexts = new List<FieldInfo>();
  
-        TestExecutionContext(Func<object> fixtureProvider) {
-            this.fixtureProvider = fixtureProvider;
+        TestExecutionContext(Lazy<object> fixture) {
+            this.fixture = fixture;
         }
 
-        public static TestExecutionContext For(Type type, Func<object> fixtureProvider) {
+        public static TestExecutionContext For(Type type, Lazy<object> fixtureProvider) {
             var context = new TestExecutionContext(fixtureProvider);
             type.GetFields()
                 .ForEachWhere(
@@ -47,7 +47,7 @@ namespace Cone.Core
         }
 
         void EachInterceptor(Action<ITestContext> @do) {
-            var fixture = fixtureProvider();
+            var fixture = this.fixture.Value;
             testContexts.ForEach(x => @do(GetTestContext(fixture, x)));
         }
 

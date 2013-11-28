@@ -37,7 +37,7 @@ namespace Cone.Addin
 
         internal AddinSuite(Type type, IFixtureDescription description) : base(description.SuiteName, description.TestName) {
             this.suiteType = description.SuiteType;
-            this.fixture = new ConeFixture(type, description.Categories);
+            this.fixture = new ConeFixture(type, description.Categories, new DefaultObjectProvider());
             this.testExecutor = new TestExecutor(this.fixture);
 
             var pending = type.AsConeAttributeProvider().FirstOrDefault((IPendingAttribute x) => x.IsPending);

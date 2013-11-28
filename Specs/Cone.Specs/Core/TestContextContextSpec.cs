@@ -20,7 +20,7 @@ namespace Cone.Core
             Result = new Mock<ITestResult>();
             
             var fixture = new Fixture { Interceptor = TestContext.Object };
-            ExecutionContext = TestExecutionContext.For(fixture.GetType(), () => fixture);
+            ExecutionContext = TestExecutionContext.For(fixture.GetType(), new Lazy<object>(() => fixture));
         }
 
         public void report_before_failures_and_cleanup() {

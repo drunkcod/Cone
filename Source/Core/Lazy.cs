@@ -8,9 +8,9 @@ namespace Cone.Core
  
 		public Lazy(Func<T> forceValue) {
 			getValue = () => {
-			                 	var value = forceValue();
-			                 	getValue = () => value;
-			                 	return value;
+				var value = forceValue();
+				getValue = () => value;
+				return value;
 			};
 		}
 

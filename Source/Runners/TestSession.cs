@@ -108,7 +108,7 @@ namespace Cone.Runners
 
         }
 
-        readonly ISessionLogger sessionLog;
+		readonly ISessionLogger sessionLog;
         readonly TestSessionReport report = new TestSessionReport();
 
         public TestSession(ISessionLogger sessionLog) {
@@ -138,15 +138,11 @@ namespace Cone.Runners
 					if(ShouldSkipTest(test))
 						log.Skipped();
 					else
-						CollectResult(collectResult, test, log);
-				}));
+						collectResult(test, new TestResult(test, log));
+                }));
         }
 
-        void CollectResult(Action<IConeTest, ITestResult> collectResult, IConeTest test, ITestLogger log) {
-            collectResult(test, new TestResult(test, log));
-        }
-       
-        public void Report() {
+	    public void Report() {
             sessionLog.WriteInfo(output => report.WriteReport(output));
         }
     }

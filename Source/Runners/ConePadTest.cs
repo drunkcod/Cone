@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection;
-using Cone.Core;
+﻿using Cone.Core;
 using Cone.Expectations;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Cone.Runners
 {
