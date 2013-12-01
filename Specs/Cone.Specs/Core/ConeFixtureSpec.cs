@@ -68,13 +68,6 @@ namespace Cone.Core
                 Fixture = new ConeFixture(FixtureInstance.GetType(), new string[0], _ => FixtureInstance);
             }
 
-		    public void create_does_not_execute_BeforeAll() {
-			    FixtureMethods.BeforeAll( ((Action)FixtureInstance.BeforeAll).Method);
-                Fixture.Create(Nop);
-
-			    Check.That(() => FixtureInstance.Executed.Count == 0);
-		    }
-
 		    public void BeforeAll_executed_exactly_once() {
 			    FixtureMethods.BeforeAll( ((Action)FixtureInstance.BeforeAll).Method);
 			    FixtureMethods.BeforeEach( ((Action)FixtureInstance.BeforeEach).Method);
@@ -91,15 +84,7 @@ namespace Cone.Core
 
 			    Check.That(() => FixtureInstance.ExecutionPath == "AfterAll");
 		    }
-
-		    public void only_runs_AfterAll_if_fixture_has_been_initialized() {
-			    FixtureMethods.AfterAll(((Action)FixtureInstance.AfterAll).Method);
-                Fixture.Create(Nop);
-			    Fixture.Release(_ => { });
-
-			    Check.That(() => FixtureInstance.Executed.Count == 0);
-		    }
-    }
+		}
 
 		ConeFixture FixtureFor(Type type) { return new ConeFixture(type, new string[0], new DefaultObjectProvider()); }
         

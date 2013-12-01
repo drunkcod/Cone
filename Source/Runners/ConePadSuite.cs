@@ -55,7 +55,7 @@ namespace Cone.Runners
 			}
 
 			protected override object FixtureInvoke(MethodInfo method) {
-				return method.Invoke(fixture.Fixture, null);
+				return fixture.Invoke(method);
 			}
 
 			protected override IRowSuite CreateRowSuite(MethodInfo method, string suiteName) {

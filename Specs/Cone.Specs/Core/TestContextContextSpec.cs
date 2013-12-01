@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Moq;
 
 namespace Cone.Core
@@ -19,8 +20,8 @@ namespace Cone.Core
             TestContext = new Mock<ITestContext>();
             Result = new Mock<ITestResult>();
             
-            var fixture = new Fixture { Interceptor = TestContext.Object };
-            ExecutionContext = TestExecutionContext.For(fixture.GetType(), new Lazy<object>(() => fixture));
+			var fixture = new ConeFixture(typeof(Fixture), Enumerable.Empty<string>(), _ => new Fixture { Interceptor = TestContext.Object });
+            ExecutionContext = TestExecutionContext.For(fixture);
         }
 
         public void report_before_failures_and_cleanup() {

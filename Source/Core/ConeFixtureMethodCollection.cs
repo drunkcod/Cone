@@ -2,13 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace Cone.Core
 {
+	[Serializable]
 	public class FixtureException : Exception
 	{
 		readonly List<Exception> innerExceptions;
  
+		public FixtureException(SerializationInfo info, StreamingContext context): base(info, context) { }
+
 		public FixtureException(IEnumerable<Exception> innerExceptions) {
 			this.innerExceptions = innerExceptions.ToList();
 		}

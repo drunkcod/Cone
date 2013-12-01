@@ -51,28 +51,24 @@ namespace Cone
 			public void EndTest() { }
         }
 
-		static ConePadSuiteBuilder SuiteBuilder = new ConePadSuiteBuilder();
-
         public static void RunTests() {
             Check.GetPluginAssemblies = () => new[]{ typeof(Check).Assembly };
-            var log = new ConePadLogger();
-            RunTests(log, log, Assembly.GetCallingAssembly().GetTypes());
+            RunTests(Assembly.GetCallingAssembly().GetTypes());
         }
 
-        public static void RunTests(TextWriter output, IEnumerable<Assembly> assemblies) {
+        public static void RunTests(IEnumerable<Assembly> assemblies) {
             Check.GetPluginAssemblies = () => assemblies.Concat(new[]{ typeof(Check).Assembly });
-            var log = new ConePadLogger();
-            RunTests(log, log, assemblies.SelectMany(x => x.GetTypes()));
+            RunTests(assemblies.SelectMany(x => x.GetTypes()));
         }
 
         public static void RunTests(params Type[] suiteTypes) {
-            var log = new ConePadLogger();
-            RunTests(log, log, suiteTypes);
+            RunTests(suiteTypes.AsEnumerable());
         }
 
-        public static void RunTests(ITestLogger log, ISessionLogger sessionLog, IEnumerable<Type> suites) {
-            sessionLog.WriteInfo(writer => writer.WriteLine("Running tests!\n----------------------------------"));
-            new SimpleConeRunner().RunTests(new TestSession(sessionLog), suites);
+        public static void RunTests(IEnumerable<Type> suites) {
+			var log = new ConePadLogger();
+            log.WriteInfo(writer => writer.WriteLine("Running tests!\n----------------------------------"));
+            SimpleConeRunner.RunTests(log, suites);
         }
     }
 }

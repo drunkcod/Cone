@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace Cone.Core
 {
     public class TestExecutionContext : ITestExecutionContext
     {
-        readonly Lazy<object> fixture; 
+        readonly IConeFixture fixture; 
         readonly List<FieldInfo> testContexts = new List<FieldInfo>();
  
-        TestExecutionContext(Lazy<object> fixture) {
+        TestExecutionContext(IConeFixture fixture) {
             this.fixture = fixture;
         }
 
-        public static TestExecutionContext For(Type type, Lazy<object> fixtureProvider) {
-            var context = new TestExecutionContext(fixtureProvider);
-            type.GetFields()
+        public static TestExecutionContext For(IConeFixture fixture) {
+            var context = new TestExecutionContext(fixture);
+            fixture.FixtureType.GetFields()
                 .ForEachWhere(
                     x => x.FieldType.Implements<ITestContext>(),
                     context.testContexts.Add);
@@ -42,13 +43,12 @@ namespace Cone.Core
             }
         }
 
-        ITestContext GetTestContext(object fixture, FieldInfo field) {
-            return (ITestContext)field.GetValue(fixture);
+        ITestContext GetTestContext(FieldInfo field) {
+            return (ITestContext)fixture.GetValue(field);
         }
 
         void EachInterceptor(Action<ITestContext> @do) {
-            var fixture = this.fixture.Value;
-            testContexts.ForEach(x => @do(GetTestContext(fixture, x)));
+            testContexts.ForEach(x => @do(GetTestContext(x)));
         }
 
         public TestContextStep Establish(IFixtureContext context, TestContextStep next) {

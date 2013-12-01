@@ -22,14 +22,14 @@ namespace Cone.Runners
  		public Type ReturnType { get { return method.ReturnType; } }
 
 		public virtual void Invoke(object[] parameters, ITestResult result) {
-			method.Invoke(fixture.Fixture, parameters);
+			fixture.Invoke(method, parameters);
 			result.Success();
 		}
 
 		public ParameterInfo[] GetParameters() { return method.GetParameters(); } 
 
 		protected object Invoke(object[] parameters) {
-			return method.Invoke(fixture.Fixture, parameters);
+			return fixture.Invoke(method, parameters);
 		}
 	}
 

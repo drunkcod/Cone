@@ -50,7 +50,11 @@ namespace Cone.Core
             return method.Invoke(Fixture, parameters);
         }
 
-        public void WithInitialized(Action<IConeFixture> action, Action<Exception> beforeFailure, Action<Exception> afterFailure) {            
+		public object GetValue(FieldInfo field) {
+			return field.GetValue(Fixture);
+		}
+
+        public void WithInitialized(Action<IConeFixture> action, Action<Exception> beforeFailure, Action<Exception> afterFailure) {
 			try {
                 if(Create(beforeFailure))
                     action(this);
@@ -62,6 +66,7 @@ namespace Cone.Core
         public bool Create(Action<Exception> error) {
             try {
                 EnsureFixture();
+				Initialize();
                 return true;
             } catch(Exception ex) {
                 error(ex);
