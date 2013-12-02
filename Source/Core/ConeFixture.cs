@@ -5,6 +5,15 @@ using System.Reflection;
 
 namespace Cone.Core
 {
+	public class FixtureEventArgs : EventArgs
+	{
+		public readonly object Fixture; 
+
+		public FixtureEventArgs(object fixture) {
+			this.Fixture = fixture;
+		}
+	}
+
 	public class ConeFixture : IConeFixture
     {
         readonly ObjectProvider fixtureCreator;
@@ -24,34 +33,35 @@ namespace Cone.Core
         }
 
         public event EventHandler Before;
+		public event EventHandler<FixtureEventArgs> FixtureCreated;
 
 		public IEnumerable<string> Categories { get { return categories; } } 
 
 		public void Initialize() {
 			if(fixtureInitialized) 
 				return;	
-			fixtureMethods.InvokeBeforeAll(Fixture);
+			fixtureMethods.InvokeBeforeAll(EnsureFixture());
 			fixtureInitialized = true;
 		}
 
         [SuppressMessage("Microsoft.Design", "CA1033", Justification = "Should never be called directly")]
         void ITestContext.Before() {
 			Initialize();
-            fixtureMethods.InvokeBeforeEach(Fixture);
+            fixtureMethods.InvokeBeforeEach(EnsureFixture());
             Before.Raise(this, EventArgs.Empty);
         }
 
         [SuppressMessage("Microsoft.Design", "CA1033", Justification = "Should never be called directly")]
         void ITestContext.After(ITestResult testResult) {           
-            fixtureMethods.InvokeAfterEach(Fixture, testResult);
+            fixtureMethods.InvokeAfterEach(EnsureFixture(), testResult);
         }
 
         public object Invoke(MethodInfo method, params object[] parameters) {
-            return method.Invoke(Fixture, parameters);
+            return method.Invoke(EnsureFixture(), parameters);
         }
 
 		public object GetValue(FieldInfo field) {
-			return field.GetValue(Fixture);
+			return field.GetValue(EnsureFixture());
 		}
 
         public void WithInitialized(Action<IConeFixture> action, Action<Exception> beforeFailure, Action<Exception> afterFailure) {
@@ -98,10 +108,13 @@ namespace Cone.Core
 
         public IConeFixtureMethodSink FixtureMethods { get { return fixtureMethods; } }
 
-        public object Fixture { get { return EnsureFixture(); } }
-
         object EnsureFixture() {
-            return fixture ?? (fixture = fixtureCreator.NewFixture(FixtureType));
+			if(fixture == null) {
+				fixture = fixtureCreator.NewFixture(FixtureType);
+				FixtureCreated.Raise(this, new FixtureEventArgs(fixture));
+			}
+
+			return fixture;
         }
     }
 }

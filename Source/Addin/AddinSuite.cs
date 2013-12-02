@@ -38,6 +38,7 @@ namespace Cone.Addin
         internal AddinSuite(Type type, IFixtureDescription description) : base(description.SuiteName, description.TestName) {
             this.suiteType = description.SuiteType;
             this.fixture = new ConeFixture(type, description.Categories, new DefaultObjectProvider());
+			fixture.FixtureCreated += (_, e) => Fixture = e.Fixture;
             this.testExecutor = new TestExecutor(this.fixture);
 
             var pending = type.AsConeAttributeProvider().FirstOrDefault((IPendingAttribute x) => x.IsPending);
@@ -52,10 +53,6 @@ namespace Cone.Addin
 
         public override Type FixtureType { get { return fixture.FixtureType; } }
 
-        public override object Fixture {
-            get { return fixture.Fixture; }
-            set { throw new InvalidOperationException(); }
-        }
         public override string TestType { get { return suiteType; } }
 
         public override TestResult Run(EventListener listener, ITestFilter filter) {

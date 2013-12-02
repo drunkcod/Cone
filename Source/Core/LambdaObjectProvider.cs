@@ -2,7 +2,7 @@
 
 namespace Cone.Core
 {
-	class LambdaObjectProvider : ObjectProvider
+	public class LambdaObjectProvider : ObjectProvider
 	{
 		private readonly Func<Type, object> newFixture;
 

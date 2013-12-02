@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Cone.Core;
 using NUnit.Framework;
 using System.IO;
 
@@ -151,7 +152,7 @@ namespace Cone.Runners
 			public void FixtureTearDown() { FixtureTearDownCalled = ++Calls; }
 		}
 
-		NUnitSuiteBuilder SuiteBuilder = new NUnitSuiteBuilder();
+		NUnitSuiteBuilder SuiteBuilder = new NUnitSuiteBuilder(new DefaultObjectProvider());
 
 		public void supports_building_suites_for_types_with_NUnit_TestFixture_attribute() {
 			Check.That(() => SuiteBuilder.SupportedType(typeof(MyNUnitFixture)));
@@ -165,7 +166,7 @@ namespace Cone.Runners
 			[BeforeAll]
 			public void Given_description_of_MyNUnitFixture()
 			{
-				var suiteBuilder = new NUnitSuiteBuilder();
+				var suiteBuilder = new NUnitSuiteBuilder(new DefaultObjectProvider());
 				Description = suiteBuilder.DescriptionOf(typeof(MyNUnitFixture));
 			}
 
@@ -199,8 +200,7 @@ namespace Cone.Runners
 
 			[BeforeEach]
 			public void GivenFixtureInstance() {
-				NUnitSuite = new NUnitSuiteBuilder().BuildSuite(typeof(MyNUnitFixture)); 
-				NUnitFixture = (MyNUnitFixture)NUnitSuite.Fixture;
+				NUnitSuite = new NUnitSuiteBuilder(new LambdaObjectProvider(t => NUnitFixture = new MyNUnitFixture())).BuildSuite(typeof(MyNUnitFixture)); 
                 new TestSession(new NullLogger()).RunSession(collectResult => collectResult(NUnitSuite));
 			}
 
@@ -235,7 +235,7 @@ namespace Cone.Runners
 
 			[BeforeEach]
 			public void GivenFixtureWithTestCases() {
-				NUnitSuite = new NUnitSuiteBuilder().BuildSuite(typeof(FixtureWithTestCases)); 
+				NUnitSuite = new NUnitSuiteBuilder(new DefaultObjectProvider()).BuildSuite(typeof(FixtureWithTestCases)); 
 			}
 
 			public void theres_one_test_per_case() {
@@ -278,7 +278,7 @@ namespace Cone.Runners
 
 			[BeforeEach]
 			public void GivenFixtureWithTestCases() {
-				NUnitSuite = new NUnitSuiteBuilder().BuildSuite(typeof(FixtureWithTestCaseSource)); 
+				NUnitSuite = new NUnitSuiteBuilder(new DefaultObjectProvider()).BuildSuite(typeof(FixtureWithTestCaseSource)); 
 			}
 
 			public void locates_TestCaseData_source_method_in_same_class() {

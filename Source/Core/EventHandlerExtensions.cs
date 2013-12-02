@@ -9,5 +9,11 @@ namespace Cone.Core
                 return;
             self(sender, e);
         }
+
+		public static void Raise<T>(this EventHandler<T> self, object sender, T e) where T : EventArgs {
+			if(self == null)
+				return;
+			self(sender, e);
+		}
     }
 }

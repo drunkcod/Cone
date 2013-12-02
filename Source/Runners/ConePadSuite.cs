@@ -101,7 +101,6 @@ namespace Cone.Runners
 			} 
 		}
 
-		public object Fixture { get { return fixture.Fixture; } }
 		public Type FixtureType { get { return fixture.FixtureType; } }
 		public int TestCount { get { return tests.Count + Subsuites.Sum(x => x.TestCount); } }
 

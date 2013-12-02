@@ -22,11 +22,17 @@ namespace Cone.Runners
 			new SimpleConeRunner().RunTests(new TestSession(logger), suiteTypes);
 		}
 
-        readonly IConeSuiteBuilder<ConePadSuite>[] suiteBuilders = {
-			new ConePadSuiteBuilder(),
-			new NUnitSuiteBuilder(),
-            new NullSuiteBuilder(),
-		};
+		readonly IConeSuiteBuilder<ConePadSuite>[] suiteBuilders;
+
+		public SimpleConeRunner()
+		{
+			var objectProvider = new DefaultObjectProvider();
+			suiteBuilders = new IConeSuiteBuilder<ConePadSuite>[] {
+				new ConePadSuiteBuilder(objectProvider),
+				new NUnitSuiteBuilder(objectProvider),
+				new NullSuiteBuilder(),
+			};
+		}
 
         public int Workers = 1;
             
