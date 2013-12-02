@@ -24,9 +24,10 @@ namespace Cone.Runners
 
 		readonly IConeSuiteBuilder<ConePadSuite>[] suiteBuilders;
 
-		public SimpleConeRunner()
-		{
-			var objectProvider = new DefaultObjectProvider();
+		public SimpleConeRunner(): this(new DefaultObjectProvider())
+		{ }
+
+		public SimpleConeRunner(ObjectProvider objectProvider) {
 			suiteBuilders = new IConeSuiteBuilder<ConePadSuite>[] {
 				new ConePadSuiteBuilder(objectProvider),
 				new NUnitSuiteBuilder(objectProvider),

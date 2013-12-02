@@ -22,7 +22,7 @@ namespace Cone.Runners
 			return new ConeFixture(type, categories, objectProvider);
 		}
 
-        protected override void AddSubSuite(ConePadSuite suite, Lazy<ConePadSuite> subsuite) {
+        protected override void AddSubSuite(ConePadSuite suite, ConePadSuite subsuite) {
             suite.AddSubSuite(subsuite);
         }
     }

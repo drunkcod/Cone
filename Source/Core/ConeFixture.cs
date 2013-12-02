@@ -32,28 +32,18 @@ namespace Cone.Core
             this.fixtureCreator = fixtureCreator;
         }
 
-        public event EventHandler Before;
 		public event EventHandler<FixtureEventArgs> FixtureCreated;
 
 		public IEnumerable<string> Categories { get { return categories; } } 
 
-		public void Initialize() {
-			if(fixtureInitialized) 
-				return;	
-			fixtureMethods.InvokeBeforeAll(EnsureFixture());
-			fixtureInitialized = true;
-		}
-
         [SuppressMessage("Microsoft.Design", "CA1033", Justification = "Should never be called directly")]
         void ITestContext.Before() {
-			Initialize();
-            fixtureMethods.InvokeBeforeEach(EnsureFixture());
-            Before.Raise(this, EventArgs.Empty);
+            fixtureMethods.InvokeBeforeEach(fixture);
         }
 
         [SuppressMessage("Microsoft.Design", "CA1033", Justification = "Should never be called directly")]
         void ITestContext.After(ITestResult testResult) {           
-            fixtureMethods.InvokeAfterEach(EnsureFixture(), testResult);
+            fixtureMethods.InvokeAfterEach(fixture, testResult);
         }
 
         public object Invoke(MethodInfo method, params object[] parameters) {
@@ -66,23 +56,29 @@ namespace Cone.Core
 
         public void WithInitialized(Action<IConeFixture> action, Action<Exception> beforeFailure, Action<Exception> afterFailure) {
 			try {
-                if(Create(beforeFailure))
+                if(Initialize(beforeFailure))
                     action(this);
             } finally {
                 Release(afterFailure);
             }
         }
 
-        public bool Create(Action<Exception> error) {
+        public bool Initialize(Action<Exception> error) {
             try {
-                EnsureFixture();
-				Initialize();
+				DoFixtureSetup();
                 return true;
             } catch(Exception ex) {
                 error(ex);
                 return false;
             }
         }
+
+		void DoFixtureSetup() {
+			if(fixtureInitialized) 
+				return;	
+			fixtureMethods.InvokeBeforeAll(EnsureFixture());
+			fixtureInitialized = true;
+		}
 
         public void Release(Action<Exception> error) {
             try {
@@ -100,8 +96,8 @@ namespace Cone.Core
 	    private void DoFixtureCleanup() {
 		    if (!fixtureInitialized) 
 				return;
-		    fixtureInitialized = false;
 		    fixtureMethods.InvokeAfterAll(fixture);
+		    fixtureInitialized = false;
 	    }
 
 	    public Type FixtureType { get { return fixtureType; } }
@@ -113,7 +109,6 @@ namespace Cone.Core
 				fixture = fixtureCreator.NewFixture(FixtureType);
 				FixtureCreated.Raise(this, new FixtureEventArgs(fixture));
 			}
-
 			return fixture;
         }
     }

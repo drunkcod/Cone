@@ -9,8 +9,8 @@ namespace Cone.Addin
             return new AddinSuite(type, description);
         }
 
-        protected override void AddSubSuite(AddinSuite suite, Lazy<AddinSuite> subsuite) {
-            suite.AddSubSuite(subsuite.Value);
+        protected override void AddSubSuite(AddinSuite suite, AddinSuite subsuite) {
+            suite.AddSubSuite(subsuite);
         }
     }
 }

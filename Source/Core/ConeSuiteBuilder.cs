@@ -51,7 +51,7 @@ namespace Cone.Core
         }
 
         protected abstract TSuite NewSuite(Type type, IFixtureDescription description);
-        protected abstract void AddSubSuite(TSuite suite, Lazy<TSuite> subsuite);
+        protected abstract void AddSubSuite(TSuite suite, TSuite subsuite);
 
         TSuite BuildSuite(IEnumerable<string> parentCategories, Type type, IFixtureDescription description) {
             var suite = NewSuite(type, description);
@@ -72,7 +72,7 @@ namespace Cone.Core
 	                    Categories = contextDescription.Categories,
 						TestName = contextDescription.Context
 					};
-                    AddSubSuite(suite, new Lazy<TSuite>(() => BuildSuite(suite.Categories, item, description)));
+                    AddSubSuite(suite, BuildSuite(suite.Categories, item, description));
                 }
             });
         }

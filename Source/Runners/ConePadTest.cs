@@ -22,7 +22,7 @@ namespace Cone.Runners
  		public Type ReturnType { get { return method.ReturnType; } }
 
 		public virtual void Invoke(object[] parameters, ITestResult result) {
-			fixture.Invoke(method, parameters);
+			Invoke(parameters);
 			result.Success();
 		}
 

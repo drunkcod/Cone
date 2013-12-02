@@ -84,7 +84,7 @@ namespace Cone.Runners
 		}
 
         readonly ConeFixture fixture;
-        readonly List<Lazy<ConePadSuite>> @subsuites = new List<Lazy<ConePadSuite>>();
+        readonly List<ConePadSuite> @subsuites = new List<ConePadSuite>();
 		readonly List<string> @categories = new List<string>();
 
 		readonly List<ConePadTest> tests = new List<ConePadTest>();
@@ -96,15 +96,13 @@ namespace Cone.Runners
         public string Name { get; set; }
 		public IEnumerable<string> Categories { get { return categories; } } 
 		public IEnumerable<ConePadSuite> Subsuites { 
-			get { 
-				return subsuites.Select(x => x.Value);
-			} 
+			get { return subsuites; } 
 		}
 
 		public Type FixtureType { get { return fixture.FixtureType; } }
 		public int TestCount { get { return tests.Count + Subsuites.Sum(x => x.TestCount); } }
 
-        public void AddSubSuite(Lazy<ConePadSuite> suite) {
+        public void AddSubSuite(ConePadSuite suite) {
             subsuites.Add(suite);
         }
 
@@ -112,7 +110,7 @@ namespace Cone.Runners
 			var rows = new ConePadRowSuite(this, thunk) {
 				Name = Name + "." + suiteName
 			};
-			AddSubSuite(new Lazy<ConePadSuite>(() => rows));
+			AddSubSuite(rows);
 			return rows;
 		}
 
