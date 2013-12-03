@@ -69,7 +69,6 @@ namespace Cone.Runners
 
 			public ConePadRowSuite(ConePadSuite parent, ConeMethodThunk thunk) : base(parent.fixture) {
 				this.thunk = thunk;
-				AddCategories(parent.Categories);
 			}
 
 			public void Add(IEnumerable<IRowData> rows) {
@@ -84,10 +83,11 @@ namespace Cone.Runners
 		}
 
         readonly ConeFixture fixture;
-        readonly List<ConePadSuite> @subsuites = new List<ConePadSuite>();
-		readonly List<string> @categories = new List<string>();
+        readonly List<ConePadSuite> subsuites = new List<ConePadSuite>();
+		readonly List<ConePadRowSuite>  rowSuites = new List<ConePadRowSuite>();
+		readonly List<string> categories = new List<string>();
 
-		readonly List<ConePadTest> tests = new List<ConePadTest>();
+		readonly List<IConeTest> tests = new List<IConeTest>();
 
         public ConePadSuite(ConeFixture fixture) {
             this.fixture = fixture;
@@ -100,7 +100,7 @@ namespace Cone.Runners
 		}
 
 		public Type FixtureType { get { return fixture.FixtureType; } }
-		public int TestCount { get { return tests.Count + Subsuites.Sum(x => x.TestCount); } }
+		public int TestCount { get { return tests.Count + Subsuites.Sum(x => x.TestCount) + rowSuites.Sum(x => x.TestCount); } }
 
         public void AddSubSuite(ConePadSuite suite) {
             subsuites.Add(suite);
@@ -110,7 +110,7 @@ namespace Cone.Runners
 			var rows = new ConePadRowSuite(this, thunk) {
 				Name = Name + "." + suiteName
 			};
-			AddSubSuite(rows);
+			rowSuites.Add(rows);
 			return rows;
 		}
 
@@ -144,7 +144,7 @@ namespace Cone.Runners
 
         public void Run(Action<IEnumerable<IConeTest>, IConeFixture> collectResults) {
 			fixture.WithInitialized(
-            	x => collectResults(tests.Cast<IConeTest>(), x), 
+            	x => collectResults(tests.Concat(rowSuites.SelectMany(row => row.tests)), x), 
             	_ => { }, 
             	_ => { });
         }
