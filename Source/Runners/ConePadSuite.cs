@@ -67,7 +67,6 @@ namespace Cone.Runners
 		{
 			readonly ConePadSuite parent;
 			readonly ConeMethodThunk thunk;
-			internal readonly List<IConeTest> tests = new List<IConeTest>();
 
 			public ConePadRowSuite(ConePadSuite parent, ConeMethodThunk thunk) {
 				this.parent = parent;
@@ -77,11 +76,11 @@ namespace Cone.Runners
 			public string Name;
 
 			public void Add(IEnumerable<IRowData> rows) {
-				tests.AddRange(rows.Select(item =>
-					parent.NewTest(NameFor(item), thunk, item.Parameters, 
+				rows.ForEach(item =>
+					parent.AddTest(NameFor(item), thunk, item.Parameters, 
 						item.HasResult 
 							? ExpectedTestResult.Value(item.Result)
-							: ExpectedTestResult.None)));
+							: ExpectedTestResult.None));
 			}
 
 			ConeTestName NameFor(IRowData item) {
@@ -91,7 +90,6 @@ namespace Cone.Runners
 
         readonly ConeFixture fixture;
         readonly List<ConePadSuite> subsuites = new List<ConePadSuite>();
-		readonly List<ConePadRowSuite>  rowSuites = new List<ConePadRowSuite>();
 		readonly List<string> categories = new List<string>();
 
 		readonly List<IConeTest> tests = new List<IConeTest>();
@@ -107,18 +105,16 @@ namespace Cone.Runners
 		}
 
 		public Type FixtureType { get { return fixture.FixtureType; } }
-		public int TestCount { get { return tests.Count + Subsuites.Sum(x => x.TestCount) + rowSuites.Sum(x => x.tests.Count); } }
+		public int TestCount { get { return tests.Count + Subsuites.Sum(x => x.TestCount); } }
 
         public void AddSubSuite(ConePadSuite suite) {
             subsuites.Add(suite);
         }
 
 		public IRowSuite AddRowSuite(ConeMethodThunk thunk, string suiteName) {
-			var rows = new ConePadRowSuite(this, thunk) {
+			return new ConePadRowSuite(this, thunk) {
 				Name = Name + "." + suiteName
 			};
-			rowSuites.Add(rows);
-			return rows;
 		}
 
         public void AddCategories(IEnumerable<string> categories) { this.categories.AddRange(categories); }
@@ -155,7 +151,7 @@ namespace Cone.Runners
 
         public void Run(Action<IEnumerable<IConeTest>, IConeFixture> collectResults) {
 			fixture.WithInitialized(
-            	x => collectResults(tests.Concat(rowSuites.SelectMany(row => row.tests)), x), 
+            	x => collectResults(tests, x), 
             	_ => { }, 
             	_ => { });
         }
