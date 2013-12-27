@@ -73,7 +73,7 @@ namespace Cone
 				Errors = expectationFailed.Failures;
 			else
 				Errors = new List<FailedExpectation> {
-					new FailedExpectation(error.Message)
+					new FailedExpectation(testError.Message)
 				};
         }
 
@@ -95,14 +95,14 @@ namespace Cone
             return string.Format("{0}{1}.{2}: {3}\n{4}", prefix, Context, TestName, Message, stackTrace);
         }
 
-        Exception Unwrap(Exception error) {
+        static Exception Unwrap(Exception error) {
             var invocationException = error as TargetInvocationException;
             if (invocationException != null)
                 return Unwrap(invocationException.InnerException);
             return error;
         }
 
-		IEnumerable<StackFrame> GetNestedStackFrames(Exception e) {
+		static IEnumerable<StackFrame> GetNestedStackFrames(Exception e) {
 			if(e == null) 
 				return new StackFrame[0];
 			return GetNestedStackFrames(e.InnerException).Concat(new StackTrace(e, 0, true).GetFrames() ?? new StackFrame[0]);

@@ -7,6 +7,5 @@ namespace Cone
 {
 	[Describe(typeof(OpenBugs))]
 	public class OpenBugs
-	{
-	}
+	{ }
 }
