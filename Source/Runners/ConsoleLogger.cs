@@ -127,7 +127,7 @@ namespace Cone.Runners
 		void WriteTestLabel(ConsoleColor color, string contextName, string testName) {
 			var parts = contextName.Split('.');
 			var skip = 0;
-			while(skip != context.Count && context[skip] == parts[skip])
+			while(skip != context.Count && skip != parts.Length && context[skip] == parts[skip])
 				++skip;
 			context.Set(parts);
 			for(; skip != context.Count; ++skip)
