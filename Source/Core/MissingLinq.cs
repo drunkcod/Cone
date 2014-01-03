@@ -99,6 +99,10 @@ namespace Cone.Core
 				yield return item;
 		}
 
+		public static string Join(this string[] self, string separator) {
+			return string.Join(separator, self);
+		}
+
 		public static string Join(this IEnumerable<string> self, string separator) {
 			using(var items = self.GetEnumerator()) {
 				if(!items.MoveNext())

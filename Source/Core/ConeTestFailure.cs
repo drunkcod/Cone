@@ -31,7 +31,6 @@ namespace Cone
 		public readonly int Column;
 
 		public override string ToString() {
-
 			return string.Format("{0}.{1}({2}) in {3}:line {4}",
 				Method.DeclaringType != null ? TypeFormatter.Format(Method.DeclaringType) : string.Empty,
 				Method.Name,
@@ -39,23 +38,24 @@ namespace Cone
 				File, Line);
 		}
 
-		string Format(ParameterInfo parameter) {
+		static string Format(ParameterInfo parameter) {
 			return string.Format("{0} {1}", TypeFormatter.Format(parameter.ParameterType), parameter.Name);
 		}
 	}
 
     public class ConeTestFailure
     {
-        public string File { get { return HasFrames ? StackFrames[StackFrames.Length - 1].File : null; } }
-        public int Line { get { return HasFrames ? StackFrames[StackFrames.Length - 1].Line : 0; } }
-        public int Column { get { return HasFrames ? StackFrames[StackFrames.Length - 1].Column : 0; } }
+        public string File { get { return HasFrames ? LastFrame.File : null; } }
+	    public int Line { get { return HasFrames ? LastFrame.Line : 0; } }
+        public int Column { get { return HasFrames ? LastFrame.Column : 0; } }
         public readonly string Context;
         public readonly string TestName;
-		public readonly IEnumerable<FailedExpectation> Errors;
+		public readonly FailedExpectation[] Errors;
 		public readonly FailureType FailureType;
 		public readonly ConeStackFrame[] StackFrames;
 
 		bool HasFrames { get { return StackFrames.Length > 0; } }
+	    ConeStackFrame LastFrame { get { return StackFrames[StackFrames.Length - 1]; } }
 
         public ConeTestFailure(ITestName testName, Exception error, FailureType failureType) {
             TestName = testName.Name;
@@ -70,9 +70,9 @@ namespace Cone
 
 			var expectationFailed = testError as CheckFailed;
 			if(expectationFailed != null) 
-				Errors = expectationFailed.Failures;
+				Errors = expectationFailed.Failures.ToArray();
 			else
-				Errors = new List<FailedExpectation> {
+				Errors = new [] {
 					new FailedExpectation(testError.Message)
 				};
         }

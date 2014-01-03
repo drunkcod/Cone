@@ -5,33 +5,7 @@ using System.Text;
 
 namespace Cone.Core
 {
-	class TypeFormatter 
-	{
-		public static string Format(Type type) {
-			if(type == null)
-				throw new ArgumentNullException("type");
-
-			switch(type.FullName) {
-                case "System.Object": return "object";
-                case "System.String": return "string";
-                case "System.Boolean": return "bool";
-                case "System.Int32": return "int";
-                default: 
-                    if(type.IsGenericType) {
-						if(type.GetGenericTypeDefinition() == typeof(Nullable<>))
-							return string.Format("{0}?", Format(type.GetGenericArguments()[0]));
-						else {
-							var genArgs = type.GetGenericArguments().Select(Format);
-							return type.Name.Replace(string.Format("`{0}", genArgs.Length), "<" + genArgs.Join(", ") + ">");
-						}
-					}
-                    return type.Name;
-            }
-        }
-
-	}
-
-    public class ParameterFormatter : IFormatter<object>
+	public class ParameterFormatter : IFormatter<object>
     {
         readonly ICollectionFormatter<object> collectionFormatter;
 
