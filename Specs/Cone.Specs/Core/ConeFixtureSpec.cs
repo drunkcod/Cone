@@ -34,8 +34,8 @@ namespace Cone.Core
         public void supports_static_fixtures() {
             var fixture = FixtureFor(typeof(StaticFixture));
             var result = new Mock<ITestResult>().Object;
-            fixture.Initialize(Nop);
-            fixture.Release(result.AfterFailure);
+            fixture.Initialize();
+            fixture.Release();
         }
 
         class BrokenFixture
@@ -71,7 +71,7 @@ namespace Cone.Core
 		    public void BeforeAll_executed_exactly_once() {
 			    FixtureMethods.BeforeAll( ((Action)FixtureInstance.BeforeAll).Method);
 			    FixtureMethods.BeforeEach( ((Action)FixtureInstance.BeforeEach).Method);
-                Fixture.Initialize(Nop);
+                Fixture.Initialize();
 			    (Fixture as ITestContext).Before();
 			    (Fixture as ITestContext).Before();
 
@@ -90,8 +90,8 @@ namespace Cone.Core
         
         void CreateAndReleaseFixture(Type type, Func<Type, object> fixtureBuilder) {
             var fixture = new ConeFixture(type, new string[0], fixtureBuilder);
-            fixture.Initialize(Nop);
-            fixture.Release(Nop);
+            fixture.Initialize();
+            fixture.Release();
         }
     }
 }

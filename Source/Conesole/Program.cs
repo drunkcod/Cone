@@ -156,10 +156,10 @@ namespace Conesole
             	var results = CreateTestSession(config);
 
 				if(config.IsDryRun) {
-					results.GetResultCollector = _ => (test, result) => result.Success();
+					results.GetTestExecutor = _ => new DryRunTestExecutor();
 				}
 
-                new SimpleConeRunner() {
+                new SimpleConeRunner {
                     Workers = config.Multicore ? Environment.ProcessorCount : 1,
                 }.RunTests(results, CrossDomainConeRunner.LoadTestAssemblies(AssemblyPaths));
 

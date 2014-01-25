@@ -105,7 +105,6 @@ namespace Cone.Runners
                 output.WriteLine();
                 output.WriteLine("Done in {0}.", timeTaken.Elapsed);
             }
-
         }
 
 		readonly ISessionLogger sessionLog;
@@ -117,7 +116,7 @@ namespace Cone.Runners
 
 		public Predicate<IConeTest> ShouldSkipTest = _ => false; 
 		public Predicate<IConeSuite> IncludeSuite = _ => true;
-		public Func<IConeFixture, Action<IConeTest, ITestResult>> GetResultCollector = x => new TestExecutor(x).Run; 
+		public Func<IConeFixture, ITestExecutor> GetTestExecutor = x => new TestExecutor(x);
 
         public void RunSession(Action<Action<ConePadSuite>> @do) {
             sessionLog.BeginSession();
@@ -132,14 +131,23 @@ namespace Cone.Runners
         }
 
         void CollectResults(IEnumerable<IConeTest> tests, IConeFixture fixture, ISuiteLogger suiteLog) {
-			var collectResult = GetResultCollector(fixture);
-			tests.ForEach(test =>
-                suiteLog.WithTestLog(test, log => {
-					if(ShouldSkipTest(test))
-						log.Skipped();
-					else
-						collectResult(test, new TestResult(test, log));
-                }));
+			var testExecutor = GetTestExecutor(fixture);
+			try {
+				testExecutor.Initialize();
+				tests.ForEach(test =>
+					suiteLog.WithTestLog(test, log => {
+						if(ShouldSkipTest(test))
+							log.Skipped();
+						else
+							testExecutor.Run(test, new TestResult(test, log));
+					}));
+			} catch {
+			} finally {
+				try {
+					testExecutor.Relase();
+				} catch {
+				}
+			}
         }
 
 	    public void Report() {

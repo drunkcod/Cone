@@ -150,10 +150,7 @@ namespace Cone.Runners
         }
 
         public void Run(Action<IEnumerable<IConeTest>, IConeFixture> collectResults) {
-			fixture.WithInitialized(
-            	x => collectResults(tests, x), 
-            	_ => { }, 
-            	_ => { });
+			collectResults(tests, fixture);
         }
     }
 }

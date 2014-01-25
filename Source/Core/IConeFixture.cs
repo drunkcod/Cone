@@ -11,5 +11,7 @@ namespace Cone.Core
 
 		object Invoke(MethodInfo method, params object[] args);
 		object GetValue(FieldInfo field);
+		void Initialize();
+		void Release();
     }
 }

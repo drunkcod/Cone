@@ -17,7 +17,24 @@ namespace Cone.Core
         TestContextStep Establish(IFixtureContext context, TestContextStep next);
     }
 
-    public class TestExecutor
+	public interface ITestExecutor
+	{
+		void Run(IConeTest test, ITestResult result);
+		void Initialize();
+		void Relase();
+	}
+
+	public class DryRunTestExecutor : ITestExecutor
+	{
+		public void Run(IConeTest test, ITestResult result) {
+			result.Success();
+		}
+
+		public void Initialize() { }
+		public void Relase() { }
+	}
+
+    public class TestExecutor : ITestExecutor
     {
         static readonly IEnumerable<ITestExecutionContext> ExecutionContext = new ITestExecutionContext[] {
             new TestMethodContext(),
@@ -71,6 +88,14 @@ namespace Cone.Core
 				next = wrap(next, testContext);;
 			wrap(next, context)(test, result);
         }
+
+		public void Initialize() {
+			fixture.Initialize();
+		}
+		
+		public void Relase() {
+			fixture.Release();
+		}
 
         Func<TestContextStep, ITestExecutionContext, TestContextStep> CombineEstablish(IFixtureContext context) {
             return (acc, x) => x.Establish(context, acc);

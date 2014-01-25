@@ -56,35 +56,29 @@ namespace Cone.Core
 
         public void WithInitialized(Action<IConeFixture> action, Action<Exception> beforeFailure, Action<Exception> afterFailure) {
 			try {
-                if(Initialize(beforeFailure))
-                    action(this);
+                Initialize();
+				action(this);
+			} catch(Exception ex) {
+				beforeFailure(ex);
             } finally {
-                Release(afterFailure);
+				try {
+	                Release();
+				} catch(Exception ex) {
+					afterFailure(ex);
+				}
             }
         }
 
-        public bool Initialize(Action<Exception> error) {
-            try {
-				DoFixtureSetup();
-                return true;
-            } catch(Exception ex) {
-                error(ex);
-                return false;
-            }
+        public void Initialize() {
+	        if(fixtureInitialized) 
+		        return;	
+	        fixtureMethods.InvokeBeforeAll(EnsureFixture());
+	        fixtureInitialized = true;
         }
 
-		void DoFixtureSetup() {
-			if(fixtureInitialized) 
-				return;	
-			fixtureMethods.InvokeBeforeAll(EnsureFixture());
-			fixtureInitialized = true;
-		}
-
-        public void Release(Action<Exception> error) {
-            try {
+		public void Release() {
+			try {
 				DoFixtureCleanup();
-            } catch(Exception ex) {
-                error(ex);
             } finally {
 				if(fixture != null) {
 					fixtureCreator.Release(fixture);
