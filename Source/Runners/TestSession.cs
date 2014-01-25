@@ -132,23 +132,33 @@ namespace Cone.Runners
 
         void CollectResults(IEnumerable<IConeTest> tests, IConeFixture fixture, ISuiteLogger suiteLog) {
 			var testExecutor = GetTestExecutor(fixture);
-			try {
-				testExecutor.Initialize();
-				tests.ForEach(test =>
-					suiteLog.WithTestLog(test, log => {
-						if(ShouldSkipTest(test))
-							log.Skipped();
+			var beforeFailure = Initiaize(testExecutor);
+			tests.ForEach(test =>
+				suiteLog.WithTestLog(test, log => {
+					if(ShouldSkipTest(test))
+						log.Skipped();
+					else {
+						ITestResult result = new TestResult(test, log);
+						if(beforeFailure != null)
+							result.BeforeFailure(beforeFailure);
 						else
-							testExecutor.Run(test, new TestResult(test, log));
-					}));
-			} catch {
-			} finally {
-				try {
-					testExecutor.Relase();
-				} catch {
-				}
-			}
+							testExecutor.Run(test, result);
+					}
+				}));
+
+			try {
+				testExecutor.Relase();
+			} catch { }
         }
+
+		static Exception Initiaize(ITestExecutor executor) {
+			try {
+				executor.Initialize();
+				return null;
+			} catch(Exception ex) {
+				return ex;
+			}
+		}
 
 	    public void Report() {
             sessionLog.WriteInfo(output => report.WriteReport(output));
