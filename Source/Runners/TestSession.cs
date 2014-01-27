@@ -132,15 +132,15 @@ namespace Cone.Runners
 
         void CollectResults(IEnumerable<IConeTest> tests, IConeFixture fixture, ISuiteLogger suiteLog) {
 			var testExecutor = GetTestExecutor(fixture);
-			var beforeFailure = Initiaize(testExecutor);
+			var beforeFailure = new Lazy<Exception>(() => Initiaize(testExecutor));
 			tests.ForEach(test =>
 				suiteLog.WithTestLog(test, log => {
 					if(ShouldSkipTest(test))
 						log.Skipped();
 					else {
 						ITestResult result = new TestResult(test, log);
-						if(beforeFailure != null)
-							result.BeforeFailure(beforeFailure);
+						if(beforeFailure.Value != null)
+							result.BeforeFailure(beforeFailure.Value);
 						else
 							testExecutor.Run(test, result);
 					}
