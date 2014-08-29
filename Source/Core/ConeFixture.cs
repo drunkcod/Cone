@@ -15,95 +15,95 @@ namespace Cone.Core
 	}
 
 	public class ConeFixture : IConeFixture
-    {
-        readonly ObjectProvider fixtureCreator;
-        readonly Type fixtureType;
-        object fixture;
-        readonly ConeFixtureMethodCollection fixtureMethods = new ConeFixtureMethodCollection();
+	{
+		readonly ObjectProvider fixtureCreator;
+		readonly Type fixtureType;
+		object fixture;
+		readonly ConeFixtureMethodCollection fixtureMethods = new ConeFixtureMethodCollection();
 		bool fixtureInitialized = false;
 		readonly IEnumerable<string> categories; 
 
-	    public ConeFixture(Type fixtureType, IEnumerable<string> categories, Func<Type, object> fixtureBuilder): 
+		public ConeFixture(Type fixtureType, IEnumerable<string> categories, Func<Type, object> fixtureBuilder): 
 			this(fixtureType, categories, new LambdaObjectProvider(fixtureBuilder)) { }
 
-	    public ConeFixture(Type fixtureType, IEnumerable<string> categories, ObjectProvider fixtureCreator) {
-            this.fixtureType = fixtureType;
+		public ConeFixture(Type fixtureType, IEnumerable<string> categories, ObjectProvider fixtureCreator) {
+			this.fixtureType = fixtureType;
 			this.categories = categories;
-            this.fixtureCreator = fixtureCreator;
-        }
+			this.fixtureCreator = fixtureCreator;
+		}
 
 		public event EventHandler<FixtureEventArgs> FixtureCreated;
 
 		public IEnumerable<string> Categories { get { return categories; } } 
 
-        [SuppressMessage("Microsoft.Design", "CA1033", Justification = "Should never be called directly")]
-        void ITestContext.Before() {
-            fixtureMethods.InvokeBeforeEach(fixture);
-        }
+		[SuppressMessage("Microsoft.Design", "CA1033", Justification = "Should never be called directly")]
+		void ITestContext.Before() {
+			fixtureMethods.InvokeBeforeEach(fixture);
+		}
 
-        [SuppressMessage("Microsoft.Design", "CA1033", Justification = "Should never be called directly")]
-        void ITestContext.After(ITestResult testResult) {           
-            fixtureMethods.InvokeAfterEach(fixture, testResult);
-        }
+		[SuppressMessage("Microsoft.Design", "CA1033", Justification = "Should never be called directly")]
+		void ITestContext.After(ITestResult testResult) {           
+			fixtureMethods.InvokeAfterEach(fixture, testResult);
+		}
 
-        public object Invoke(MethodInfo method, params object[] parameters) {
-            return method.Invoke(EnsureFixture(), parameters);
-        }
+		public object Invoke(MethodInfo method, params object[] parameters) {
+			return method.Invoke(EnsureFixture(), parameters);
+		}
 
 		public object GetValue(FieldInfo field) {
 			return field.GetValue(EnsureFixture());
 		}
 
-        public void WithInitialized(Action<IConeFixture> action, Action<Exception> beforeFailure, Action<Exception> afterFailure) {
+		public void WithInitialized(Action<IConeFixture> action, Action<Exception> beforeFailure, Action<Exception> afterFailure) {
 			try {
-                Initialize();
+				Initialize();
 				action(this);
 			} catch(Exception ex) {
 				beforeFailure(ex);
-            } finally {
+			} finally {
 				try {
-	                Release();
+					Release();
 				} catch(Exception ex) {
 					afterFailure(ex);
 				}
-            }
-        }
+			}
+		}
 
-        public void Initialize() {
-	        if(fixtureInitialized) 
-		        return;	
-	        fixtureMethods.InvokeBeforeAll(EnsureFixture());
-	        fixtureInitialized = true;
-        }
+		public void Initialize() {
+			if(fixtureInitialized) 
+				return;	
+			fixtureMethods.InvokeBeforeAll(EnsureFixture());
+			fixtureInitialized = true;
+		}
 
 		public void Release() {
 			try {
 				DoFixtureCleanup();
-            } finally {
+			} finally {
 				if(fixture != null) {
 					fixtureCreator.Release(fixture);
 					fixture = null;
 				}
 			}
-        }
+		}
 
-	    private void DoFixtureCleanup() {
-		    if (!fixtureInitialized) 
+		private void DoFixtureCleanup() {
+			if (!fixtureInitialized) 
 				return;
-		    fixtureMethods.InvokeAfterAll(fixture);
-		    fixtureInitialized = false;
-	    }
+			fixtureMethods.InvokeAfterAll(fixture);
+			fixtureInitialized = false;
+		}
 
-	    public Type FixtureType { get { return fixtureType; } }
+		public Type FixtureType { get { return fixtureType; } }
 
-        public IConeFixtureMethodSink FixtureMethods { get { return fixtureMethods; } }
+		public IConeFixtureMethodSink FixtureMethods { get { return fixtureMethods; } }
 
-        object EnsureFixture() {
+		object EnsureFixture() {
 			if(fixture == null) {
 				fixture = fixtureCreator.NewFixture(FixtureType);
 				FixtureCreated.Raise(this, new FixtureEventArgs(fixture));
 			}
 			return fixture;
-        }
-    }
+		}
+	}
 }

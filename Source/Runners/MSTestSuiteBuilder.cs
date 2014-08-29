@@ -44,16 +44,12 @@ namespace Cone.Runners
 			{
 				readonly Type fixtureType;
 
-				public MSTestMethodClassifier(Type fixtureType, IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink)
-					: base(fixtureSink, testSink)
-				{
+				public MSTestMethodClassifier(Type fixtureType, IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) : base(fixtureSink, testSink) {
 					this.fixtureType = fixtureType;
 				}
 
-				protected override void ClassifyCore(MethodInfo method)
-				{
-					if (method.GetParameters().Length > 0)
-					{
+				protected override void ClassifyCore(MethodInfo method) {
+					if (method.GetParameters().Length > 0) {
 						Unintresting(method);
 						return;
 					}
@@ -61,11 +57,13 @@ namespace Cone.Runners
 					var attributes = method.GetCustomAttributes(true);
 					var attributeNames = attributes.ConvertAll(x => x.GetType().FullName);
 
-					if (attributeNames.Contains("Microsoft.VisualStudio.TestTools.UnitTesting.TestInitializeAttribute"))
-						BeforeEach(method);
-
-					if (attributeNames.Contains("Microsoft.VisualStudio.TestTools.UnitTesting.TestCleanupAttribute"))
-						AfterEach(method);
+					foreach(var item in attributeNames)
+						switch (item) {
+							case "Microsoft.VisualStudio.TestTools.UnitTesting.TestInitializeAttribute":
+								BeforeEach(method); break;
+							case "Microsoft.VisualStudio.TestTools.UnitTesting.TestCleanupAttribute":
+								AfterEach(method); break;
+						}
 
 					if (attributeNames.Contains("Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute"))
 						Test(method, ExpectedTestResult.None);
@@ -75,29 +73,24 @@ namespace Cone.Runners
 
 			public MSTestSuite(ConeFixture fixture) : base(fixture) { }
 
-			protected override IMethodClassifier GetMethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink)
-			{
+			protected override IMethodClassifier GetMethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) {
 				return new MSTestMethodClassifier(FixtureType, fixtureSink, testSink);
 			}
 		}
 
 		public MSTestSuiteBuilder(ObjectProvider objectProvider) : base(objectProvider) { }
 
-		public override bool SupportedType(Type type)
-		{
+		public override bool SupportedType(Type type) {
 			return type.GetCustomAttributes(true)
 				.Any(x => x.GetType().FullName == "Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute");
 		}
 
-		public override IFixtureDescription DescriptionOf(Type fixtureType)
-		{
+		public override IFixtureDescription DescriptionOf(Type fixtureType) {
 			return new MSTestFixtureDescription(fixtureType);
 		}
 
-		protected override ConePadSuite NewSuite(Type type, IFixtureDescription description)
-		{
-			return new MSTestSuite(MakeFixture(type, description.Categories))
-			{
+		protected override ConePadSuite NewSuite(Type type, IFixtureDescription description) {
+			return new MSTestSuite(MakeFixture(type, description.Categories)) {
 				Name = description.SuiteName + "." + description.TestName
 			};
 		}
