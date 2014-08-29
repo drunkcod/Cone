@@ -12,7 +12,7 @@ using System.Text;
 namespace Conesole
 {
 	public class ConesoleConfiguration
-    {
+	{
 		const string OptionPrefix = "--";
 		readonly Regex OptionPattern = new Regex(string.Format("^{0}(?<option>.+)=(?<value>.+$)", OptionPrefix));
 
@@ -31,18 +31,18 @@ namespace Conesole
 		public bool XmlConsole;
 		public Maybe<string> XmlOutput;
 		public bool TeamCityOutput;
-        public bool Multicore;
+		public bool Multicore;
 
-        public static ConesoleConfiguration Parse(params string[] args) {
+		public static ConesoleConfiguration Parse(params string[] args) {
 			var result = new ConesoleConfiguration();
 			foreach(var item in args)
-        		result.ParseOption(item);
+				result.ParseOption(item);
 			if(result.testFilter == null)
 				result.testFilter = _ => true;
 			if(result.suiteFilter == null)
 				result.suiteFilter = _ => true;
-        	return result;
-        }
+			return result;
+		}
 
 		public static bool IsOption(string value) {
 			return value.StartsWith(OptionPrefix);
@@ -82,12 +82,12 @@ namespace Conesole
 				return;
 			}
 
-            if (item == "--multicore") {
-                Multicore = true;
-                return;
-            }
-            
-            var m = OptionPattern.Match(item);
+			if (item == "--multicore") {
+				Multicore = true;
+				return;
+			}
+			
+			var m = OptionPattern.Match(item);
 			if(!m.Success)
 				throw new ArgumentException("Unknown option:" + item);
 
@@ -124,16 +124,16 @@ namespace Conesole
 				.Replace(".", "\\.")
 				.Replace("*", ".*?"));
 		}
-    }
+	}
 
-    class Program : MarshalByRefObject
-    {
+	class Program : MarshalByRefObject
+	{
 		public string[] AssemblyPaths;
 		public string[] Options;
 
 		static int Main(string[] args) {
-            if(args.Length == 0)
-            	return DisplayUsage();
+			if(args.Length == 0)
+				return DisplayUsage();
 
 			var assemblyPaths = args
 				.Where(x => !ConesoleConfiguration.IsOption(x))
@@ -148,49 +148,49 @@ namespace Conesole
 					runner.Options = args;
 					return runner.Execute();
 			});
-        }
+		}
 
 		int Execute(){
-            try {
+			try {
 				var config = ConesoleConfiguration.Parse(Options);
-            	var results = CreateTestSession(config);
+				var results = CreateTestSession(config);
 
 				if(config.IsDryRun) {
 					results.GetTestExecutor = _ => new DryRunTestExecutor();
 				}
 
-                new SimpleConeRunner {
-                    Workers = config.Multicore ? Environment.ProcessorCount : 1,
-                }.RunTests(results, CrossDomainConeRunner.LoadTestAssemblies(AssemblyPaths));
+				new SimpleConeRunner {
+					Workers = config.Multicore ? Environment.ProcessorCount : 1,
+				}.RunTests(results, CrossDomainConeRunner.LoadTestAssemblies(AssemblyPaths));
 
-            } catch (ReflectionTypeLoadException tle) {
-                foreach (var item in tle.LoaderExceptions)
-                    Console.Error.WriteLine("{0}\n---", item);
+			} catch (ReflectionTypeLoadException tle) {
+				foreach (var item in tle.LoaderExceptions)
+					Console.Error.WriteLine("{0}\n---", item);
 				return -1;
 			} catch(ArgumentException e) {
 				Console.Error.WriteLine(e.Message);
 				return DisplayUsage();
-            } catch (Exception e) {
-                Console.Error.WriteLine(e);
-                return -1;
-            }
+			} catch (Exception e) {
+				Console.Error.WriteLine(e);
+				return -1;
+			}
 
 			return 0;
 		}
 
-        static TestSession CreateTestSession(ConesoleConfiguration config) {
-            return new TestSession(CreateLogger(config)) {
-                IncludeSuite = config.IncludeSuite,
-                ShouldSkipTest = x => !config.IncludeTest(x)
-            };;
+		static TestSession CreateTestSession(ConesoleConfiguration config) {
+			return new TestSession(CreateLogger(config)) {
+				IncludeSuite = config.IncludeSuite,
+				ShouldSkipTest = x => !config.IncludeTest(x)
+			};;
 		}
 
 		static ISessionLogger CreateLogger(ConesoleConfiguration config) {
-            var loggers = new List<ISessionLogger>();
-            if (config.XmlConsole) {
-                loggers.Add(new XmlSessionLogger(new XmlTextWriter(Console.Out){
-                    Formatting = Formatting.Indented
-                }));
+			var loggers = new List<ISessionLogger>();
+			if (config.XmlConsole) {
+				loggers.Add(new XmlSessionLogger(new XmlTextWriter(Console.Out){
+					Formatting = Formatting.Indented
+				}));
 			} 
 			else if(config.TeamCityOutput)
 				loggers.Add(new TeamCityLogger(Console.Out));
@@ -199,27 +199,27 @@ namespace Conesole
 					Verbosity = config.Verbosity,
 					SuccessColor = config.IsDryRun 
 						? ConsoleColor.DarkGreen
- 						: ConsoleColor.Green,
+						: ConsoleColor.Green,
 					Multicore = config.Multicore,
 				};
 				loggers.Add(new ConsoleSessionLogger(settings));
 			}
 
 			if (config.XmlOutput.IsSomething) {
-                loggers.Add(new XmlSessionLogger(new XmlTextWriter(config.XmlOutput.Value, Encoding.UTF8){
-                    Formatting = Formatting.Indented
-                }));
+				loggers.Add(new XmlSessionLogger(new XmlTextWriter(config.XmlOutput.Value, Encoding.UTF8){
+					Formatting = Formatting.Indented
+				}));
 			} 
 			return loggers.Count == 1
 				? loggers[0]
 				: new MulticastSessionLogger(loggers);
 		}
 
-    	static int DisplayUsage() {
-    		using(var reader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("Conesole.Usage.txt"))) {
-    			Console.WriteLine(reader.ReadToEnd());
-    		}
-    		return -1;
-    	}
-    }
+		static int DisplayUsage() {
+			using(var reader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("Conesole.Usage.txt"))) {
+				Console.WriteLine(reader.ReadToEnd());
+			}
+			return -1;
+		}
+	}
 }

@@ -65,10 +65,15 @@ namespace Cone
             RunTests(suiteTypes.AsEnumerable());
         }
 
-        public static void RunTests(IEnumerable<Type> suites) {
+		public static void RunTests(IEnumerable<Type> suites) {
+			RunTests(suites, _ => { });
+		}
+        public static void RunTests(IEnumerable<Type> suites, Action<TestSession> sessionSetup) {
 			var log = new ConePadLogger();
             log.WriteInfo(writer => writer.WriteLine("Running tests!\n----------------------------------"));
-            SimpleConeRunner.RunTests(log, suites);
+			var session = new TestSession(log);
+			sessionSetup(session);
+            new SimpleConeRunner().RunTests(session, suites);
         }
     }
 }

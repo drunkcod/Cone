@@ -9,80 +9,80 @@ using Cone.Core;
 
 namespace Cone.Runners
 {
-    public interface ICrossDomainLogger 
-    {
-        void Info(string message);
-        void Failure(string file, int line, int column, string message);
-    }
+	public interface ICrossDomainLogger 
+	{
+		void Info(string message);
+		void Failure(string file, int line, int column, string message);
+	}
 
-    class CrossDomainSessionLoggerAdapter : ISessionLogger, ISuiteLogger, ITestLogger
-    {
-        readonly ICrossDomainLogger crossDomainLog;
+	class CrossDomainSessionLoggerAdapter : ISessionLogger, ISuiteLogger, ITestLogger
+	{
+		readonly ICrossDomainLogger crossDomainLog;
 
-        public CrossDomainSessionLoggerAdapter(ICrossDomainLogger crossDomainLog) {
-            this.crossDomainLog = crossDomainLog;
-        }
+		public CrossDomainSessionLoggerAdapter(ICrossDomainLogger crossDomainLog) {
+			this.crossDomainLog = crossDomainLog;
+		}
 
-        public bool ShowProgress { get; set; }
+		public bool ShowProgress { get; set; }
 
-        public void WriteInfo(Action<TextWriter> output) {
-            var result = new StringWriter();
-            output(result);
-            crossDomainLog.Info(result.ToString());
-        }
+		public void WriteInfo(Action<TextWriter> output) {
+			var result = new StringWriter();
+			output(result);
+			crossDomainLog.Info(result.ToString());
+		}
 
-        public void BeginSession() { }
+		public void BeginSession() { }
 
-        public ISuiteLogger BeginSuite(IConeSuite suite) {
-            return this;
-        }
+		public ISuiteLogger BeginSuite(IConeSuite suite) {
+			return this;
+		}
 
-        public void EndSuite() { }
+		public void EndSuite() { }
 
-        public ITestLogger BeginTest(IConeTest test) {
-            return this;
-        }
+		public ITestLogger BeginTest(IConeTest test) {
+			return this;
+		}
 
-        public void EndSession() { }
+		public void EndSession() { }
 
-        void ITestLogger.Failure(ConeTestFailure failure) {
-            crossDomainLog.Failure(
-                failure.File,
-                failure.Line,
-                failure.Column,
-                failure.Message);
-        }
+		void ITestLogger.Failure(ConeTestFailure failure) {
+			crossDomainLog.Failure(
+				failure.File,
+				failure.Line,
+				failure.Column,
+				failure.Message);
+		}
 
-        void ITestLogger.Success() {
-            if (ShowProgress)
-                crossDomainLog.Info(".");
-        }
+		void ITestLogger.Success() {
+			if (ShowProgress)
+				crossDomainLog.Info(".");
+		}
 
-        void ITestLogger.Pending(string reason) {
-            if (ShowProgress)
-                crossDomainLog.Info("?");
-        }
+		void ITestLogger.Pending(string reason) {
+			if (ShowProgress)
+				crossDomainLog.Info("?");
+		}
 
-        void ITestLogger.Skipped() { }
+		void ITestLogger.Skipped() { }
 
 		void ITestLogger.EndTest() { }
-    }
+	}
 
-    public class CrossDomainConeRunner
-    {
+	public class CrossDomainConeRunner
+	{
 		[Serializable]
-        class RunTestsCommand
-        {
-            public ICrossDomainLogger Logger;
-            public string[] AssemblyPaths;
+		class RunTestsCommand
+		{
+			public ICrossDomainLogger Logger;
+			public string[] AssemblyPaths;
 
-            public void Execute() {
-                var logger = new CrossDomainSessionLoggerAdapter(Logger) {
-                    ShowProgress = false
-                };
-                new SimpleConeRunner().RunTests(new TestSession(logger), LoadTestAssemblies(AssemblyPaths));             
-            }
-        }
+			public void Execute() {
+				var logger = new CrossDomainSessionLoggerAdapter(Logger) {
+					ShowProgress = false
+				};
+				new SimpleConeRunner().RunTests(new TestSession(logger), LoadTestAssemblies(AssemblyPaths));             
+			}
+		}
 
 		static T WithTestDomain<T>(string applicationBase, string[] assemblyPaths, Func<AppDomain,T> @do) {
 			var domainSetup = new AppDomainSetup {
@@ -117,18 +117,18 @@ namespace Cone.Runners
 			if(assemblyPaths.IsEmpty())
 				throw new ArgumentException("No test assemblies specified");
 			return assemblyPaths.Select(item => Assembly.LoadFile(Path.GetFullPath(item)));
-    	}
+		}
 
-        public static void RunTestsInTemporaryDomain(ICrossDomainLogger logger, string applicationBase, string[] assemblyPaths) {
+		public static void RunTestsInTemporaryDomain(ICrossDomainLogger logger, string applicationBase, string[] assemblyPaths) {
 			WithTestDomain(applicationBase, assemblyPaths, testDomin => {
-			    var runTests = new RunTestsCommand
-			    {
+				var runTests = new RunTestsCommand
+				{
 					Logger = logger,
 					AssemblyPaths = assemblyPaths
-			    };
-			    testDomin.DoCallBack(runTests.Execute);
+				};
+				testDomin.DoCallBack(runTests.Execute);
 				return 0;
 			});
-        }
-    }
+		}
+	}
 }
