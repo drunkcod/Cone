@@ -33,18 +33,15 @@ namespace Cone.Runners
 				return type.FullName == "NUnit.Framework.CategoryAttribute" || IsCategoryAttribute(type.BaseType); 
 			}
 
-			public string SuiteName
-			{
+			public string SuiteName {
 				get { return type.Namespace; }
 			}
 
-			public string SuiteType
-			{
+			public string SuiteType {
 				get { return "TestFixture"; }
 			}
 
-			public string TestName
-			{
+			public string TestName {
 				get { return type.Name; }
 			}
 		}
@@ -55,8 +52,7 @@ namespace Cone.Runners
 			{
 				readonly Type fixtureType;
 
-				public NUnitMethodClassifier(Type fixtureType, IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) : base(fixtureSink, testSink)
-				{
+				public NUnitMethodClassifier(Type fixtureType, IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) : base(fixtureSink, testSink) {
 					this.fixtureType = fixtureType;
 				}
 
@@ -174,8 +170,7 @@ namespace Cone.Runners
 				}
 			}
 
-			public NUnitSuite(ConeFixture fixture) : base(fixture) 
-			{}
+			public NUnitSuite(ConeFixture fixture) : base(fixture) { }
 
 			protected override IMethodClassifier GetMethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink)
 			{
@@ -197,7 +192,7 @@ namespace Cone.Runners
 		}
 
 		protected override ConePadSuite NewSuite(Type type, IFixtureDescription description) {
-            return new NUnitSuite(MakeFixture(type, description.Categories)) { 
+			return new NUnitSuite(MakeFixture(type, description.Categories)) { 
 				Name = description.SuiteName + "." + description.TestName
 			};
 		}

@@ -10,6 +10,7 @@ using System.IO;
 namespace NUnit.Framework
 {
 	public class TestAttribute : Attribute { }
+
 	public class TestFixtureAttribute : Attribute { }
 
 	public class TestFixtureSetUpAttribute : Attribute { }
@@ -29,7 +30,7 @@ namespace NUnit.Framework
 			this.@name = name;
 		}
 
- 		public string Name { get { return @name; } }
+		public string Name { get { return @name; } }
 	}
 
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
@@ -142,7 +143,7 @@ namespace Cone.Runners
 			[Test]
 			public void a_test(){ TestCalled = ++Calls; }
 
-			public void NotATest() { }
+			public void NotATest() { ++Calls; }
 
 
 			[TearDown]
@@ -152,7 +153,7 @@ namespace Cone.Runners
 			public void FixtureTearDown() { FixtureTearDownCalled = ++Calls; }
 		}
 
-		NUnitSuiteBuilder SuiteBuilder = new NUnitSuiteBuilder(new DefaultObjectProvider());
+		readonly NUnitSuiteBuilder SuiteBuilder = new NUnitSuiteBuilder(new DefaultObjectProvider());
 
 		public void supports_building_suites_for_types_with_NUnit_TestFixture_attribute() {
 			Check.That(() => SuiteBuilder.SupportedType(typeof(MyNUnitFixture)));
@@ -198,10 +199,10 @@ namespace Cone.Runners
 			private MyNUnitFixture NUnitFixture;
 			private ConePadSuite NUnitSuite;
 
-			[BeforeEach]
-			public void GivenFixtureInstance() {
+			[BeforeAll]
+			public void CreateFixtureInstance() {
 				NUnitSuite = new NUnitSuiteBuilder(new LambdaObjectProvider(t => NUnitFixture = new MyNUnitFixture())).BuildSuite(typeof(MyNUnitFixture)); 
-                new TestSession(new NullLogger()).RunSession(collectResult => collectResult(NUnitSuite));
+				new TestSession(new NullLogger()).RunSession(collectResult => collectResult(NUnitSuite));
 			}
 
 			public void FixtureSetUp_is_called_to_initialize_fixture() {

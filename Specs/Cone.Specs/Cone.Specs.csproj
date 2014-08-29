@@ -61,6 +61,7 @@
     <Compile Include="Core\TypeFormatterSpec.cs" />
     <Compile Include="Features\RowTests.cs" />
     <Compile Include="Helpers\EventSpySpec.cs" />
+    <Compile Include="Runners\MSTestSuiteBuilderSpec.cs" />
     <Compile Include="Runners\NUnitSuiteBuilderSpec.cs" />
     <Compile Include="CustomMethodExpectFeature.cs" />
     <Compile Include="DisplayClassAttributeSpec.cs" />
