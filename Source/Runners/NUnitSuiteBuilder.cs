@@ -62,7 +62,7 @@ namespace Cone.Runners
 						ClassifyParameterized(method, attributes);
 						return;
 					}
-					var attributeNames = attributes.Select(x => x.GetType().FullName).ToArray();
+					var attributeNames = attributes.ConvertAll(x => x.GetType().FullName);
 					if(attributeNames.Contains("NUnit.Framework.SetUpAttribute")) {
 						BeforeEach(method);
 					}
