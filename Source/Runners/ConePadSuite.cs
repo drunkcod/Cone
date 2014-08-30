@@ -36,20 +36,20 @@ namespace Cone.Runners
 	}
 
 	public class ConePadSuite : IConeSuite
-    {
-        class ConePadTestMethodSink : ConeTestMethodSink
-        {
-            IConeFixture Fixture { get { return suite.fixture; } }
+	{
+		class ConePadTestMethodSink : ConeTestMethodSink
+		{
+			IConeFixture Fixture { get { return suite.fixture; } }
 
 			readonly ConePadSuite suite;
 
-            public ConePadTestMethodSink(ConeTestNamer names, ConePadSuite suite) : base(names) {
-            	this.suite = suite;
-            }
+			public ConePadTestMethodSink(ConeTestNamer names, ConePadSuite suite) : base(names) {
+				this.suite = suite;
+			}
 
-            public Action<ConeMethodThunk, object[], ExpectedTestResult> TestFound;
+			public Action<ConeMethodThunk, object[], ExpectedTestResult> TestFound;
 
-            protected override void TestCore(MethodInfo method, ExpectedTestResult expectedResult) {
+			protected override void TestCore(MethodInfo method, ExpectedTestResult expectedResult) {
 				var thunk = CreateMethodThunk(method);
 				TestFound(thunk, null, expectedResult); 
 			}
@@ -61,7 +61,7 @@ namespace Cone.Runners
 			protected override IRowSuite CreateRowSuite(MethodInfo method, string suiteName) {
 				return suite.AddRowSuite(CreateMethodThunk(method), suiteName);
 			}
-        }
+		}
 
 		class ConePadRowSuite : IRowSuite
 		{
@@ -88,17 +88,17 @@ namespace Cone.Runners
 			}
 		}
 
-        readonly ConeFixture fixture;
-        readonly List<ConePadSuite> subsuites = new List<ConePadSuite>();
-		readonly List<string> categories = new List<string>();
+		readonly ConeFixture fixture;
+		readonly List<ConePadSuite> subsuites = new List<ConePadSuite>();
+		IEnumerable<string> categories = Enumerable.Empty<string>();
 
 		readonly List<IConeTest> tests = new List<IConeTest>();
 
-        public ConePadSuite(ConeFixture fixture) {
-            this.fixture = fixture;
-        }
+		public ConePadSuite(ConeFixture fixture) {
+			this.fixture = fixture;
+		}
 
-        public string Name { get; set; }
+		public string Name { get; set; }
 		public IEnumerable<string> Categories { get { return categories; } } 
 		public IEnumerable<ConePadSuite> Subsuites { 
 			get { return subsuites; } 
@@ -107,9 +107,9 @@ namespace Cone.Runners
 		public Type FixtureType { get { return fixture.FixtureType; } }
 		public int TestCount { get { return tests.Count + Subsuites.Sum(x => x.TestCount); } }
 
-        public void AddSubSuite(ConePadSuite suite) {
-            subsuites.Add(suite);
-        }
+		public void AddSubSuite(ConePadSuite suite) {
+			subsuites.Add(suite);
+		}
 
 		public IRowSuite AddRowSuite(ConeMethodThunk thunk, string suiteName) {
 			return new ConePadRowSuite(this, thunk) {
@@ -117,11 +117,11 @@ namespace Cone.Runners
 			};
 		}
 
-        public void AddCategories(IEnumerable<string> categories) { this.categories.AddRange(categories); }
-            
-        void AddTest(ITestName displayName, ConeMethodThunk thunk, object[] args, ExpectedTestResult result) {
+		public void AddCategories(IEnumerable<string> categories) { this.categories = this.Categories.Concat(categories); }
+			
+		void AddTest(ITestName displayName, ConeMethodThunk thunk, object[] args, ExpectedTestResult result) {
 			tests.Add(NewTest(displayName, thunk, args, result));
-        }
+		}
 
 		IConeTest NewTest(ITestName displayName, ConeMethodThunk thunk, object[] args, ExpectedTestResult result) {
 			return new ConePadTest(displayName, NewTestMethod(fixture, thunk.Method, result), args, thunk);
@@ -143,14 +143,14 @@ namespace Cone.Runners
 			setup.CollectFixtureMethods(fixture.FixtureType);
 		}
 
-        protected virtual IMethodClassifier GetMethodClassifier(
+		protected virtual IMethodClassifier GetMethodClassifier(
 			IConeFixtureMethodSink fixtureSink, 
 			IConeTestMethodSink testSink) {
-        	return new ConeMethodClassifier(fixtureSink, testSink);
-        }
+			return new ConeMethodClassifier(fixtureSink, testSink);
+		}
 
-        public void Run(Action<IEnumerable<IConeTest>, IConeFixture> collectResults) {
+		public void Run(Action<IEnumerable<IConeTest>, IConeFixture> collectResults) {
 			collectResults(tests, fixture);
-        }
-    }
+		}
+	}
 }
