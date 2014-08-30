@@ -152,5 +152,10 @@ namespace Cone.Runners
 		public void Run(Action<IEnumerable<IConeTest>, IConeFixture> collectResults) {
 			collectResults(tests, fixture);
 		}
+
+		public void RunAll(Action<IEnumerable<IConeTest>, IConeFixture> collectResults) {
+			Run(collectResults);
+			Subsuites.Flatten(x => x.Subsuites).ForEach(x => x.Run(collectResults));
+		}
 	}
 }

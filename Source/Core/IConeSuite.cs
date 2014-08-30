@@ -8,10 +8,10 @@ namespace Cone.Core
 		IEnumerable<string> Categories { get; }
 	}
 
-    public interface IConeSuite : IConeEntity
-    {
-        void AddCategories(IEnumerable<string> categories);
+	public interface IConeSuite : IConeEntity
+	{
+		void AddCategories(IEnumerable<string> categories);
 		IRowSuite AddRowSuite(ConeMethodThunk thunk, string suiteName);
 		void DiscoverTests(ConeTestNamer names);
-    }
+	}
 }
