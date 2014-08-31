@@ -39,21 +39,21 @@ namespace Cone.Runners
 		}
 
 		public void RunTests(TestSession results, IEnumerable<Type> suiteTypes) {
-			var toRun = new Queue<ConePadSuite>(suiteTypes
+			var toRun = suiteTypes
 				.Choose<Type, ConePadSuite>(TryBuildSuite)
 				.Flatten(x => x.Subsuites)
-				.Where(x => results.IncludeSuite(x)));
+				.Where(x => results.IncludeSuite(x))
+				.ToList();
+			var claimed = -1;
 
 			Check.Initialize();
 			results.RunSession(collectResults => {
 				ThreadStart runSuite = () => {
-					for (ConePadSuite suite; ; ) {
-						lock (toRun) {
-							if (toRun.Count == 0)
-								return;
-							suite = toRun.Dequeue();
-						}
-						collectResults(suite);
+					for(;;) {
+						var n = Interlocked.Increment(ref claimed);
+						if(n >= toRun.Count)
+							return;
+						collectResults(toRun[n]);
 					}
 				};
 				var workers = new Thread[Workers - 1];
