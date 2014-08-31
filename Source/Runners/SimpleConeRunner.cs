@@ -35,7 +35,7 @@ namespace Cone.Runners
 		public int Workers = 1;
 			
 		public void RunTests(TestSession results, IEnumerable<Assembly> assemblies) {
-			RunTests(results, assemblies.SelectMany(x => x.GetTypes()));
+			RunTests(results, assemblies.SelectMany(x => x.GetExportedTypes()));
 		}
 
 		public void RunTests(TestSession results, IEnumerable<Type> suiteTypes) {
