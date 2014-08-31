@@ -89,13 +89,9 @@ namespace Cone.Runners
 					RowTest(method, testCases.Select(x => (IRowData)new NUnitRowDataAdapter(x)).Concat(ReadSources(testSources)));
 				}
 
-				IEnumerable<IRowData> ReadSources(IEnumerable<object> testSources)
-				{
-					foreach(var item in testSources) {
-						var source = new NUnitTestCaseSource(fixtureType, item);
-						foreach(var testCase in source.GetTestCases())
-							yield return testCase;
-					}
+				IEnumerable<IRowData> ReadSources(IEnumerable<object> testSources) {
+					var source = new NUnitTestCaseSource(fixtureType);
+					return testSources.SelectMany(source.GetTestCases);
 				}
 
 				class NUnitRowDataAdapter : IRowData 
@@ -132,25 +128,25 @@ namespace Cone.Runners
 
 				class NUnitTestCaseSource
 				{
-					readonly Type sourceType;
-					readonly object testCaseSource;
+					readonly Type defaultSource;
 
-					public NUnitTestCaseSource(Type defaultSource, object testCaseSource) {
-						this.testCaseSource = testCaseSource;
-						this.sourceType = (Type)testCaseSource.GetPropertyValue("SourceType") ?? defaultSource;
+					public NUnitTestCaseSource(Type defaultSource) {
+						this.defaultSource = defaultSource;
 					}
 
-					public IEnumerable<IRowData> GetTestCases() {
-						var sourceObject = GetSourceObject();
+					public IEnumerable<IRowData> GetTestCases(object testCaseSource) {
+						var sourceType = (Type)testCaseSource.GetPropertyValue("SourceType") ?? defaultSource;
+						var sourceObject = GetSourceObject(sourceType);
 						var sourceName = (string)testCaseSource.GetPropertyValue("SourceName");
-						var sourceMethod = GetSourceMethod(sourceName);
+						var sourceMethod = GetSourceMethod(sourceType, sourceName);
+
 						if(sourceMethod == null || (sourceObject == null && !sourceMethod.IsStatic))
 							throw new NotSupportedException("Failed to locate TestCaseSource:" + sourceType.FullName + "." + sourceName);
 						foreach(var item in ((IEnumerable)sourceMethod.Invoke(sourceObject, null)))
 							yield return new NUnitRowDataAdapter(item);
 					}
 
-					private MethodInfo GetSourceMethod(string sourceName) {
+					private MethodInfo GetSourceMethod(Type sourceType, string sourceName) {
 						const BindingFlags flags = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 						var method = sourceType.GetMethod(sourceName, flags);
 						if(method != null)
@@ -159,7 +155,7 @@ namespace Cone.Runners
 						return (prop != null && prop.CanRead) ? prop.GetGetMethod(true) : null;
 					}
 
-					private object GetSourceObject() {
+					private object GetSourceObject(Type sourceType) {
 						var ctor = sourceType.GetConstructor(Type.EmptyTypes);						
 						return ctor == null ? null : ctor.Invoke(null);
 					}

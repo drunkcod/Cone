@@ -11,7 +11,10 @@ namespace Cone.Features
 	public class CategoryHandlingFeature
 	{
 		[Feature("Sugar Sweet")]
-		class ExampleSpec		{
+		class ExampleSpec		
+		{
+			public void example() { }
+
 			[Context("I'm Sugar", Category = "Sugar")]
 			public class ExampleSugarSpec
 			{
