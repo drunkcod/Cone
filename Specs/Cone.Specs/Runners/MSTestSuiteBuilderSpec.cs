@@ -25,7 +25,7 @@ namespace Cone.Runners
 	[Describe(typeof(MSTestSuiteBuilder))]
 	public class MSTestSuiteBuilderSpec
 	{
-		readonly MSTestSuiteBuilder SuiteBuilder = new MSTestSuiteBuilder(new DefaultObjectProvider());
+		readonly MSTestSuiteBuilder SuiteBuilder = new MSTestSuiteBuilder(new DefaultFixtureProvider());
 		
 		[TestClass]
 		class MyMSTestFixture
@@ -67,7 +67,7 @@ namespace Cone.Runners
 
 			[BeforeAll]
 			public void Given_description_of_MyMSTestFixture() {
-				var suiteBuilder = new MSTestSuiteBuilder(new DefaultObjectProvider());
+				var suiteBuilder = new MSTestSuiteBuilder(new DefaultFixtureProvider());
 				Description = suiteBuilder.DescriptionOf(typeof(MyMSTestFixture));
 			}
 

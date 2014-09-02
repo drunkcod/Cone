@@ -9,16 +9,17 @@ namespace Cone.Core
 	[Serializable]
 	public class FixtureException : Exception
 	{
-		readonly List<Exception> innerExceptions;
+		readonly List<Exception> innerExceptions = new List<Exception>();
  
 		public FixtureException(SerializationInfo info, StreamingContext context): base(info, context) { }
 
-		public FixtureException(IEnumerable<Exception> innerExceptions) {
-			this.innerExceptions = innerExceptions.ToList();
-		}
+		internal FixtureException() { }
+
 
 		public int Count { get { return innerExceptions.Count; } }
 		public Exception this[int index]{ get { return innerExceptions[index]; } }
+
+		internal void Add(Exception ex) { innerExceptions.Add(ex); }
 	}
 
 	public class ConeFixtureMethodCollection : IConeFixtureMethodSink
@@ -52,17 +53,17 @@ namespace Cone.Core
 		}
 
 		void InvokeAll(object target, List<MethodInfo> methods, params object[] parameters) {
-			var errars = new List<Exception>();
+			var errars = new FixtureException();
 			for (var i = 0; i != methods.Count; ++i)
 				try {
 					var method = methods[i];
 					var methodParameters = method.GetParameters();
-					method.Invoke(target, methodParameters.Length == 0 ? null :  parameters.Length == methodParameters.Length ? parameters : new object[methodParameters.Length]);
+					method.Invoke(target, parameters.Length == methodParameters.Length ? parameters : new object[methodParameters.Length]);
 				} catch(TargetInvocationException e) {
 					errars.Add(e.InnerException);
 				}
 			if(errars.Count > 0)
-				throw new FixtureException(errars);
+				throw errars;
 		}
 	}
 }

@@ -83,7 +83,7 @@ namespace Cone.Runners
 			}
 		}
 
-		public MSTestSuiteBuilder(ObjectProvider objectProvider) : base(objectProvider) { }
+		public MSTestSuiteBuilder(FixtureProvider objectProvider) : base(objectProvider) { }
 
 		public override bool SupportedType(Type type) {
 			return type.GetCustomAttributes(true)

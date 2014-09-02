@@ -16,17 +16,17 @@ namespace Cone.Core
 
 	public class ConeFixture : IConeFixture
 	{
-		readonly ObjectProvider fixtureCreator;
 		readonly Type fixtureType;
-		object fixture;
+		readonly FixtureProvider fixtureCreator;
 		readonly ConeFixtureMethodCollection fixtureMethods = new ConeFixtureMethodCollection();
+		readonly IEnumerable<string> categories;
+		object fixture;
 		bool fixtureInitialized = false;
-		readonly IEnumerable<string> categories; 
 
 		public ConeFixture(Type fixtureType, IEnumerable<string> categories, Func<Type, object> fixtureBuilder): 
 			this(fixtureType, categories, new LambdaObjectProvider(fixtureBuilder)) { }
 
-		public ConeFixture(Type fixtureType, IEnumerable<string> categories, ObjectProvider fixtureCreator) {
+		public ConeFixture(Type fixtureType, IEnumerable<string> categories, FixtureProvider fixtureCreator) {
 			this.fixtureType = fixtureType;
 			this.categories = categories;
 			this.fixtureCreator = fixtureCreator;

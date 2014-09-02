@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Cone.Core
 {
-	public abstract class ObjectProvider
+	public abstract class FixtureProvider
 	{
 		public abstract object NewFixture(Type fixtureType);
 		

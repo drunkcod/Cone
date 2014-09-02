@@ -153,7 +153,7 @@ namespace Cone.Runners
 			public void FixtureTearDown() { FixtureTearDownCalled = ++Calls; }
 		}
 
-		readonly NUnitSuiteBuilder SuiteBuilder = new NUnitSuiteBuilder(new DefaultObjectProvider());
+		readonly NUnitSuiteBuilder SuiteBuilder = new NUnitSuiteBuilder(new DefaultFixtureProvider());
 
 		public void supports_building_suites_for_types_with_NUnit_TestFixture_attribute() {
 			Check.That(() => SuiteBuilder.SupportedType(typeof(MyNUnitFixture)));
@@ -167,7 +167,7 @@ namespace Cone.Runners
 			[BeforeAll]
 			public void Given_description_of_MyNUnitFixture()
 			{
-				var suiteBuilder = new NUnitSuiteBuilder(new DefaultObjectProvider());
+				var suiteBuilder = new NUnitSuiteBuilder(new DefaultFixtureProvider());
 				Description = suiteBuilder.DescriptionOf(typeof(MyNUnitFixture));
 			}
 
@@ -236,7 +236,7 @@ namespace Cone.Runners
 
 			[BeforeEach]
 			public void GivenFixtureWithTestCases() {
-				NUnitSuite = new NUnitSuiteBuilder(new DefaultObjectProvider()).BuildSuite(typeof(FixtureWithTestCases)); 
+				NUnitSuite = new NUnitSuiteBuilder(new DefaultFixtureProvider()).BuildSuite(typeof(FixtureWithTestCases)); 
 			}
 
 			public void theres_one_test_per_case() {
@@ -279,7 +279,7 @@ namespace Cone.Runners
 
 			[BeforeEach]
 			public void GivenFixtureWithTestCases() {
-				NUnitSuite = new NUnitSuiteBuilder(new DefaultObjectProvider()).BuildSuite(typeof(FixtureWithTestCaseSource)); 
+				NUnitSuite = new NUnitSuiteBuilder(new DefaultFixtureProvider()).BuildSuite(typeof(FixtureWithTestCaseSource)); 
 			}
 
 			public void locates_TestCaseData_source_method_in_same_class() {

@@ -6,9 +6,9 @@ namespace Cone.Runners
 {
 	public class ConePadSuiteBuilder : ConeSuiteBuilder<ConePadSuite>
 	{
-		readonly ObjectProvider objectProvider;
+		readonly FixtureProvider objectProvider;
 
-		public ConePadSuiteBuilder(ObjectProvider objectProvider) {
+		public ConePadSuiteBuilder(FixtureProvider objectProvider) {
 			this.objectProvider = objectProvider;
 		}
 		

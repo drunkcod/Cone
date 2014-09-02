@@ -170,7 +170,7 @@ namespace Cone.Runners
 			}
 		}
 
-		public NUnitSuiteBuilder(ObjectProvider objectProvider) : base(objectProvider) { }
+		public NUnitSuiteBuilder(FixtureProvider objectProvider) : base(objectProvider) { }
 
 		public override bool SupportedType(Type type)
 		{

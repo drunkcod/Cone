@@ -48,8 +48,8 @@
     <Compile Include="BeforeAllAttribute.cs" />
     <Compile Include="BeforeEachAttribute.cs" />
     <Compile Include="BoolDisplay.cs" />
-    <Compile Include="Core\DefaultObjectProvider.cs" />
-    <Compile Include="Core\ObjectProvider.cs" />
+    <Compile Include="Core\DefaultFixtureProvider.cs" />
+    <Compile Include="Core\FixtureProvider.cs" />
     <Compile Include="Core\LambdaObjectProvider.cs" />
     <Compile Include="Core\MissingLinq.cs" />
     <Compile Include="Core\ConeAttributeProvider.cs" />

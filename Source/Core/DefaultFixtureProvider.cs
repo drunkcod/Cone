@@ -2,7 +2,7 @@
 
 namespace Cone.Core
 {
-	public class DefaultObjectProvider : ObjectProvider
+	public class DefaultFixtureProvider : FixtureProvider
 	{
 		public override object NewFixture(Type fixtureType) { 
 			if(IsStatic(fixtureType))

@@ -87,7 +87,7 @@ namespace Cone.Core
 		    }
 		}
 
-		ConeFixture FixtureFor(Type type) { return new ConeFixture(type, new string[0], new DefaultObjectProvider()); }
+		ConeFixture FixtureFor(Type type) { return new ConeFixture(type, new string[0], new DefaultFixtureProvider()); }
         
         void CreateAndReleaseFixture(Type type, Func<Type, object> fixtureBuilder) {
             var fixture = new ConeFixture(type, new string[0], fixtureBuilder);
