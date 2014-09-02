@@ -49,16 +49,21 @@ namespace Cone.Runners
 				}
 
 				protected override void ClassifyCore(MethodInfo method) {
-					if (method.GetParameters().Length > 0) {
-						Unintresting(method);
-						return;
-					}
-
 					var attributes = method.GetCustomAttributes(true);
 					var attributeNames = attributes.ConvertAll(x => x.GetType().FullName);
 
 					foreach(var item in attributeNames)
 						switch (item) {
+							case "Microsoft.VisualStudio.TestTools.UnitTesting.ClassInitializeAttribute":
+								if (method.ReturnType == typeof(void) && method.IsStatic) {
+									var parameters = method.GetParameters();
+									if(parameters.Length == 1 && parameters.First().ParameterType.FullName == "Microsoft.VisualStudio.TestTools.UnitTesting.TestContext")
+										BeforeAll(method);
+								}
+								break;
+							
+							case "Microsoft.VisualStudio.TestTools.UnitTesting.ClassCleanupAttribute":
+								AfterAll(method);break;
 							case "Microsoft.VisualStudio.TestTools.UnitTesting.TestInitializeAttribute":
 								BeforeEach(method); break;
 							case "Microsoft.VisualStudio.TestTools.UnitTesting.TestCleanupAttribute":

@@ -56,7 +56,8 @@ namespace Cone.Core
 			for (var i = 0; i != methods.Count; ++i)
 				try {
 					var method = methods[i];
-					method.Invoke(target, method.GetParameters().Length == 0 ? null :  parameters);
+					var methodParameters = method.GetParameters();
+					method.Invoke(target, methodParameters.Length == 0 ? null :  parameters.Length == methodParameters.Length ? parameters : new object[methodParameters.Length]);
 				} catch(TargetInvocationException e) {
 					errars.Add(e.InnerException);
 				}

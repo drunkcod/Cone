@@ -12,6 +12,12 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
 	public class TestInitializeAttribute : Attribute { }
 
 	public class TestCleanupAttribute : Attribute { }
+
+	public class ClassInitializeAttribute : Attribute { }
+
+	public class ClassCleanupAttribute : Attribute { }
+
+	public class TestContext { }
 }
 
 namespace Cone.Runners
@@ -24,10 +30,18 @@ namespace Cone.Runners
 		[TestClass]
 		class MyMSTestFixture
 		{
-			public int Calls;
+			public static int Calls;
+			public static int ClassInitializeCalled;
+			public static int ClassCleanupCalled;
 			public int TestCalled;
 			public int TestInitializeCalled;
 			public int TestCleanupCalled;
+
+			[ClassInitialize]
+			public static void ClassInitialize(TestContext _) { ClassInitializeCalled = ++Calls; }
+
+			[ClassCleanup]
+			public static void ClassCleanup() { ClassCleanupCalled = ++Calls; }
 
 			[TestMethod]
 			public void a_test() { TestCalled = ++Calls; }
@@ -95,6 +109,14 @@ namespace Cone.Runners
 
 			public void TestCleanup_called_after_test() {
 				Check.That(() => MSTestTestClass.TestCleanupCalled == MSTestTestClass.TestCalled + 1);
+			}
+
+			public void ClassInitialize_called_once_before_all() {
+				Check.That(() => MyMSTestFixture.ClassInitializeCalled == 1);
+			}
+
+			public void ClassCleanup_called_after_all() {
+				Check.That(() => MyMSTestFixture.ClassCleanupCalled == MyMSTestFixture.Calls);
 			}
 		}
 	}

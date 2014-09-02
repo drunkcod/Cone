@@ -116,7 +116,7 @@ namespace Cone.Runners
 		public static IEnumerable<Assembly> LoadTestAssemblies(string[] assemblyPaths) {
 			if(assemblyPaths.IsEmpty())
 				throw new ArgumentException("No test assemblies specified");
-			return assemblyPaths.Select(item => Assembly.LoadFile(Path.GetFullPath(item)));
+			return assemblyPaths.ConvertAll(item => Assembly.LoadFile(Path.GetFullPath(item)));
 		}
 
 		public static void RunTestsInTemporaryDomain(ICrossDomainLogger logger, string applicationBase, string[] assemblyPaths) {

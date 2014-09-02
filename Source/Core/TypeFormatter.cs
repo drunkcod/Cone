@@ -23,7 +23,7 @@ namespace Cone.Core
 					if(type.GetGenericTypeDefinition() == typeof(Nullable<>))
 						return string.Format("{0}?", Format(genArgs[0]));
 					
-					return type.Name.Replace("`" + genArgs.Length, "<" + genArgs.Select(Format).Join(", ") + ">");
+					return type.Name.Replace("`" + genArgs.Length, "<" + genArgs.ConvertAll(Format).Join(", ") + ">");
 			}
 		}
 	}
