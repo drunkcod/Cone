@@ -5,7 +5,7 @@ Installation
 -------------------------
 
 Copy the following files to your "NUnit\bin\net-2.0\addins" directory:
-  * Bin\Cone.Addin.dll
+  * Bin\<NUnit Version>\Cone.Addin.dll
   * Bin\Cone.dll
 
 Usage

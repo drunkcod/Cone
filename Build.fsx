@@ -48,8 +48,8 @@ let package() =
 
     zip.AddDirectory("Bin", "Bin") |> ignore
     zip.AddDirectory("Samples", "Samples") |> ignore
+    zip.AddDirectory("Docs", "Docs") |> ignore
     zip.AddFile("Cone.Samples.sln") |> ignore
-    zip.AddFile("Install.txt") |> ignore
     zip.Save(@"Bin\Cone-" + version + ".zip")
     true
 
