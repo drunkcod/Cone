@@ -6,22 +6,22 @@ using System.Collections.Generic;
 
 namespace Cone.Runners
 {
-    public enum LoggerVerbosity {
-        Default,
+	public enum LoggerVerbosity {
+		Default,
 		TestNames,
-        Labels
-    }
+		Labels
+	}
 
-    public class ConsoleLoggerSettings
-    {
-        readonly internal LabledConsoleLoggerContext Context = new LabledConsoleLoggerContext();
-        public LoggerVerbosity Verbosity;
-        public ConsoleColor SuccessColor = ConsoleColor.Green;
+	public class ConsoleLoggerSettings
+	{
+		readonly internal LabledConsoleLoggerContext Context = new LabledConsoleLoggerContext();
+		public LoggerVerbosity Verbosity;
+		public ConsoleColor SuccessColor = ConsoleColor.Green;
 		public bool Multicore;
-    }
+	}
 
-    public class ConsoleSessionLogger : ISessionLogger, ISuiteLogger
-    {
+	public class ConsoleSessionLogger : ISessionLogger, ISuiteLogger
+	{
 		readonly ConsoleLoggerSettings settings;
 		readonly ConsoleLoggerWriter writer;
 
@@ -36,29 +36,29 @@ namespace Cone.Runners
 			writer.SuccessColor = settings.SuccessColor;
 		}
 
-        public void WriteInfo(Action<TextWriter> output) {
-            output(Console.Out);
-        }
+		public void WriteInfo(Action<TextWriter> output) {
+			output(Console.Out);
+		}
 
-        public void BeginSession() { }
+		public void BeginSession() { }
 
-        public ISuiteLogger BeginSuite(IConeSuite suite) {
-            return new ConsoleSessionLogger(settings);
-        }
+		public ISuiteLogger BeginSuite(IConeSuite suite) {
+			return new ConsoleSessionLogger(settings);
+		}
 
-        public void EndSuite() { }
+		public void EndSuite() { }
 
-        public ITestLogger BeginTest(IConeTest test) {
-            return new ConsoleLogger(test, writer);
-        }
+		public ITestLogger BeginTest(IConeTest test) {
+			return new ConsoleLogger(test, writer);
+		}
 
-        public void EndSession() { }
-    }
+		public void EndSession() { }
+	}
 
 	public class ConsoleLoggerWriter
 	{
 		public ConsoleColor InfoColor = ConsoleColor.Gray;
-        public ConsoleColor SuccessColor = ConsoleColor.Green;
+		public ConsoleColor SuccessColor = ConsoleColor.Green;
 		public ConsoleColor FailureColor = ConsoleColor.Red;
 		public ConsoleColor PendingColor = ConsoleColor.Yellow;
 
@@ -69,7 +69,7 @@ namespace Cone.Runners
 				Console.Out.Write(format, args);
 				Console.ForegroundColor = tmp;
 			}
-        }
+		}
 
 		public virtual void WriteFailure(string context, string testName) {
 			Write(FailureColor, "F");
@@ -159,34 +159,34 @@ namespace Cone.Runners
 		}
 	}
 
-    public class ConsoleLogger : ITestLogger
-    {
-        readonly IConeTest test;
+	public class ConsoleLogger : ITestLogger
+	{
+		readonly IConeTest test;
 		readonly ConsoleLoggerWriter writer;
 		bool hasFailed;
 
-        public ConsoleLogger(IConeTest test, ConsoleLoggerWriter writer) {
-            this.test = test;
+		public ConsoleLogger(IConeTest test, ConsoleLoggerWriter writer) {
+			this.test = test;
 			this.writer = writer;
-        }
+		}
 
-        public void Failure(ConeTestFailure failure) {
+		public void Failure(ConeTestFailure failure) {
 			if(hasFailed)
 				return;
 			hasFailed = true;
 			writer.WriteFailure(failure.Context, failure.TestName);
-        }
+		}
 
-        public void Success() {
+		public void Success() {
 			writer.WriteSuccess(test);
 		}
 
-        public void Pending(string reason) {
+		public void Pending(string reason) {
 			writer.WritePending(test);
-        }
+		}
 
-        public void Skipped() { }
+		public void Skipped() { }
 
 		public void EndTest() { }
-    }
+	}
 }

@@ -80,7 +80,7 @@ namespace Cone.Runners
 				var logger = new CrossDomainSessionLoggerAdapter(Logger) {
 					ShowProgress = false
 				};
-				new SimpleConeRunner().RunTests(new TestSession(logger), LoadTestAssemblies(AssemblyPaths));             
+				new SimpleConeRunner().RunTests(new TestSession(logger), LoadTestAssemblies(AssemblyPaths, error => Logger.Info(error)));             
 			}
 		}
 
@@ -113,10 +113,18 @@ namespace Cone.Runners
 			});
 		}
 
-		public static IEnumerable<Assembly> LoadTestAssemblies(string[] assemblyPaths) {
+		public static IEnumerable<Assembly> LoadTestAssemblies(string[] assemblyPaths, Action<string> logError) {
 			if(assemblyPaths.IsEmpty())
 				throw new ArgumentException("No test assemblies specified");
-			return assemblyPaths.ConvertAll(item => Assembly.LoadFile(Path.GetFullPath(item)));
+			var testAssemblies = new List<Assembly>();
+			for(var i = 0; i != assemblyPaths.Length; ++i)
+				try { 
+					testAssemblies.Add(Assembly.LoadFile(Path.GetFullPath(assemblyPaths[i])));
+				}
+				catch (FileNotFoundException ex) {
+					logError("Failed to load: " + assemblyPaths[i]);
+				}
+			return testAssemblies;
 		}
 
 		public static void RunTestsInTemporaryDomain(ICrossDomainLogger logger, string applicationBase, string[] assemblyPaths) {

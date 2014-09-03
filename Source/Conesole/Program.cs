@@ -161,22 +161,26 @@ namespace Conesole
 
 				new SimpleConeRunner {
 					Workers = config.Multicore ? Environment.ProcessorCount : 1,
-				}.RunTests(results, CrossDomainConeRunner.LoadTestAssemblies(AssemblyPaths));
+				}.RunTests(results, CrossDomainConeRunner.LoadTestAssemblies(AssemblyPaths, Error));
 
 			} catch (ReflectionTypeLoadException tle) {
 				foreach (var item in tle.LoaderExceptions)
-					Console.Error.WriteLine("{0}\n---", item);
+					Error("{0}\n---", item);
 				return -1;
 			} catch(ArgumentException e) {
-				Console.Error.WriteLine(e.Message);
+				Error(e.Message);
 				return DisplayUsage();
 			} catch (Exception e) {
-				Console.Error.WriteLine(e);
+				Error(e);
 				return -1;
 			}
 
 			return 0;
 		}
+
+		void Error(string message) { Console.Error.WriteLine(message); }
+		void Error(string format, params object[] args) { Console.Error.WriteLine(format, args); }
+		void Error(Exception e) { Console.Error.WriteLine(e); }
 
 		static TestSession CreateTestSession(ConesoleConfiguration config) {
 			return new TestSession(CreateLogger(config)) {
