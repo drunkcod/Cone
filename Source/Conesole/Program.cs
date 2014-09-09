@@ -8,6 +8,8 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Text;
+using System.Threading;
+using System.Diagnostics;
 
 namespace Conesole
 {
@@ -82,10 +84,13 @@ namespace Conesole
 				return;
 			}
 
-			if (item == "--multicore") {
+			if(item == "--multicore") {
 				Multicore = true;
 				return;
 			}
+
+			if(item == "--autotest")
+				return;
 			
 			var m = OptionPattern.Match(item);
 			if(!m.Success)
@@ -126,6 +131,42 @@ namespace Conesole
 		}
 	}
 
+	class CircularQueue<T>
+	{
+		readonly T[] buffer;
+		volatile int nextAvailable = 0;
+		volatile int lastWritten = 0;
+		volatile int read = 0;
+	
+		public CircularQueue(int bufferSize) {
+			buffer = new T[bufferSize];
+		}
+	
+		public void Enqueue(T value) {
+			var claimed = Interlocked.Increment(ref nextAvailable) - 1;
+			buffer[claimed % buffer.Length] = value;
+			while(Interlocked.CompareExchange(ref lastWritten, claimed + 1, claimed) != claimed)
+				Thread.SpinWait(1);
+		}
+	
+		public bool TryDeque(out T value) {
+			int claim, pos;
+			for(;;) {
+				pos = read;
+				if(nextAvailable == pos) {
+					value = default(T);
+					return false;
+				}
+				claim = Interlocked.CompareExchange(ref read, pos + 1, pos);
+				if(claim == pos) {
+					value = buffer[claim % buffer.Length];
+					return true;
+				}
+			}
+		}
+	}
+
+
 	class Program : MarshalByRefObject
 	{
 		public string[] AssemblyPaths;
@@ -137,17 +178,61 @@ namespace Conesole
 
 			var assemblyPaths = args
 				.Where(x => !ConesoleConfiguration.IsOption(x))
-				.Select(Path.GetFullPath)
-				.ToArray();
+				.ToArray()
+				.ConvertAll(Path.GetFullPath);
 
+			if(!args.Contains("--autotest"))
+				return RunTests(args, assemblyPaths);
+
+			var q = new CircularQueue<string>(32);
+			var watchers = assemblyPaths.ConvertAll(path => {
+				var watcher = new FileSystemWatcher {
+					Path = Path.GetDirectoryName(path),
+					Filter = Path.GetFileName(path),
+				};
+			
+				watcher.Changed += (_, e) => {
+					q.Enqueue(e.FullPath);
+				};
+				watcher.EnableRaisingEvents = true;
+				return watcher;
+
+			});
+
+			Console.WriteLine("Running in autotest mode, press any key to quit.");
+
+			ParameterizedThreadStart workerRunTests = x => RunTests(args, (string[])x); 
+			var worker = new Thread(workerRunTests);
+			worker.Start(assemblyPaths);
+			var changed = new HashSet<string>(); 
+			var cooldown = Stopwatch.StartNew();
+			do {
+				string value;
+				while (q.TryDeque(out value)) { 
+					changed.Add(value);
+					cooldown.Restart();
+				}
+				if(changed.Count > 0 && worker.Join(25) && cooldown.Elapsed.TotalMilliseconds > 100) {
+					worker = new Thread(workerRunTests);
+					worker.Start(changed.ToArray());
+					changed.Clear();
+				} else Thread.Sleep(25);
+			} while(!Console.KeyAvailable);
+			worker.Join();
+			return 0;
+		}
+
+		private static int RunTests(string[] args, string[] assemblyPaths)
+		{
 			return CrossDomainConeRunner.WithProxyInDomain<Program, int>(
-				Path.GetDirectoryName(Path.GetFullPath(assemblyPaths.FirstOrDefault() ?? ".")), 
-				assemblyPaths, 
-				runner => {
+				Path.GetDirectoryName(Path.GetFullPath(assemblyPaths.FirstOrDefault() ?? ".")),
+				assemblyPaths,
+				runner =>
+				{
 					runner.AssemblyPaths = assemblyPaths;
 					runner.Options = args;
 					return runner.Execute();
-			});
+				});
 		}
 
 		int Execute(){

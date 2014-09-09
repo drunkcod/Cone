@@ -5,217 +5,217 @@ using System.Runtime.CompilerServices;
 
 namespace Cone.Core
 {
-    static class Extensions
-    {
-        public static bool IsOfType(this object obj, Type type) {
-            return type.IsAssignableFrom(obj.GetType());
-        }
-    }
+	static class Extensions
+	{
+		public static bool IsOfType(this object obj, Type type) {
+			return type.IsAssignableFrom(obj.GetType());
+		}
+	}
 
-    public enum MyEnum { Value };
+	public enum MyEnum { Value };
 
-    [Flags]
-    enum MyFlags { Flag1 = 1, Flag2 = 2 }
+	[Flags]
+	enum MyFlags { Flag1 = 1, Flag2 = 2 }
 
 
-    [Describe(typeof(ExpressionFormatter))]
-    public class ExpressionFormatterSpec
-    {
-        string FormatBody<T>(Expression<Func<T>> expression) { return new ExpressionFormatter(GetType()).Format(expression.Body); }
+	[Describe(typeof(ExpressionFormatter))]
+	public class ExpressionFormatterSpec
+	{
+		string FormatBody<T>(Expression<Func<T>> expression) { return new ExpressionFormatter(GetType()).Format(expression.Body); }
 
-        void VerifyFormat<T>(Expression<Func<T>> expression, string result) {
-            Check.That(() => FormatBody(expression) == result);
-        }
+		void VerifyFormat<T>(Expression<Func<T>> expression, string result) {
+			Check.That(() => FormatBody(expression) == result);
+		}
 
-        string Format<T>(Expression<Func<T>> expression) { return FormatBody(expression); }
+		string Format<T>(Expression<Func<T>> expression) { return FormatBody(expression); }
 
-        public void array_length() {
-            var array = new int[0];
-            VerifyFormat(() => array.Length, "array.Length");
-        }
+		public void array_length() {
+			var array = new int[0];
+			VerifyFormat(() => array.Length, "array.Length");
+		}
 
-        public void member_call() {
-            var obj = this;
-            VerifyFormat(() => obj.GetType(), "obj.GetType()");
-        }
+		public void member_call() {
+			var obj = this;
+			VerifyFormat(() => obj.GetType(), "obj.GetType()");
+		}
 
-        public void static_method_call() {
-            VerifyFormat(() => DateTime.Parse("2010-07-13"), "DateTime.Parse(\"2010-07-13\")");
-        }
+		public void static_method_call() {
+			VerifyFormat(() => DateTime.Parse("2010-07-13"), "DateTime.Parse(\"2010-07-13\")");
+		}
 
-        public void iif() {
-            var foo = false;
-            VerifyFormat(() => foo ? true : false, "foo ? true : false"); 
-        }
+		public void iif() {
+			var foo = false;
+			VerifyFormat(() => foo ? true : false, "foo ? true : false"); 
+		}
 
-        public void extension_method() {
-            var obj = this;
-            VerifyFormat(() => obj.IsOfType(typeof(object)), "obj.IsOfType(typeof(object))");
-        }
+		public void extension_method() {
+			var obj = this;
+			VerifyFormat(() => obj.IsOfType(typeof(object)), "obj.IsOfType(typeof(object))");
+		}
 
-        public void equality() {
-            var a = 42;
-            VerifyFormat(() => a == 42, "a == 42");
-        }
+		public void equality() {
+			var a = 42;
+			VerifyFormat(() => a == 42, "a == 42");
+		}
 
-        public void addition() {
-            int a = 1, b = 1;
-            VerifyFormat(() => a + b == 2, "(a + b) == 2");
-        }
+		public void addition() {
+			int a = 1, b = 1;
+			VerifyFormat(() => a + b == 2, "(a + b) == 2");
+		}
 
 		public void modulo() {
-            int a = 1, b = 1;
-            VerifyFormat(() => a % b == 1, "(a % b) == 1");
+			int a = 1, b = 1;
+			VerifyFormat(() => a % b == 1, "(a % b) == 1");
 		}
 
 		public void left_shift() {
-            int a = 1, b = 1;
+			int a = 1, b = 1;
 			VerifyFormat(() => a << b == 4, "(a << b) == 4");
 		}
 
 		public void right_shift() {
-            int a = 1, b = 1;
+			int a = 1, b = 1;
 			VerifyFormat(() => a >> b == 4, "(a >> b) == 4");
 		}
 
 		public void property_access() {
-            var date = DateTime.Now;
-            VerifyFormat(() => date.Year, "date.Year");
-        }
+			var date = DateTime.Now;
+			VerifyFormat(() => date.Year, "date.Year");
+		}
 
-        public void string_property_access() {
-            VerifyFormat(() => "String".Length, "\"String\".Length");
-        }
+		public void string_property_access() {
+			VerifyFormat(() => "String".Length, "\"String\".Length");
+		}
 
-        public void string_method() {
-            VerifyFormat(() => "String".Contains("Value"), "\"String\".Contains(\"Value\")");
-        }
+		public void string_method() {
+			VerifyFormat(() => "String".Contains("Value"), "\"String\".Contains(\"Value\")");
+		}
 
-        public void array_with_property_access() {
-            var date = DateTime.Now;
-            VerifyFormat(() => new[] { date.Year }, "new[] { date.Year }");
-        }
+		public void array_with_property_access() {
+			var date = DateTime.Now;
+			VerifyFormat(() => new[] { date.Year }, "new[] { date.Year }");
+		}
 
-        public void type_test()
-        {
-            var now = (object)DateTime.Now;
-            VerifyFormat(() => now is DateTime, "now is DateTime");
-        }
+		public void type_test()
+		{
+			var now = (object)DateTime.Now;
+			VerifyFormat(() => now is DateTime, "now is DateTime");
+		}
 
-        public void static_property_access() {
-            VerifyFormat(() => DateTime.Now, "DateTime.Now");
-        }
+		public void static_property_access() {
+			VerifyFormat(() => DateTime.Now, "DateTime.Now");
+		}
 
-        public void expands_quoted_expression() {
-            var obj = this;
-            VerifyFormat<Func<int>>(() => () => obj.GetHashCode(), "() => obj.GetHashCode()");
-        }
+		public void expands_quoted_expression() {
+			var obj = this;
+			VerifyFormat<Func<int>>(() => () => obj.GetHashCode(), "() => obj.GetHashCode()");
+		}
 
-        public void lambda() {
-            VerifyFormat<Func<int>>(() => () => 1, "() => 1");
-        }
+		public void lambda() {
+			VerifyFormat<Func<int>>(() => () => 1, "() => 1");
+		}
 
-        public void lambda_with_singe_parameter() {
-            VerifyFormat<Func<int, int>>(() => x => 1, "x => 1");
-        }
+		public void lambda_with_singe_parameter() {
+			VerifyFormat<Func<int, int>>(() => x => 1, "x => 1");
+		}
 
-        public void lambda_with_parameters() {
-            VerifyFormat<Func<int,int,int>>(() => (x, y) => 1, "(x, y) => 1");
-        }
+		public void lambda_with_parameters() {
+			VerifyFormat<Func<int,int,int>>(() => (x, y) => 1, "(x, y) => 1");
+		}
 
-        public void inequality() {
-            var a = 42;
-            VerifyFormat(() => a != 42, "a != 42");
-        }
+		public void inequality() {
+			var a = 42;
+			VerifyFormat(() => a != 42, "a != 42");
+		}
 
 		public void generic_type_instance() {
 			VerifyFormat(() => typeof(Maybe<int>), "typeof(Maybe<int>)");
 		}
 
-        public void indexer_property() {
-            var stuff = new Dictionary<string, int>();
-            VerifyFormat(() => stuff["Answer"], "stuff[\"Answer\"]");
-        }
+		public void indexer_property() {
+			var stuff = new Dictionary<string, int>();
+			VerifyFormat(() => stuff["Answer"], "stuff[\"Answer\"]");
+		}
 
-        public void cast_object() { VerifyFormat(() => (object)A, "A"); }
+		public void cast_object() { VerifyFormat(() => (object)A, "A"); }
 
-        public void cast_string() { VerifyFormat(() => (string)Obj, "(string)Obj"); }
+		public void cast_string() { VerifyFormat(() => (string)Obj, "(string)Obj"); }
 
-        public void cast_Boolean() { VerifyFormat(() => (bool)Obj, "(bool)Obj"); }
+		public void cast_Boolean() { VerifyFormat(() => (bool)Obj, "(bool)Obj"); }
 
-        public void cast_Int32() { VerifyFormat(() => (int)Obj, "(int)Obj"); }
+		public void cast_Int32() { VerifyFormat(() => (int)Obj, "(int)Obj"); }
 
-        public void cast_any() { VerifyFormat(() => (Expression)Obj, "(Expression)Obj"); }
+		public void cast_any() { VerifyFormat(() => (Expression)Obj, "(Expression)Obj"); }
 
-        public void array_index() {
-            var rows = new[]{ 42 }; 
-            VerifyFormat(() => rows[0], "rows[0]");
-        }
+		public void array_index() {
+			var rows = new[]{ 42 }; 
+			VerifyFormat(() => rows[0], "rows[0]");
+		}
 
-        object Obj = new object();
-        int A = 42, B = 7;
-        public void fixture_member() {
-            VerifyFormat(() => Format(() => A), "Format(() => A)");
-        }
+		object Obj = new object();
+		int A = 42, B = 7;
+		public void fixture_member() {
+			VerifyFormat(() => Format(() => A), "Format(() => A)");
+		}
 
-        public void greater() { VerifyFormat(() => A > B, "A > B"); }
+		public void greater() { VerifyFormat(() => A > B, "A > B"); }
 
-        public void greater_or_equal() { VerifyFormat(() => A >= B, "A >= B"); }
-        
-        public void less() { VerifyFormat(() => A < B, "A < B"); }
-        
-        public void less_or_equal() { VerifyFormat(() => A <= B, "A <= B"); }
+		public void greater_or_equal() { VerifyFormat(() => A >= B, "A >= B"); }
+		
+		public void less() { VerifyFormat(() => A < B, "A < B"); }
+		
+		public void less_or_equal() { VerifyFormat(() => A <= B, "A <= B"); }
 
-        public void and_also() { 
-            var isTrue = true;
-            VerifyFormat(() => isTrue && !isTrue, "isTrue && !isTrue"); 
-        }
+		public void and_also() { 
+			var isTrue = true;
+			VerifyFormat(() => isTrue && !isTrue, "isTrue && !isTrue"); 
+		}
 
-        public void or_else() {
-            var toBe = true;
-            VerifyFormat(() => toBe || !toBe, "toBe || !toBe"); 
-        }
+		public void or_else() {
+			var toBe = true;
+			VerifyFormat(() => toBe || !toBe, "toBe || !toBe"); 
+		}
 
-        public void xor() {
-            var toBe = true;
-            VerifyFormat(() => toBe ^ !toBe, "toBe ^ !toBe"); 
-        }
+		public void xor() {
+			var toBe = true;
+			VerifyFormat(() => toBe ^ !toBe, "toBe ^ !toBe"); 
+		}
 
-        public void enum_constant_as_actual() { 
-            var expected = MyEnum.Value;
-            VerifyFormat(() => MyEnum.Value == expected, "MyEnum.Value == expected"); 
-        }
+		public void enum_constant_as_actual() { 
+			var expected = MyEnum.Value;
+			VerifyFormat(() => MyEnum.Value == expected, "MyEnum.Value == expected"); 
+		}
 
-        public void enums_constant_as_expected() { 
-            var actual = MyEnum.Value;
-            VerifyFormat(() => actual == MyEnum.Value, "actual == MyEnum.Value"); 
-        }
+		public void enums_constant_as_expected() { 
+			var actual = MyEnum.Value;
+			VerifyFormat(() => actual == MyEnum.Value, "actual == MyEnum.Value"); 
+		}
 
-        public void flags() {
-            VerifyFormat(() => MyFlags.Flag1 | MyFlags.Flag2, "MyFlags.Flag1 | MyFlags.Flag2");
-        }
+		public void flags() {
+			VerifyFormat(() => MyFlags.Flag1 | MyFlags.Flag2, "MyFlags.Flag1 | MyFlags.Flag2");
+		}
 
-        public void enum_return() {
-            var bar = false;
-            VerifyFormat(() => GetEnum() == (bar ? MyEnum.Value : MyEnum.Value), "GetEnum() == (bar ? MyEnum.Value : MyEnum.Value)");
-        }
+		public void enum_return() {
+			var bar = false;
+			VerifyFormat(() => GetEnum() == (bar ? MyEnum.Value : MyEnum.Value), "GetEnum() == (bar ? MyEnum.Value : MyEnum.Value)");
+		}
 
-        MyEnum GetEnum(){ return MyEnum.Value; }
+		MyEnum GetEnum(){ return MyEnum.Value; }
 
-        public void multiply() { VerifyFormat(() => A * B, "A * B"); }
+		public void multiply() { VerifyFormat(() => A * B, "A * B"); }
 
-        public void subtract() { VerifyFormat(() => A - B, "A - B"); }
+		public void subtract() { VerifyFormat(() => A - B, "A - B"); }
 
-        public void divide() { VerifyFormat(() => A / B, "A / B"); }
+		public void divide() { VerifyFormat(() => A / B, "A / B"); }
 
-        public void nullable() { VerifyFormat(() => 4 == (int?)5, "4 == (int?)5"); }
+		public void nullable() { VerifyFormat(() => 4 == (int?)5, "4 == (int?)5"); }
 
 		public void generic_type() { VerifyFormat(() => new List<int>(), "new List<int>()"); }
 
-        public void invoke_niladic() { 
-            Func<int> getAnswer = () => 42;
-            VerifyFormat(() => getAnswer(), "getAnswer()");
-        }
+		public void invoke_niladic() { 
+			Func<int> getAnswer = () => 42;
+			VerifyFormat(() => getAnswer(), "getAnswer()");
+		}
 
 		public void as_expression() {
 			var items = new List<object[]>{ new[] { "Hello" } };
@@ -234,56 +234,56 @@ namespace Cone.Core
 				() => ExpressionFormatter.IsCompilerGenerated(typeof(CompilerGeneratedClass.Nested)));
 		}
 
-        [Context("nested expressions")]
-        public class NestedExpressions
-        {
-            string FormatBody<T>(Expression<Func<T>> expression) { return new ExpressionFormatter(GetType()).Format(expression.Body); }
+		[Context("nested expressions")]
+		public class NestedExpressions
+		{
+			string FormatBody<T>(Expression<Func<T>> expression) { return new ExpressionFormatter(GetType()).Format(expression.Body); }
 
-            void VerifyFormat<T>(Expression<Func<T>> expression, string result) {
-                Check.That(() => FormatBody(expression) == result);
-            }
+			void VerifyFormat<T>(Expression<Func<T>> expression, string result) {
+				Check.That(() => FormatBody(expression) == result);
+			}
 
-            bool Foo(object obj) { return true; }
+			bool Foo(object obj) { return true; }
 
-            class Bar 
-            {
-                public Bar(object obj) { }
-                public int Value;
-                public int Answer;
-                //to silence warnings
-                public void SetValue(int value) { Value = value; }
-                public void SetAnsewr(int value) { Answer = value; }
-            }
+			class Bar 
+			{
+				public Bar(object obj) { }
+				public int Value;
+				public int Answer;
+				//to silence warnings
+				public void SetValue(int value) { Value = value; }
+				public void SetAnsewr(int value) { Answer = value; }
+			}
 
-            public void boolean_constant() { VerifyFormat(Expression.Lambda<Func<bool>>(Expression.Constant(true)), "true"); }
+			public void boolean_constant() { VerifyFormat(Expression.Lambda<Func<bool>>(Expression.Constant(true)), "true"); }
 
-            public void function_arguments() { VerifyFormat(() => Foo(true), "Foo(true)"); }
+			public void function_arguments() { VerifyFormat(() => Foo(true), "Foo(true)"); }
 
-            public void ctor_arguments() { VerifyFormat(() => new Bar(true), "new Bar(true)"); }
+			public void ctor_arguments() { VerifyFormat(() => new Bar(true), "new Bar(true)"); }
 
-            public void anonymous_type() { VerifyFormat(() => new { A = 1 }, "new { A = 1 }"); }
+			public void anonymous_type() { VerifyFormat(() => new { A = 1 }, "new { A = 1 }"); }
 
-            public void ctor_initializer() { 
-                var value = 42;
-                VerifyFormat(() => new Bar(null){ Value = value }, "new Bar(null){ Value = value }"); 
-            }
+			public void ctor_initializer() { 
+				var value = 42;
+				VerifyFormat(() => new Bar(null){ Value = value }, "new Bar(null){ Value = value }"); 
+			}
 
-            public void ctor_multi_initializer() { 
-                var value = 42;
-                VerifyFormat(() => new Bar(null){ Value = value, Answer = 42 }, "new Bar(null){ Value = value, Answer = 42 }"); 
-            }
+			public void ctor_multi_initializer() { 
+				var value = 42;
+				VerifyFormat(() => new Bar(null){ Value = value, Answer = 42 }, "new Bar(null){ Value = value, Answer = 42 }"); 
+			}
 
-            public void parens_left() {
-                int a = 1, b = 2;
-                VerifyFormat(() => (a == b) == false, "(a == b) == false");
-            }
+			public void parens_left() {
+				int a = 1, b = 2;
+				VerifyFormat(() => (a == b) == false, "(a == b) == false");
+			}
 
-            public void parens_right() {
-                int a = 1, b = 2;
-                VerifyFormat(() => false == (a == b), "false == (a == b)");
-            }
+			public void parens_right() {
+				int a = 1, b = 2;
+				VerifyFormat(() => false == (a == b), "false == (a == b)");
+			}
 
-        }
+		}
 
-    }
+	}
 }

@@ -2,14 +2,14 @@
 
 namespace Cone.Samples.Failures
 {
-    [Feature("Failure")]
-    public class FailureMessagesFeature
-    {
-        public void string_example() { Check.That(() => "Hello World".Length == 3); }
+	[Feature("Failure")]
+	public class FailureMessagesFeature
+	{
+		public void string_example() { Check.That(() => "Hello World".Length == 3); }
 
-        public int TheAnswer = 42;
+		public int TheAnswer = 42;
 
-        public void member_access_example() { Check.That(() => TheAnswer == 7); }
+		public void member_access_example() { Check.That(() => TheAnswer == 7); }
 
 		public void error_before_verification() {
 			DoDie();
@@ -32,7 +32,7 @@ namespace Cone.Samples.Failures
 			int zero = 0; 
 			Check.That(() => 2 / zero == 3); 
 		}
-    }
+	}
 
 	[Feature("BeforeAll failure")]
 	public class BeforeAllFailure 
