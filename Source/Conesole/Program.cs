@@ -201,7 +201,11 @@ namespace Conesole
 
 			Console.WriteLine("Running in autotest mode, press any key to quit.");
 
-			ParameterizedThreadStart workerRunTests = x => RunTests(args, (string[])x); 
+			ParameterizedThreadStart workerRunTests = x => {
+				var paths = (string[])x;
+				Console.WriteLine("Changed detected in: {0}\n\t", string.Join("\n\t", paths));
+				RunTests(args, paths);
+			};
 			var worker = new Thread(workerRunTests);
 			worker.Start(assemblyPaths);
 			var changed = new HashSet<string>(); 
@@ -236,9 +240,10 @@ namespace Conesole
 		}
 
 		int Execute(){
+			var result = new ConesoleResultLogger();
 			try {
 				var config = ConesoleConfiguration.Parse(Options);
-				var results = CreateTestSession(config);
+				var results = CreateTestSession(config, result);
 
 				if(config.IsDryRun) {
 					results.GetTestExecutor = _ => new DryRunTestExecutor();
@@ -260,22 +265,25 @@ namespace Conesole
 				return -1;
 			}
 
-			return 0;
+			return result.FailureCount;
 		}
 
 		void Error(string message) { Console.Error.WriteLine(message); }
 		void Error(string format, params object[] args) { Console.Error.WriteLine(format, args); }
 		void Error(Exception e) { Console.Error.WriteLine(e); }
 
-		static TestSession CreateTestSession(ConesoleConfiguration config) {
-			return new TestSession(CreateLogger(config)) {
+		static TestSession CreateTestSession(ConesoleConfiguration config, ISessionLogger baseLogger) {
+			return new TestSession(CreateLogger(config, baseLogger)) {
 				IncludeSuite = config.IncludeSuite,
 				ShouldSkipTest = x => !config.IncludeTest(x)
 			};;
 		}
 
-		static ISessionLogger CreateLogger(ConesoleConfiguration config) {
-			var loggers = new List<ISessionLogger>();
+		static ISessionLogger CreateLogger(ConesoleConfiguration config, ISessionLogger baseLogger) {
+			var loggers = new List<ISessionLogger> {
+				baseLogger
+			};
+
 			if (config.XmlConsole) {
 				loggers.Add(new XmlSessionLogger(new XmlTextWriter(Console.Out){
 					Formatting = Formatting.Indented
@@ -310,5 +318,35 @@ namespace Conesole
 			}
 			return -1;
 		}
+	}
+
+	class ConesoleResultLogger : ISessionLogger, ISuiteLogger, ITestLogger
+	{
+		public int FailureCount;
+
+		public void WriteInfo(Action<TextWriter> output) { }
+
+		public void BeginSession() { }
+
+		public ISuiteLogger BeginSuite(IConeSuite suite) { return this; }
+
+		public void EndSession() { }
+
+		public ITestLogger BeginTest(IConeTest test) { return this; }
+
+		public void EndSuite() { }
+
+		public void Failure(Cone.ConeTestFailure failure)
+		{
+			Interlocked.Increment(ref FailureCount);
+		}
+
+		public void Success() { }
+
+		public void Pending(string reason) { }
+
+		public void Skipped() { }
+
+		public void EndTest() { }
 	}
 }
