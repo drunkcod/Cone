@@ -1,6 +1,7 @@
 ﻿using Cone.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Linq;
 
 //mimic MSTest framework attributes
 namespace Microsoft.VisualStudio.TestTools.UnitTesting
@@ -37,6 +38,9 @@ namespace Cone.Runners
 			public int TestInitializeCalled;
 			public int TestCleanupCalled;
 
+			[TestClass]
+			public class NestedMSTestFixture { }
+
 			[ClassInitialize]
 			public static void ClassInitialize(TestContext _) { ClassInitializeCalled = ++Calls; }
 
@@ -52,12 +56,22 @@ namespace Cone.Runners
 			[TestCleanup]
 			public void TestCleanup() { TestCleanupCalled = ++Calls; }
 
-
 			public void NotATest() { ++Calls; }
 		}
 
 		public void supports_types_with_TestClass_attribute() {
 			Check.That(() => SuiteBuilder.SupportedType(typeof(MyMSTestFixture)));
+		}
+
+		public void nested_fixtures_are_added_as_children()
+		{
+			var suite = SuiteBuilder.BuildSuite(typeof(MyMSTestFixture));
+			Check.That(() => suite.Subsuites.Count() == 1);
+		}
+
+		public void nested_fixtures_are_not_supported_at_toplevel()
+		{
+			Check.That(() => SuiteBuilder.SupportedType(typeof(MyMSTestFixture.NestedMSTestFixture)) == false);
 		}
 
 		[Context("given description of MyMSTestFixture")]
@@ -75,14 +89,13 @@ namespace Cone.Runners
 				Check.That(() => Description.SuiteType == "TestClass");
 			}
 
-			public void test_name_is_name_of_fixtur() {
+			public void test_name_is_name_of_fixture() {
 				Check.That(() => Description.TestName == typeof(MyMSTestFixture).Name);
 			}
 
 			public void suite_name_is_namespace_of_fixture() {
 				Check.That(() => Description.SuiteName == typeof(MyMSTestFixture).Namespace);
 			}
-
 		}
 
 		[Context("given a test class")]

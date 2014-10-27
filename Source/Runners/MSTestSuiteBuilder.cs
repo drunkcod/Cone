@@ -38,6 +38,23 @@ namespace Cone.Runners
 			}
 		}
 
+		class MSTestContextDescription : IContextDescription
+		{
+			readonly Type type;
+
+			public MSTestContextDescription(Type type) {
+				this.type = type;
+			}
+
+			public string Context {
+				get { return type.Name; }
+			}
+
+			public IEnumerable<string> Categories {
+				get { return new string[0]; }
+			}
+		}
+
 		class MSTestSuite : ConePadSuite
 		{
 			class MSTestMethodClassifier : MethodClassifier
@@ -86,6 +103,10 @@ namespace Cone.Runners
 		public MSTestSuiteBuilder(FixtureProvider objectProvider) : base(objectProvider) { }
 
 		public override bool SupportedType(Type type) {
+			return IsTestClass(type) && (type.DeclaringType == null || !IsTestClass(type.DeclaringType));
+		}
+
+		private static bool IsTestClass(Type type) {
 			return type.GetCustomAttributes(true)
 				.Any(x => x.GetType().FullName == "Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute");
 		}
@@ -98,6 +119,14 @@ namespace Cone.Runners
 			return new MSTestSuite(MakeFixture(type, description.Categories)) {
 				Name = description.SuiteName + "." + description.TestName
 			};
+		}
+
+		protected override bool TryGetContext(Type nestedType, out IContextDescription context)
+		{
+			if(IsTestClass(nestedType)) {
+				context = new MSTestContextDescription(nestedType);
+			} else context = null;
+			return context != null;
 		}
 	}
 }

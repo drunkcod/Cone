@@ -63,9 +63,9 @@ namespace Cone.Core
 		}
 
 		void AddNestedContexts(Type suiteType, TSuite suite) {
-			ContextAttribute contextDescription;
+			IContextDescription contextDescription;
 			suiteType.GetNestedTypes(BindingFlags.Public).ForEach(item => {
-				if (item.TryGetAttribute(out contextDescription)) {
+				if (TryGetContext(item, out contextDescription)) {
 					var description = new ContextDescription {
 						SuiteName = suite.Name,
 						Categories = suite.Categories.Concat(contextDescription.Categories),
@@ -74,6 +74,13 @@ namespace Cone.Core
 						AddSubSuite(suite, BuildSuite(item, description));
 				}
 			});
+		}
+
+		protected virtual bool TryGetContext(Type nestedType, out IContextDescription context) {
+			ContextAttribute attr;
+			var result = nestedType.TryGetAttribute(out attr);
+			context = attr;
+			return result;
 		}
 
 		public virtual IFixtureDescription DescriptionOf(Type fixtureType) {
