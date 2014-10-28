@@ -34,6 +34,7 @@ namespace Conesole
 		public Maybe<string> XmlOutput;
 		public bool TeamCityOutput;
 		public bool Multicore;
+		public string ConfigPath;
 
 		public static ConesoleConfiguration Parse(params string[] args) {
 			var result = new ConesoleConfiguration();
@@ -120,6 +121,9 @@ namespace Conesole
 			}
 			else if(option == "xml") {
 				XmlOutput = valueRaw.ToMaybe();
+			} else if(option == "config") {
+				var fullPath = Path.GetFullPath(valueRaw);
+				ConfigPath = fullPath;
 			} else 
 				throw new ArgumentException("Unknown option:" + item);
 		}
@@ -140,13 +144,21 @@ namespace Conesole
 			if(args.Length == 0)
 				return DisplayUsage();
 
+			string configPath = null;
+			try {
+				var config = ConesoleConfiguration.Parse(args);
+				configPath = config.ConfigPath;
+			} catch {
+				return DisplayUsage();
+			}
+
 			var assemblyPaths = args
 				.Where(x => !ConesoleConfiguration.IsOption(x))
 				.ToArray()
 				.ConvertAll(Path.GetFullPath);
 
 			if(!args.Contains("--autotest"))
-				return RunTests(args, assemblyPaths);
+				return RunTests(args, assemblyPaths, configPath);
 
 			var q = new CircularQueue<string>(32);
 			var watchers = assemblyPaths.ConvertAll(path => {
@@ -168,7 +180,7 @@ namespace Conesole
 			ParameterizedThreadStart workerRunTests = x => {
 				var paths = (string[])x;
 				Console.WriteLine("[{0}] Change(s) detected in: {1}\n\t", DateTime.Now.ToString("HH:mm:ss"), string.Join("\n\t", paths));
-				RunTests(args, paths);
+				RunTests(args, paths, configPath);
 			};
 			var worker = new Thread(workerRunTests);
 			worker.Start(assemblyPaths);
@@ -190,16 +202,17 @@ namespace Conesole
 			return 0;
 		}
 
-		private static int RunTests(string[] args, string[] assemblyPaths)
+		private static int RunTests(string[] args, string[] assemblyPaths, string configPath)
 		{
 			return CrossDomainConeRunner.WithProxyInDomain<Program, int>(
 				Path.GetDirectoryName(Path.GetFullPath(assemblyPaths.FirstOrDefault() ?? ".")),
+				configPath,
 				assemblyPaths,
-				runner =>
+				program =>
 				{
-					runner.AssemblyPaths = assemblyPaths;
-					runner.Options = args;
-					return runner.Execute();
+					program.AssemblyPaths = assemblyPaths;
+					program.Options = args;
+					return program.Execute();
 				});
 		}
 
@@ -288,7 +301,7 @@ namespace Conesole
 	{
 		public int FailureCount;
 
-		public void WriteInfo(Action<TextWriter> output) { }
+		public void WriteInfo(Action<ISessionWriter> output) { }
 
 		public void BeginSession() { }
 

@@ -25,9 +25,9 @@ namespace Cone.Runners
 
 		public bool ShowProgress { get; set; }
 
-		public void WriteInfo(Action<TextWriter> output) {
+		public void WriteInfo(Action<ISessionWriter> output) {
 			var result = new StringWriter();
-			output(result);
+			output(new TextSessionWriter(result));
 			crossDomainLog.Info(result.ToString());
 		}
 
@@ -84,17 +84,18 @@ namespace Cone.Runners
 			}
 		}
 
-		static T WithTestDomain<T>(string applicationBase, string[] assemblyPaths, Func<AppDomain,T> @do) {
+		static T WithTestDomain<T>(string applicationBase, string configPath, string[] assemblyPaths, Func<AppDomain,T> @do) {
 			var domainSetup = new AppDomainSetup {
 				ApplicationBase = applicationBase,
 				ShadowCopyFiles = "False",
 			};
 			Environment.CurrentDirectory = applicationBase;
-			if(assemblyPaths.Length == 1) {
-				var configPath = Path.GetFullPath(assemblyPaths[0] + ".config");
-				if(File.Exists(configPath))
-					domainSetup.ConfigurationFile = configPath;
-			}
+			if(string.IsNullOrEmpty(configPath) && assemblyPaths.Length == 1)
+				configPath = Path.GetFullPath(assemblyPaths[0] + ".config");
+						
+			if(File.Exists(configPath))
+				domainSetup.ConfigurationFile = configPath;
+			
 			var testDomain = AppDomain.CreateDomain("Cone.TestDomain", 
 				null,
 				domainSetup, 
@@ -106,8 +107,8 @@ namespace Cone.Runners
 			}
 		}
 
-		public static TResult WithProxyInDomain<T,TResult>(string applicationBase, string[] assemblyPaths, Func<T, TResult> @do) {
-			return WithTestDomain(applicationBase, assemblyPaths, testDomain => {
+		public static TResult WithProxyInDomain<T,TResult>(string applicationBase, string configPath, string[] assemblyPaths, Func<T, TResult> @do) {
+			return WithTestDomain(applicationBase, configPath, assemblyPaths, testDomain => {
 				var proxy = (T)testDomain.CreateInstanceFrom(typeof(T).Assembly.Location, typeof(T).FullName).Unwrap();
 				return @do(proxy);
 			});
@@ -121,14 +122,14 @@ namespace Cone.Runners
 				try { 
 					testAssemblies.Add(Assembly.LoadFile(Path.GetFullPath(assemblyPaths[i])));
 				}
-				catch (FileNotFoundException ex) {
+				catch (FileNotFoundException) {
 					logError("Failed to load: " + assemblyPaths[i]);
 				}
 			return testAssemblies;
 		}
 
-		public static void RunTestsInTemporaryDomain(ICrossDomainLogger logger, string applicationBase, string[] assemblyPaths) {
-			WithTestDomain(applicationBase, assemblyPaths, testDomin => {
+		public static void RunTestsInTemporaryDomain(ICrossDomainLogger logger, string applicationBase, string configPath, string[] assemblyPaths) {
+			WithTestDomain(applicationBase, configPath, assemblyPaths, testDomin => {
 				var runTests = new RunTestsCommand
 				{
 					Logger = logger,

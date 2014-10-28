@@ -82,7 +82,7 @@ namespace Cone.Runners
 				return this;
 			}
 
-			public void WriteInfo(Action<TextWriter> output) { }
+			public void WriteInfo(Action<ISessionWriter> output) { }
 
 			public void Success() { Interlocked.Increment(ref Passed); }
 
@@ -94,13 +94,17 @@ namespace Cone.Runners
 
 			public void EndTest() { }
 
-			public void WriteReport(TextWriter output) {
+			public void WriteReport(ISessionWriter output) {
 				output.WriteLine();
 				output.WriteLine("{0} tests found. {1} Passed. {2} Failed. ({3} Skipped)", Total, Passed, Failed, Excluded);
 
 				if (failures.Count > 0) {
 					output.WriteLine("Failures:");
-					failures.ForEach((n, failure) => output.WriteLine("{0}) {1}", 1 + n, failure));
+					failures.ForEach((n, failure) => {
+						output.Write("{0}) ", 1 + n);
+						failure.WriteTo(output);
+						output.WriteLine();
+					});
 				}
 				output.WriteLine();
 				output.WriteLine("Done in {0}.", timeTaken.Elapsed);

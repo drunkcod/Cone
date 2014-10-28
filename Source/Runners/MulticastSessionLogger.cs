@@ -84,12 +84,8 @@ namespace Cone.Runners
 			children.ForEach(x => x.EndSession());
 		}
 
-		public void WriteInfo(Action<TextWriter> output) {
-			using (var outputResult = new StringWriter()) {
-				output(outputResult);
-				var result = outputResult.ToString();
-				children.ForEach(x => x.WriteInfo(writer => writer.Write(result)));
-			}
+		public void WriteInfo(Action<ISessionWriter> output) {
+			children.ForEach(x => x.WriteInfo(output));
 		}
 	}
 }

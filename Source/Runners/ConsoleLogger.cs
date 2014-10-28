@@ -36,8 +36,8 @@ namespace Cone.Runners
 			writer.SuccessColor = settings.SuccessColor;
 		}
 
-		public void WriteInfo(Action<TextWriter> output) {
-			output(Console.Out);
+		public void WriteInfo(Action<ISessionWriter> output) {
+			output(new ConsoleSessionWriter());
 		}
 
 		public void BeginSession() { }

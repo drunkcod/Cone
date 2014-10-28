@@ -17,9 +17,9 @@ namespace Cone.Runners
 			this.output = output;
 		}
 
-		void ISessionLogger.WriteInfo(Action<TextWriter> output) {
+		void ISessionLogger.WriteInfo(Action<ISessionWriter> output) {
 			var message = new StringWriter();
-			output(message);
+			output(new TextSessionWriter(message));
 			WriteLine("##teamcity[message text='{0}' status='NORMAL']", message);
 		}
 
