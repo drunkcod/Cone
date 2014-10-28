@@ -7,9 +7,9 @@ namespace Cone.Runners
 	public interface ISessionWriter
 	{
 		void Write(string format, params object[] args);
-		void WriteHighlight(string format, params object[] args);
-		void WriteLine();
-		void WriteLine(string format, params object[] args);
+		void Important(string format, params object[] args);
+		void Info(string format, params object[] args);
+		void NewLine();
 	}
 
 	class TextSessionWriter : ISessionWriter
@@ -22,29 +22,34 @@ namespace Cone.Runners
 
 		public void Write(string format, params object[] args) { writer.Write(format, args); }
 
-		public void WriteHighlight(string format, params object[] args) { Write(format, args); }
+		public void Important(string format, params object[] args) { Write(format, args); }
 
-		public void WriteLine() { writer.WriteLine(); }
+		public void Info(string format, params object[] args) { Write(format, args); }
 
-		public void WriteLine(string format, params object[] args) { writer.WriteLine(format, args); }
+		public void NewLine() { writer.WriteLine(); }
 	}
 
 	class ConsoleSessionWriter : ISessionWriter
 	{
+		public const ConsoleColor ImportantColor = ConsoleColor.Yellow;
+		public const ConsoleColor InfoColor = ConsoleColor.Cyan;
+
 		public void Write(string format, params object[] args) { Console.Write(format, args); }
 
-		public void WriteHighlight(string format, params object[] args) {
+		public void Important(string format, params object[] args) { ColorWrite(ImportantColor, format, args); }
+
+		public void Info(string format, params object[] args) { ColorWrite(InfoColor, format, args);	}
+		
+		private static void ColorWrite(ConsoleColor color, string format, object[] args) {
 			lock(Console.Out) {
 				var tmp = Console.ForegroundColor;
-				Console.ForegroundColor = ConsoleColor.Yellow;
+				Console.ForegroundColor = color;
 				Console.Out.Write(format, args);
 				Console.ForegroundColor = tmp;
 			}
 		}
 
-		public void WriteLine() { Console.WriteLine(); }
-
-		public void WriteLine(string format, params object[] args) { Console.WriteLine(format, args); }
+		public void NewLine() { Console.WriteLine(); }
 	}
 
 	public interface ISessionLogger

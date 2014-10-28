@@ -95,19 +95,18 @@ namespace Cone.Runners
 			public void EndTest() { }
 
 			public void WriteReport(ISessionWriter output) {
-				output.WriteLine();
-				output.WriteLine("{0} tests found. {1} Passed. {2} Failed. ({3} Skipped)", Total, Passed, Failed, Excluded);
+				output.NewLine();
+				output.Info("{0} tests found. {1} Passed. {2} Failed. ({3} Skipped)\n", Total, Passed, Failed, Excluded);
 
 				if (failures.Count > 0) {
-					output.WriteLine("Failures:");
+					output.Write("\nFailures:\n");
 					failures.ForEach((n, failure) => {
 						output.Write("{0}) ", 1 + n);
 						failure.WriteTo(output);
-						output.WriteLine();
+						output.NewLine();
 					});
 				}
-				output.WriteLine();
-				output.WriteLine("Done in {0}.", timeTaken.Elapsed);
+				output.Info("Done in {0}.\n", timeTaken.Elapsed);
 			}
 		}
 

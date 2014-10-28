@@ -34,8 +34,8 @@ namespace Cone
 			}
 
 			public void Failure(ConeTestFailure failure) {                
-				Output.WriteLine(" {0}) {1}", ++failureCount, failure.Context);
-				Output.WriteLine("\t\t{0}: {1}", failure.TestName, failure.Message);
+				Output.Write(" {0}) {1}\n", ++failureCount, failure.Context);
+				Output.Write("\t\t{0}: {1}\n", failure.TestName, failure.Message);
 			}
 
 			public void Success() {
@@ -70,7 +70,7 @@ namespace Cone
 		}
 		public static void RunTests(IEnumerable<Type> suites, Action<TestSession> sessionSetup) {
 			var log = new ConePadLogger();
-			log.WriteInfo(writer => writer.WriteLine("Running tests!\n----------------------------------"));
+			log.WriteInfo(writer => writer.Write("Running tests!\n----------------------------------\n"));
 			var session = new TestSession(log);
 			sessionSetup(session);
 			new SimpleConeRunner().RunTests(session, suites);

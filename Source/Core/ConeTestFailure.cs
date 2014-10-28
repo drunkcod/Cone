@@ -98,8 +98,8 @@ namespace Cone
 
 		public void WriteTo(ISessionWriter writer) {
 		var prefix = string.IsNullOrEmpty(File) ? string.Empty : string.Format("{0}({1}:{2}) ", File, Line, Column);
-			writer.WriteLine("{0}{1}.{2}:", prefix, Context, TestName);
-			writer.WriteHighlight(" -> {0}\n", Message);
+			writer.Write("{0}{1}.{2}:\n", prefix, Context, TestName);
+			writer.Important("  -> {0}\n", Message);
 			StackFrames.ForEach(frame => writer.Write("  at {0}\n", frame));
 		}
 
@@ -115,6 +115,5 @@ namespace Cone
 				return new StackFrame[0];
 			return GetNestedStackFrames(e.InnerException).Concat(new StackTrace(e, 0, true).GetFrames() ?? new StackFrame[0]);
 		}
-
 	} 
 }
