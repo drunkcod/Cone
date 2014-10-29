@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Xml;
 using Cone.Core;
+using System.Diagnostics;
 
 namespace Cone.Runners
 {
@@ -41,6 +42,7 @@ namespace Cone.Runners
 	{
 		readonly XmlWriter xml;
 		readonly IConeTest test;
+		readonly Stopwatch duration = Stopwatch.StartNew();
 
 		bool executed, success;
 		bool attributesWritten;
@@ -97,6 +99,7 @@ namespace Cone.Runners
 			xml.WriteAttributeString("context", test.TestName.Context);
 			xml.WriteAttributeString("executed", executed.ToString());
 			xml.WriteAttributeString("success", success.ToString());
+			xml.WriteAttributeString("duration", duration.Elapsed.ToString());
 
 			return true;
 		}

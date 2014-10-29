@@ -34,6 +34,7 @@ namespace Conesole
 		public Maybe<string> XmlOutput;
 		public bool TeamCityOutput;
 		public bool Multicore;
+		public bool ShowTimings;
 		public string ConfigPath;
 
 		public static ConesoleConfiguration Parse(params string[] args) {
@@ -63,7 +64,13 @@ namespace Conesole
 			if(item == "--labels") {
 				Verbosity = LoggerVerbosity.Labels;
 				return;
-			} 
+			}
+ 
+			if(item == "--timings") {
+				Verbosity = LoggerVerbosity.Labels;
+				ShowTimings = true;
+				return;
+			}
 
 			if(item == "--test-names") {
 				Verbosity = LoggerVerbosity.TestNames;
@@ -275,6 +282,7 @@ namespace Conesole
 						? ConsoleColor.DarkGreen
 						: ConsoleColor.Green,
 					Multicore = config.Multicore,
+					ShowTimings = config.ShowTimings,
 				};
 				loggers.Add(new ConsoleSessionLogger(settings));
 			}
