@@ -10,6 +10,8 @@ using System.Xml;
 using System.Text;
 using System.Threading;
 using System.Diagnostics;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace Conesole
 {
@@ -134,6 +136,7 @@ namespace Conesole
 			} else 
 				throw new ArgumentException("Unknown option:" + item);
 		}
+		
 		static Regex CreatePatternRegex(string pattern) {
 			return new Regex("^" + pattern
 				.Replace("\\", "\\\\")
@@ -260,7 +263,7 @@ namespace Conesole
 			return new TestSession(CreateLogger(config, baseLogger)) {
 				IncludeSuite = config.IncludeSuite,
 				ShouldSkipTest = x => !config.IncludeTest(x)
-			};;
+			};
 		}
 
 		static ISessionLogger CreateLogger(ConesoleConfiguration config, ISessionLogger baseLogger) {
@@ -288,13 +291,37 @@ namespace Conesole
 			}
 
 			if (config.XmlOutput.IsSomething) {
-				loggers.Add(new XmlSessionLogger(new XmlTextWriter(config.XmlOutput.Value, Encoding.UTF8){
-					Formatting = Formatting.Indented
-				}));
+				loggers.Add(CreateXmlLogger(config.XmlOutput.Value));
 			} 
 			return loggers.Count == 1
 				? loggers[0]
 				: new MulticastSessionLogger(loggers);
+		}
+
+		private static XmlSessionLogger CreateXmlLogger(string path) {
+			var encoding = Encoding.UTF8;
+			Uri remoteLocation;
+			if(!Uri.TryCreate(path, UriKind.Absolute, out remoteLocation))
+				return new XmlSessionLogger(new XmlTextWriter(path, encoding) {
+					Formatting = Formatting.Indented
+				});
+			
+			var output = new MemoryStream();
+			var xmlLogger = new XmlSessionLogger(new XmlTextWriter(output, encoding) {
+				Formatting = Formatting.Indented
+			});
+
+			xmlLogger.SessionEnded += (_, __) => {
+				using(var http = new HttpClient()) {
+					var body = new ByteArrayContent(output.ToArray());
+					body.Headers.ContentType = new MediaTypeHeaderValue("text/xml") {
+						CharSet = encoding.WebName,
+					};
+					http.PostAsync(remoteLocation, body).Wait();
+				}
+			};
+
+			return xmlLogger;
 		}
 
 		static int DisplayUsage() {
@@ -321,8 +348,7 @@ namespace Conesole
 
 		public void EndSuite() { }
 
-		public void Failure(Cone.ConeTestFailure failure)
-		{
+		public void Failure(Cone.ConeTestFailure failure) {
 			Interlocked.Increment(ref FailureCount);
 		}
 
