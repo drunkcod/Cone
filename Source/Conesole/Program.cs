@@ -15,20 +15,62 @@ using System.Net.Http.Headers;
 
 namespace Conesole
 {
+
 	public class ConesoleConfiguration
-	{
+	{	
+		class ConesoleFilterConfiguration
+		{
+			static Regex CreatePatternRegex(string pattern) {
+				return new Regex("^" + pattern
+					.Replace("\\", "\\\\")
+					.Replace(".", "\\.")
+					.Replace("*", ".*?"));
+			}
+		
+			readonly List<string> includedCategories = new List<string>();
+			readonly List<string> excludedCategories = new List<string>();
+
+			Predicate<IConeTest> testFilter;
+			Predicate<IConeSuite> suiteFilter;
+
+			public bool Include(IConeTest test) { return CategoryCheck(test) && (testFilter == null || testFilter(test)); }
+			public bool Include(IConeSuite suite) { return CategoryCheck(suite) && (suiteFilter == null || suiteFilter(suite)); }  
+	
+			public void IncludeTests(string value) {
+				var suitePattern = "*";
+				var parts = value.Split('.');
+
+				if(parts.Length > 1)
+					suitePattern = string.Join(".", parts, 0, parts.Length - 1);
+					
+				var testPatternRegex = CreatePatternRegex(suitePattern + "." + parts.Last());
+				var suitePatternRegex = CreatePatternRegex(suitePattern);
+
+				suiteFilter = suiteFilter.Or(x => suitePatternRegex.IsMatch(x.Name));
+				testFilter = testFilter.Or(x => testPatternRegex.IsMatch(x.Name));
+			}
+
+			public void Categories(string value) {
+				foreach(var category in value.Split(','))
+					if(category.StartsWith("!"))
+						excludedCategories.Add(category.Substring(1));
+					else
+						includedCategories.Add(category);
+			}
+
+			bool CategoryCheck(IConeEntity entity) {
+				return (includedCategories.IsEmpty() || entity.Categories.Any(includedCategories.Contains)) 
+					&& !entity.Categories.Any(excludedCategories.Contains);
+			}
+		}
+
 		const string OptionPrefix = "--";
-		readonly Regex OptionPattern = new Regex(string.Format("^{0}(?<option>.+)=(?<value>.+$)", OptionPrefix));
+		static readonly Regex OptionPattern = new Regex(string.Format("^{0}(?<option>.+)=(?<value>.+$)", OptionPrefix), RegexOptions.Compiled);
 
-		readonly HashSet<string> includedCategories = new HashSet<string>();
-		readonly HashSet<string> excludedCategories = new HashSet<string>();
+		readonly ConesoleFilterConfiguration filters = new ConesoleFilterConfiguration();
 
-		Predicate<IConeEntity> categoryFilter = _=> true;
-		Predicate<IConeTest> testFilter;
-		Predicate<IConeSuite> suiteFilter;
-
-		public bool IncludeTest(IConeTest test) { return CategoryCheck(test) && testFilter(test); }
-		public bool IncludeSuite(IConeSuite suite) { return CategoryCheck(suite) && suiteFilter(suite); }  
+		public bool IncludeTest(IConeTest test) { return filters.Include(test); }
+		public bool IncludeSuite(IConeSuite suite) { return filters.Include(suite); }  
 
 		public LoggerVerbosity Verbosity = LoggerVerbosity.Default;
 		public bool IsDryRun;
@@ -38,15 +80,18 @@ namespace Conesole
 		public bool Multicore;
 		public bool ShowTimings;
 		public string ConfigPath;
+		public string[] AssemblyPaths;
 
 		public static ConesoleConfiguration Parse(params string[] args) {
 			var result = new ConesoleConfiguration();
-			foreach(var item in args)
-				result.ParseOption(item);
-			if(result.testFilter == null)
-				result.testFilter = _ => true;
-			if(result.suiteFilter == null)
-				result.suiteFilter = _ => true;
+			var paths = new List<string>();
+			foreach(var item in args) {
+				if(!IsOption(item)) 
+					paths.Add(Path.GetFullPath(item));
+				else result.ParseOption(item);
+			}
+
+			result.AssemblyPaths = paths.ToArray();
 			return result;
 		}
 
@@ -54,15 +99,7 @@ namespace Conesole
 			return value.StartsWith(OptionPrefix);
 		}
 
-		bool CategoryCheck(IConeEntity entity) {
-			return (includedCategories.IsEmpty() || entity.Categories.Any(includedCategories.Contains)) 
-				&& !entity.Categories.Any(excludedCategories.Contains);
-		}
-
 		void ParseOption(string item) {
-			if(!IsOption(item))
-				return;
-
 			if(item == "--labels") {
 				Verbosity = LoggerVerbosity.Labels;
 				return;
@@ -109,24 +146,10 @@ namespace Conesole
 			var option = m.Groups["option"].Value;
 			var valueRaw =  m.Groups["value"].Value;
 			if(option == "include-tests") {
-				var suitePattern = "*";
-				var parts = valueRaw.Split('.');
-
-				if(parts.Length > 1)
-					suitePattern = string.Join(".", parts, 0, parts.Length - 1);
-					
-				var testPatternRegex = CreatePatternRegex(suitePattern + "." + parts.Last());
-				var suitePatternRegex = CreatePatternRegex(suitePattern);
-
-				suiteFilter = suiteFilter.Or(x => suitePatternRegex.IsMatch(x.Name));
-				testFilter = testFilter.Or(x => testPatternRegex.IsMatch(x.Name));
+				filters.IncludeTests(valueRaw);
 			}
 			else if(option == "categories") {
-				foreach(var category in valueRaw.Split(','))
-					if(category.StartsWith("!"))
-						excludedCategories.Add(category.Substring(1));
-					else 
-						includedCategories.Add(category);
+				filters.Categories(valueRaw);
 			}
 			else if(option == "xml") {
 				XmlOutput = valueRaw.ToMaybe();
@@ -135,13 +158,6 @@ namespace Conesole
 				ConfigPath = fullPath;
 			} else 
 				throw new ArgumentException("Unknown option:" + item);
-		}
-		
-		static Regex CreatePatternRegex(string pattern) {
-			return new Regex("^" + pattern
-				.Replace("\\", "\\\\")
-				.Replace(".", "\\.")
-				.Replace("*", ".*?"));
 		}
 	}
 
@@ -155,17 +171,15 @@ namespace Conesole
 				return DisplayUsage();
 
 			string configPath = null;
+			string[] assemblyPaths;
 			try {
 				var config = ConesoleConfiguration.Parse(args);
 				configPath = config.ConfigPath;
+				assemblyPaths = config.AssemblyPaths;
 			} catch {
 				return DisplayUsage();
 			}
 
-			var assemblyPaths = args
-				.Where(x => !ConesoleConfiguration.IsOption(x))
-				.ToArray()
-				.ConvertAll(Path.GetFullPath);
 
 			if(!args.Contains("--autotest"))
 				return RunTests(args, assemblyPaths, configPath);

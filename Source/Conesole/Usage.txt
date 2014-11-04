@@ -2,12 +2,16 @@
 
 Options are:
 	--help                                Get help (you're viewing it).
+
+	--autotest                            Automatically reruns tests when
+	                                      containing assembly changes.
 	
 	--labels                              Display test names while running.
 
 	--xml-console                         Output results as XML.
 
-	--xml=<file>                          Writes results as XML to <file>
+	--xml=<file|uri>                      Writes results as XML to <file>
+	                                      or POSTs to <uri>
 	
 	--include-tests=<pattern>             Run only tests matchingt pattern.
 	                                      '*' acts as wildcard.
