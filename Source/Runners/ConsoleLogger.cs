@@ -39,6 +39,7 @@ namespace Cone.Runners
 
 	public class ConsoleSessionLogger : ISessionLogger, ISuiteLogger
 	{
+		readonly ConsoleSessionWriter sessionWriter = new ConsoleSessionWriter();
 		readonly ConsoleLoggerSettings settings;
 		readonly ConsoleLoggerWriter writer;
 
@@ -54,7 +55,7 @@ namespace Cone.Runners
 		}
 
 		public void WriteInfo(Action<ISessionWriter> output) {
-			output(new ConsoleSessionWriter());
+			output(sessionWriter);
 		}
 
 		public void BeginSession() { }
@@ -74,8 +75,18 @@ namespace Cone.Runners
 
 	public class ConsoleResult
 	{
-		public string Context;
-		public string TestName;
+		public ConsoleResult(IConeTest test) {
+			this.Context = test.TestName.Context;
+			this.TestName = test.TestName.Name;
+		}
+
+		public ConsoleResult(ConeTestFailure failure) {
+			this.Context = failure.Context;
+			this.TestName = failure.TestName;
+		}
+
+		public readonly string Context;
+		public readonly string TestName;
 		public TestStatus Status;
 		public string PendingReason;
 		public TimeSpan Duration;
@@ -90,10 +101,11 @@ namespace Cone.Runners
 		public ConsoleColor PendingColor = ConsoleColor.Yellow;
 
 		protected void Write(ConsoleColor color, string format, params object[] args) {
+			var message = string.Format(format, args);
 			lock(Console.Out) {
 				var tmp = Console.ForegroundColor;
 				Console.ForegroundColor = color;
-				Console.Out.Write(format, args);
+				Console.Out.Write(message);
 				Console.ForegroundColor = tmp;
 			}
 		}
@@ -180,29 +192,23 @@ namespace Cone.Runners
 			if(hasFailed)
 				return;
 			hasFailed = true;
-			writer.Write(new ConsoleResult {
+			writer.Write(new ConsoleResult(failure) {
 				Status = TestStatus.TestFailure,
 				Duration = time.Elapsed,
-				Context = failure.Context, 
-				TestName = failure.TestName
 			});
 		}
 
 		public void Success() {
-			writer.Write(new ConsoleResult {
+			writer.Write(new ConsoleResult(test) {
 				Status = TestStatus.Success,
 				Duration = time.Elapsed,
-				Context = test.TestName.Context,
-				TestName = test.Name,
 			});
 		}
 
 		public void Pending(string reason) {
-			writer.Write(new ConsoleResult {
+			writer.Write(new ConsoleResult(test) {
 				Status = TestStatus.Pending,
 				Duration = time.Elapsed,
-				Context = test.TestName.Context,
-				TestName = test.Name,
 				PendingReason = reason,
 			});
 		}

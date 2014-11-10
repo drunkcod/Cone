@@ -5,6 +5,8 @@ Options are:
 
 	--autotest                            Automatically reruns tests when
 	                                      containing assembly changes.
+
+	--debug                               Attach debugger on startup.
 	
 	--labels                              Display test names while running.
 

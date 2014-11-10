@@ -15,7 +15,6 @@ namespace Cone.Build
 			try {
 				noFailures = true;
 				CrossDomainConeRunner.RunTestsInTemporaryDomain(this,
-					System.IO.Path.GetDirectoryName(Path),
 					null,
 					new []{ Path });
 				return noFailures;

@@ -138,6 +138,9 @@ namespace Conesole
 
 			if(item == "--autotest")
 				return;
+
+			if(item == "--debug")
+				return;
 			
 			var m = OptionPattern.Match(item);
 			if(!m.Success)
@@ -180,6 +183,8 @@ namespace Conesole
 				return DisplayUsage();
 			}
 
+			if(args.Contains("--debug"))
+				System.Diagnostics.Debugger.Launch();
 
 			if(!args.Contains("--autotest"))
 				return RunTests(args, assemblyPaths, configPath);
@@ -229,7 +234,6 @@ namespace Conesole
 		private static int RunTests(string[] args, string[] assemblyPaths, string configPath)
 		{
 			return CrossDomainConeRunner.WithProxyInDomain<Program, int>(
-				Path.GetDirectoryName(Path.GetFullPath(assemblyPaths.FirstOrDefault() ?? ".")),
 				configPath,
 				assemblyPaths,
 				program =>
