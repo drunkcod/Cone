@@ -97,7 +97,7 @@ namespace Cone.Runners
 
 		static T WithTestDomain<T>(string configPath, string[] assemblyPaths, Func<AppDomain,T> @do) {
 			var domainSetup = new AppDomainSetup {
-				ApplicationBase = Path.GetDirectoryName(new Uri(typeof(CrossDomainConeRunner).Assembly.CodeBase).LocalPath),
+				ApplicationBase = Path.GetDirectoryName(assemblyPaths.First()),
 				ShadowCopyFiles = "False",
 			};
 			if(string.IsNullOrEmpty(configPath) && assemblyPaths.Length == 1)
@@ -125,7 +125,7 @@ namespace Cone.Runners
 
 				var found = Array.FindIndex(candidates, x => x.Name == name);
 				if(found != -1) {
-					return Assembly.LoadFile(candidates[found].Path);
+					return Assembly.LoadFrom(candidates[found].Path);
 				}
 
 				return null;
@@ -139,7 +139,8 @@ namespace Cone.Runners
 		}
 
 		static ResolveCandidate[] CandidateResolvePaths(string[] assemblyPaths) {
-			return assemblyPaths.ConvertAll(x => Path.GetDirectoryName(x))
+			return 
+				assemblyPaths.ConvertAll(x => Path.GetDirectoryName(x))
 				.SelectMany(x => Directory.GetFiles(x).Where(IsExeOrDll))
 				.Select(x => new ResolveCandidate(x))
 				.ToArray();
@@ -163,7 +164,7 @@ namespace Cone.Runners
 			var testAssemblies = new List<Assembly>();
 			for(var i = 0; i != assemblyPaths.Length; ++i)
 				try { 
-					testAssemblies.Add(Assembly.LoadFile(Path.GetFullPath(assemblyPaths[i])));
+					testAssemblies.Add(Assembly.LoadFrom(Path.GetFullPath(assemblyPaths[i])));
 				}
 				catch (FileNotFoundException) {
 					logError("Failed to load: " + assemblyPaths[i]);

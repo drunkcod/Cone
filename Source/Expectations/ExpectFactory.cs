@@ -24,7 +24,7 @@ namespace Cone.Expectations
 
 		public ExpectFactory(IEnumerable<Assembly> assembliesToScan) {
 			var providers = assembliesToScan
-				.SelectMany(x => x.GetTypes())
+				.SelectMany(x => x.GetExportedTypes())
 				.Where(IsMethodExpectProvider)
 				.Select(x => x.New() as IMethodExpectProvider);
 			foreach(var provider in providers)
