@@ -70,17 +70,6 @@ namespace Cone.Runners
 
 	public class CrossDomainConeRunner
 	{
-		struct ResolveCandidate
-		{
-			public ResolveCandidate(string path) {
-				this.Path = path;
-				this.Name = System.IO.Path.GetFileNameWithoutExtension(path);
-			}
-			
-			public readonly string Path;
-			public readonly string Name;
-		}
-
 		[Serializable]
 		class RunTestsCommand
 		{
@@ -107,56 +96,27 @@ namespace Cone.Runners
 			if(File.Exists(configPath))
 				domainSetup.ConfigurationFile = configPath;
 			
-			var conePath = 	new Uri(typeof(CrossDomainConeRunner).Assembly.CodeBase).LocalPath;
-			
+			var conePath = 	new Uri(typeof(CrossDomainConeRunner).Assembly.CodeBase).LocalPath;			
 			var localCone = Path.Combine(domainSetup.ApplicationBase, Path.GetFileName(conePath));
-			if(!File.Exists(localCone))
-				File.Copy(conePath, localCone);
-			
+
 			var testDomain = AppDomain.CreateDomain("Cone.TestDomain", 
 				AppDomain.CurrentDomain.Evidence,
 				domainSetup, 
 				new PermissionSet(PermissionState.Unrestricted));
+			testDomain.SetData(ConeResolver.ResolvePathsKey, assemblyPaths.ConvertAll(x => Path.GetDirectoryName(x)));
+			testDomain.CreateInstanceFrom(
+				File.Exists(localCone) 
+					? localCone 
+					: conePath, 
+				typeof(ConeResolver).FullName);
 
-			Environment.CurrentDirectory = Path.GetFullPath(Path.GetDirectoryName(assemblyPaths.First()));
-
-			testDomain.SetData("assemblyPaths", assemblyPaths);
-			testDomain.Load(File.ReadAllBytes(new Uri(typeof(CrossDomainConeRunner).Assembly.CodeBase).LocalPath));
-			testDomain.AssemblyResolve += (_, e) => {
-				var candidates = (ResolveCandidate[])AppDomain.CurrentDomain.GetData("candidatePaths");
-				if(candidates == null) {
-					candidates = CandidateResolvePaths((string[])AppDomain.CurrentDomain.GetData("assemblyPaths"));
-					AppDomain.CurrentDomain.SetData("candidatePaths", candidates);
-					AppDomain.CurrentDomain.SetData("assemblyPaths", null);
-				}
-				var name = e.Name.Split(',')[0];
-
-				var found = Array.FindIndex(candidates, x => x.Name == name);
-				if(found != -1) {
-					return Assembly.LoadFrom(candidates[found].Path);
-				}
-
-				return null;
-			};
+			Environment.CurrentDirectory = domainSetup.ApplicationBase;
 
 			try {
 				return @do(testDomain);
 			} finally {
 				AppDomain.Unload(testDomain);
 			}
-		}
-
-		static ResolveCandidate[] CandidateResolvePaths(string[] assemblyPaths) {
-			return 
-				assemblyPaths.ConvertAll(x => Path.GetDirectoryName(x))
-				.SelectMany(x => Directory.GetFiles(x).Where(IsExeOrDll))
-				.Select(x => new ResolveCandidate(x))
-				.ToArray();
-		}
-
-		static bool IsExeOrDll(string path) {
-			var ext = Path.GetExtension(path);
-			return ext == ".dll" || ext == ".exe";
 		}
 
 		public static TResult WithProxyInDomain<T,TResult>(string configPath, string[] assemblyPaths, Func<T, TResult> @do) {
