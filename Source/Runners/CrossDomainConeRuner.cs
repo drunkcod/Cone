@@ -96,24 +96,32 @@ namespace Cone.Runners
 		}
 
 		static T WithTestDomain<T>(string configPath, string[] assemblyPaths, Func<AppDomain,T> @do) {
-			var domainSetup = new AppDomainSetup {
+			var domainSetup = new AppDomainSetup {				
 				ApplicationBase = Path.GetDirectoryName(assemblyPaths.First()),
 				ShadowCopyFiles = "False",
 			};
+
 			if(string.IsNullOrEmpty(configPath) && assemblyPaths.Length == 1)
 				configPath = Path.GetFullPath(assemblyPaths[0] + ".config");
 						
 			if(File.Exists(configPath))
 				domainSetup.ConfigurationFile = configPath;
 			
+			var conePath = 	new Uri(typeof(CrossDomainConeRunner).Assembly.CodeBase).LocalPath;
+			
+			var localCone = Path.Combine(domainSetup.ApplicationBase, Path.GetFileName(conePath));
+			if(!File.Exists(localCone))
+				File.Copy(conePath, localCone);
+			
 			var testDomain = AppDomain.CreateDomain("Cone.TestDomain", 
-				null,
+				AppDomain.CurrentDomain.Evidence,
 				domainSetup, 
 				new PermissionSet(PermissionState.Unrestricted));
 
 			Environment.CurrentDirectory = Path.GetFullPath(Path.GetDirectoryName(assemblyPaths.First()));
 
 			testDomain.SetData("assemblyPaths", assemblyPaths);
+			testDomain.Load(File.ReadAllBytes(new Uri(typeof(CrossDomainConeRunner).Assembly.CodeBase).LocalPath));
 			testDomain.AssemblyResolve += (_, e) => {
 				var candidates = (ResolveCandidate[])AppDomain.CurrentDomain.GetData("candidatePaths");
 				if(candidates == null) {
