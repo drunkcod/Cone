@@ -4,6 +4,7 @@ using System.IO;
 using System.Xml;
 using Cone.Core;
 using System.Diagnostics;
+using System.Threading;
 
 namespace Cone.Runners
 {		
@@ -16,10 +17,42 @@ namespace Cone.Runners
 		public readonly Stopwatch Duration = Stopwatch.StartNew();
 	}
 
-	public class XmlSessionLogger : ISessionLogger, ISuiteLogger
+	public class XmlSessionLogger : ISessionLogger
 	{
 		readonly XmlWriter xml;
 		readonly XmlSessionSummary summary = new XmlSessionSummary();
+
+		class XmlSuiteLogger : ISuiteLogger
+		{
+			static XmlWriterSettings WriterSettings = new XmlWriterSettings { 
+				ConformanceLevel = ConformanceLevel.Fragment,
+			};
+
+			static XmlReaderSettings ReaderSettings = new XmlReaderSettings {
+				ConformanceLevel = ConformanceLevel.Fragment,
+			};
+
+			readonly XmlSessionLogger session;
+			readonly MemoryStream suite;
+			readonly XmlWriter xml;
+
+			public XmlSuiteLogger(XmlSessionLogger session) {
+				this.session = session;
+				this.suite = new MemoryStream();
+				this.xml = XmlWriter.Create(suite, WriterSettings);
+			}
+
+			public ITestLogger BeginTest(IConeTest test) {
+				return new XmlLogger(session.summary, xml, test);
+			}
+
+			public void EndSuite() {
+				xml.Flush();
+				suite.Position = 0;
+				lock(session.xml)
+					session.xml.WriteNode(XmlReader.Create(suite, ReaderSettings), true);
+			}
+		}
 
 		public XmlSessionLogger(XmlWriter xml) {
 			this.xml = xml;
@@ -38,13 +71,7 @@ namespace Cone.Runners
 		}
 
 		public ISuiteLogger BeginSuite(IConeSuite suite) {
-			return this;
-		}
-
-		public void EndSuite() { }
-
-		public ITestLogger BeginTest(IConeTest test) {
-			return new XmlLogger(summary, xml, test);
+			return new XmlSuiteLogger(this);
 		}
 
 		public void EndSession() {
@@ -86,34 +113,33 @@ namespace Cone.Runners
 			}
 
 			xml.WriteStartElement("failure");
-			xml.WriteAttributeString("context", failure.Context);
-			xml.WriteAttributeString("file", failure.File);
-			xml.WriteAttributeString("line", failure.Line.ToString(CultureInfo.InvariantCulture));
-			xml.WriteAttributeString("column", failure.Column.ToString(CultureInfo.InvariantCulture));
-				xml.WriteStartElement("message");
-				xml.WriteCData(failure.Message);
-				xml.WriteEndElement();
+				xml.WriteAttributeString("context", failure.Context);
+				xml.WriteAttributeString("file", failure.File);
+				xml.WriteAttributeString("line", failure.Line.ToString(CultureInfo.InvariantCulture));
+				xml.WriteAttributeString("column", failure.Column.ToString(CultureInfo.InvariantCulture));
+					xml.WriteStartElement("message");
+					xml.WriteCData(failure.Message);
+					xml.WriteEndElement();
 			xml.WriteEndElement();
 		}
 
 		public void Success() {
-			summary.Passed += 1;
+			Interlocked.Increment(ref summary.Passed);
 			executed = true;
 			success = true;
 		}
 
 		public void Pending(string reason) {
-			summary.Pending += 1;
+			Interlocked.Increment(ref summary.Pending);
 			executed = false;
 		}
 
 		public void Skipped() { 
-			summary.Skipped += 1;
+			Interlocked.Increment(ref summary.Skipped);
 			xml.WriteAttributeString("skipped", "True");
 		}
 
-		public void EndTest()
-		{
+		public void EndTest() {
 			FinalizeAttributes();
 			xml.WriteEndElement();
 		}
