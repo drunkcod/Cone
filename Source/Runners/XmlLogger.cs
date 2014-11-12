@@ -34,23 +34,19 @@ namespace Cone.Runners
 
 			readonly XmlSessionLogger session;
 			readonly MemoryStream suite;
-			readonly XmlWriter xml;
 
 			public XmlSuiteLogger(XmlSessionLogger session) {
 				this.session = session;
 				this.suite = new MemoryStream();
-				this.xml = XmlWriter.Create(suite, WriterSettings);
 			}
 
 			public ITestLogger BeginTest(IConeTest test) {
-				return new XmlLogger(session.summary, xml, test);
+				return new XmlLogger(session.summary, XmlWriter.Create(suite, WriterSettings), test);
 			}
 
 			public void EndSuite() {
-				xml.Flush();
 				suite.Position = 0;
-				lock(session.xml)
-					session.xml.WriteNode(XmlReader.Create(suite, ReaderSettings), true);
+				session.WriteNode(XmlReader.Create(suite, ReaderSettings));
 			}
 		}
 
@@ -84,6 +80,11 @@ namespace Cone.Runners
 			xml.WriteEndDocument();
 			xml.Flush();
 			SessionEnded.Raise(this, EventArgs.Empty);
+		}
+
+		void WriteNode(XmlReader reader) {
+			lock(xml)
+				xml.WriteNode(reader, true);
 		}
 	}
 
@@ -142,6 +143,7 @@ namespace Cone.Runners
 		public void EndTest() {
 			FinalizeAttributes();
 			xml.WriteEndElement();
+			xml.Flush();
 		}
 
 		private bool FinalizeAttributes() {

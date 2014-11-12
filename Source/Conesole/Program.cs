@@ -197,7 +197,8 @@ namespace Conesole
 				};
 			
 				watcher.Changed += (_, e) => {
-					q.Enqueue(e.FullPath);
+					while(!q.TryEnqueue(e.FullPath))
+						Thread.Yield();
 				};
 				watcher.EnableRaisingEvents = true;
 				return watcher;
@@ -335,7 +336,11 @@ namespace Conesole
 					body.Headers.ContentType = new MediaTypeHeaderValue("text/xml") {
 						CharSet = encoding.WebName,
 					};
-					http.PostAsync(remoteLocation, body).Wait();
+					try {
+						http.PostAsync(remoteLocation, body).Wait();
+					} catch { 
+						Console.Error.WriteLine("\nPOST to " + remoteLocation + " failed.");
+					}
 				}
 			};
 

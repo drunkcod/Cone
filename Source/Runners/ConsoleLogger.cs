@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using Cone.Core;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Cone.Runners
 {
@@ -30,28 +31,87 @@ namespace Cone.Runners
 
 	public class ConsoleLoggerSettings
 	{
-		readonly internal LabledConsoleLoggerContext Context = new LabledConsoleLoggerContext();
 		public LoggerVerbosity Verbosity;
 		public ConsoleColor SuccessColor = ConsoleColor.Green;
 		public bool Multicore;
 		public bool ShowTimings;
 	}
 
-	public class ConsoleSessionLogger : ISessionLogger, ISuiteLogger
+	class MultiCoreConsoleResultWriter : IConsoleResultWriter
+	{
+		readonly CircularQueue<ConsoleResult> results = new CircularQueue<ConsoleResult>(8);
+		readonly AutoResetEvent resultsAvailable = new AutoResetEvent(false);
+		readonly Thread worker;
+		bool jobsDone;
+
+		public static IConsoleResultWriter For(IConsoleResultWriter writer) {
+			return new MultiCoreConsoleResultWriter(writer);
+		}
+
+		MultiCoreConsoleResultWriter(IConsoleResultWriter inner) {
+			worker = new Thread(() => {
+				ConsoleResult item;
+				while(resultsAvailable.WaitOne() && !jobsDone)
+					while(results.TryDeque(out item))
+						inner.Write(item);
+			});
+
+			worker.Start();
+		}
+
+		public void Write(ConsoleResult result) {
+			while(!results.TryEnqueue(result)) {
+				Thread.Sleep(0);
+			}
+			resultsAvailable.Set();
+		}
+
+		public void Close() { 
+			jobsDone = true;
+			resultsAvailable.Set();
+			worker.Join();
+		}
+	}
+
+	public class ConsoleSessionLogger : ISessionLogger
 	{
 		readonly ConsoleSessionWriter sessionWriter = new ConsoleSessionWriter();
 		readonly ConsoleLoggerSettings settings;
-		readonly ConsoleLoggerWriter writer;
+		readonly IConsoleResultWriter writer;
+		readonly ISuiteLogger suiteLogger;
+
+		class ConsoleSuiteLogger : ISuiteLogger
+		{
+			readonly IConsoleResultWriter writer;
+
+			public ConsoleSuiteLogger(IConsoleResultWriter writer) {
+				this.writer = writer;
+			}
+
+			public void EndSuite() { }
+
+			public ITestLogger BeginTest(IConeTest test) {
+				return new ConsoleLogger(test, writer);
+			}
+
+		}
 
 		public ConsoleSessionLogger(ConsoleLoggerSettings settings) {
 			this.settings = settings;
+			this.writer = CreateBaseWriter(settings);
+			this.suiteLogger = new ConsoleSuiteLogger(this.writer);
+		}
+
+		private static IConsoleResultWriter CreateBaseWriter(ConsoleLoggerSettings settings) {
+			ConsoleLoggerWriter writer = null;
 			switch(settings.Verbosity) {
 				case LoggerVerbosity.Default: writer = new ConsoleLoggerWriter(); break;
-				case LoggerVerbosity.Labels: writer = new LabledConsoleLoggerWriter(settings.Multicore ? new LabledConsoleLoggerContext() : settings.Context, settings.ShowTimings); break;
+				case LoggerVerbosity.Labels: writer = new LabledConsoleLoggerWriter(new LabledConsoleLoggerContext(), settings.ShowTimings); break;
 				case LoggerVerbosity.TestNames: writer = new TestNameConsoleLoggerWriter(); break;
 			}
 			writer.InfoColor = Console.ForegroundColor;
 			writer.SuccessColor = settings.SuccessColor;
+			return settings.Multicore ? MultiCoreConsoleResultWriter.For(writer) : writer;
 		}
 
 		public void WriteInfo(Action<ISessionWriter> output) {
@@ -61,16 +121,10 @@ namespace Cone.Runners
 		public void BeginSession() { }
 
 		public ISuiteLogger BeginSuite(IConeSuite suite) {
-			return new ConsoleSessionLogger(settings);
+			return suiteLogger;
 		}
 
-		public void EndSuite() { }
-
-		public ITestLogger BeginTest(IConeTest test) {
-			return new ConsoleLogger(test, writer);
-		}
-
-		public void EndSession() { }
+		public void EndSession() { writer.Close(); }
 	}
 
 	public class ConsoleResult
@@ -92,7 +146,13 @@ namespace Cone.Runners
 		public TimeSpan Duration;
 	}
 
-	public class ConsoleLoggerWriter
+	public interface IConsoleResultWriter 
+	{
+		void Write(ConsoleResult result);
+		void Close();
+	}
+
+	public class ConsoleLoggerWriter : IConsoleResultWriter
 	{
 		public ConsoleColor DebugColor = ConsoleColor.DarkGray;
 		public ConsoleColor InfoColor = ConsoleColor.Gray;
@@ -121,6 +181,8 @@ namespace Cone.Runners
 				case TestStatus.TestFailure: Write(FailureColor, "F"); break;
 			}
 		}
+
+		void IConsoleResultWriter.Close() { }
 	}
 
 	class LabledConsoleLoggerWriter : ConsoleLoggerWriter
@@ -178,11 +240,11 @@ namespace Cone.Runners
 	public class ConsoleLogger : ITestLogger
 	{
 		readonly IConeTest test;
-		readonly ConsoleLoggerWriter writer;
+		readonly IConsoleResultWriter writer;
 		readonly Stopwatch time;
 		bool hasFailed;
 
-		public ConsoleLogger(IConeTest test, ConsoleLoggerWriter writer) {
+		public ConsoleLogger(IConeTest test, IConsoleResultWriter writer) {
 			this.test = test;
 			this.writer = writer;
 			this.time = Stopwatch.StartNew();

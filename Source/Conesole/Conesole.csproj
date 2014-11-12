@@ -48,7 +48,6 @@
     <Compile Include="..\Version.cs">
       <Link>Version.cs</Link>
     </Compile>
-    <Compile Include="CircularQueue.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>
   <ItemGroup>
