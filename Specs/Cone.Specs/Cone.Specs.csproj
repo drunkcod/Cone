@@ -51,6 +51,7 @@
     <Compile Include="ConeMethodClassifierSpec.cs" />
     <Compile Include="Conesole\ConesoleConfigurationSpec.cs" />
     <Compile Include="ConeTestNamerSpec.cs" />
+    <Compile Include="Core\CircularQueueSpec.cs" />
     <Compile Include="Core\ConeAttributeProviderSpec.cs" />
     <Compile Include="Core\ConeFixtureMethodCollectionSpec.cs" />
     <Compile Include="Core\ConeFixtureSpec.cs" />

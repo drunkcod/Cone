@@ -6,25 +6,27 @@ namespace Cone.Core
 	public class CircularQueue<T>
 	{
 		readonly T[] buffer;
-		int nextAvailable = 0;
-		int lastWritten = -1;
-		int nextRead = 0;
+		public long nextAvailable = 0;
+		public long head = -1;
+		public long tail = 0;
 	
 		public CircularQueue(int bufferSize) {
 			buffer = new T[bufferSize];
 		}
 	
 		public bool TryEnqueue(T value) {
-			int claimed;
+			long claimed;
 			do {
 				claimed = nextAvailable;
-				if(buffer.Length <= (claimed - nextRead))
+				if(buffer.Length <= (claimed - tail))
 					return false;
 			} while(Interlocked.CompareExchange(ref nextAvailable, claimed + 1, claimed) != claimed);
 
 			buffer[claimed % buffer.Length] = value;
 			
-			for(int spins = 1, prev = claimed - 1; Interlocked.CompareExchange(ref lastWritten, claimed, prev) != prev; ++spins) {
+			var prev = claimed - 1;
+			for(var spins = 1; 
+				Interlocked.CompareExchange(ref head, claimed, prev) != prev; ++spins) {
 				Thread.SpinWait(spins);
 			}
 
@@ -32,14 +34,14 @@ namespace Cone.Core
 		}
 	
 		public bool TryDeque(out T value) {
-			int pos;
+			long pos;
 			do {
-				pos = nextRead;
-				if(pos == nextAvailable) {
+				pos = tail;
+				if(head < pos) {
 					value = default(T);
 					return false;
 				}
-			} while(Interlocked.CompareExchange(ref nextRead, pos + 1, pos) != pos);
+			} while(Interlocked.CompareExchange(ref tail, pos + 1, pos) != pos);
 
 			value = buffer[pos % buffer.Length];
 			return true;
