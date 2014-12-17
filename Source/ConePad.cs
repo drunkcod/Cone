@@ -48,6 +48,8 @@ namespace Cone
 
 			public void Skipped() { }
 
+			public void BeginTest() { }
+
 			public void EndTest() { }
 		}
 

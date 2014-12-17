@@ -247,7 +247,7 @@ namespace Cone.Runners
 		public ConsoleLogger(IConeTest test, IConsoleResultWriter writer) {
 			this.test = test;
 			this.writer = writer;
-			this.time = Stopwatch.StartNew();
+			this.time = new Stopwatch();
 		}
 
 		public void Failure(ConeTestFailure failure) {
@@ -276,6 +276,10 @@ namespace Cone.Runners
 		}
 
 		public void Skipped() { }
+
+		public void BeginTest() {
+			time.Start();
+		}
 
 		public void EndTest() { }
 	}

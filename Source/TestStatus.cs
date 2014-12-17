@@ -5,11 +5,12 @@ namespace Cone
 	[Flags]
 	public enum TestStatus
 	{
-		ReadyToRun, 
-		Success = 1,
-		Pending = 1 << 1, 
-		TestFailure = 1 << 2, 
-		SetupFailure = 1 << 3, 
-		TeardownFailure = 1 << 4
+		ReadyToRun,
+		Running = 1,
+		Success = 1 << 1,
+		Pending = 1 << 2, 
+		TestFailure = 1 << 3, 
+		SetupFailure = 1 << 4, 
+		TeardownFailure = 1 << 5
 	}
 }

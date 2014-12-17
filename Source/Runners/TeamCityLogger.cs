@@ -60,6 +60,8 @@ namespace Cone.Runners
 
 		void ITestLogger.Skipped() { }
 
+		void ITestLogger.BeginTest() { }
+
 		public void EndTest() { 
 			WriteLine("##teamcity[testFinished name='{0}']", activeTest.TestName.Name);
 		}

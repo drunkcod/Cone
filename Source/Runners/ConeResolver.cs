@@ -26,6 +26,10 @@ namespace Cone.Runners
 		}
 
 		Assembly AssemblyResolve(object sender, ResolveEventArgs e) {
+			if(typeof(ConeResolver).Assembly.FullName == e.Name) {
+				return typeof(ConeResolver).Assembly;
+			}
+
 			if(candidates == null) {
 				candidates = CandidateResolvePaths((string[])AppDomain.CurrentDomain.GetData(ResolvePathsKey));
 				AppDomain.CurrentDomain.SetData(ResolvePathsKey, null);

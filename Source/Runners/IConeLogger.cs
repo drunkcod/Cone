@@ -68,6 +68,7 @@ namespace Cone.Runners
 
 	public interface ITestLogger
 	{
+		void BeginTest();
 		void Failure(ConeTestFailure failure);
 		void Success();
 		void Pending(string reason);

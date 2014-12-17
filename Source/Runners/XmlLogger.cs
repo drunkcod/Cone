@@ -102,6 +102,9 @@ namespace Cone.Runners
 			this.summary = summary;
 			this.xml = xml;
 			this.test = test;
+		}
+
+		public void BeginTest() {
 			xml.WriteStartElement("test-case");
 		}
 

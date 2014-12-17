@@ -14,9 +14,11 @@ namespace Cone.Build
 		public bool Execute() {
 			try {
 				noFailures = true;
-				CrossDomainConeRunner.RunTestsInTemporaryDomain(this,
-					null,
-					new []{ Path });
+				CrossDomainConeRunner.RunTestsInTemporaryDomain(this, new CorssDomainRunnerConfiguration {
+					ConfigurationPath = ConfigPath, 
+					AssemblyPaths = Array.ConvertAll(Path, System.IO.Path.GetFullPath),
+					UseMulticore = RunInParallel
+				});
 				return noFailures;
 			} catch(Exception e) {
 				BuildEngine.LogErrorEvent(new BuildErrorEventArgs("RuntimeFailure", string.Empty, string.Empty, 0, 0, 0, 0, string.Format("{0}", e), string.Empty, SenderName));
@@ -36,6 +38,10 @@ namespace Cone.Build
 		public ITaskHost HostObject { get; set; }
 
 		[Required]
-		public string Path { get; set; }
+		public string[] Path { get; set; }
+
+		public string ConfigPath { get; set; }
+
+		public bool RunInParallel { get; set; }
 	}
 }

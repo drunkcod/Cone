@@ -381,6 +381,8 @@ namespace Conesole
 
 		public void Skipped() { }
 
+		void ITestLogger.BeginTest() { }
+
 		public void EndTest() { }
 	}
 }

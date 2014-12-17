@@ -22,6 +22,11 @@ namespace Cone.Runners
 			public ITestName TestName { get { return test.TestName; } }
 			public TestStatus Status { get; private set; }
 
+			void ITestResult.Begin() {
+				Status = TestStatus.Running;
+				log.BeginTest();
+			}
+
 			void ITestResult.Success() { 
 				Status = TestStatus.Success;
 				log.Success();
@@ -91,6 +96,8 @@ namespace Cone.Runners
 			public void Pending(string reason) { }
 
 			public void Skipped() { Interlocked.Increment(ref Excluded); }
+
+			void ITestLogger.BeginTest() { }
 
 			public void EndTest() { }
 

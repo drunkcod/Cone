@@ -51,6 +51,10 @@ namespace Cone.Runners
 				EachChild(x => x.Skipped());
 			}
 
+			public void BeginTest() {
+				EachChild(x => x.BeginTest());
+			}
+
 			public void EndTest() {
 				EachChild(x => x.EndTest());
 			}

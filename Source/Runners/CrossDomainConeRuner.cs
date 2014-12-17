@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Security;
 using System.Security.Permissions;
 using Cone.Core;
+using System.Diagnostics;
 
 namespace Cone.Runners
 {
@@ -65,7 +66,16 @@ namespace Cone.Runners
 
 		void ITestLogger.Skipped() { }
 
+		void ITestLogger.BeginTest() { }
+
 		void ITestLogger.EndTest() { }
+	}
+
+	public class CorssDomainRunnerConfiguration
+	{
+		public string ConfigurationPath;
+		public string[] AssemblyPaths;
+		public bool UseMulticore;
 	}
 
 	public class CrossDomainConeRunner
@@ -75,12 +85,15 @@ namespace Cone.Runners
 		{
 			public ICrossDomainLogger Logger;
 			public string[] AssemblyPaths;
+			public bool UseMulticore;
 
 			public void Execute() {
 				var logger = new CrossDomainSessionLoggerAdapter(Logger) {
 					ShowProgress = false
 				};
-				new SimpleConeRunner().RunTests(new TestSession(logger), LoadTestAssemblies(AssemblyPaths, error => Logger.Info(error)));             
+				new SimpleConeRunner() {
+					Workers = UseMulticore ? Environment.ProcessorCount : 1,
+				}.RunTests(new TestSession(logger), LoadTestAssemblies(AssemblyPaths, error => Logger.Info(error)));             
 			}
 		}
 
@@ -140,12 +153,13 @@ namespace Cone.Runners
 			return testAssemblies;
 		}
 
-		public static void RunTestsInTemporaryDomain(ICrossDomainLogger logger, string configPath, string[] assemblyPaths) {
-			WithTestDomain(configPath, assemblyPaths, testDomin => {
+		public static void RunTestsInTemporaryDomain(ICrossDomainLogger logger, CorssDomainRunnerConfiguration config) {
+			WithTestDomain(config.ConfigurationPath, config.AssemblyPaths, testDomin => {
 				var runTests = new RunTestsCommand
 				{
 					Logger = logger,
-					AssemblyPaths = assemblyPaths
+					AssemblyPaths = config.AssemblyPaths,
+					UseMulticore = config.UseMulticore,
 				};
 				testDomin.DoCallBack(runTests.Execute);
 				return 0;
