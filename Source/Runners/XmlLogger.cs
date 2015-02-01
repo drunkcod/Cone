@@ -92,7 +92,7 @@ namespace Cone.Runners
 	{
 		readonly XmlWriter xml;
 		readonly IConeTest test;
-		readonly Stopwatch duration = Stopwatch.StartNew();
+		readonly Stopwatch duration = new Stopwatch();
 		readonly XmlSessionSummary summary;
 
 		bool executed, success;
@@ -106,6 +106,7 @@ namespace Cone.Runners
 
 		public void BeginTest() {
 			xml.WriteStartElement("test-case");
+			duration.Start();
 		}
 
 		public void Failure(ConeTestFailure failure) {

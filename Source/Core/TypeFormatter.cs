@@ -14,7 +14,8 @@ namespace Cone.Core
 				case "System.Boolean": return "bool";
 				case "System.Int32": return "int";
 				case "System.Int64": return "long";
-				case "System.Single": return "float"; 
+				case "System.Single": return "float";
+				case "System.Double": return "double";
 				default:
 					if (!type.IsGenericType) 
 						return type.Name;

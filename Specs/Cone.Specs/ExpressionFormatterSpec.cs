@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using System.Linq;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace Cone.Core
 {
@@ -233,6 +236,24 @@ namespace Cone.Core
 				() => ExpressionFormatter.IsCompilerGenerated(typeof(CompilerGeneratedClass)),
 				() => ExpressionFormatter.IsCompilerGenerated(typeof(CompilerGeneratedClass.Nested)));
 		}
+
+		public void static_method_group_as_delegate() {
+			VerifyFormat(() => Sequence.Where(MyPredicate), "Sequence.Where(MyPredicate)");
+		}
+
+		static bool MyPredicate(int n) { return false; }
+
+		public void method_info_to_delegate() {
+			var expr = Expression.Convert(
+				Expression.Call(
+					Expression.Constant(Check.That(() => GetType().GetMethod("MyPredicate", BindingFlags.NonPublic | BindingFlags.Static) != null), typeof(MethodInfo)), 
+					typeof(MethodInfo).GetMethod("CreateDelegate", new[]{ typeof(Type), typeof(object) }), 
+					Expression.Constant(typeof(Func<int, bool>)), Expression.Constant(this)),
+				typeof(Func<int, bool>));
+			VerifyFormat(Expression.Lambda<Func<Func<int,bool>>>(expr), "MyPredicate");
+		}
+
+		IEnumerable<int> Sequence { get { yield break; } }
 
 		[Context("nested expressions")]
 		public class NestedExpressions

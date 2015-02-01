@@ -2,9 +2,9 @@
 
 namespace Cone.Core
 {
-    class TestMethodContext : ITestExecutionContext 
-    {
-        public TestContextStep Establish(IFixtureContext context, TestContextStep next) {
+	class TestMethodContext : ITestExecutionContext 
+	{
+		public TestContextStep Establish(IFixtureContext context, TestContextStep next) {
 			var pending = FirstPendingOrDefault(context.Attributes, FirstPendingOrDefault(context.Fixture.FixtureType.AsConeAttributeProvider(), null));
 			return (pending == null)
 				? Runnable(next)
@@ -14,10 +14,11 @@ namespace Cone.Core
 		TestContextStep Runnable(TestContextStep next) {
 			return (test, result) => {
 				try {
+					result.Begin();
 					next(test, result);
-                } catch(Exception ex) {
+				} catch(Exception ex) {
 					result.TestFailure(ex);                        
-                }
+				}
 			};
 		}
 
@@ -33,7 +34,7 @@ namespace Cone.Core
 		}
 		
 		static IPendingAttribute FirstPendingOrDefault(IConeAttributeProvider attributes, IPendingAttribute defaultValue) {
-            return attributes.FirstOrDefault(x => x.IsPending, defaultValue);
-        }
-    }
+			return attributes.FirstOrDefault(x => x.IsPending, defaultValue);
+		}
+	}
 }
