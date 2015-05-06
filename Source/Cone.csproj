@@ -93,6 +93,7 @@
     <Compile Include="Runners\ConePadSuiteBuilder.cs" />
     <Compile Include="Runners\ConePadTest.cs" />
     <Compile Include="Runners\ConeResolver.cs" />
+    <Compile Include="Runners\ConeTestMethod.cs" />
     <Compile Include="Runners\ConeTestMethodSink.cs" />
     <Compile Include="Runners\MSTestSuiteBuilder.cs" />
     <Compile Include="Runners\MulticastSessionLogger.cs" />

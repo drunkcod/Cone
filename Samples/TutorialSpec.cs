@@ -107,7 +107,6 @@ namespace Cone.Samples
 
 			public void when_nested_things_throw() {
 				Check.That(() => new MyDsl().TakeItToAnohterLevel.ThisThrows() == "");
-
 			}
 		}
 	}

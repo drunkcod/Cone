@@ -6,33 +6,6 @@ using System.Reflection;
 
 namespace Cone.Runners
 {
-	class ConeTestMethod 
-	{
-		readonly IConeFixture fixture;
-		readonly MethodInfo method;
-
-		public ConeTestMethod(IConeFixture fixture, MethodInfo method) {
-			this.fixture = fixture;
-			this.method = method;
-		}
-
-		public Assembly Assembly { get { return method.DeclaringType.Assembly; } }
-
-		public IEnumerable<string> Categories { get { return fixture.Categories; } }
- 		public Type ReturnType { get { return method.ReturnType; } }
-
-		public virtual void Invoke(object[] parameters, ITestResult result) {
-			Invoke(parameters);
-			result.Success();
-		}
-
-		public ParameterInfo[] GetParameters() { return method.GetParameters(); } 
-
-		protected object Invoke(object[] parameters) {
-			return fixture.Invoke(method, parameters);
-		}
-	}
-
 	class ValueResultTestMethod : ConeTestMethod
 	{
 		readonly object expectedResult;
@@ -96,6 +69,8 @@ namespace Cone.Runners
 		string IConeEntity.Name { get { return TestName.FullName; } }
 		IEnumerable<string> IConeEntity.Categories { get { return test.Categories; } }
         void IConeTest.Run(ITestResult result) {
+			if(test.IsAsync)
+				throw new NotSupportedException("asycn test methods aren't suppored");
 			test.Invoke(ConvertArgs(test.GetParameters()), result);
 		}
 
