@@ -22,7 +22,8 @@ namespace Cone.Runners
 		public Type ReturnType { get { return method.ReturnType; } }
 
 		public virtual void Invoke(object[] parameters, ITestResult result) {
-			Invoke(parameters);
+			Await(Invoke(parameters));
+
 			result.Success();
 		}
 
@@ -30,6 +31,15 @@ namespace Cone.Runners
 
 		protected object Invoke(object[] parameters) {
 			return fixture.Invoke(method, parameters);
+		}
+
+		void Await(object obj) {
+			if(obj == null)
+				return;
+			var wait = obj.GetType().GetMethod("Wait", Type.EmptyTypes);
+			if(wait == null)
+				return;
+			((Action)Delegate.CreateDelegate(typeof(Action), obj, wait))();
 		}
 	}
 }

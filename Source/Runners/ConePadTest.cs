@@ -69,7 +69,7 @@ namespace Cone.Runners
 		string IConeEntity.Name { get { return TestName.FullName; } }
 		IEnumerable<string> IConeEntity.Categories { get { return test.Categories; } }
         void IConeTest.Run(ITestResult result) {
-			if(test.IsAsync)
+			if(test.IsAsync && test.ReturnType == typeof(void))
 				throw new NotSupportedException("asycn test methods aren't suppored");
 			test.Invoke(ConvertArgs(test.GetParameters()), result);
 		}

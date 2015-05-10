@@ -1,8 +1,8 @@
-﻿using System;
-using System.Reflection;
-using System.Text;
-using Moq;
+﻿using Moq;
+using System;
 using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Cone.Core
 {
@@ -32,6 +32,11 @@ namespace Cone.Core
 			testMock.SetupGet(x => x.Attributes).Returns(new NullAttributeProvider());
             testExecutor = new TestExecutor(contextMock.Object);
         }
+
+		[Pending]
+		public Task waits_for_Task_to_finish() {
+			return Task.Factory.StartNew(() => { throw new Exception(); });
+		}
 
         public void happy_path_is_Before_Run_After() {
             RunTest();
@@ -118,17 +123,6 @@ namespace Cone.Core
 
             [AfterEach]
             public void After() { ExecutionSequence.Append("->Test.After"); }
-
-			
-            public void before_sequence() {
-                //ExecutionSequence.Append("->Test");
-                //Check.That(() => ExecutionSequence.ToString() == "->Interceptor.Before->Test.Before->Test");
-            }
-			/*
-            public void zzz_after_sequence() {
-                Check.That(() => ExecutionSequence.ToString().StartsWith("->Interceptor.Before->Test.Before->Test->Test.After->Interceptor.After"));
-            }
-			 */
         }
 
         void RunTest() { testExecutor.Run(testMock.Object, TestResult); }

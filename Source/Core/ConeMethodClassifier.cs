@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Cone.Runners;
 
@@ -48,10 +49,14 @@ namespace Cone.Core
                     sunk = true;
                 }
             }
-            if(!sunk && method.ReturnType == typeof(void))
+            if(!sunk && (method.ReturnType == typeof(void) || IsWaitable(method.ReturnType)))
 	            Test(method, ExpectedTestResult.None);
 			Unintresting(method);
         }
+
+		static bool IsWaitable(Type type) {
+			return type.GetMethod("Wait", Type.EmptyTypes) != null;
+		}
 
         void Monadic(MethodInfo method, ParameterInfo parameter) {
             if(typeof(ITestResult).IsAssignableFrom(parameter.ParameterType) 

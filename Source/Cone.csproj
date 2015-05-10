@@ -41,6 +41,7 @@
     <Compile Include="ConePad.cs" />
     <Compile Include="Core\CircularQueue.cs" />
     <Compile Include="Core\ConeFixtureMethodCollection.cs" />
+    <Compile Include="Core\ConeStackFrame.cs" />
     <Compile Include="Core\ConeTestFailure.cs" />
     <Compile Include="Core\Action.cs" />
     <Compile Include="AfterAllAttribute.cs" />

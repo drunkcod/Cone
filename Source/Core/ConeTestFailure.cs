@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Reflection;
-using System.Linq;
-using Cone.Core;
-using System.Text;
 using System.Collections.Generic;
-using Cone.Runners;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using Cone.Runners;
 
-namespace Cone
+namespace Cone.Core
 {
 	public enum FailureType
 	{
@@ -16,33 +14,6 @@ namespace Cone
 		Setup,
 		Test,
 		Teardown
-	}
-
-	public class ConeStackFrame
-	{
-		public ConeStackFrame(StackFrame frame) {
-			Method = frame.GetMethod();
-			File = frame.GetFileName();
-			Line = frame.GetFileLineNumber();
-			Column = frame.GetFileColumnNumber();
-		}
-
-		public readonly MethodBase Method;
-		public readonly string File;
-		public readonly int Line;
-		public readonly int Column;
-
-		public override string ToString() {
-			return string.Format("{0}.{1}({2}) in {3}:line {4}",
-				Method.DeclaringType != null ? TypeFormatter.Format(Method.DeclaringType) : string.Empty,
-				Method.Name,
-				Method.GetParameters().Select(Format).Join(", "),
-				File, Line);
-		}
-
-		static string Format(ParameterInfo parameter) {
-			return string.Format("{0} {1}", TypeFormatter.Format(parameter.ParameterType), parameter.Name);
-		}
 	}
 
 	public class ConeTestFailure
@@ -103,10 +74,17 @@ namespace Cone
 			StackFrames.ForEach(frame => writer.Write("  at {0}\n", frame));
 		}
 
-		static Exception Unwrap(Exception error) {
+		public static Exception Unwrap(Exception error) {
 			var invocationException = error as TargetInvocationException;
-			if (invocationException != null)
-				return Unwrap(invocationException.InnerException);
+			if(invocationException != null)
+				Unwrap(invocationException.InnerException);
+			var innerExceptionsProp = error.GetType().GetProperty("InnerExceptions", BindingFlags.Instance | BindingFlags.Public);
+			if(innerExceptionsProp == null)
+				return error;
+			var innerExceptions = innerExceptionsProp.GetValue(error, null) as ICollection<Exception>;
+			if(innerExceptions != null && innerExceptions.Count == 1)
+				return Unwrap(innerExceptions.First());
+
 			return error;
 		}
 

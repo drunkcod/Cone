@@ -371,7 +371,7 @@ namespace Conesole
 
 		public void EndSuite() { }
 
-		public void Failure(Cone.ConeTestFailure failure) {
+		public void Failure(ConeTestFailure failure) {
 			Interlocked.Increment(ref FailureCount);
 		}
 

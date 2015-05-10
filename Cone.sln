@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cone", "Source\Cone.csproj", "{E557FD03-E249-4211-80CF-FB0923FD4C7D}"
 EndProject
@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cone.Samples", "Samples\Con
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9F49969B-C9E7-4176-9538-40ADF6A36D82}"
 	ProjectSection(SolutionItems) = preProject
-		ReleaseNotes.txt = ReleaseNotes.txt
+		README.md = README.md
 		TestStats.fsx = TestStats.fsx
 	EndProjectSection
 EndProject
