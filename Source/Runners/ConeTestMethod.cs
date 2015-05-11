@@ -33,11 +33,19 @@ namespace Cone.Runners
 			return fixture.Invoke(method, parameters);
 		}
 
-		void Await(object obj) {
-			if(obj == null)
-				return;
-			var wait = obj.GetType().GetMethod("Wait", Type.EmptyTypes);
-			if(wait == null)
+		public static bool IsWaitable(Type type) {
+			MethodInfo wait;
+			return TryGetWait(type, out wait);
+		}
+
+		static bool TryGetWait(Type type, out MethodInfo wait) {
+			wait = type.GetMethod("Wait", Type.EmptyTypes);
+			return wait != null;
+		}
+
+		static void Await(object obj) {
+			MethodInfo wait;
+			if(obj == null || !TryGetWait(obj.GetType(), out wait))
 				return;
 			((Action)Delegate.CreateDelegate(typeof(Action), obj, wait))();
 		}
