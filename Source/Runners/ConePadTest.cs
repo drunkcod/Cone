@@ -70,7 +70,7 @@ namespace Cone.Runners
 		IEnumerable<string> IConeEntity.Categories { get { return test.Categories; } }
         void IConeTest.Run(ITestResult result) {
 			if(test.IsAsync && test.ReturnType == typeof(void))
-				throw new NotSupportedException("asycn test methods aren't suppored");
+				throw new NotSupportedException("async void methods aren't supported");
 			test.Invoke(ConvertArgs(test.GetParameters()), result);
 		}
 
