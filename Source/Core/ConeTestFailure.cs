@@ -77,7 +77,7 @@ namespace Cone.Core
 		public static Exception Unwrap(Exception error) {
 			var invocationException = error as TargetInvocationException;
 			if(invocationException != null)
-				Unwrap(invocationException.InnerException);
+				return Unwrap(invocationException.InnerException);
 			var innerExceptionsProp = error.GetType().GetProperty("InnerExceptions", BindingFlags.Instance | BindingFlags.Public);
 			if(innerExceptionsProp == null)
 				return error;
