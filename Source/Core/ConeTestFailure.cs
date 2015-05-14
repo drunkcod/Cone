@@ -75,17 +75,20 @@ namespace Cone.Core
 		}
 
 		public static Exception Unwrap(Exception error) {
-			var invocationException = error as TargetInvocationException;
-			if(invocationException != null)
-				return Unwrap(invocationException.InnerException);
-			var innerExceptionsProp = error.GetType().GetProperty("InnerExceptions", BindingFlags.Instance | BindingFlags.Public);
-			if(innerExceptionsProp == null)
-				return error;
-			var innerExceptions = innerExceptionsProp.GetValue(error, null) as ICollection<Exception>;
-			if(innerExceptions != null && innerExceptions.Count == 1)
-				return Unwrap(innerExceptions.First());
+			for(;;) {
+				var invocationException = error as TargetInvocationException;
+				if(invocationException != null)
+					error = invocationException.InnerException;
 
-			return error;
+				var innerExceptionsProp = error.GetType().GetProperty("InnerExceptions", BindingFlags.Instance | BindingFlags.Public);
+				if(innerExceptionsProp == null)
+					return error;
+				
+				var innerExceptions = innerExceptionsProp.GetValue(error, null) as ICollection<Exception>;
+				if(innerExceptions != null && innerExceptions.Count == 1)
+					error = innerExceptions.First();
+				else return error;
+			}
 		}
 
 		static IEnumerable<StackFrame> GetNestedStackFrames(Exception e) {
