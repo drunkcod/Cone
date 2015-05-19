@@ -17,7 +17,7 @@ namespace Cone.Core
             return sink;
         }
 
-        MethodInfo Method(Expression<Action<SampleFixture>> x) {
+	    static MethodInfo Method(Expression<Action<SampleFixture>> x) {
             return ((MethodCallExpression)x.Body).Method;
         }
 

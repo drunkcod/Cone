@@ -9,7 +9,7 @@ namespace Cone.Reflection
     {
 		delegate object Getter(object source);
 
-		static Dictionary<MemberInfo, Getter> getterCache = new Dictionary<MemberInfo, Getter>();
+		static readonly Dictionary<MemberInfo, Getter> getterCache = new Dictionary<MemberInfo, Getter>();
 
 		public static object GetValue(this MemberInfo self, object target) {
             switch(self.MemberType) {
@@ -23,13 +23,13 @@ namespace Cone.Reflection
         }
 
 		static object ReadField(FieldInfo field, object target) {
-			var getter = GetGetter(field, name => field.CreateGetter(name));
+			var getter = GetGetter(field, field.CreateGetter);
 			return getter(target);
 		}
 
         static object InvokeGet(MethodInfo getMethod, object target) {
 			try {
-	            var getter = GetGetter(getMethod, name => getMethod.CreateGetter(name));
+	            var getter = GetGetter(getMethod, getMethod.CreateGetter);
 				return getter(target);
 			} catch(Exception e) {
 				throw new TargetInvocationException(e);
