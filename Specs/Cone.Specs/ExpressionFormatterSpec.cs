@@ -268,6 +268,7 @@ namespace Cone.Core
 
 			class Bar 
 			{
+				public Bar() { }
 				public Bar(object obj) { }
 				public int Value;
 				public int Answer;
@@ -283,6 +284,11 @@ namespace Cone.Core
 			public void ctor_arguments() { VerifyFormat(() => new Bar(true), "new Bar(true)"); }
 
 			public void anonymous_type() { VerifyFormat(() => new { A = 1 }, "new { A = 1 }"); }
+
+			public void default_ctor_member_init() {
+				var value = 42;
+				VerifyFormat(() => new Bar { Value = value }, "new Bar { Value = value }"); 
+			}
 
 			public void ctor_initializer() { 
 				var value = 42;

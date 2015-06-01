@@ -195,15 +195,19 @@ namespace Cone.Core
 			return arrayFormatter.Format(newArray.Expressions, this);
 		}
 
-		string FormatNew(Expression expression){ return FormatNew((NewExpression)expression); }
-		string FormatNew(NewExpression expression) {
+		string FormatNew(Expression expression){ return FormatNew((NewExpression)expression, false); }
+		string FormatNew(NewExpression expression, bool canSkipArgs) {
 			var type = expression.Type;
-			if(!type.Has<CompilerGeneratedAttribute>())
-				return "new " + FormatType(expression.Type) + FormatArgs(expression.Arguments, 0, MethodArgumentsFormat);
+			if(!type.Has<CompilerGeneratedAttribute>()) {
+				var pre = "new " + FormatType(expression.Type);
+				if(canSkipArgs && expression.Arguments.Count == 0)
+					return pre + " ";
+				return pre + FormatArgs(expression.Arguments, 0, MethodArgumentsFormat);
+			}
 			var result = new StringBuilder("new {");
 			var sep = " ";
 			var parameters = expression.Constructor.GetParameters();
-			for(int i = 0; i != parameters.Length; ++i) {
+			for(var  i = 0; i != parameters.Length; ++i) {
 				result.AppendFormat("{0}{1} = {2}", sep, parameters[i].Name, Format(expression.Arguments[i]));
 				sep = ", ";
 			}
@@ -226,7 +230,7 @@ namespace Cone.Core
 		
 		string FormatMemberInit(Expression expression){ return FormatMemberInit((MemberInitExpression)expression); }
 		string FormatMemberInit(MemberInitExpression memberInit) {
-			var result = new StringBuilder(FormatNew(memberInit.NewExpression));
+			var result = new StringBuilder(FormatNew(memberInit.NewExpression, true));
 
 			result.Append("{ ");
 			var format = "{0}";
