@@ -22,10 +22,10 @@ namespace Cone.Core
 
 		public ExpressionFormatter(Type context): this(context, new ParameterFormatter()) { }
 
-		public ExpressionFormatter Rebind(Type context) {
-			if(context == this.context)
+		public ExpressionFormatter Rebind(Type newContext) {
+			if(newContext == context)
 				return this;
-			return new ExpressionFormatter(context, constantFormatter);
+			return new ExpressionFormatter(newContext, constantFormatter);
 		}
 
 		public string Format(Expression expression) {
@@ -48,10 +48,9 @@ namespace Cone.Core
 					
 				default:
 					var binary = expression as BinaryExpression;
-					if (binary == null)
-						return expression.ToString();
-					else
-						return FormatBinary(binary);
+					return binary == null 
+						? expression.ToString() 
+						: FormatBinary(binary);
 			}
 		}
 
@@ -73,7 +72,7 @@ namespace Cone.Core
 		}
 
 		static bool IsExtensionMethod(MethodInfo method) {
-			return method.GetCustomAttributes(typeof(System.Runtime.CompilerServices.ExtensionAttribute), false).Length != 0;
+			return method.GetCustomAttributes(typeof(ExtensionAttribute), false).Length != 0;
 		}
 
 		string FormatCall(Expression expression) { return FormatCall((MethodCallExpression)expression); }
@@ -139,7 +138,7 @@ namespace Cone.Core
 
 		string FormatArgs(IList<Expression> args, int first, string format) {
 			var items = new string[args.Count - first];
-			for (int i = 0; i != items.Length; ++i)
+			for (var i = 0; i != items.Length; ++i)
 				items[i] = Format(args[first +  i]);
 			return FormatJoin(items, format);
 		}

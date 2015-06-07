@@ -29,6 +29,7 @@ namespace Cone.Core
 				case ExpressionType.NotEqual: return EvaluateBinary(body);
 				case ExpressionType.MemberAccess: return EvaluateMemberAccess(body);
 				case ExpressionType.New: return EvaluateNew(body);
+				case ExpressionType.NewArrayInit: return EvaluateNewArrayInit(body);
 				case ExpressionType.Quote: return EvaluateQuote(body);
 				case ExpressionType.Invoke: return EvaluateInvoke(body);
 				default: return Unsupported(body);
@@ -144,6 +145,16 @@ namespace Cone.Core
 				if(expression.Constructor != null)
 					return Success(expression.Type, expression.Constructor.Invoke(args));
 				return Success(expression.Type, Activator.CreateInstance(expression.Type, args));
+			});
+		}
+
+		EvaluationResult EvaluateNewArrayInit(Expression expression) { return EvaluateNewArrayInit((NewArrayExpression)expression);}
+		EvaluationResult EvaluateNewArrayInit(NewArrayExpression expression) {
+			return GuardedInvocation(expression, () => {
+				var result = Array.CreateInstance(expression.Type.GetElementType(), expression.Expressions.Count);
+				for(var i = 0; i != result.Length; ++i)
+					result.SetValue(Evaluate(expression.Expressions[i]).Result, i);
+				return Success(expression.Type, result);
 			});
 		}
 
