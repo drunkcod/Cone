@@ -32,6 +32,7 @@ namespace Cone.Core
 				case ExpressionType.NewArrayInit: return EvaluateNewArrayInit(body);
 				case ExpressionType.Quote: return EvaluateQuote(body);
 				case ExpressionType.Invoke: return EvaluateInvoke(body);
+				case ExpressionType.AndAlso: return EvaluateAndAlso(body);
 				default: return Unsupported(body);
 			}
 		}
@@ -179,8 +180,14 @@ namespace Cone.Core
 				.Then<object[]>(arguments => GuardedInvocation(expression, () => Success(expression.Type, target.DynamicInvoke(arguments))));
 		}
 
-		ExpressionEvaluatorContext Rebind(Expression context) {
-			return new ExpressionEvaluatorContext(context) {
+		EvaluationResult EvaluateAndAlso(Expression expression) { return EvaluateAndAlso((BinaryExpression)expression); }
+		EvaluationResult EvaluateAndAlso(BinaryExpression expression) {
+			return Evaluate(expression.Left)
+				.Then<bool>(leftResult => leftResult ? Evaluate(expression.Right) : EvaluationResult.Success(typeof(bool), false));
+		}
+
+		ExpressionEvaluatorContext Rebind(Expression newContext) {
+			return new ExpressionEvaluatorContext(newContext) {
 				Unsupported = Unsupported,
 				NullSubexpression = NullSubexpression
 			};

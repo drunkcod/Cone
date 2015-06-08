@@ -8,7 +8,7 @@ namespace Cone
 	[Describe(typeof(ExpressionEvaluator))]
 	public class ExpressionEvaluatorSpec
 	{
-		ExpressionEvaluator Evaluator = new ExpressionEvaluator {
+		readonly ExpressionEvaluator Evaluator = new ExpressionEvaluator {
 			Unsupported = x => { throw new NotSupportedException("Unsupported expression type:" + x.NodeType.ToString()); }
 		};
 
@@ -87,6 +87,15 @@ namespace Cone
 			Func<Func<int>, int> addOne = f => f() + 1;
 
 			Check.That(() => Evaluate(() => addOne(() => 1)) == 2);
+		}
+
+		public void and_also() {
+			int a = 1, b = 2;
+
+			Check.That(
+				() => Evaluate(() => a != b && b == a) == false,
+				() => Evaluate(() => a == b && b == a) == false,
+				() => Evaluate(() => a != b && b != a));
 		}
 
 		struct MyValueObject { }
