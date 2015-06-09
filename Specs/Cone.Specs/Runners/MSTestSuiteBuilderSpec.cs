@@ -1,6 +1,7 @@
 ﻿using Cone.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 //mimic MSTest framework attributes
@@ -19,6 +20,19 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
 	public class ClassCleanupAttribute : Attribute { }
 
 	public class TestContext { }
+
+	public class ExpectedExceptionAttribute : Attribute 
+	{
+		readonly Type exceptionType;
+
+		public ExpectedExceptionAttribute(Type exceptionType) {
+			this.exceptionType = exceptionType;
+		}
+
+		public bool AllowDerivedTypes { get; set; }
+		public Type ExceptionType { get { return exceptionType; } }
+
+	}
 }
 
 namespace Cone.Runners
@@ -130,6 +144,81 @@ namespace Cone.Runners
 
 			public void ClassCleanup_called_after_all() {
 				Check.That(() => MyMSTestFixture.ClassCleanupCalled == MyMSTestFixture.Calls);
+			}
+		}
+		[Context("given expected exceptions")]
+		public class MSTestsuiteBuilderExpectedExceptionsSepc
+		{
+			[TestClass]
+			class ExpectedExceptions
+			{
+				[TestMethod,ExpectedException(typeof(InvalidOperationException))]
+				public void invalid_operation() {
+					throw new InvalidOperationException();
+				}
+
+				[TestMethod,ExpectedException(typeof(Exception), AllowDerivedTypes = true)]
+				public void allow_derived_types() {
+					throw new InvalidOperationException();
+				}
+
+			}
+
+			class RecordingTestSession : ISessionLogger, ISuiteLogger, ITestLogger
+			{
+				IConeTest currentTest;
+
+				public void WriteInfo(Action<ISessionWriter> output) {}
+
+				public void BeginSession() {}
+
+				public ISuiteLogger BeginSuite(IConeSuite suite) { return this; }
+
+				public void EndSession() { }
+
+				public readonly List<string> Passed = new List<string>();
+
+				public ITestLogger BeginTest(IConeTest test) { 
+					currentTest = test;
+					return this; 
+				}
+
+				public void EndSuite() { }
+
+				public void BeginTest() { }
+
+				public void Failure(ConeTestFailure failure) { }
+
+				public void Success() { Passed.Add(currentTest.TestName.Name); }
+
+				public void Pending(string reason) { }
+
+				public void Skipped() { }
+
+				public void EndTest() { currentTest = null; }
+			}
+
+			ConePadSuite MSTestSuite;
+			RecordingTestSession TestReport;
+
+			[BeforeAll]
+			public void CreateFixtureInstance() {
+				MSTestSuite = new MSTestSuiteBuilder(new LambdaObjectProvider(t => new ExpectedExceptions()))
+					.BuildSuite(typeof(ExpectedExceptions));
+				TestReport = new RecordingTestSession();
+				new TestSession(TestReport).RunSession(collectResult => collectResult(MSTestSuite));
+			}
+
+			public void identifies_test_methods() {
+				Check.That(() => MSTestSuite.TestCount == 2);
+			}
+
+			public void test_raising_expected_exception_passes() {
+				Check.That(() => TestReport.Passed.Contains("invalid operation"));
+			}
+
+			public void allow_derived_types() {
+				Check.That(() => TestReport.Passed.Contains("allow derived types"));
 			}
 		}
 	}

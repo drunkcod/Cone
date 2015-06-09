@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using Cone.Core;
 
 namespace Cone.Runners

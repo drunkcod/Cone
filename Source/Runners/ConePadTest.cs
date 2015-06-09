@@ -28,20 +28,20 @@ namespace Cone.Runners
 
 	class ExpectedExceptionTestMethod : ConeTestMethod
 	{
-		readonly Type expectedExceptionType;
+		readonly ExpectedTestResult expectedExceptionType;
 
-		public ExpectedExceptionTestMethod(IConeFixture fixture, MethodInfo method, Type expectedExceptionType) : base(fixture, method) {
+		public ExpectedExceptionTestMethod(IConeFixture fixture, MethodInfo method, ExpectedTestResult expectedExceptionType) : base(fixture, method) {
 			this.expectedExceptionType = expectedExceptionType;
 		}
 
 		public override void Invoke(object[] parameters, ITestResult result) {
 			try {
 				Invoke(parameters);
-				result.TestFailure(new Exception("Expected exception of type " + expectedExceptionType.FullName));
+				result.TestFailure(new Exception("Expected exception of type " + expectedExceptionType));
 			} catch(TargetInvocationException te) {
 				var e = te.InnerException;
-				if(e.GetType() != expectedExceptionType)
-					result.TestFailure(new Exception("Expected exception of type " + expectedExceptionType.FullName + " but was " + e.GetType()));
+				if(!expectedExceptionType.Matches(e))
+					result.TestFailure(new Exception("Expected exception of type " + expectedExceptionType + " but was " + e.GetType()));
 				else result.Success();
 			}
 		}

@@ -106,6 +106,7 @@
     <Compile Include="Runners\CrossDomainConeRuner.cs" />
     <Compile Include="Runners\IConeLogger.cs" />
     <Compile Include="Runners\SimpleConeRunner.cs" />
+    <Compile Include="Runners\TestSessionReport.cs" />
     <Compile Include="Runners\XmlLogger.cs" />
     <Compile Include="TestStatus.cs" />
     <Compile Include="DescribeAttribute.cs" />

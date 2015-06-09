@@ -1,6 +1,7 @@
 ﻿using Cone.Core;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -87,8 +88,19 @@ namespace Cone.Runners
 								AfterEach(method); break;
 						}
 
-					if (attributeNames.Contains("Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute"))
-						Test(method, ExpectedTestResult.None);
+					if (attributeNames.Contains("Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute")) {
+						var e = attributeNames.IndexOf("Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedExceptionAttribute");
+						if(e == -1)
+							Test(method, ExpectedTestResult.None);
+						else {
+							var expectedException = attributes[e];
+							var getExpectedException = expectedException.GetType().GetProperty("ExceptionType");
+							var getAlloweDerived = expectedException.GetType().GetProperty("AllowDerivedTypes");
+							Test(method, ExpectedTestResult.Exception(
+								(Type)getExpectedException.GetValue(expectedException, null), 
+								(bool)getAlloweDerived.GetValue(expectedException, null)));
+						}
+					}
 					else Unintresting(method);
 				}
 			}
