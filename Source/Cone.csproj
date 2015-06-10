@@ -96,6 +96,7 @@
     <Compile Include="Runners\ConeResolver.cs" />
     <Compile Include="Runners\ConeTestMethod.cs" />
     <Compile Include="Runners\ConeTestMethodSink.cs" />
+    <Compile Include="Runners\ExpectedTestResult.cs" />
     <Compile Include="Runners\MSTestSuiteBuilder.cs" />
     <Compile Include="Runners\MulticastSessionLogger.cs" />
     <Compile Include="Runners\NullSessionLogger.cs" />

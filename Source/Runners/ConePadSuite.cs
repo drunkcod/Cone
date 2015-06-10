@@ -2,59 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Remoting.Channels;
 using Cone.Core;
 
 namespace Cone.Runners
 {
-	public enum ExpectedTestResultType 
-	{
-		None,
-		Value,
-		Exception
-	}
-
-	public struct ExpectedTestResult
-	{
-		public readonly ExpectedTestResultType ResultType;
-		public readonly object ExpectedResult;
-
-		ExpectedTestResult(ExpectedTestResultType resultType, object value)
-		{
-			this.ResultType = resultType;
-			this.ExpectedResult = value;
-		}
-
-		public static readonly ExpectedTestResult None = new ExpectedTestResult(ExpectedTestResultType.None, null);
-
-		public static ExpectedTestResult Value(object value) {
-			return new ExpectedTestResult(ExpectedTestResultType.Value, value);
-		}
-
-		public static ExpectedTestResult Exception(Type exceptionType, bool allowDerived) {
-			return new ExpectedTestResult(ExpectedTestResultType.Exception, new KeyValuePair<Type, bool>(exceptionType, allowDerived));
-		}
-
-		public bool Matches(object obj) {
-			switch(ResultType) {
-				case ExpectedTestResultType.Exception:
-					var x = (KeyValuePair<Type,bool>)ExpectedResult;
-					if(x.Value == false) 
-						return x.Key == obj.GetType();
-					return x.Key.IsInstanceOfType(obj);
-				default: return ExpectedResult == obj;
-			}
-		}
-
-		public override string ToString() {
-			switch(ResultType) {
-				case ExpectedTestResultType.None: return string.Empty;
-				case ExpectedTestResultType.Exception: return ((KeyValuePair<Type,bool>)ExpectedResult).Key.FullName;
-				default: return ExpectedResult.ToString();
-			}
-		}
-	}
-
 	public class ConePadSuite : IConeSuite
 	{
 		class ConePadTestMethodSink : ConeTestMethodSink
@@ -150,7 +101,7 @@ namespace Cone.Runners
 		static ConeTestMethod NewTestMethod(IConeFixture fixture, MethodInfo method, ExpectedTestResult result) {
 			switch(result.ResultType) {
 				case ExpectedTestResultType.None: return new ConeTestMethod(fixture, method);
-				case ExpectedTestResultType.Value: return new ValueResultTestMethod(fixture, method, result.ExpectedResult);
+				case ExpectedTestResultType.Value: return new ValueResultTestMethod(fixture, method, result);
 				case ExpectedTestResultType.Exception: return new ExpectedExceptionTestMethod(fixture, method, result);
 				default: throw new NotSupportedException();
 			}
