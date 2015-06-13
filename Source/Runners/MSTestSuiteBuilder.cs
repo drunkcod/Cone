@@ -1,7 +1,6 @@
 ﻿using Cone.Core;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -133,11 +132,10 @@ namespace Cone.Runners
 			};
 		}
 
-		protected override bool TryGetContext(Type nestedType, out IContextDescription context)
-		{
-			if(IsTestClass(nestedType)) {
-				context = new MSTestContextDescription(nestedType);
-			} else context = null;
+		protected override bool TryGetContext(Type nestedType, out IContextDescription context) {
+			context = IsTestClass(nestedType) 
+				? new MSTestContextDescription(nestedType) 
+				: null;
 			return context != null;
 		}
 	}

@@ -1,22 +1,30 @@
 using System;
-using System.Collections.Generic;
 
 namespace Cone.Runners
 {
-	public enum ExpectedTestResultType 
+	[Flags]
+	public enum ExpectedTestResultType : byte
 	{
-		None,
-		Value,
-		Exception
+		None = 0,
+		Value = 1,
+		Exception = 1 << 1,
+		TypeMask = None | Value | Exception,
+		ExceptionAllowDerived = 1 << 2,
 	}
 
 	public struct ExpectedTestResult
 	{
-		public readonly ExpectedTestResultType ResultType;
 		readonly object expectedResult;
+		readonly ExpectedTestResultType resultType;
+
+		public ExpectedTestResultType ResultType { 
+			get { 
+				return resultType & ExpectedTestResultType.TypeMask; 
+			}
+		}
 
 		ExpectedTestResult(ExpectedTestResultType resultType, object value) {
-			this.ResultType = resultType;
+			this.resultType = resultType;
 			this.expectedResult = value;
 		}
 
@@ -27,16 +35,16 @@ namespace Cone.Runners
 		}
 
 		public static ExpectedTestResult Exception(Type exceptionType, bool allowDerived) {
-			return new ExpectedTestResult(ExpectedTestResultType.Exception, new KeyValuePair<Type, bool>(exceptionType, allowDerived));
+			return new ExpectedTestResult(ExpectedTestResultType.Exception | (allowDerived ? ExpectedTestResultType.ExceptionAllowDerived : 0), exceptionType);
 		}
 
 		public bool Matches(object obj) {
 			switch(ResultType) {
 				case ExpectedTestResultType.Exception:
-					var x = (KeyValuePair<Type,bool>)expectedResult;
-					if(x.Value == false) 
-						return x.Key == obj.GetType();
-					return x.Key.IsInstanceOfType(obj);
+					var x = (Type)expectedResult;
+					if((resultType & ExpectedTestResultType.ExceptionAllowDerived) == 0) 
+						return x == obj.GetType();
+					return x.IsInstanceOfType(obj);
 				default: return Convert.ChangeType(obj, expectedResult.GetType()).Equals(expectedResult);
 			}
 		}
@@ -44,7 +52,7 @@ namespace Cone.Runners
 		public override string ToString() {
 			switch(ResultType) {
 				case ExpectedTestResultType.None: return string.Empty;
-				case ExpectedTestResultType.Exception: return ((KeyValuePair<Type,bool>)expectedResult).Key.FullName;
+				case ExpectedTestResultType.Exception: return ((Type)expectedResult).FullName;
 				default: return expectedResult.ToString();
 			}
 		}
