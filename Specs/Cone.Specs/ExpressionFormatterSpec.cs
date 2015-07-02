@@ -126,6 +126,10 @@ namespace Cone.Core
 			VerifyFormat<Func<int,int,int>>(() => (x, y) => 1, "(x, y) => 1");
 		}
 
+		public void default_of_thing() {
+			VerifyFormat(Expression.Lambda<Func<string>>(Expression.Default(typeof(string))), "default(string)");
+		}
+
 		public void inequality() {
 			var a = 42;
 			VerifyFormat(() => a != 42, "a != 42");
@@ -309,7 +313,6 @@ namespace Cone.Core
 				int a = 1, b = 2;
 				VerifyFormat(() => false == (a == b), "false == (a == b)");
 			}
-
 		}
 
 	}

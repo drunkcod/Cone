@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Cone</RootNamespace>
     <AssemblyName>Cone</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <OutputPath>$(BuildPath)</OutputPath>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -24,9 +24,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <DebugType>full</DebugType>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <Optimize>true</Optimize>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
@@ -43,7 +45,6 @@
     <Compile Include="Core\ConeFixtureMethodCollection.cs" />
     <Compile Include="Core\ConeStackFrame.cs" />
     <Compile Include="Core\ConeTestFailure.cs" />
-    <Compile Include="Core\Action.cs" />
     <Compile Include="AfterAllAttribute.cs" />
     <Compile Include="AfterEachAttribute.cs" />
     <Compile Include="Core\ArrayExpressionStringBuilder.cs" />
@@ -76,7 +77,6 @@
     <Compile Include="Expectations\CheckResult.cs" />
     <Compile Include="Reflection\ILGeneratorExtensions.cs" />
     <Compile Include="Core\IRowData.cs" />
-    <Compile Include="Core\Lazy.cs" />
     <Compile Include="Core\Maybe.cs" />
     <Compile Include="Core\MethodClassifier.cs" />
     <Compile Include="Core\PredicateExtensions.cs" />

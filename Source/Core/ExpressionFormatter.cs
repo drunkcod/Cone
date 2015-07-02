@@ -42,6 +42,7 @@ namespace Cone.Core
 				case ExpressionType.Constant: return FormatConstant(expression);
 				case ExpressionType.Conditional: return FormatConditional(expression);
 				case ExpressionType.Convert: return FormatConvert(expression);
+				case ExpressionType.Default: return FormatDefault(expression);
 				case ExpressionType.TypeIs: return FormatTypeIs(expression);
 				case ExpressionType.TypeAs: return FormatTypeAs(expression);
 				case ExpressionType.Invoke: return FormatInvoke(expression);
@@ -110,6 +111,12 @@ namespace Cone.Core
 			if(operandMethod != null && operandMethod.Method == typeof(MethodInfo).GetMethod("CreateDelegate", new[]{ typeof(Type), typeof(object) }))
 				return ((operandMethod.Object as ConstantExpression).Value as MethodInfo).Name;
 			return string.Format("({0}){1}", FormatType(conversion.Type), Format(conversion.Operand));
+		}
+
+		string FormatDefault(Expression expression) { return FormatDefault((DefaultExpression)expression); }
+
+		string FormatDefault(DefaultExpression defalt) {
+			return string.Format("default({0})", FormatType(defalt.Type));
 		}
 
 		string FormatTypeIs(Expression expression) { return FormatTypeIs((TypeBinaryExpression)expression); }
