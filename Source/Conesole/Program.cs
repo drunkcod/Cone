@@ -214,6 +214,7 @@ namespace Conesole
 			};
 			var worker = new Thread(workerRunTests);
 			worker.Start(assemblyPaths);
+
 			var changed = new HashSet<string>(); 
 			var cooldown = Stopwatch.StartNew();
 			do {
