@@ -2,40 +2,27 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 
 namespace Cone.Runners
 {
 	public class MSTestSuiteBuilder : ConePadSuiteBuilder
 	{
+		static readonly string[] NoStrings = new string[0];
+
 		class MSTestFixtureDescription : IFixtureDescription
 		{
 			private readonly Type type;
 
-			public MSTestFixtureDescription(Type type)
-			{
+			public MSTestFixtureDescription(Type type) {
 				this.type = type;
 			}
 
-			public IEnumerable<string> Categories
-			{
-				get { return new string[0]; }
-			}
-
-			public string SuiteName
-			{
-				get { return type.Namespace; }
-			}
-
-			public string SuiteType
-			{
-				get { return "TestClass"; }
-			}
-
-			public string TestName
-			{
-				get { return type.Name; }
-			}
+			public IEnumerable<string> Categories => NoStrings;
+			public string SuiteName => type.Namespace; 
+			public string SuiteType => "TestClass";
+			public string TestName => type.Name;
 		}
 
 		class MSTestContextDescription : IContextDescription
@@ -46,13 +33,8 @@ namespace Cone.Runners
 				this.type = type;
 			}
 
-			public string Context {
-				get { return type.Name; }
-			}
-
-			public IEnumerable<string> Categories {
-				get { return new string[0]; }
-			}
+			public string Context => type.Name; 
+			public IEnumerable<string> Categories => NoStrings;
 		}
 
 		class MSTestSuite : ConePadSuite
@@ -88,14 +70,19 @@ namespace Cone.Runners
 						}
 
 					if (attributeNames.Contains("Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute")) {
+						var testAttributes = attributes;
+						var ignored = attributeNames.IndexOf("Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute") != -1;
+						if(ignored)
+							testAttributes = new[] { new PendingAttribute { NoExecute = true } };
+
 						var e = attributeNames.IndexOf("Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedExceptionAttribute");
 						if(e == -1)
-							Test(method, ExpectedTestResult.None);
+							Test(method, testAttributes, ExpectedTestResult.None);
 						else {
 							var expectedException = attributes[e];
 							var getExpectedException = expectedException.GetType().GetProperty("ExceptionType");
 							var getAlloweDerived = expectedException.GetType().GetProperty("AllowDerivedTypes");
-							Test(method, ExpectedTestResult.Exception(
+							Test(method, testAttributes, ExpectedTestResult.Exception(
 								(Type)getExpectedException.GetValue(expectedException, null), 
 								(bool)getAlloweDerived.GetValue(expectedException, null)));
 						}

@@ -19,6 +19,8 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
 
 	public class ClassCleanupAttribute : Attribute { }
 
+	public class IgnoreAttribute : Attribute { }
+
 	public class TestContext { }
 
 	public class ExpectedExceptionAttribute : Attribute 
@@ -51,6 +53,7 @@ namespace Cone.Runners
 			public int TestCalled;
 			public int TestInitializeCalled;
 			public int TestCleanupCalled;
+			public int IgnoreCalled;
 
 			[TestClass]
 			public class NestedMSTestFixture { }
@@ -63,6 +66,9 @@ namespace Cone.Runners
 
 			[TestMethod]
 			public void a_test() { TestCalled = ++Calls; }
+
+			[TestMethod,Ignore]
+			public void a_ignored_test() { ++IgnoreCalled; }
 
 			[TestInitialize]
 			public void TestInitialize() { TestInitializeCalled = ++Calls; }
@@ -125,7 +131,7 @@ namespace Cone.Runners
 			}
 
 			public void identifies_test_methods() {
-				Check.That(() => MSTestSuite.TestCount == 1);
+				Check.That(() => MSTestSuite.TestCount == 2);
 			}
 
 			public void TestInitialize_called_before_test() {
@@ -145,7 +151,12 @@ namespace Cone.Runners
 			public void ClassCleanup_called_after_all() {
 				Check.That(() => MyMSTestFixture.ClassCleanupCalled == MyMSTestFixture.Calls);
 			}
+
+			public void ignores_Ignored_tests() {
+				Check.That(() => MSTestTestClass.IgnoreCalled == 0);
+			}
 		}
+
 		[Context("given expected exceptions")]
 		public class MSTestsuiteBuilderExpectedExceptionsSepc
 		{

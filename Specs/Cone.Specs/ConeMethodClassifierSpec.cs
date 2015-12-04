@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Cone.Runners;
@@ -28,12 +29,12 @@ namespace Cone.Core
 
         public void public_niladic_methods_are_tests() {
             var method = Method(x => x.Test());
-            Classify(method).Verify(x => x.Test(method, ExpectedTestResult.None));
+            Classify(method).Verify(x => x.Test(method, It.IsAny<IEnumerable<object>>(), ExpectedTestResult.None));
         }
 
 		public void public_niladic_methods_returnning_task_are_tests() {
             var method = Method(x => x.AsyncTest());
-            Classify(method).Verify(x => x.Test(method, ExpectedTestResult.None));
+            Classify(method).Verify(x => x.Test(method, It.IsAny<IEnumerable<object>>(), ExpectedTestResult.None));
 		}
 
         public void public_niladic_methods_with_returnvalues_are_not_tests() {

@@ -4,35 +4,7 @@ using System.Linq;
 
 namespace Cone.Core
 {
-	public interface IFixtureContext
-	{
-		IConeAttributeProvider Attributes { get; }
-		IConeFixture Fixture { get; }
-	}
-
 	public delegate void TestContextStep(IConeTest test, ITestResult result);
-
-	public interface ITestExecutionContext 
-	{
-		TestContextStep Establish(IFixtureContext context, TestContextStep next);
-	}
-
-	public interface ITestExecutor
-	{
-		void Run(IConeTest test, ITestResult result);
-		void Initialize();
-		void Relase();
-	}
-
-	public class DryRunTestExecutor : ITestExecutor
-	{
-		public void Run(IConeTest test, ITestResult result) {
-			result.Success();
-		}
-
-		public void Initialize() { }
-		public void Relase() { }
-	}
 
 	public class TestExecutor : ITestExecutor
 	{
@@ -78,6 +50,12 @@ namespace Cone.Core
 		}
 		
 		public void Run(IConeTest test, ITestResult result, ITestExecutionContext context) {
+			var ignore = test.Attributes.GetCustomAttributes(typeof(IPendingAttribute)).Cast<IPendingAttribute>().FirstOrDefault(x => x.NoExecute);
+			if(ignore != null) {
+				result.Pending(ignore.Reason);
+				return;
+			}
+
 			var wrap = CombineEstablish(new FixtureContext(fixture, test.Attributes));
 			var next = ExecutionContext
 				.Concat(fixtureContext)
@@ -85,7 +63,7 @@ namespace Cone.Core
 				.Aggregate((t, r) => t.Run(r), wrap);
 			var testContext = test as ITestExecutionContext;
 			if(testContext != null)
-				next = wrap(next, testContext);;
+				next = wrap(next, testContext);
 			wrap(next, context)(test, result);
 		}
 

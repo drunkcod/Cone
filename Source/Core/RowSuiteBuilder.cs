@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace Cone.Core
 {
@@ -9,25 +8,25 @@ namespace Cone.Core
 		void Add(IEnumerable<IRowData> rows);
 	}
 
-    public class RowSuiteLookup<T> where T : IRowSuite
-    {
-        readonly Dictionary<string, T> items = new Dictionary<string,T>();
-        readonly Func<MethodInfo, string, T> create;
+	public class RowSuiteLookup<T> where T : IRowSuite
+	{
+		readonly Dictionary<string, T> items = new Dictionary<string,T>();
+		readonly Func<ConeMethodThunk, string, T> create;
 
-        public RowSuiteLookup(Func<MethodInfo, string, T> create) {
-            this.create = create;
-        }
-
-        public T GetSuite(ConeMethodThunk thunk) {
-			return GetSuite(thunk.Method, thunk.GetHeading());
+		public RowSuiteLookup(Func<ConeMethodThunk, string, T> create) {
+			this.create = create;
 		}
 
-		public T GetSuite(MethodInfo method, string name) {
-            T suite;
-            var key = method.Name + "." + name;
-            if(!items.TryGetValue(key, out suite))
-                items[key] = suite = create(method, name);
-            return suite;
-        }
+		public T GetSuite(ConeMethodThunk thunk) {
+			return GetSuite(thunk, thunk.GetHeading());
+		}
+
+		public T GetSuite(ConeMethodThunk method, string name) {
+			T suite;
+			var key = method.Name + "." + name;
+			if (!items.TryGetValue(key, out suite))
+				items[key] = suite = create(method, name);
+			return suite;
+		}
     }
 }

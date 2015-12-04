@@ -52,7 +52,12 @@
     <Compile Include="BeforeEachAttribute.cs" />
     <Compile Include="BoolDisplay.cs" />
     <Compile Include="Core\DefaultFixtureProvider.cs" />
+    <Compile Include="Core\DryRunTestExecutor.cs" />
     <Compile Include="Core\FixtureProvider.cs" />
+    <Compile Include="Core\ICallable.cs" />
+    <Compile Include="Core\IFixtureContext.cs" />
+    <Compile Include="Core\ITestExecutionContext.cs" />
+    <Compile Include="Core\ITestExecutor.cs" />
     <Compile Include="Core\LambdaObjectProvider.cs" />
     <Compile Include="Core\MissingLinq.cs" />
     <Compile Include="Core\ConeAttributeProvider.cs" />
@@ -96,6 +101,7 @@
     <Compile Include="Runners\ConeResolver.cs" />
     <Compile Include="Runners\ConeTestMethod.cs" />
     <Compile Include="Runners\ConeTestMethodSink.cs" />
+    <Compile Include="Runners\ExpectedExceptionTestMethod.cs" />
     <Compile Include="Runners\ExpectedTestResult.cs" />
     <Compile Include="Runners\MSTestSuiteBuilder.cs" />
     <Compile Include="Runners\MulticastSessionLogger.cs" />
@@ -108,6 +114,7 @@
     <Compile Include="Runners\IConeLogger.cs" />
     <Compile Include="Runners\SimpleConeRunner.cs" />
     <Compile Include="Runners\TestSessionReport.cs" />
+    <Compile Include="Runners\ValueResultTestMethod.cs" />
     <Compile Include="Runners\XmlLogger.cs" />
     <Compile Include="TestStatus.cs" />
     <Compile Include="DescribeAttribute.cs" />

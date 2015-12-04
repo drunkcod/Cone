@@ -17,11 +17,7 @@ namespace Cone.Runners
 		readonly object expectedResult;
 		readonly ExpectedTestResultType resultType;
 
-		public ExpectedTestResultType ResultType { 
-			get { 
-				return resultType & ExpectedTestResultType.TypeMask; 
-			}
-		}
+		public ExpectedTestResultType ResultType => resultType & ExpectedTestResultType.TypeMask; 
 
 		ExpectedTestResult(ExpectedTestResultType resultType, object value) {
 			this.resultType = resultType;

@@ -5,24 +5,25 @@ namespace Cone.Core
 	class TestMethodContext : ITestExecutionContext 
 	{
 		public TestContextStep Establish(IFixtureContext context, TestContextStep next) {
-			var pending = FirstPendingOrDefault(context.Attributes, FirstPendingOrDefault(context.Fixture.FixtureType.AsConeAttributeProvider(), null));
+			var pending = FirstPendingOrDefault(
+				context.Attributes, FirstPendingOrDefault(context.Fixture.FixtureType.AsConeAttributeProvider(), null));
 			return (pending == null)
 				? Runnable(next)
 				: Pending(next, pending.Reason);
 		}
 
-		TestContextStep Runnable(TestContextStep next) {
+		static TestContextStep Runnable(TestContextStep next) {
 			return (test, result) => {
 				try {
 					result.Begin();
 					next(test, result);
 				} catch(Exception ex) {
-					result.TestFailure(ex);                        
+					result.TestFailure(ex);
 				}
 			};
 		}
 
-		TestContextStep Pending(TestContextStep next, string reason) {
+		static TestContextStep Pending(TestContextStep next, string reason) {
 			return (test, result) => {
 				try {
 					next(test, result);

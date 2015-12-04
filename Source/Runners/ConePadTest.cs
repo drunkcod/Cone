@@ -1,76 +1,37 @@
 ﻿using Cone.Core;
-using Cone.Expectations;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 
 namespace Cone.Runners
 {
-	class ValueResultTestMethod : ConeTestMethod
+	class ConePadTest : IConeTest
 	{
-		readonly ExpectedTestResult expectedResult;
-
-		public ValueResultTestMethod(IConeFixture fixture, MethodInfo method, ExpectedTestResult expectedResult) : base(fixture, method) {
-			this.expectedResult = expectedResult;
-		}
-
-		public override void Invoke(object[] parameters, ITestResult result) {
-			var x = Invoke(parameters);
-			if(ReturnType == typeof(void) || expectedResult.Matches(x))
-				result.Success();
-			else result.TestFailure(new Exception("\n" + string.Format(ExpectMessages.EqualFormat, x, expectedResult)));
-		}
-	}
-
-	class ExpectedExceptionTestMethod : ConeTestMethod
-	{
-		readonly ExpectedTestResult expectedExceptionType;
-
-		public ExpectedExceptionTestMethod(IConeFixture fixture, MethodInfo method, ExpectedTestResult expectedExceptionType) : base(fixture, method) {
-			this.expectedExceptionType = expectedExceptionType;
-		}
-
-		public override void Invoke(object[] parameters, ITestResult result) {
-			try {
-				Invoke(parameters);
-				result.TestFailure(new Exception("Expected exception of type " + expectedExceptionType));
-			} catch(TargetInvocationException te) {
-				var e = te.InnerException;
-				if(!expectedExceptionType.Matches(e))
-					result.TestFailure(new Exception("Expected exception of type " + expectedExceptionType + " but was " + e.GetType()));
-				else result.Success();
-			}
-		}
-	}
-
-    class ConePadTest : IConeTest
-    {
-        readonly ITestName name;
-        readonly object[] args;
-        readonly IConeAttributeProvider attributes;
+		readonly ITestName name;
+		readonly object[] args;
+		readonly IConeAttributeProvider attributes;
 		readonly ConeTestMethod test;
 
-    	public ConePadTest(ITestName name, ConeTestMethod test, object[] args, IConeAttributeProvider attributes) {
-            this.name = name;
-            this.args = args;
-            this.attributes = attributes;
+		public ConePadTest(ITestName name, ConeTestMethod test, object[] args, IConeAttributeProvider attributes) {
+			this.name = name;
+			this.args = args;
+			this.attributes = attributes;
 			this.test = test;
-        }
+		}
 
-		public Assembly Assembly { get { return test.Assembly; } }
+		public Assembly Assembly => test.Assembly;
+		public ITestName TestName => name;
 
-        public ITestName TestName { get { return name; } }
-
-        IConeAttributeProvider IConeTest.Attributes { get { return attributes; } }
-		string IConeEntity.Name { get { return TestName.FullName; } }
-		IEnumerable<string> IConeEntity.Categories { get { return test.Categories; } }
-        void IConeTest.Run(ITestResult result) {
+		IConeAttributeProvider IConeTest.Attributes => attributes;
+		string IConeEntity.Name => TestName.FullName;
+		IEnumerable<string> IConeEntity.Categories => test.Categories;
+		void IConeTest.Run(ITestResult result) {
 			if(test.IsAsync && test.ReturnType == typeof(void))
 				throw new NotSupportedException("async void methods aren't supported");
 			test.Invoke(ConvertArgs(test.GetParameters()), result);
 		}
 
-    	private object[] ConvertArgs(ParameterInfo[] parameters) {
+		private object[] ConvertArgs(ParameterInfo[] parameters) {
 			if(args == null)
 				return null;
 			var x = new object[args.Length];
@@ -80,7 +41,7 @@ namespace Cone.Runners
 				x[i] = ChangeType(arg, parameterType);
 			}
 			return x;
-    	}
+		}
 
 		object ChangeType(object value, Type conversionType) {
 			return KeepOriginal(value, conversionType) 
@@ -88,7 +49,7 @@ namespace Cone.Runners
 				: Convert.ChangeType(value, conversionType);
 		}
 
-		bool KeepOriginal(object arg, Type targetType) {
+		static bool KeepOriginal(object arg, Type targetType) {
 			return arg == null
 				|| targetType == typeof(object)
 				|| targetType.IsInstanceOfType(arg)

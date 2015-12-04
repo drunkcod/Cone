@@ -98,7 +98,7 @@ namespace Cone.Runners
 		}
 
 		static T WithTestDomain<T>(string configPath, string[] assemblyPaths, Func<AppDomain,T> @do) {
-			var domainSetup = new AppDomainSetup {				
+			var domainSetup = new AppDomainSetup {
 				ApplicationBase = Path.GetDirectoryName(assemblyPaths.First()),
 				ShadowCopyFiles = "False",
 			};

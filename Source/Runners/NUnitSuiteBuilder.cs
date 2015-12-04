@@ -33,17 +33,9 @@ namespace Cone.Runners
 				return type.FullName == "NUnit.Framework.CategoryAttribute" || IsCategoryAttribute(type.BaseType); 
 			}
 
-			public string SuiteName {
-				get { return type.Namespace; }
-			}
-
-			public string SuiteType {
-				get { return "TestFixture"; }
-			}
-
-			public string TestName {
-				get { return type.Name; }
-			}
+			public string SuiteName => type.Namespace;
+			public string SuiteType => "TestFixture";
+			public string TestName => type.Name;
 		}
 
 		class NUnitSuite : ConePadSuite 
@@ -62,6 +54,7 @@ namespace Cone.Runners
 						ClassifyParameterized(method, attributes);
 						return;
 					}
+
 					var attributeNames = attributes.ConvertAll(x => x.GetType().FullName);
 					foreach (var item in attributeNames) {
 						switch(item) {
@@ -74,7 +67,7 @@ namespace Cone.Runners
 
 					if(method.ReturnType == typeof(void) && attributeNames.Contains("NUnit.Framework.TestAttribute")) {
 						var expectsException = attributes.FirstOrDefault(x => x.GetType().FullName == "NUnit.Framework.ExpectedExceptionAttribute");
-						Test(method, expectsException == null ? ExpectedTestResult.None : ExpectedTestResult.Exception((Type)expectsException.GetPropertyValue("ExpectedException"), false));
+						Test(method, attributes, expectsException == null ? ExpectedTestResult.None : ExpectedTestResult.Exception((Type)expectsException.GetPropertyValue("ExpectedException"), false));
 					}
 					else Unintresting(method);
 				}
@@ -104,22 +97,11 @@ namespace Cone.Runners
 						this.testCaseType = testCase.GetType();
 					}
 
-					public bool IsPending {
-						get { return false; }
-					}
-
-					public string DisplayAs {
-						get { return (string)GetPropertyValue("TestName"); }
-					}
-
-					public object[] Parameters {
-						get { return (object[])GetPropertyValue("Arguments"); }
-					}
-
-					public bool HasResult { get { return true; } }
-					public object Result {
-						get { return GetPropertyValue("Result"); }
-					}
+					public bool IsPending => false; 
+					public string DisplayAs => (string)GetPropertyValue("TestName");
+					public object[] Parameters => (object[])GetPropertyValue("Arguments"); 
+					public bool HasResult => true;
+					public object Result => GetPropertyValue("Result");
 
 					object GetPropertyValue(string name) {
 						return testCaseType.GetProperty(name).GetValue(testCase, null);
@@ -156,7 +138,7 @@ namespace Cone.Runners
 					}
 
 					private object GetSourceObject(Type sourceType) {
-						var ctor = sourceType.GetConstructor(Type.EmptyTypes);						
+						var ctor = sourceType.GetConstructor(Type.EmptyTypes);
 						return ctor == null ? null : ctor.Invoke(null);
 					}
 				}

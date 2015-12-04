@@ -7,21 +7,17 @@ namespace Cone.Runners
 {
 	class ValueResultTestMethod : ConeTestMethod
 	{
-		readonly object expectedResult;
+		readonly ExpectedTestResult expectedResult;
 
-		public ValueResultTestMethod(IConeFixture fixture, MethodInfo method, object expectedResult) : base(fixture, method) {
+		public ValueResultTestMethod(IConeFixture fixture, MethodInfo method, ExpectedTestResult expectedResult) : base(fixture, method) {
 			this.expectedResult = expectedResult;
 		}
 
 		public override void Invoke(object[] parameters, ITestResult result) {
 			var x = Invoke(parameters);
-			if(ReturnType == typeof(void) || ResultEquals(expectedResult, x))
+			if(ReturnType == typeof(void) || expectedResult.Matches(x))
 				result.Success();
 			else result.TestFailure(new Exception("\n" + string.Format(ExpectMessages.EqualFormat, x, expectedResult)));
-		}
-
-		bool ResultEquals(object expected, object actual) {
-			return Convert.ChangeType(actual, expected.GetType()).Equals(expected);
 		}
 	}
 }

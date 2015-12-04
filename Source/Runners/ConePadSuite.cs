@@ -10,7 +10,7 @@ namespace Cone.Runners
 	{
 		class ConePadTestMethodSink : ConeTestMethodSink
 		{
-			IConeFixture Fixture { get { return suite.fixture; } }
+			IConeFixture Fixture => suite.fixture;
 
 			readonly ConePadSuite suite;
 
@@ -20,8 +20,8 @@ namespace Cone.Runners
 
 			public Action<ConeMethodThunk, object[], ExpectedTestResult> TestFound;
 
-			protected override void TestCore(MethodInfo method, ExpectedTestResult expectedResult) {
-				var thunk = CreateMethodThunk(method);
+			protected override void TestCore(MethodInfo method, IEnumerable<object> attributes , ExpectedTestResult expectedResult) {
+				var thunk = CreateMethodThunk(method, attributes);
 				TestFound(thunk, null, expectedResult); 
 			}
 
@@ -29,8 +29,8 @@ namespace Cone.Runners
 				return Fixture.Invoke(method);
 			}
 
-			protected override IRowSuite CreateRowSuite(MethodInfo method, string suiteName) {
-				return suite.AddRowSuite(CreateMethodThunk(method), suiteName);
+			protected override IRowSuite CreateRowSuite(ConeMethodThunk method, string suiteName) {
+				return suite.AddRowSuite(method, suiteName);
 			}
 		}
 
@@ -70,13 +70,11 @@ namespace Cone.Runners
 		}
 
 		public string Name { get; set; }
-		public IEnumerable<string> Categories { get { return categories; } } 
-		public IEnumerable<ConePadSuite> Subsuites { 
-			get { return subsuites; } 
-		}
+		public IEnumerable<string> Categories => categories; 
+		public IEnumerable<ConePadSuite> Subsuites => subsuites;
 
-		public Type FixtureType { get { return fixture.FixtureType; } }
-		public int TestCount { get { return tests.Count + Subsuites.Sum(x => x.TestCount); } }
+		public Type FixtureType => fixture.FixtureType;
+		public int TestCount => tests.Count + Subsuites.Sum(x => x.TestCount);
 
 		public void AddSubSuite(ConePadSuite suite) {
 			subsuites.Add(suite);
