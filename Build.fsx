@@ -3,18 +3,21 @@ open System
 open System.Diagnostics
 open System.IO
 open System.Reflection
+open System.Linq
 open Ionic.Zip
 
 let clean what =
     what |> Seq.map (fun p -> try Directory.Delete(p, true); true with | :? DirectoryNotFoundException -> true | _ -> false) |> Seq.reduce (&&)
 
+let msBuild =
+  let searchRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "MSBuild")
+  Directory.GetFiles(searchRoot, "MSBuild.exe",SearchOption.AllDirectories).OrderByDescending(fun x -> x).First()
+
 let build args =
-  let fxPath = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()  
-  let msBuild4 = Path.Combine(fxPath, @"..\v4.0.30319\MSBuild.exe")
   use build =
     Process.Start(
       ProcessStartInfo(
-        FileName = msBuild4,
+        FileName = msBuild,
         Arguments = "Cone.sln /nologo /v:m /p:Configuration=Release " + args,
         UseShellExecute = false))
   build.WaitForExit()
