@@ -79,6 +79,13 @@ namespace Cone.Runners
 			public void NotATest() { ++Calls; }
 		}
 
+		[TestClass,Ignore]
+		class IgnoredTestClass
+		{
+			[TestMethod]
+			public void my_test() { }
+		}
+
 		public void supports_types_with_TestClass_attribute() {
 			Check.That(() => SuiteBuilder.SupportedType(typeof(MyMSTestFixture)));
 		}
@@ -157,6 +164,28 @@ namespace Cone.Runners
 			}
 		}
 
+		[Context("given a ignored test class")]
+		public class MSTestSuiteBuilderIgnoredTestClassSpec
+		{
+			IgnoredTestClass MSTestTestClass;
+			ConePadSuite MSTestSuite;
+			TestSessionReport TestReport;
+
+			[BeforeAll]
+			public void CreateFixtureInstance() {
+				MSTestSuite = new MSTestSuiteBuilder(new LambdaObjectProvider(t => MSTestTestClass = new IgnoredTestClass())).BuildSuite(typeof(IgnoredTestClass));
+				TestReport = new TestSessionReport();
+				new TestSession(TestReport).RunSession(collectResult => collectResult(MSTestSuite));
+			}
+
+			public void identifies_test_methods() {
+				Check.That(() => MSTestSuite.TestCount == 1);
+			}
+
+			public void all_tests_are_pending() {
+				Check.That(() => TestReport.Pending == MSTestSuite.TestCount);
+			}
+		}
 		[Context("given expected exceptions")]
 		public class MSTestsuiteBuilderExpectedExceptionsSepc
 		{

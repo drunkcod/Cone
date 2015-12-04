@@ -8,14 +8,17 @@ namespace Cone.Runners
 {
 	public class TestSessionReport : ISessionLogger, ISuiteLogger, ITestLogger
 	{
-		int passed;
+		int passed, pending;
+
 		int Failed { get { return failures.Count; } }
 		int Excluded;
 		int Total { get { return passed + Failed + Excluded; } }
 		Stopwatch timeTaken;
+
 		readonly List<ConeTestFailure> failures = new List<ConeTestFailure>();
 
-		public int Passed { get { return passed; } }
+		public int Passed => passed;
+		public int Pending => pending;
 
 		public void BeginSession() {
 			timeTaken = Stopwatch.StartNew();
@@ -41,7 +44,7 @@ namespace Cone.Runners
 
 		public void Failure(ConeTestFailure failure) { lock(failures) failures.Add(failure); }
 
-		public void Pending(string reason) { }
+		void ITestLogger.Pending(string reason) { ++pending; }
 
 		public void Skipped() { Interlocked.Increment(ref Excluded); }
 
