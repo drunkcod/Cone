@@ -95,7 +95,7 @@
     <Compile Include="VersionUpdaterSpec.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\Cone.csproj">
+    <ProjectReference Include="..\..\Source\Cone\Cone.csproj">
       <Project>{E557FD03-E249-4211-80CF-FB0923FD4C7D}</Project>
       <Name>Cone</Name>
     </ProjectReference>

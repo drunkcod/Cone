@@ -4,6 +4,7 @@ namespace Cone.Helpers
 {
 	public class ActionSpy : MethodSpy
 	{
+		public ActionSpy() : this(() => { }) { }
 		public ActionSpy(Action inner) : base(inner) { }
 
 		public static implicit operator Action(ActionSpy self) {

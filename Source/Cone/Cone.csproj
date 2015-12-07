@@ -39,6 +39,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Version.cs">
+      <Link>Version.cs</Link>
+    </Compile>
     <Compile Include="Assume.cs" />
     <Compile Include="ConePad.cs" />
     <Compile Include="Core\CircularQueue.cs" />
@@ -165,7 +168,6 @@
     <Compile Include="DisplayAsAttribute.cs" />
     <Compile Include="Core\TypeExtensions.cs" />
     <Compile Include="Check.cs" />
-    <Compile Include="Version.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
