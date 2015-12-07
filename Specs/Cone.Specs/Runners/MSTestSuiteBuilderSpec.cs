@@ -25,15 +25,12 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
 
 	public class ExpectedExceptionAttribute : Attribute 
 	{
-		readonly Type exceptionType;
-
 		public ExpectedExceptionAttribute(Type exceptionType) {
-			this.exceptionType = exceptionType;
+			this.ExceptionType = exceptionType;
 		}
 
 		public bool AllowDerivedTypes { get; set; }
-		public Type ExceptionType { get { return exceptionType; } }
-
+		public Type ExceptionType { get; }
 	}
 }
 
@@ -43,7 +40,11 @@ namespace Cone.Runners
 	public class MSTestSuiteBuilderSpec
 	{
 		readonly MSTestSuiteBuilder SuiteBuilder = new MSTestSuiteBuilder(new DefaultFixtureProvider());
-		
+
+		static ConePadSuite BuildSuite<T>(T fixture) {
+			return new MSTestSuiteBuilder(new LambdaObjectProvider(t => fixture)).BuildSuite(fixture.GetType());
+		}
+
 		[TestClass]
 		class MyMSTestFixture
 		{
@@ -79,7 +80,7 @@ namespace Cone.Runners
 			public void NotATest() { ++Calls; }
 		}
 
-		[TestClass,Ignore]
+		[TestClass, Ignore]
 		class IgnoredTestClass
 		{
 			[TestMethod]
@@ -90,14 +91,12 @@ namespace Cone.Runners
 			Check.That(() => SuiteBuilder.SupportedType(typeof(MyMSTestFixture)));
 		}
 
-		public void nested_fixtures_are_added_as_children()
-		{
+		public void nested_fixtures_are_added_as_children() {
 			var suite = SuiteBuilder.BuildSuite(typeof(MyMSTestFixture));
 			Check.That(() => suite.Subsuites.Count() == 1);
 		}
 
-		public void nested_fixtures_are_not_supported_at_toplevel()
-		{
+		public void nested_fixtures_are_not_supported_at_toplevel() {
 			Check.That(() => SuiteBuilder.SupportedType(typeof(MyMSTestFixture.NestedMSTestFixture)) == false);
 		}
 
@@ -125,30 +124,34 @@ namespace Cone.Runners
 			}
 		}
 
+		static void RunSuite(ConePadSuite suite, ISessionLogger logger) {
+			new TestSession(logger).RunSession(x => x(suite));
+		}
+
 		[Context("given a test class")]
 		public class MSTestSuiteBuilderSimpleTestClassSpec
 		{
-			MyMSTestFixture MSTestTestClass;
-			ConePadSuite MSTestSuite;
+			MyMSTestFixture FixtureInstance;
+			ConePadSuite TestSuite;
 
 			[BeforeAll]
 			public void CreateFixtureInstance() {
-				MSTestSuite = new MSTestSuiteBuilder(new LambdaObjectProvider(t => MSTestTestClass = new MyMSTestFixture())).BuildSuite(typeof(MyMSTestFixture));
-				new TestSession(new NullLogger()).RunSession(collectResult => collectResult(MSTestSuite));
+				TestSuite = BuildSuite(FixtureInstance = new MyMSTestFixture());
+				RunSuite(TestSuite, new NullLogger());
 			}
 
 			public void identifies_test_methods() {
-				Check.That(() => MSTestSuite.TestCount == 2);
+				Check.That(() => TestSuite.TestCount == 2);
 			}
 
 			public void TestInitialize_called_before_test() {
 				Check.That(
-					() => MSTestTestClass.TestInitializeCalled > 0,
-					() => MSTestTestClass.TestInitializeCalled == MSTestTestClass.TestCalled - 1);
+					() => FixtureInstance.TestInitializeCalled > 0,
+					() => FixtureInstance.TestInitializeCalled == FixtureInstance.TestCalled - 1);
 			}
 
 			public void TestCleanup_called_after_test() {
-				Check.That(() => MSTestTestClass.TestCleanupCalled == MSTestTestClass.TestCalled + 1);
+				Check.That(() => FixtureInstance.TestCleanupCalled == FixtureInstance.TestCalled + 1);
 			}
 
 			public void ClassInitialize_called_once_before_all() {
@@ -160,30 +163,29 @@ namespace Cone.Runners
 			}
 
 			public void ignores_Ignored_tests() {
-				Check.That(() => MSTestTestClass.IgnoreCalled == 0);
+				Check.That(() => FixtureInstance.IgnoreCalled == 0);
 			}
 		}
 
 		[Context("given a ignored test class")]
 		public class MSTestSuiteBuilderIgnoredTestClassSpec
 		{
-			IgnoredTestClass MSTestTestClass;
-			ConePadSuite MSTestSuite;
+			ConePadSuite TestSuite;
 			TestSessionReport TestReport;
 
 			[BeforeAll]
 			public void CreateFixtureInstance() {
-				MSTestSuite = new MSTestSuiteBuilder(new LambdaObjectProvider(t => MSTestTestClass = new IgnoredTestClass())).BuildSuite(typeof(IgnoredTestClass));
+				TestSuite = BuildSuite(new IgnoredTestClass());
 				TestReport = new TestSessionReport();
-				new TestSession(TestReport).RunSession(collectResult => collectResult(MSTestSuite));
+				RunSuite(TestSuite, TestReport);
 			}
 
 			public void identifies_test_methods() {
-				Check.That(() => MSTestSuite.TestCount == 1);
+				Check.That(() => TestSuite.TestCount == 1);
 			}
 
 			public void all_tests_are_pending() {
-				Check.That(() => TestReport.Pending == MSTestSuite.TestCount);
+				Check.That(() => TestReport.Pending == TestSuite.TestCount);
 			}
 		}
 		[Context("given expected exceptions")]
@@ -192,7 +194,7 @@ namespace Cone.Runners
 			[TestClass]
 			class ExpectedExceptions
 			{
-				[TestMethod,ExpectedException(typeof(InvalidOperationException))]
+				[TestMethod, ExpectedException(typeof(InvalidOperationException))]
 				public void invalid_operation() {
 					throw new InvalidOperationException();
 				}
@@ -201,7 +203,6 @@ namespace Cone.Runners
 				public void allow_derived_types() {
 					throw new InvalidOperationException();
 				}
-
 			}
 
 			class RecordingTestSession : ISessionLogger, ISuiteLogger, ITestLogger
@@ -238,19 +239,18 @@ namespace Cone.Runners
 				public void EndTest() { currentTest = null; }
 			}
 
-			ConePadSuite MSTestSuite;
+			ConePadSuite TestSuite;
 			RecordingTestSession TestReport;
 
 			[BeforeAll]
 			public void CreateFixtureInstance() {
-				MSTestSuite = new MSTestSuiteBuilder(new LambdaObjectProvider(t => new ExpectedExceptions()))
-					.BuildSuite(typeof(ExpectedExceptions));
+				TestSuite = BuildSuite(new ExpectedExceptions());
 				TestReport = new RecordingTestSession();
-				new TestSession(TestReport).RunSession(collectResult => collectResult(MSTestSuite));
+				RunSuite(TestSuite, TestReport);
 			}
 
 			public void identifies_test_methods() {
-				Check.That(() => MSTestSuite.TestCount == 2);
+				Check.That(() => TestSuite.TestCount == 2);
 			}
 
 			public void test_raising_expected_exception_passes() {

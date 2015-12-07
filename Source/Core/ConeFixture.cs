@@ -42,7 +42,7 @@ namespace Cone.Core
 		}
 
 		[SuppressMessage("Microsoft.Design", "CA1033", Justification = "Should never be called directly")]
-		void ITestContext.After(ITestResult testResult) {           
+		void ITestContext.After(ITestResult testResult) {
 			fixtureMethods.InvokeAfterEach(fixture, testResult);
 		}
 

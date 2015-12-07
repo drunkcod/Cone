@@ -148,7 +148,7 @@
     <Compile Include="Core\IConeTest.cs" />
     <Compile Include="Core\IFormatter.cs" />
     <Compile Include="ITestDescription.cs" />
-    <Compile Include="ITestInterceptor.cs" />
+    <Compile Include="ITestContext.cs" />
     <Compile Include="ITestResult.cs" />
     <Compile Include="Reflection\MemberInfoExtensions.cs" />
     <Compile Include="NullSubexpressionException.cs" />

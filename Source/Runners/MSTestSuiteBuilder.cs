@@ -2,13 +2,25 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 
 namespace Cone.Runners
 {
 	public class MSTestSuiteBuilder : ConePadSuiteBuilder
 	{
+		static class MSTestAttributeNames
+		{
+			public const string ClassInitialize =   "Microsoft.VisualStudio.TestTools.UnitTesting.ClassInitializeAttribute";
+			public const string ClassCleanup =      "Microsoft.VisualStudio.TestTools.UnitTesting.ClassCleanupAttribute";
+			public const string TestInitialize =    "Microsoft.VisualStudio.TestTools.UnitTesting.TestInitializeAttribute";
+			public const string TestCleanup =       "Microsoft.VisualStudio.TestTools.UnitTesting.TestCleanupAttribute";
+			public const string TestContext =       "Microsoft.VisualStudio.TestTools.UnitTesting.TestContext";
+			public const string TestClass =         "Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute";
+			public const string TestMethod =        "Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute";
+			public const string Ignore =            "Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute";
+			public const string ExpectedException = "Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedExceptionAttribute";
+		}
+
 		static readonly string[] NoStrings = new string[0];
 
 		class MSTestFixtureDescription : IFixtureDescription
@@ -37,26 +49,16 @@ namespace Cone.Runners
 			public IEnumerable<string> Categories => NoStrings;
 		}
 
-		static class MsTestAttributeNames
-		{
-			public const string ClassInitialize =   "Microsoft.VisualStudio.TestTools.UnitTesting.ClassInitializeAttribute";
-			public const string ClassCleanup =      "Microsoft.VisualStudio.TestTools.UnitTesting.ClassCleanupAttribute";
-			public const string TestInitialize =    "Microsoft.VisualStudio.TestTools.UnitTesting.TestInitializeAttribute";
-			public const string TestCleanup =       "Microsoft.VisualStudio.TestTools.UnitTesting.TestCleanupAttribute";
-			public const string TestMethod =        "Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute";
-			public const string Ignore =            "Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute";
-			public const string ExpectedException = "Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedExceptionAttribute";
-		}
-
 		class MSTestSuite : ConePadSuite
 		{
 			class MSTestMethodClassifier : MethodClassifier
 			{
+				static readonly object[] NoExecute = { new PendingAttribute { NoExecute = true } };
+
 				readonly bool ignoredFixture;
-				readonly object[] ignoredTestAttributes = { new PendingAttribute { NoExecute = true } };
 
 				public MSTestMethodClassifier(Type fixtureType, IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) : base(fixtureSink, testSink) {
-					this.ignoredFixture = fixtureType.GetCustomAttributes(true).Any(x => x.GetType().FullName == MsTestAttributeNames.Ignore);
+					this.ignoredFixture = fixtureType.GetCustomAttributes(true).Any(x => x.GetType().FullName == MSTestAttributeNames.Ignore);
 				}
 
 				protected override void ClassifyCore(MethodInfo method) {
@@ -66,51 +68,45 @@ namespace Cone.Runners
 					if(!ignoredFixture)
 						ClassifySupportMethods(method, attributeNames);
 
-					if (attributeNames.Contains(MsTestAttributeNames.TestMethod)) {
+					if(attributeNames.Contains(MSTestAttributeNames.TestMethod)) {
 						var testAttributes = attributes;
-						var ignored = ignoredFixture || attributeNames.IndexOf(MsTestAttributeNames.Ignore) != -1;
+						var ignored = ignoredFixture || attributeNames.Contains(MSTestAttributeNames.Ignore);
 						if(ignored)
-							testAttributes = ignoredTestAttributes;
+							testAttributes = NoExecute;
 
-						var e = attributeNames.IndexOf(MsTestAttributeNames.ExpectedException);
-						if(e == -1)
-							Test(method, testAttributes, ExpectedTestResult.None);
-						else {
-							var expectedException = attributes[e];
-							var getExpectedException = expectedException.GetType().GetProperty("ExceptionType");
-							var getAlloweDerived = expectedException.GetType().GetProperty("AllowDerivedTypes");
-							Test(method, testAttributes, ExpectedTestResult.Exception(
-								(Type)getExpectedException.GetValue(expectedException, null), 
-								(bool)getAlloweDerived.GetValue(expectedException, null)));
-						}
+						var e = attributeNames.IndexOf(MSTestAttributeNames.ExpectedException);
+						var expectedResult = e == -1
+							? ExpectedTestResult.None
+							: GetExpectedExceptionResult(attributes[e]);
+
+						Test(method, testAttributes, expectedResult);
 					}
 					else Unintresting(method);
 				}
 
-				private void ClassifySupportMethods(MethodInfo method, string[] attributeNames)
-				{
-					foreach (var item in attributeNames)
-						switch (item)
-						{
-							case MsTestAttributeNames.ClassInitialize:
-								if (method.ReturnType == typeof (void) && method.IsStatic)
-								{
+				private static ExpectedTestResult GetExpectedExceptionResult(object expectedException) {
+					var getExpectedException = expectedException.GetType().GetProperty("ExceptionType");
+					var getAlloweDerived = expectedException.GetType().GetProperty("AllowDerivedTypes");
+					return ExpectedTestResult.Exception(
+						(Type)getExpectedException.GetValue(expectedException, null),
+						(bool)getAlloweDerived.GetValue(expectedException, null));
+				}
+
+				private void ClassifySupportMethods(MethodInfo method, string[] attributeNames) {
+					foreach(var item in attributeNames)
+						switch(item) {
+							case MSTestAttributeNames.ClassInitialize:
+								if(method.ReturnType == typeof (void) && method.IsStatic) {
 									var parameters = method.GetParameters();
-									if (parameters.Length == 1 &&
-										parameters.First().ParameterType.FullName == "Microsoft.VisualStudio.TestTools.UnitTesting.TestContext")
+									if(parameters.Length == 1 &&
+										parameters[0].ParameterType.FullName == MSTestAttributeNames.TestContext)
 										BeforeAll(method);
 								}
 								break;
 
-							case MsTestAttributeNames.ClassCleanup:
-								AfterAll(method);
-								break;
-							case MsTestAttributeNames.TestInitialize:
-								BeforeEach(method);
-								break;
-							case MsTestAttributeNames.TestCleanup:
-								AfterEach(method);
-								break;
+							case MSTestAttributeNames.ClassCleanup: AfterAll(method); break;
+							case MSTestAttributeNames.TestInitialize: BeforeEach(method); break;
+							case MSTestAttributeNames.TestCleanup: AfterEach(method); break;
 						}
 				}
 			}
@@ -130,7 +126,7 @@ namespace Cone.Runners
 
 		private static bool IsTestClass(Type type) {
 			return type.GetCustomAttributes(true)
-				.Any(x => x.GetType().FullName == "Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute");
+				.Any(x => x.GetType().FullName == MSTestAttributeNames.TestClass);
 		}
 
 		public override IFixtureDescription DescriptionOf(Type fixtureType) {
