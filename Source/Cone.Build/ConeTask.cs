@@ -1,4 +1,5 @@
 ﻿using System;
+using Cone.Core;
 using Cone.Runners;
 using Microsoft.Build.Framework;
 
@@ -27,13 +28,22 @@ namespace Cone.Build
 		}
 
 		void ICrossDomainLogger.Info(string message) {
+			BuildEngine.LogMessageEvent(new BuildMessageEventArgs(message, string.Empty, SenderName, MessageImportance.Low));
+		}
+		void ICrossDomainLogger.Error(string message) {
 			BuildEngine.LogMessageEvent(new BuildMessageEventArgs(message, string.Empty, SenderName, MessageImportance.High));
 		}
 
-		void ICrossDomainLogger.Failure(string file, int line, int column, string message) {
+		void ICrossDomainLogger.BeginTest(ConeTestName test) { }
+
+		void ICrossDomainLogger.Success() { }
+
+		void ICrossDomainLogger.Failure(string file, int line, int column, string message, string stackTrace) {
 			noFailures = false;
 			BuildEngine.LogErrorEvent(new BuildErrorEventArgs("Test ", string.Empty, file, line, 0, 0, column, message, string.Empty, SenderName));
 		}
+
+		void ICrossDomainLogger.Pending(string reason) { }
 
 		public ITaskHost HostObject { get; set; }
 

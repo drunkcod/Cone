@@ -17,19 +17,25 @@ namespace Cone.Runners
 				return null;
 			}
 		}
+		static readonly NullSuiteBuilder NullBuilder = new NullSuiteBuilder();
 
 		readonly IConeSuiteBuilder<ConePadSuite>[] suiteBuilders;
 
 		public SimpleConeRunner(): this(new DefaultFixtureProvider())
 		{ }
 
-		public SimpleConeRunner(FixtureProvider objectProvider) {
-			suiteBuilders = new IConeSuiteBuilder<ConePadSuite>[] {
+		public SimpleConeRunner(FixtureProvider objectProvider) : this(
 				new ConePadSuiteBuilder(objectProvider),
 				new NUnitSuiteBuilder(objectProvider),
-				new MSTestSuiteBuilder(objectProvider),
-				new NullSuiteBuilder(),
-			};
+				new MSTestSuiteBuilder(objectProvider)
+			) { }
+
+		SimpleConeRunner(params IConeSuiteBuilder<ConePadSuite>[] suiteBuilders) {
+			this.suiteBuilders = suiteBuilders;
+		}
+
+		public static SimpleConeRunner ConeOnlyRunner() {
+			return new SimpleConeRunner(new ConePadSuiteBuilder(new DefaultFixtureProvider()));
 		}
 
 		public int Workers = 1;
@@ -68,8 +74,7 @@ namespace Cone.Runners
 		}
 
 		bool TryBuildSuite(Type input, out ConePadSuite suite) {
-			suite = suiteBuilders
-				.First(x => x.SupportedType(input))
+			suite = (suiteBuilders.FirstOrDefault(x => x.SupportedType(input)) ?? NullBuilder)
 				.BuildSuite(input);
 			return suite != null;
 		}

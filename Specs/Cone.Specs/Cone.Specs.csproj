@@ -95,6 +95,10 @@
     <Compile Include="VersionUpdaterSpec.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Source\Cone.Build\Cone.Build.csproj">
+      <Project>{f6104751-d8b9-4def-a7cc-3a5a45ec50b3}</Project>
+      <Name>Cone.Build</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\Cone\Cone.csproj">
       <Project>{E557FD03-E249-4211-80CF-FB0923FD4C7D}</Project>
       <Name>Cone</Name>
@@ -115,7 +119,7 @@
   -->
   <UsingTask AssemblyFile="$(SolutionDir)\Tools\Cone.Build.dll" TaskName="ConeTask" />
   <Target Name="AfterBuild">
-    <ConeTask Path="$(OutputPath)\$(AssemblyName).dll" />
+    <!--<ConeTask Path="$(OutputPath)\$(AssemblyName).dll" />-->
     <RemoveDir Directories="obj" />
   </Target>
 </Project>

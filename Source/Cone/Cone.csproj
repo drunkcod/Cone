@@ -54,6 +54,7 @@
     <Compile Include="BeforeAllAttribute.cs" />
     <Compile Include="BeforeEachAttribute.cs" />
     <Compile Include="BoolDisplay.cs" />
+    <Compile Include="Core\ConeTestName.cs" />
     <Compile Include="Core\DefaultFixtureProvider.cs" />
     <Compile Include="Core\DryRunTestExecutor.cs" />
     <Compile Include="Core\FixtureProvider.cs" />

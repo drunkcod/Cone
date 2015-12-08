@@ -24,4 +24,5 @@ namespace Cone.Runners
 		public void Skipped() { }
 		public void BeginTest() { }
 		public void EndTest() { }
-	}}
+	}
+}

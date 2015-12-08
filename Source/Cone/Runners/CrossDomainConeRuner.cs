@@ -6,17 +6,20 @@ using System.Reflection;
 using System.Security;
 using System.Security.Permissions;
 using Cone.Core;
-using System.Diagnostics;
 
 namespace Cone.Runners
 {
 	public interface ICrossDomainLogger 
 	{
 		void Info(string message);
-		void Failure(string file, int line, int column, string message);
+		void Error(string message);
+		void BeginTest(ConeTestName name);
+		void Success();
+		void Failure(string file, int line, int column, string message, string stackTrace);
+		void Pending(string reason);
 	}
 
-	class CrossDomainSessionLoggerAdapter : ISessionLogger, ISuiteLogger, ITestLogger
+	public class CrossDomainSessionLoggerAdapter : ISessionLogger, ISuiteLogger, ITestLogger
 	{
 		readonly ICrossDomainLogger crossDomainLog;
 
@@ -41,6 +44,7 @@ namespace Cone.Runners
 		public void EndSuite() { }
 
 		public ITestLogger BeginTest(IConeTest test) {
+			crossDomainLog.BeginTest(ConeTestName.From(test.TestName));
 			return this;
 		}
 
@@ -51,17 +55,21 @@ namespace Cone.Runners
 				failure.File,
 				failure.Line,
 				failure.Column,
-				failure.Message);
+				failure.Message, 
+				"at " + string.Join(Environment.NewLine, failure.StackFrames.Select(x => x.ToString()))
+			);
 		}
 
 		void ITestLogger.Success() {
 			if (ShowProgress)
 				crossDomainLog.Info(".");
+			crossDomainLog.Success();
 		}
 
 		void ITestLogger.Pending(string reason) {
 			if (ShowProgress)
 				crossDomainLog.Info("?");
+			crossDomainLog.Pending(reason);
 		}
 
 		void ITestLogger.Skipped() { }
@@ -93,7 +101,7 @@ namespace Cone.Runners
 				};
 				new SimpleConeRunner() {
 					Workers = UseMulticore ? Environment.ProcessorCount : 1,
-				}.RunTests(new TestSession(logger), LoadTestAssemblies(AssemblyPaths, error => Logger.Info(error)));             
+				}.RunTests(new TestSession(logger), LoadTestAssemblies(AssemblyPaths, error => Logger.Info(error)));
 			}
 		}
 
@@ -105,11 +113,11 @@ namespace Cone.Runners
 
 			if(string.IsNullOrEmpty(configPath) && assemblyPaths.Length == 1)
 				configPath = Path.GetFullPath(assemblyPaths[0] + ".config");
-						
+
 			if(File.Exists(configPath))
 				domainSetup.ConfigurationFile = configPath;
 			
-			var conePath = 	new Uri(typeof(CrossDomainConeRunner).Assembly.CodeBase).LocalPath;			
+			var conePath = 	new Uri(typeof(CrossDomainConeRunner).Assembly.CodeBase).LocalPath;
 			var localCone = Path.Combine(domainSetup.ApplicationBase, Path.GetFileName(conePath));
 
 			var testDomain = AppDomain.CreateDomain("Cone.TestDomain", 
