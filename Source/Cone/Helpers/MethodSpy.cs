@@ -102,7 +102,9 @@ namespace Cone.Helpers
 		}
 
 		object InvokeInner(object[] args) {
-			try {	return inner.DynamicInvoke(args); }
+			try {
+				return inner?.DynamicInvoke(args);
+			}
 			catch(TargetInvocationException ex) {
 				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
 				throw;//nonsense.

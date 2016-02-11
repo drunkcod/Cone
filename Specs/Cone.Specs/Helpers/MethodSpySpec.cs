@@ -10,5 +10,12 @@ namespace Cone.Helpers
 
 			Check.Exception<InvalidOperationException>(() => ((Action)spy)());
 		}
+
+		public void doesnt_chain_into_null_target() {
+			Action<int,int> nothing = null;
+			Action<int,int> spy = MethodSpy.On(ref nothing);
+			spy(0, 1);
+		
+		}
 	}
 }
