@@ -25,7 +25,7 @@ namespace Cone.Expectations
 
     public class BooleanExpect : IExpect
     {
-        readonly protected Expression body;
+        protected readonly Expression body;
         readonly IExpectValue actual;
 
         public BooleanExpect(Expression body, IExpectValue actual) {

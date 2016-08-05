@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Cone.Core;
 
@@ -26,7 +27,7 @@ namespace Cone.Expectations
             var eval = new ExpressionEvaluator();
             if(expected != typeof(NullSubexpressionException))
                 eval.NullSubexpression = (e, c) => { throw new NullSubexpressionException(e, c); };
-            var result = eval.Evaluate(expression, expression, x => x);
+            var result = eval.Evaluate(expression, expression, ExpressionEvaluatorParameters.Empty, x => x);
             if(result.IsError)
                 return result.Exception;
             return null;

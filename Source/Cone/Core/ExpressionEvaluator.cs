@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace Cone.Core
 {
-    public class ExpressionEvaluator
+	public class ExpressionEvaluator
     {
         public Func<Expression,EvaluationResult> Unsupported;
         public Func<Expression, Expression, EvaluationResult> NullSubexpression;
@@ -20,27 +20,27 @@ namespace Cone.Core
             return expression;
         }
        
-        public EvaluationResult Evaluate(Expression body, Expression context) { 
-            return Evaluate(body, context, x => { throw new ExceptionExpressionException(x.Expression, context, x.Exception); });
+        public EvaluationResult Evaluate(Expression body, Expression context, ExpressionEvaluatorParameters parameters = null) { 
+            return Evaluate(body, context, parameters, x => { throw new ExceptionExpressionException(x.Expression, context, x.Exception); });
         }
 
-        public EvaluationResult Evaluate(Expression body, Expression context, Func<EvaluationResult, EvaluationResult> onError) {
-            var result = CreateContext(context).Evaluate(body);
+        public EvaluationResult Evaluate(Expression body, Expression context, ExpressionEvaluatorParameters parameters, Func<EvaluationResult, EvaluationResult> onError) {
+            var result = CreateContext(context, parameters ?? ExpressionEvaluatorParameters.Empty).Evaluate(body);
             if(result.IsError)
                 return onError(result);
             return result;
         }
 
         public EvaluationResult EvaluateAsTarget(Expression expression, Expression context) {
-            return CreateContext(context).EvaluateAsTarget(expression);
+            return CreateContext(context, ExpressionEvaluatorParameters.Empty).EvaluateAsTarget(expression);
         }
 
         public EvaluationResult EvaluateAll(ICollection<Expression> expressions, Expression context) {
-            return CreateContext(context).EvaluateAll(expressions);
+            return CreateContext(context, ExpressionEvaluatorParameters.Empty).EvaluateAll(expressions);
         }
 
-        ExpressionEvaluatorContext CreateContext(Expression context) {
-            return new ExpressionEvaluatorContext(context) {
+        ExpressionEvaluatorContext CreateContext(Expression context, ExpressionEvaluatorParameters parameters) {
+            return new ExpressionEvaluatorContext(context, parameters) {
                 Unsupported = Unsupported,
                 NullSubexpression = NullSubexpression
             };

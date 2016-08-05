@@ -49,9 +49,13 @@ namespace Cone.Expectations
 			}
 
 			if (SupportedExpressionType(body.NodeType))
-				return Lambda(body);
+				return Lambda(body, null);
 			throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
 		}
+
+		public IExpect FromLambda(Expression body, ExpressionEvaluatorParameters parameters) {
+			return Lambda(body, parameters);
+		} 
 
 		static bool SupportedExpressionType(ExpressionType nodeType) {
 			switch (nodeType) {
@@ -69,10 +73,10 @@ namespace Cone.Expectations
 			return false;
 		}
 
-		IExpect Lambda(Expression body) {
+		IExpect Lambda(Expression body, ExpressionEvaluatorParameters parameters) {
 			var binary = body as BinaryExpression;
 			if (binary != null)
-				return Binary(LiftEnum(binary));
+				return Binary(LiftEnum(binary), parameters);
 			if(body.NodeType == ExpressionType.TypeIs)
 				return TypeIs((TypeBinaryExpression)body);
 			return Unary(body);
@@ -104,7 +108,7 @@ namespace Cone.Expectations
 			var method = body.Method;
 			if(TryGetExpectProvider(method, out provider)) {
 				var target = Evaluator.EvaluateAsTarget(body.Object, body).Result;
-				var args = body.Arguments.ConvertAll(EvaluateAs<object>);
+				var args = body.Arguments.ConvertAll(x => EvaluateAs<object>(x, null));
 				return provider.GetExpectation(body, method, target, args);
 			}
 			return Boolean(body);
@@ -115,16 +119,16 @@ namespace Cone.Expectations
 		}
 
 		IExpect Boolean(Expression body) {
-			return new BooleanExpect(body, new ExpectValue(EvaluateAs<bool>(body)));
+			return new BooleanExpect(body, new ExpectValue(EvaluateAs<bool>(body, null)));
 		}
 
 		IExpect Conversion(UnaryExpression conversion) {
-			return new ConversionExpect(conversion, EvaluateAs<object>(conversion.Operand), conversion.Method);
+			return new ConversionExpect(conversion, EvaluateAs<object>(conversion.Operand, null), conversion.Method);
 		}
 
-		static Expect Binary(BinaryExpression body) {
-			var left = Evaluate(body.Left, body);
-			var right = Evaluate(body.Right, body);
+		static Expect Binary(BinaryExpression body, ExpressionEvaluatorParameters parameters) {
+			var left = Evaluate(body.Left, body, parameters);
+			var right = Evaluate(body.Right, body, parameters);
 
 			if(IsStringEquals(body))
 				return new StringEqualExpect(body, (string)left.Value, (string)right.Value);
@@ -166,11 +170,11 @@ namespace Cone.Expectations
 			public override string ToString() { return rawValue.ToString(); }
 		}
 
-		static T EvaluateAs<T>(Expression body) { return (T)(Evaluate(body, body).Value); }
+		static T EvaluateAs<T>(Expression body, ExpressionEvaluatorParameters parameters) { return (T)(Evaluate(body, body, parameters).Value); }
 		
-		static IExpectValue Evaluate(Expression body, Expression context) { 
+		static IExpectValue Evaluate(Expression body, Expression context, ExpressionEvaluatorParameters parameters) { 
 			var unwrapped = Evaluator.Unwrap(body);
-			var value = Evaluator.Evaluate(body, context).Result;
+			var value = Evaluator.Evaluate(body, context, parameters).Result;
 			if(unwrapped == body)
 				return new ExpectValue(value); 
 			return new WrappedExpectValue(value, Evaluator.Evaluate(unwrapped, context).Result);
@@ -178,7 +182,7 @@ namespace Cone.Expectations
 
 		static Expect TypeIs(TypeBinaryExpression body) {
 			return new TypeIsExpect(body,
-				Evaluate(body.Expression, body), 
+				Evaluate(body.Expression, body, null), 
 				body.TypeOperand);
 		}
 	}

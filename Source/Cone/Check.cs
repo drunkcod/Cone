@@ -46,9 +46,9 @@ namespace Cone
 			return DoMakeFail(new[] { fail }, innerException);
 		}
 		
-		delegate Exception NewFailedExpectationException(IEnumerable<FailedExpectation> fails, Exception inner); 
+		internal delegate Exception NewFailedExpectationException(IEnumerable<FailedExpectation> fails, Exception inner); 
 
-		static NewFailedExpectationException DoMakeFail = (fail, inner) =>
+		internal static NewFailedExpectationException DoMakeFail = (fail, inner) =>
 		{
 			DoMakeFail = LateBindFailureException();
 			return DoMakeFail(fail, inner);
@@ -98,7 +98,7 @@ namespace Cone
 				throw failed;
 		}
 
-		static Exception Eval(IEnumerable<Expression<Func<bool>>> exprs) {
+		internal static Exception Eval(IEnumerable<Expression<Func<bool>>> exprs) {
 			var failed = new List<FailedExpectation>();
 			exprs.ForEach(x =>
 			{
@@ -116,9 +116,12 @@ namespace Cone
 			return Check<TException>.When(expr);
 		}
 
-		static IExpect ToExpect(Expression body) {
+		internal static IExpect ToExpect(Expression body) => ToExpect(body, ExpressionEvaluatorParameters.Empty);
+		internal static IExpect ToExpect(Expression body, ExpressionEvaluatorParameters parameters) {
 			try {
-				return Expect.From(body);
+				if(parameters.Count == 0)
+					return Expect.From(body);
+				return Expect.FromLambda(body, parameters);
 			} catch(ExceptionExpressionException e) {
 				var formatter = GetExpressionFormatter();
 				var fail = new FailedExpectation(string.Format("{0}\nraised by '{1}' in\n'{2}'",e.InnerException.Message, formatter.Format(e.Expression), formatter.Format(e.Subexpression)), Maybe<object>.None, Maybe<object>.None);
@@ -144,6 +147,42 @@ namespace Cone
 			var context = new StackTrace().GetFrames()
 				.Select(x => x.GetMethod()).First(x => x.DeclaringType.Assembly != ThisAssembly);
 			return ExpressionFormatter.Rebind(context.DeclaringType);
+		}
+
+		public static CheckWith<T> With<T>(Expression<Func<T>> expr)
+		{
+			object result;
+			if (TryEval(ToExpect(Expression.NotEqual(expr.Body, Expression.Constant(null))), out result))
+				return new CheckWith<T>((T)result);
+			throw MakeFail((FailedExpectation)result, null);
+		}
+	}
+
+	public class CheckWith<T>
+	{
+		readonly T input;
+
+		public CheckWith(T input) { this.input = input; }
+
+		public void That(Expression<Func<T,bool>> expr) {
+			object result;
+			if (Check.TryEval(Check.ToExpect(expr.Body, new ExpressionEvaluatorParameters { { expr.Parameters.Single(), input } }), out result))
+				return;
+			throw Check.MakeFail((FailedExpectation)result, null);
+		}
+
+		public void That(Expression<Func<T,bool>> expr, params Expression<Func<T,bool>>[] extras) {
+			var failed = new List<FailedExpectation>();
+			var exprs = new [] { expr }.Concat(extras);
+			exprs.ForEach(x =>
+			{
+				object r;
+				if (!Check.TryEval(Check.ToExpect(x.Body, new ExpressionEvaluatorParameters { { x.Parameters.Single(), input } }), out r))
+					failed.Add((FailedExpectation) r);
+			});
+
+			if(failed.Count > 0)
+				throw Check.DoMakeFail(failed, null);
 		}
 	}
 

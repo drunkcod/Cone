@@ -7,15 +7,19 @@ using Cone.Reflection;
 
 namespace Cone.Core
 {
+
+
 	class ExpressionEvaluatorContext 
 	{
 		readonly Expression context;
+		readonly ExpressionEvaluatorParameters parameters;
 
 		public Func<Expression,EvaluationResult> Unsupported;
 		public Func<Expression, Expression, EvaluationResult> NullSubexpression;
 
-		public ExpressionEvaluatorContext(Expression context) {
+		public ExpressionEvaluatorContext(Expression context, ExpressionEvaluatorParameters parameters) {
 			this.context = context;
+			this.parameters = parameters;
 		}
 
 		public EvaluationResult Evaluate(Expression body) {
@@ -33,6 +37,7 @@ namespace Cone.Core
 				case ExpressionType.Quote: return EvaluateQuote(body);
 				case ExpressionType.Invoke: return EvaluateInvoke(body);
 				case ExpressionType.AndAlso: return EvaluateAndAlso(body);
+				case ExpressionType.Parameter: return EvaluateParameter(body);
 				default: return Unsupported(body);
 			}
 		}
@@ -186,8 +191,13 @@ namespace Cone.Core
 				.Then<bool>(leftResult => leftResult ? Evaluate(expression.Right) : EvaluationResult.Success(typeof(bool), false));
 		}
 
+		EvaluationResult EvaluateParameter(Expression expression) => EvaluateParameter((ParameterExpression)expression);
+		EvaluationResult EvaluateParameter(ParameterExpression expression) {
+			return EvaluationResult.Success(expression.Type, parameters[expression]);
+		}
+
 		ExpressionEvaluatorContext Rebind(Expression newContext) {
-			return new ExpressionEvaluatorContext(newContext) {
+			return new ExpressionEvaluatorContext(newContext, parameters) {
 				Unsupported = Unsupported,
 				NullSubexpression = NullSubexpression
 			};

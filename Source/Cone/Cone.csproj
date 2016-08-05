@@ -57,6 +57,7 @@
     <Compile Include="Core\ConeTestName.cs" />
     <Compile Include="Core\DefaultFixtureProvider.cs" />
     <Compile Include="Core\DryRunTestExecutor.cs" />
+    <Compile Include="Core\ExpressionEvaluatorParameters.cs" />
     <Compile Include="Core\FixtureProvider.cs" />
     <Compile Include="Core\ICallable.cs" />
     <Compile Include="Core\IFixtureContext.cs" />

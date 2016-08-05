@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Cone.Core;
 
@@ -13,9 +14,9 @@ namespace Cone
 		};
 
 		T Evaluate<T>(Expression<Func<T>> lambda){ return Evaluate(lambda, x => { throw x.Exception; }); }
-		T Evaluate<T>(Expression<Func<T>> lambda, Func<EvaluationResult, EvaluationResult> onError){ return (T)Evaluator.Evaluate(lambda.Body, lambda, onError).Result; }
+		T Evaluate<T>(Expression<Func<T>> lambda, Func<EvaluationResult, EvaluationResult> onError){ return (T)Evaluator.Evaluate(lambda.Body, lambda, ExpressionEvaluatorParameters.Empty, onError).Result; }
 		void EvaluateError<T>(Expression<Func<T>> lambda, Func<EvaluationResult, EvaluationResult> onError) {
-			var result = Evaluator.Evaluate(lambda.Body, lambda, onError);
+			var result = Evaluator.Evaluate(lambda.Body, lambda, ExpressionEvaluatorParameters.Empty, onError);
 			Check.That(() => result.IsError);
 		}
 
@@ -112,7 +113,6 @@ namespace Cone
 			Check.That(() => value == item);
 		}
 
-
 		static int MyStaticOutputValue;
 		bool WriteOut(int value, out int target) {
 			target = value;
@@ -163,5 +163,10 @@ namespace Cone
 		}
 
 		T Throws<T>() { throw new NotImplementedException(); }
+
+		public void eval_with_parameters() {
+			Expression<Func<int,int>> id = x => x;
+			Check.That(() => Evaluator.Evaluate(id.Body, null, new ExpressionEvaluatorParameters { { id.Parameters.Single(), 1 } }).Result == (object)1);
+		}
 	}
 }
