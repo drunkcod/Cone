@@ -7,8 +7,6 @@ using Cone.Reflection;
 
 namespace Cone.Core
 {
-
-
 	class ExpressionEvaluatorContext 
 	{
 		readonly Expression context;
@@ -192,22 +190,17 @@ namespace Cone.Core
 		}
 
 		EvaluationResult EvaluateParameter(Expression expression) => EvaluateParameter((ParameterExpression)expression);
-		EvaluationResult EvaluateParameter(ParameterExpression expression) {
-			return EvaluationResult.Success(expression.Type, parameters[expression]);
-		}
+		EvaluationResult EvaluateParameter(ParameterExpression expression) => Success(expression.Type, parameters[expression]);
 
-		ExpressionEvaluatorContext Rebind(Expression newContext) {
-			return new ExpressionEvaluatorContext(newContext, parameters) {
+		ExpressionEvaluatorContext Rebind(Expression newContext) =>
+			new ExpressionEvaluatorContext(newContext, ExpressionEvaluatorParameters.Empty) {
 				Unsupported = Unsupported,
 				NullSubexpression = NullSubexpression
 			};
-		}
 
-		object ChangeType(object value, Type to) {
-			return ObjectConverter.ChangeType(value, to);
-		}
+		object ChangeType(object value, Type to) => ObjectConverter.ChangeType(value, to);
 
-		EvaluationResult Success(Type type, object value){ return EvaluationResult.Success(type, value); }
-		EvaluationResult Failure(Expression expression, Exception e){ return EvaluationResult.Failure(expression, e); } 
+		EvaluationResult Success(Type type, object value) => EvaluationResult.Success(type, value);
+		EvaluationResult Failure(Expression expression, Exception e) => EvaluationResult.Failure(expression, e);  
 	}
 }
