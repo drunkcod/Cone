@@ -18,9 +18,9 @@ namespace Cone.Core
 
 	public class ConeTestFailure
 	{
-		public string File { get { return HasFrames ? LastFrame.File : null; } }
-		public int Line { get { return HasFrames ? LastFrame.Line : 0; } }
-		public int Column { get { return HasFrames ? LastFrame.Column : 0; } }
+		public string File => HasFrames ? LastFrame.File : null;
+		public int Line => HasFrames ? LastFrame.Line : 0;
+		public int Column => HasFrames ? LastFrame.Column : 0;
 		public readonly string Context;
 		public readonly string TestName;
 		public readonly string ErrorsContext;
@@ -28,17 +28,20 @@ namespace Cone.Core
 		public readonly FailureType FailureType;
 		public readonly ConeStackFrame[] StackFrames;
 
-		bool HasFrames { get { return StackFrames.Length > 0; } }
-		ConeStackFrame LastFrame { get { return StackFrames[StackFrames.Length - 1]; } }
+		bool HasFrames => StackFrames.Length > 0;
+		ConeStackFrame LastFrame => StackFrames[StackFrames.Length - 1];
 
-		public ConeTestFailure(ITestName testName, Exception error, FailureType failureType) {
+		public ConeTestFailure(ITestName testName, Exception error, FailureType failureType) : this(testName, error, failureType, ShouldIncludeFrame)
+		{ }
+
+		public ConeTestFailure(ITestName testName, Exception error, FailureType failureType, Func<StackFrame, bool> includeFrame) {
 			TestName = testName.Name;
 			Context = testName.Context;
 			FailureType = failureType;
 
 			var testError = Unwrap(error);
 			StackFrames = GetNestedStackFrames(testError)
-				.Where(ShouldIncludeFrame)
+				.Where(includeFrame)
 				.Select(x => new ConeStackFrame(x))
 				.ToArray();
 
@@ -51,17 +54,11 @@ namespace Cone.Core
 			else
 			{
 				ErrorsContext = string.Empty;
-				Errors = new [] {
-					new FailedExpectation(testError.Message)
-				};
+				Errors = new [] { new FailedExpectation(testError.Message) };
 			}
 		}
 
-		public string Message {
-			get {
-				return Errors.Select(x => x.Message).Join("\n");
-			}
-		}
+		public string Message => Errors.Select(x => x.Message).Join("\n");
 
 		static bool ShouldIncludeFrame(StackFrame frame) {
 			var m = frame.GetMethod();
@@ -75,7 +72,7 @@ namespace Cone.Core
 		}
 
 		public void WriteTo(ISessionWriter writer) {
-		var prefix = string.IsNullOrEmpty(File) ? string.Empty : string.Format("{0}({1}:{2}) ", File, Line, Column);
+		var prefix = string.IsNullOrEmpty(File) ? string.Empty : $"{File}({Line}:{Column}) ";
 			writer.Write("{0}{1}.{2}:\n", prefix, Context, TestName);
 			var sep = "  -> ";
 			if(!string.IsNullOrEmpty(ErrorsContext)) {
@@ -103,10 +100,9 @@ namespace Cone.Core
 			}
 		}
 
-		static IEnumerable<StackFrame> GetNestedStackFrames(Exception e) {
-			if(e == null) 
-				return new StackFrame[0];
-			return GetNestedStackFrames(e.InnerException).Concat(new StackTrace(e, 0, true).GetFrames() ?? new StackFrame[0]);
-		}
+		static IEnumerable<StackFrame> GetNestedStackFrames(Exception e) => 
+			e == null 
+			? Enumerable.Empty<StackFrame>() 
+			: GetNestedStackFrames(e.InnerException).Concat(new StackTrace(e, 0, true).GetFrames() ?? Enumerable.Empty<StackFrame>());
 	} 
 }

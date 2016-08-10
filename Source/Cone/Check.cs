@@ -48,7 +48,7 @@ namespace Cone
 		internal static Exception MakeFail(string context, FailedExpectation fail, Exception innerException) => 
 			DoMakeFail(context, new[] { fail }, innerException);
 		
-		internal delegate Exception NewFailedExpectationException(string context, IEnumerable<FailedExpectation> fails, Exception inner); 
+		internal delegate Exception NewFailedExpectationException(string context, FailedExpectation[] fails, Exception inner); 
 
 		static NewFailedExpectationException DoMakeFail = (context, fail, inner) =>
 		{
@@ -72,7 +72,7 @@ namespace Cone
 				fails, innerException).Compile();
 		}
 
-		static Exception DefaultFail(string context, IEnumerable<FailedExpectation> fail, Exception innerException) =>
+		static Exception DefaultFail(string context, FailedExpectation[] fail, Exception innerException) =>
 			new CheckFailed(context, fail, innerException);
 
 		public static object That(Expression<Func<bool>> expr) {
@@ -104,7 +104,7 @@ namespace Cone
 			});
 
 			return failed.Count > 0 
-				? DoMakeFail(string.Empty, failed, null) 
+				? DoMakeFail(string.Empty, failed.ToArray(), null) 
 				: null;
 		}
 
@@ -183,7 +183,7 @@ namespace Cone
 				});
 
 				if(failed.Count > 0)
-					throw DoMakeFail(ExpressionFormatter.Format(context), failed, null);
+					throw DoMakeFail(ExpressionFormatter.Format(context), failed.ToArray(), null);
 			}
 		}
 	}

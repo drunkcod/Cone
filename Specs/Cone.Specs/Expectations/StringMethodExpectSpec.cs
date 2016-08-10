@@ -40,7 +40,7 @@ namespace Cone.Expectations
             var eval = new ExpressionEvaluator();
             var call = (MethodCallExpression)expression.Body;
             var expect = provider.GetExpectation(call, call.Method, 
-                eval.EvaluateAsTarget(call.Object, call).Result,
+                eval.EvaluateAsTarget(call.Object, call, ExpressionEvaluatorParameters.Empty).Result,
                 (object[])eval.EvaluateAll(call.Arguments, call).Result);
             return expect.FormatExpected(new NullFormatter());
         }

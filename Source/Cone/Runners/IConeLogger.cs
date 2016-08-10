@@ -12,7 +12,7 @@ namespace Cone.Runners
 		void NewLine();
 	}
 
-	class TextSessionWriter : ISessionWriter
+	public class TextSessionWriter : ISessionWriter
 	{
 		readonly TextWriter writer;
 

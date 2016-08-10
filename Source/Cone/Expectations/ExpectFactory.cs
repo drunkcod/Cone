@@ -79,7 +79,7 @@ namespace Cone.Expectations
 				return Binary(LiftEnum(binary), parameters);
 			if(body.NodeType == ExpressionType.TypeIs)
 				return TypeIs((TypeBinaryExpression)body);
-			return Unary(body);
+			return Unary(body, parameters);
 		}
 
 		BinaryExpression LiftEnum(BinaryExpression source) {
@@ -97,17 +97,17 @@ namespace Cone.Expectations
 			return source;
 		}
 
-		IExpect Unary(Expression body) {
+		IExpect Unary(Expression body, ExpressionEvaluatorParameters parameters) {
 			if(body.NodeType == ExpressionType.Call)
-				return Method((MethodCallExpression)body);
+				return Method((MethodCallExpression)body, parameters);
 			return Boolean(body);
 		}
 
-		IExpect Method(MethodCallExpression body) {
+		IExpect Method(MethodCallExpression body, ExpressionEvaluatorParameters parameters) {
 			IMethodExpectProvider provider;
 			var method = body.Method;
 			if(TryGetExpectProvider(method, out provider)) {
-				var target = Evaluator.EvaluateAsTarget(body.Object, body).Result;
+				var target = Evaluator.EvaluateAsTarget(body.Object, body, parameters).Result;
 				var args = body.Arguments.ConvertAll(x => EvaluateAs<object>(x, null));
 				return provider.GetExpectation(body, method, target, args);
 			}

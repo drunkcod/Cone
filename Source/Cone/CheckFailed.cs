@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Cone.Core;
-using System.Collections.Generic;
 
 namespace Cone
 {
@@ -20,15 +19,15 @@ namespace Cone
 	}
 
 	[Serializable]
-    public class CheckFailed : Exception
-    {
-        public CheckFailed(string message) : this(string.Empty, new[]{ new FailedExpectation(message) }, null) { }
+	public class CheckFailed : Exception
+	{
+		public CheckFailed(string message) : this(string.Empty, new[]{ new FailedExpectation(message) }, null) { }
 
-		public CheckFailed(string context, FailedExpectation fail, Exception innerException) : this(context, new[] {fail}, innerException) { }
+		public CheckFailed(string context, FailedExpectation fail, Exception innerException) : this(context, new[] { fail }, innerException) { }
 
-		public CheckFailed(string context, IEnumerable<FailedExpectation> fails, Exception innerException) : base(fails.Select(x => x.Message).Join("\n"), innerException) {
+		public CheckFailed(string context, FailedExpectation[] fails, Exception innerException) : base(fails.Select(x => x.Message).Join("\n"), innerException) {
 			this.Context = context;
-			this.Failures = fails.ToArray();
+			this.Failures = fails;
 		}
 
 		public readonly string Context;

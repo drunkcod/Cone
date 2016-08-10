@@ -31,8 +31,8 @@ namespace Cone.Core
             return result;
         }
 
-        public EvaluationResult EvaluateAsTarget(Expression expression, Expression context) {
-            return CreateContext(context, ExpressionEvaluatorParameters.Empty).EvaluateAsTarget(expression);
+        public EvaluationResult EvaluateAsTarget(Expression expression, Expression context, ExpressionEvaluatorParameters contextParameters) {
+            return CreateContext(context, contextParameters).EvaluateAsTarget(expression);
         }
 
         public EvaluationResult EvaluateAll(ICollection<Expression> expressions, Expression context) {
