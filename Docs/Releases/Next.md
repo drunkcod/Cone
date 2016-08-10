@@ -22,12 +22,14 @@ The base implementation of this check is simply
         () => things.GetThing().Value.EndsWith("!"));
 ```
 Sample output being akin to:
->  -> things.GetThing().Value.Length == 13
->  Expected: 13
->  But was:  11
->things.GetThing().Value.EndsWith("!")
->  Expected: a string ending with "!"
->  But was:  "Hello World"
+```
+  -> things.GetThing().Value.Length == 13
+  Expected: 13
+  But was:  11
+things.GetThing().Value.EndsWith("!")
+  Expected: a string ending with "!"
+  But was:  "Hello World"
+```
 
 This works well in most circumstances and is straightforward although a tad
 repetitive. One way to cut down the duplication while keeping the safeguards
@@ -45,12 +47,14 @@ This makes the core checks much more to the point and avoids double execution
 but comes at the cost of a slight loss in context.
 
 Failure output now looks like this:
->  -> thing.Value.Length == 13
->  Expected: 13
->  But was:  11
->thing.Value.EndsWith("!")
->  Expected: a string ending with "!"
->  But was:  "Hello World"
+```
+  -> thing.Value.Length == 13
+  Expected: 13
+  But was:  11
+thing.Value.EndsWith("!")
+  Expected: a string ending with "!"
+  But was:  "Hello World"
+```
 
 If the loss of the source of "thing" is relvant or not is ofcourse contextual
 often it's acceptable, but the implementation is a bit of an aquired taste.
@@ -71,13 +75,15 @@ lambda given to With.
 
 Upon failure the complete context is given to make it easer to piece
 togheter what went avry: 
-> given things.GetThing() ->
-> thing.Value.Length == 13
->  Expected: 13
->  But was:  11
->thing.Value.EndsWith("!")
->  Expected: a string ending with "!"
->  But was:  "Hello World"
+```
+ given things.GetThing() ->
+ thing.Value.Length == 13
+  Expected: 13
+  But was:  11
+thing.Value.EndsWith("!")
+  Expected: a string ending with "!"
+  But was:  "Hello World"
+```
 
 We know know where thing (or whatever we decide to call it) came from, thus
 we avoid duplication but still keep the full context on display for easy
