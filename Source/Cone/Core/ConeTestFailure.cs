@@ -23,6 +23,7 @@ namespace Cone.Core
 		public int Column { get { return HasFrames ? LastFrame.Column : 0; } }
 		public readonly string Context;
 		public readonly string TestName;
+		public readonly string ErrorsContext;
 		public readonly FailedExpectation[] Errors;
 		public readonly FailureType FailureType;
 		public readonly ConeStackFrame[] StackFrames;
@@ -42,12 +43,18 @@ namespace Cone.Core
 				.ToArray();
 
 			var expectationFailed = testError as CheckFailed;
-			if(expectationFailed != null) 
-				Errors = expectationFailed.Failures.ToArray();
+			if(expectationFailed != null)
+			{
+				ErrorsContext = expectationFailed.Context;
+				Errors = expectationFailed.Failures;
+			}
 			else
+			{
+				ErrorsContext = string.Empty;
 				Errors = new [] {
 					new FailedExpectation(testError.Message)
 				};
+			}
 		}
 
 		public string Message {
@@ -70,7 +77,12 @@ namespace Cone.Core
 		public void WriteTo(ISessionWriter writer) {
 		var prefix = string.IsNullOrEmpty(File) ? string.Empty : string.Format("{0}({1}:{2}) ", File, Line, Column);
 			writer.Write("{0}{1}.{2}:\n", prefix, Context, TestName);
-			writer.Important("  -> {0}\n", Message);
+			var sep = "  -> ";
+			if(!string.IsNullOrEmpty(ErrorsContext)) {
+				writer.Info("given {0} ->\n", ErrorsContext);
+				sep = string.Empty;
+			}
+			writer.Important("{1}{0}\n", Message, sep);
 			StackFrames.ForEach(frame => writer.Write("  at {0}\n", frame));
 		}
 

@@ -57,7 +57,7 @@ namespace Cone.Core
 		}
 
 
-		EvaluationResult EvaluateLambda(Expression expression) { return EvaluateLambda((LambdaExpression)expression); }
+		EvaluationResult EvaluateLambda(Expression expression) => EvaluateLambda((LambdaExpression)expression);
 		EvaluationResult EvaluateLambda(LambdaExpression expression) {
 			if(expression == context && expression.Parameters.Count == 0)
 				return Evaluate(expression.Body);
@@ -77,12 +77,11 @@ namespace Cone.Core
 			return Success(rank1.Type, array.GetValue(index));
 		}
 
-		EvaluationResult EvaluateBinary(Expression expression) { return EvaluateBinary((BinaryExpression)expression); }
-		EvaluationResult EvaluateBinary(BinaryExpression binary) {
-			return Evaluate(binary.Left)
+		EvaluationResult EvaluateBinary(Expression expression) => EvaluateBinary((BinaryExpression)expression);
+		EvaluationResult EvaluateBinary(BinaryExpression binary)  => 
+			Evaluate(binary.Left)
 				.Then<object>(left => Evaluate(binary.Right)
 				.Then<object>(right => EvaluateBinary(binary, left, right)));
-		}
 
 		EvaluationResult EvaluateBinary(BinaryExpression binary, object left, object right) {
 			var op = binary.Method;
@@ -95,16 +94,15 @@ namespace Cone.Core
 			}
 		}
 
-		EvaluationResult EvaluateCall(Expression expression) { return EvaluateCall((MethodCallExpression)expression); }
-		EvaluationResult EvaluateCall(MethodCallExpression expression) {
-			return EvaluateAsTarget(expression.Object).Then<object>(target =>
+		EvaluationResult EvaluateCall(Expression expression) => EvaluateCall((MethodCallExpression)expression);
+		EvaluationResult EvaluateCall(MethodCallExpression expression) =>
+			EvaluateAsTarget(expression.Object).Then<object>(target =>
 				EvaluateAll(expression.Arguments).Then<object[]>(input => {
 					var method = expression.Method;
 					return GuardedInvocation(expression,
 						() => Success(method.ReturnType, method.Invoke(target, input)),
 						() => AssignOutParameters(expression.Arguments, input, method.GetParameters()));
 				}));
-		}
 
 		void AssignOutParameters(IList<Expression> arguments, object[] results, ParameterInfo[] parameters) {
 			if(results.Length == 0)
@@ -124,7 +122,7 @@ namespace Cone.Core
 			return Rebind(e).Evaluate(e).Result;
 		}
 
-		EvaluationResult EvaluateConvert(Expression expression) { return EvaluateConvert((UnaryExpression)expression); }
+		EvaluationResult EvaluateConvert(Expression expression) => EvaluateConvert((UnaryExpression)expression);
 		EvaluationResult EvaluateConvert(UnaryExpression expression) {
 			return Evaluate(expression.Operand).Then<object>(value => {
 				var convertMethod = expression.Method;
@@ -135,14 +133,14 @@ namespace Cone.Core
 			});
 		}
 
-		EvaluationResult EvaluateMemberAccess(Expression expression) { return EvaluateMemberAccess((MemberExpression)expression); }
+		EvaluationResult EvaluateMemberAccess(Expression expression) => EvaluateMemberAccess((MemberExpression)expression);
 		EvaluationResult EvaluateMemberAccess(MemberExpression expression) {
 			return GuardedInvocation(expression, () =>
 				EvaluateAsTarget(expression.Expression)
 				.Then<object>(x => Success(expression.Type, expression.Member.GetValue(x))));
 		}
 
-		EvaluationResult EvaluateNew(Expression expression) { return EvaluateNew((NewExpression)expression); }
+		EvaluationResult EvaluateNew(Expression expression) => EvaluateNew((NewExpression)expression);
 		EvaluationResult EvaluateNew(NewExpression expression) {
 			return GuardedInvocation(expression, () => {
 				var args = EvaluateAll(expression.Arguments).Result as object[];
@@ -152,7 +150,7 @@ namespace Cone.Core
 			});
 		}
 
-		EvaluationResult EvaluateNewArrayInit(Expression expression) { return EvaluateNewArrayInit((NewArrayExpression)expression);}
+		EvaluationResult EvaluateNewArrayInit(Expression expression) => EvaluateNewArrayInit((NewArrayExpression)expression);
 		EvaluationResult EvaluateNewArrayInit(NewArrayExpression expression) {
 			return GuardedInvocation(expression, () => {
 				var result = Array.CreateInstance(expression.Type.GetElementType(), expression.Expressions.Count);
@@ -162,7 +160,7 @@ namespace Cone.Core
 			});
 		}
 
-		EvaluationResult GuardedInvocation(Expression expression, Func<EvaluationResult> action) { return GuardedInvocation(expression, action, () => {}); }
+		EvaluationResult GuardedInvocation(Expression expression, Func<EvaluationResult> action) => GuardedInvocation(expression, action, () => {});
 		EvaluationResult GuardedInvocation(Expression expression, Func<EvaluationResult> action, Action @finally) {
 			try {
 				return action();
@@ -171,12 +169,10 @@ namespace Cone.Core
 			} finally { @finally(); }
 		}
 
-		EvaluationResult EvaluateQuote(Expression expression) { return EvaluateQuote((UnaryExpression)expression); }
-		EvaluationResult EvaluateQuote(UnaryExpression expression) {
-			return Success(expression.Type, expression.Operand);
-		}
+		EvaluationResult EvaluateQuote(Expression expression) => EvaluateQuote((UnaryExpression)expression);
+		EvaluationResult EvaluateQuote(UnaryExpression expression) => Success(expression.Type, expression.Operand);
 
-		EvaluationResult EvaluateInvoke(Expression expression) { return EvaluateInvoke((InvocationExpression)expression); }
+		EvaluationResult EvaluateInvoke(Expression expression) => EvaluateInvoke((InvocationExpression)expression);
 		EvaluationResult EvaluateInvoke(InvocationExpression expression) {
 			var target = Evaluate(expression.Expression).Result as Delegate;
 			return EvaluateAll(expression.Arguments)
@@ -184,10 +180,9 @@ namespace Cone.Core
 		}
 
 		EvaluationResult EvaluateAndAlso(Expression expression) { return EvaluateAndAlso((BinaryExpression)expression); }
-		EvaluationResult EvaluateAndAlso(BinaryExpression expression) {
-			return Evaluate(expression.Left)
-				.Then<bool>(leftResult => leftResult ? Evaluate(expression.Right) : EvaluationResult.Success(typeof(bool), false));
-		}
+		EvaluationResult EvaluateAndAlso(BinaryExpression expression) =>
+			Evaluate(expression.Left)
+				.Then<bool>(leftResult => leftResult ? Evaluate(expression.Right) : Success(typeof(bool), false));
 
 		EvaluationResult EvaluateParameter(Expression expression) => EvaluateParameter((ParameterExpression)expression);
 		EvaluationResult EvaluateParameter(ParameterExpression expression) => Success(expression.Type, parameters[expression]);

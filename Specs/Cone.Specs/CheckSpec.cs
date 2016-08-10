@@ -107,7 +107,7 @@ namespace Cone
 				Check.That(
 					() => 1 == 2,
 					() => 1 == 3));
-			Check.That(() => e.Failures.Count == 2);
+			Check.That(() => e.Failures.Length == 2);
 		}
 
 		[Context("binary expressions")]

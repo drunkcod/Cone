@@ -43,14 +43,17 @@ namespace Cone
 		}
 		
 		internal static Exception MakeFail(FailedExpectation fail, Exception innerException) => 
-			DoMakeFail(new[] { fail }, innerException);
-		
-		internal delegate Exception NewFailedExpectationException(IEnumerable<FailedExpectation> fails, Exception inner); 
+			DoMakeFail(string.Empty, new[] { fail }, innerException);
 
-		static NewFailedExpectationException DoMakeFail = (fail, inner) =>
+		internal static Exception MakeFail(string context, FailedExpectation fail, Exception innerException) => 
+			DoMakeFail(context, new[] { fail }, innerException);
+		
+		internal delegate Exception NewFailedExpectationException(string context, IEnumerable<FailedExpectation> fails, Exception inner); 
+
+		static NewFailedExpectationException DoMakeFail = (context, fail, inner) =>
 		{
 			DoMakeFail = LateBindFailureException();
-			return DoMakeFail(fail, inner);
+			return DoMakeFail(context, fail, inner);
 		};
 
 		static NewFailedExpectationException LateBindFailureException()
@@ -69,14 +72,14 @@ namespace Cone
 				fails, innerException).Compile();
 		}
 
-		static Exception DefaultFail(IEnumerable<FailedExpectation> fail, Exception innerException) =>
-			new CheckFailed(fail, innerException);
+		static Exception DefaultFail(string context, IEnumerable<FailedExpectation> fail, Exception innerException) =>
+			new CheckFailed(context, fail, innerException);
 
 		public static object That(Expression<Func<bool>> expr) {
 			object result;
 			if (TryEval(expr.Body, out result))
 				return result;
-			throw MakeFail((FailedExpectation)result, null);
+			throw MakeFail(string.Empty, (FailedExpectation)result, null);
 		}
 
 		public static void That(Expression<Func<bool>> expr, params Expression<Func<bool>>[] extras) {
@@ -101,7 +104,7 @@ namespace Cone
 			});
 
 			return failed.Count > 0 
-				? DoMakeFail(failed, null) 
+				? DoMakeFail(string.Empty, failed, null) 
 				: null;
 		}
 
@@ -148,21 +151,25 @@ namespace Cone
 		{
 			object result;
 			if (TryEval(Expression.NotEqual(expr.Body, Expression.Constant(null)), out result))
-				return new CheckWith<T>((T)result);
+				return new CheckWith<T>(expr.Body, (T)result);
 			throw MakeFail((FailedExpectation)result, null);
 		}
 
 		public class CheckWith<T>
 		{
+			readonly Expression context;
 			readonly T input;
 
-			public CheckWith(T input) { this.input = input; }
+			public CheckWith(Expression context, T input) {
+				this.context = context;
+				this.input = input;
+			}
 
 			public object That(Expression<Func<T,bool>> expr) {
 				object result;
 				if (TryEval(expr.Body, new ExpressionEvaluatorParameters { { expr.Parameters.Single(), input } }, out result))
 					return result;
-				throw MakeFail((FailedExpectation)result, null);
+				throw MakeFail(ExpressionFormatter.Format(context), (FailedExpectation)result, null);
 			}
 
 			public void That(Expression<Func<T,bool>> expr, params Expression<Func<T,bool>>[] extras) {
@@ -176,7 +183,7 @@ namespace Cone
 				});
 
 				if(failed.Count > 0)
-					throw DoMakeFail(failed, null);
+					throw DoMakeFail(ExpressionFormatter.Format(context), failed, null);
 			}
 		}
 	}

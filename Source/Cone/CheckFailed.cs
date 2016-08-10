@@ -22,15 +22,17 @@ namespace Cone
 	[Serializable]
     public class CheckFailed : Exception
     {
-        public CheckFailed(string message) : this(new[]{ new FailedExpectation(message) }, null) { }
+        public CheckFailed(string message) : this(string.Empty, new[]{ new FailedExpectation(message) }, null) { }
 
-		public CheckFailed(FailedExpectation fail, Exception innerException) : this(new[] {fail}, innerException) { }
+		public CheckFailed(string context, FailedExpectation fail, Exception innerException) : this(context, new[] {fail}, innerException) { }
 
-		public CheckFailed(IEnumerable<FailedExpectation> fails, Exception innerException) : base(fails.Select(x => x.Message).Join("\n"), innerException) { 
-			this.Failures = fails.ToList();
+		public CheckFailed(string context, IEnumerable<FailedExpectation> fails, Exception innerException) : base(fails.Select(x => x.Message).Join("\n"), innerException) {
+			this.Context = context;
+			this.Failures = fails.ToArray();
 		}
 
-		public readonly List<FailedExpectation> Failures;
+		public readonly string Context;
+		public readonly FailedExpectation[] Failures;
 
     }
 }
