@@ -9,7 +9,6 @@ namespace Cone.Runners
 		void Write(string format, params object[] args);
 		void Important(string format, params object[] args);
 		void Info(string format, params object[] args);
-		void NewLine();
 	}
 
 	public class TextSessionWriter : ISessionWriter
@@ -21,12 +20,8 @@ namespace Cone.Runners
 		}
 
 		public void Write(string format, params object[] args) { writer.Write(format, args); }
-
 		public void Important(string format, params object[] args) { Write(format, args); }
-
 		public void Info(string format, params object[] args) { Write(format, args); }
-
-		public void NewLine() { writer.WriteLine(); }
 	}
 
 	class ConsoleSessionWriter : ISessionWriter
@@ -48,8 +43,6 @@ namespace Cone.Runners
 				Console.ForegroundColor = tmp;
 			}
 		}
-
-		public void NewLine() { Console.WriteLine(); }
 	}
 
 	public interface ISessionLogger
