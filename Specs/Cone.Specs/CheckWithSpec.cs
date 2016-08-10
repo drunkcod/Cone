@@ -14,10 +14,10 @@ namespace Cone
 				.That(result => result.Length == 11); 
 		}
 		public void can_chain_checks() {
-			var theObject = "HelloWorld!!";
+			var theObject = "HelloWorld!";
 			Check.With(() => theObject)
 				.That(
-					result => result.Length == 11,
+					its => its.Length == 11,
 					x => x.ToUpper() == "HELLOWORLD!"
 				); 
 		}
