@@ -23,8 +23,12 @@ namespace Cone
 				); 
 		}
 
-		public void supports_array_length_checks() {
+		public void array_length_check() {
 			Check.With(() => new [] { 1, 2, 3 }).That(arr => arr.Length == 3);
+		}
+
+		public void method_call() {
+			Check.With(() => "Hello").That(x => x.Equals("Hello"));
 		}
 	}
 }

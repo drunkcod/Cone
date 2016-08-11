@@ -39,8 +39,8 @@ namespace Cone.Expectations
 		public IExpect From(Expression body) {
 			switch(body.NodeType) {
 				case ExpressionType.Not: return new NotExpect(From(((UnaryExpression)body).Operand));
-				case ExpressionType.AndAlso: return Boolean(body);
-				case ExpressionType.Invoke: return Boolean(body);
+				case ExpressionType.AndAlso: return Boolean(body, null);
+				case ExpressionType.Invoke: return Boolean(body, null);
 				case ExpressionType.Convert:
 					var conversion = (UnaryExpression)body;
 					if(conversion.Type == typeof(bool))
@@ -100,7 +100,7 @@ namespace Cone.Expectations
 		IExpect Unary(Expression body, ExpressionEvaluatorParameters parameters) {
 			if(body.NodeType == ExpressionType.Call)
 				return Method((MethodCallExpression)body, parameters);
-			return Boolean(body);
+			return Boolean(body, parameters);
 		}
 
 		IExpect Method(MethodCallExpression body, ExpressionEvaluatorParameters parameters) {
@@ -111,15 +111,15 @@ namespace Cone.Expectations
 				var args = body.Arguments.ConvertAll(x => EvaluateAs<object>(x, null));
 				return provider.GetExpectation(body, method, target, args);
 			}
-			return Boolean(body);
+			return Boolean(body, parameters);
 		}
 
 		bool TryGetExpectProvider(MethodInfo method, out IMethodExpectProvider provider) {
 			return methodExpects.TryGetExpectProvider(method, out provider);
 		}
 
-		IExpect Boolean(Expression body) {
-			return new BooleanExpect(body, new ExpectValue(EvaluateAs<bool>(body, null)));
+		IExpect Boolean(Expression body, ExpressionEvaluatorParameters parameters) {
+			return new BooleanExpect(body, new ExpectValue(EvaluateAs<bool>(body, parameters)));
 		}
 
 		IExpect Conversion(UnaryExpression conversion) {
