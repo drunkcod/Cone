@@ -13,6 +13,7 @@ namespace Cone
 			Check.With(() => theObject)
 				.That(result => result.Length == 11); 
 		}
+
 		public void can_chain_checks() {
 			var theObject = "HelloWorld!";
 			Check.With(() => theObject)
@@ -20,6 +21,10 @@ namespace Cone
 					its => its.Length == 11,
 					x => x.ToUpper() == "HELLOWORLD!"
 				); 
+		}
+
+		public void supports_array_length_checks() {
+			Check.With(() => new [] { 1, 2, 3 }).That(arr => arr.Length == 3);
 		}
 	}
 }
