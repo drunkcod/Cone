@@ -20,7 +20,8 @@ namespace Cone
 		static Assembly ThisAssembly => typeof(Check).Assembly;
 		static ExpectFactory expect;
 
-		static ExpectFactory Expect => expect ?? (expect = new ExpectFactory(GetPluginAssemblies()));
+		static readonly ExpressionEvaluator Evaluator = new ExpressionEvaluator();
+		static ExpectFactory Expect => expect ?? (expect = new ExpectFactory(Evaluator, GetPluginAssemblies()));
 		static readonly ParameterFormatter ParameterFormatter = new ParameterFormatter();
 		static readonly ExpressionFormatter ExpressionFormatter = new ExpressionFormatter(typeof(Check), ParameterFormatter);
 
@@ -159,6 +160,8 @@ namespace Cone
 		}
 
 		public static CheckWith<T> With<T>(Expression<Func<T>> expr) {
+			if(typeof(T).IsValueType)
+				return new CheckWith<T>(expr.Body, (T)Evaluator.Evaluate(expr.Body, expr, ExpressionEvaluatorParameters.Empty).Result);
 			var result = CheckExpect(Expression.NotEqual(expr.Body, Expression.Constant(null)), ExpressionEvaluatorParameters.Empty);
 			if (result.IsSuccess)
 				return new CheckWith<T>(expr.Body, (T)result.Value);

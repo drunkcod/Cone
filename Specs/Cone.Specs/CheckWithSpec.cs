@@ -23,12 +23,21 @@ namespace Cone
 				); 
 		}
 
+		public void with_value_type() {
+			Check.With(() => 42)
+			.That(theAnswer => theAnswer == 42);
+		}
+
 		public void array_length_check() {
 			Check.With(() => new [] { 1, 2, 3 }).That(arr => arr.Length == 3);
 		}
 
 		public void method_call() {
 			Check.With(() => "Hello").That(x => x.Equals("Hello"));
+		}
+
+		public void booleans() {
+			Check.With(() => new { IsOk = true }).That(x => x.IsOk);
 		}
 	}
 }

@@ -18,11 +18,12 @@ namespace Cone.Expectations
 		static readonly Expector LessThanOrEqualExpector = (body, left, right) => new LessThanOrEqualExpect(body, left, right);     
 		static readonly Expector GreaterThanExpector = (body, left, right) => new GreaterThanExpect(body, left, right);
 		static readonly Expector GreaterThanOrEqualExpector = (body, left, right) => new GreaterThanOrEqualExpect(body, left, right);
-		static readonly ExpressionEvaluator Evaluator = new ExpressionEvaluator();
 
+		readonly ExpressionEvaluator evaluator;
 		readonly MethodExpectProviderLookup methodExpects = new MethodExpectProviderLookup();
 
-		public ExpectFactory(IEnumerable<Assembly> assembliesToScan) {
+		public ExpectFactory(ExpressionEvaluator evaluator, IEnumerable<Assembly> assembliesToScan) {
+			this.evaluator = evaluator;
 			var providers = assembliesToScan
 				.SelectMany(x => x.GetExportedTypes())
 				.Where(IsMethodExpectProvider)
@@ -107,7 +108,7 @@ namespace Cone.Expectations
 			IMethodExpectProvider provider;
 			var method = body.Method;
 			if(TryGetExpectProvider(method, out provider)) {
-				var target = Evaluator.EvaluateAsTarget(body.Object, body, parameters).Result;
+				var target = evaluator.EvaluateAsTarget(body.Object, body, parameters).Result;
 				var args = body.Arguments.ConvertAll(x => EvaluateAs<object>(x, null));
 				return provider.GetExpectation(body, method, target, args);
 			}
@@ -126,7 +127,7 @@ namespace Cone.Expectations
 			return new ConversionExpect(conversion, EvaluateAs<object>(conversion.Operand, null), conversion.Method);
 		}
 
-		static Expect Binary(BinaryExpression body, ExpressionEvaluatorParameters parameters) {
+		Expect Binary(BinaryExpression body, ExpressionEvaluatorParameters parameters) {
 			var left = Evaluate(body.Left, body, parameters);
 			var right = Evaluate(body.Right, body, parameters);
 
@@ -170,20 +171,19 @@ namespace Cone.Expectations
 			public override string ToString() { return rawValue.ToString(); }
 		}
 
-		static T EvaluateAs<T>(Expression body, ExpressionEvaluatorParameters parameters) { return (T)(Evaluate(body, body, parameters).Value); }
+		T EvaluateAs<T>(Expression body, ExpressionEvaluatorParameters parameters) { return (T)(Evaluate(body, body, parameters).Value); }
 		
-		static IExpectValue Evaluate(Expression body, Expression context, ExpressionEvaluatorParameters parameters) { 
-			var unwrapped = Evaluator.Unwrap(body);
-			var value = Evaluator.Evaluate(body, context, parameters).Result;
+		IExpectValue Evaluate(Expression body, Expression context, ExpressionEvaluatorParameters parameters) { 
+			var unwrapped = evaluator.Unwrap(body);
+			var value = evaluator.Evaluate(body, context, parameters).Result;
 			if(unwrapped == body)
 				return new ExpectValue(value); 
-			return new WrappedExpectValue(value, Evaluator.Evaluate(unwrapped, context).Result);
+			return new WrappedExpectValue(value, evaluator.Evaluate(unwrapped, context).Result);
 		}
 
-		static Expect TypeIs(TypeBinaryExpression body) {
-			return new TypeIsExpect(body,
+		Expect TypeIs(TypeBinaryExpression body) =>
+			new TypeIsExpect(body,
 				Evaluate(body.Expression, body, null), 
 				body.TypeOperand);
-		}
 	}
 }
