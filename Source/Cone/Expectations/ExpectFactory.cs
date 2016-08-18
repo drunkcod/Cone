@@ -178,7 +178,7 @@ namespace Cone.Expectations
 			var value = evaluator.Evaluate(body, context, parameters).Result;
 			if(unwrapped == body)
 				return new ExpectValue(value); 
-			return new WrappedExpectValue(value, evaluator.Evaluate(unwrapped, context).Result);
+			return new WrappedExpectValue(value, evaluator.Evaluate(unwrapped, context, parameters).Result);
 		}
 
 		Expect TypeIs(TypeBinaryExpression body) =>

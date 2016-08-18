@@ -19,13 +19,13 @@ namespace Cone.Core
                 return (expression as UnaryExpression).Operand;
             return expression;
         }
-       
-        public EvaluationResult Evaluate(Expression body, Expression context, ExpressionEvaluatorParameters parameters = null) { 
+
+        public EvaluationResult Evaluate(Expression body, Expression context, ExpressionEvaluatorParameters parameters) { 
             return Evaluate(body, context, parameters, x => { throw new ExceptionExpressionException(x.Expression, context, x.Exception); });
         }
 
         public EvaluationResult Evaluate(Expression body, Expression context, ExpressionEvaluatorParameters parameters, Func<EvaluationResult, EvaluationResult> onError) {
-            var result = CreateContext(context, parameters ?? ExpressionEvaluatorParameters.Empty).Evaluate(body);
+            var result = CreateContext(context, parameters).Evaluate(body);
             if(result.IsError)
                 return onError(result);
             return result;

@@ -32,6 +32,22 @@ namespace Cone
 			Check.With(() => new [] { 1, 2, 3 }).That(arr => arr.Length == 3);
 		}
 
+		public void array_element() {
+			Check.With(() => new [] { 1, 2, 3 }).That(arr => arr[1] == 2);
+		}
+
+		class MyThing
+		{
+			public byte[] MyBytes;
+		}
+
+		public void member_array() {
+			Check.With(() => new MyThing { MyBytes = new byte[] { 1, 2, 3 } })
+			.That(
+				x => x.MyBytes.Length == 3,
+				x => x.MyBytes[1] == 2);
+		}
+
 		public void method_call() {
 			Check.With(() => "Hello").That(x => x.Equals("Hello"));
 		}

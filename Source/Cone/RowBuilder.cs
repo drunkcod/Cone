@@ -77,7 +77,7 @@ namespace Cone
         }
 
         object Collect(Expression expression, Expression context) { 
-            return evaluator.Evaluate(expression, context).Result; 
+            return evaluator.Evaluate(expression, context, ExpressionEvaluatorParameters.Empty).Result; 
         }
 
         IEnumerator<IRowTestData> IEnumerable<IRowTestData>.GetEnumerator() { 
