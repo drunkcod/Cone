@@ -5,57 +5,51 @@ using System.Linq.Expressions;
 namespace Cone.Core
 {
 	public class ExpressionEvaluator
-    {
-        public Func<Expression,EvaluationResult> Unsupported;
-        public Func<Expression, Expression, EvaluationResult> NullSubexpression;
+	{
+		public Func<Expression,EvaluationResult> Unsupported;
+		public Func<Expression, Expression, EvaluationResult> NullSubexpression;
 
-        public ExpressionEvaluator() {
-            Unsupported = EvaluateUnsupported;
-            NullSubexpression = EvaluateNullSubexpression;
-        }
+		public ExpressionEvaluator() {
+			Unsupported = EvaluateUnsupported;
+			NullSubexpression = EvaluateNullSubexpression;
+		}
 
-        public Expression Unwrap(Expression expression) {
-            if(expression.NodeType == ExpressionType.Convert) 
-                return (expression as UnaryExpression).Operand;
-            return expression;
-        }
+		public Expression Unwrap(Expression expression) =>
+			expression.NodeType == ExpressionType.Convert
+				? (expression as UnaryExpression).Operand
+				: expression;
 
-        public EvaluationResult Evaluate(Expression body, Expression context, ExpressionEvaluatorParameters parameters) { 
-            return Evaluate(body, context, parameters, x => { throw new ExceptionExpressionException(x.Expression, context, x.Exception); });
-        }
+		public EvaluationResult Evaluate(Expression body, Expression context, ExpressionEvaluatorParameters parameters) => 
+			Evaluate(body, context, parameters, x => { throw new ExceptionExpressionException(x.Expression, context, x.Exception); });
 
-        public EvaluationResult Evaluate(Expression body, Expression context, ExpressionEvaluatorParameters parameters, Func<EvaluationResult, EvaluationResult> onError) {
-            var result = CreateContext(context, parameters).Evaluate(body);
-            if(result.IsError)
-                return onError(result);
-            return result;
-        }
+		public EvaluationResult Evaluate(Expression body, Expression context, ExpressionEvaluatorParameters parameters, Func<EvaluationResult, EvaluationResult> onError) {
+			var result = CreateContext(context, parameters).Evaluate(body);
+			return result.IsError ? onError(result) : result;
+		}
 
-        public EvaluationResult EvaluateAsTarget(Expression expression, Expression context, ExpressionEvaluatorParameters contextParameters) {
-            return CreateContext(context, contextParameters).EvaluateAsTarget(expression);
-        }
+		public EvaluationResult EvaluateAsTarget(Expression expression, Expression context, ExpressionEvaluatorParameters contextParameters) =>
+			CreateContext(context, contextParameters).EvaluateAsTarget(expression);
 
-        public EvaluationResult EvaluateAll(ICollection<Expression> expressions, Expression context) {
-            return CreateContext(context, ExpressionEvaluatorParameters.Empty).EvaluateAll(expressions);
-        }
 
-        ExpressionEvaluatorContext CreateContext(Expression context, ExpressionEvaluatorParameters parameters) {
-            return new ExpressionEvaluatorContext(context, parameters) {
-                Unsupported = Unsupported,
-                NullSubexpression = NullSubexpression
-            };
-        }
+		public EvaluationResult EvaluateAll(ICollection<Expression> expressions, Expression context) =>
+			CreateContext(context, ExpressionEvaluatorParameters.Empty).EvaluateAll(expressions);
 
-        EvaluationResult EvaluateUnsupported(Expression expression) {
-            try {
-                return EvaluationResult.Success(expression.Type, Expression.Lambda<Func<object>>(expression.Box()).Compile()());
-            } catch(Exception e) {
-                return EvaluationResult.Failure(expression, e);
-            }
-        }
 
-        EvaluationResult EvaluateNullSubexpression(Expression expression, Expression context) {
-            return EvaluationResult.Failure(expression, new NullSubexpressionException(context, expression));
-        }
-    }
+		ExpressionEvaluatorContext CreateContext(Expression context, ExpressionEvaluatorParameters parameters) =>
+			new ExpressionEvaluatorContext(context, parameters) {
+				Unsupported = Unsupported,
+				NullSubexpression = NullSubexpression
+			};
+
+		EvaluationResult EvaluateUnsupported(Expression expression) {
+			try {
+				return EvaluationResult.Success(expression.Type, Expression.Lambda<Func<object>>(expression.Box()).Compile()());
+			} catch(Exception e) {
+				return EvaluationResult.Failure(expression, e);
+			}
+		}
+
+		EvaluationResult EvaluateNullSubexpression(Expression expression, Expression context) =>
+			EvaluationResult.Failure(expression, new NullSubexpressionException(context, expression));
+	}
 }
