@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Cone.Core;
+using System.Linq;
 
 namespace Cone.Runners
 {
@@ -20,6 +21,7 @@ namespace Cone.Runners
 
 		public IEnumerable<string> Categories { get { return fixture.Categories; } }
 		public Type ReturnType { get { return method.ReturnType; } }
+		public string Location => $"{method.ReturnType} {fixture.FixtureType}.{method.Name}({method.GetParameters().Select(x => x.ToString()).Join(", ")})";
 
 		public virtual void Invoke(object[] parameters, ITestResult result) {
 			Await(Invoke(parameters));

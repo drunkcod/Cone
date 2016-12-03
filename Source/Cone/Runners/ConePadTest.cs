@@ -21,6 +21,7 @@ namespace Cone.Runners
 
 		public Assembly Assembly => test.Assembly;
 		public ITestName TestName => name;
+		public string Location => test.Location;
 
 		IConeAttributeProvider IConeTest.Attributes => attributes;
 		string IConeEntity.Name => TestName.FullName;

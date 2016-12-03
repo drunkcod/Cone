@@ -61,6 +61,7 @@
       <Link>Version.cs</Link>
     </Compile>
     <Compile Include="ConesoleConfiguration.cs" />
+    <Compile Include="ConesoleResultLogger.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>
   <ItemGroup>

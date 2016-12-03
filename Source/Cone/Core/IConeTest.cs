@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Cone.Core
 {
@@ -8,6 +7,7 @@ namespace Cone.Core
 		Assembly Assembly { get; }
         ITestName TestName { get; }
 		IConeAttributeProvider Attributes { get; }
+		string Location { get; }
 		void Run(ITestResult testResult);
     }
 }
