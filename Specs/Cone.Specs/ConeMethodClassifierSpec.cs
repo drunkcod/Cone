@@ -33,8 +33,10 @@ namespace Cone.Core
         }
 
 		public void public_niladic_methods_returnning_task_are_tests() {
-            var method = Method(x => x.AsyncTest());
-            Classify(method).Verify(x => x.Test(method, It.IsAny<IEnumerable<object>>(), ExpectedTestResult.None));
+			#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+			var method = Method(x => x.TestAsync());
+			#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+			Classify(method).Verify(x => x.Test(method, It.IsAny<IEnumerable<object>>(), ExpectedTestResult.None));
 		}
 
         public void public_niladic_methods_with_returnvalues_are_not_tests() {

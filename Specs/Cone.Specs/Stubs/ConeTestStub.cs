@@ -10,6 +10,7 @@ namespace Cone.Stubs
 		string context = string.Empty;
 		string location = string.Empty;
 		string[] categories = new string[0];
+		IConeFixture fixture;
 
 		public ConeTestStub WithName(string name) {
 			this.name = name;
@@ -34,6 +35,9 @@ namespace Cone.Stubs
 		string IConeEntity.Name => TestName.FullName;
 
 		public string Location => location;
+
+		public IConeFixture Fixture => null;
+		public IConeSuite Suite => null;
 
 		public ITestName TestName => new ConeTestName(context, name);
 

@@ -34,7 +34,7 @@ namespace Conesole
 			}
 
 			if(args.Contains("--debug"))
-				System.Diagnostics.Debugger.Launch();
+				Debugger.Launch();
 
 			if(!args.Contains("--autotest"))
 				return RunTests(args, assemblyPaths, configPath);
@@ -105,11 +105,14 @@ namespace Conesole
 				if(config.IsDryRun) {
 					results.GetTestExecutor = _ => new DryRunTestExecutor();
 				}
-
-				new SimpleConeRunner {
+				var runner = new SimpleConeRunner {
 					Workers = config.Multicore ? Environment.ProcessorCount : 1,
-				}.RunTests(results, CrossDomainConeRunner.LoadTestAssemblies(AssemblyPaths, Error));
-
+				};
+				var assemblies = CrossDomainConeRunner.LoadTestAssemblies(AssemblyPaths, Error);
+				if (config.RunList == null)
+					runner.RunTests(results, assemblies);
+				else runner.RunTests(config.RunList, results, assemblies);
+				results.Report();
 			} catch (ReflectionTypeLoadException tle) {
 				foreach (var item in tle.LoaderExceptions)
 					Error("{0}\n---", item);

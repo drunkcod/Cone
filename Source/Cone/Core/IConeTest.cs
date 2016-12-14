@@ -8,6 +8,7 @@ namespace Cone.Core
         ITestName TestName { get; }
 		IConeAttributeProvider Attributes { get; }
 		string Location { get; }
+		IConeSuite Suite { get; }
 		void Run(ITestResult testResult);
     }
 }

@@ -13,7 +13,7 @@ namespace Cone
 
 		public void Test() {}
 
-		public async Task AsyncTest() {}
+		public async Task TestAsync() { await Task.FromResult(0); }
 
 		public int Uninteresting() { return 42; }
 

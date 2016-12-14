@@ -22,6 +22,7 @@ namespace Cone.Runners
 		public IEnumerable<string> Categories { get { return fixture.Categories; } }
 		public Type ReturnType { get { return method.ReturnType; } }
 		public string Location => $"{method.ReturnType} {fixture.FixtureType}.{method.Name}({method.GetParameters().Select(x => x.ToString()).Join(", ")})";
+		public IConeFixture Fixture => fixture;
 
 		public virtual void Invoke(object[] parameters, ITestResult result) {
 			Await(Invoke(parameters));

@@ -15,6 +15,8 @@ namespace Cone.Stubs
 			return this;
 		}
 
+		public IConeFixture Fixture => null;
+
 		string IConeEntity.Name
 		{
 			get { return name; }

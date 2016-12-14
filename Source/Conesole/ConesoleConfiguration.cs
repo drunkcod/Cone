@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Cone.Core;
 using Cone.Runners;
+using System.Diagnostics;
 
 namespace Conesole
 {
@@ -52,7 +53,7 @@ namespace Conesole
 
 			bool CategoryCheck(IConeEntity entity) {
 				return (includedCategories.IsEmpty() || entity.Categories.Any(includedCategories.Contains)) 
-				       && !entity.Categories.Any(excludedCategories.Contains);
+					&& !entity.Categories.Any(excludedCategories.Contains);
 			}
 		}
 
@@ -73,6 +74,7 @@ namespace Conesole
 		public bool ShowTimings;
 		public string ConfigPath;
 		public string[] AssemblyPaths;
+		public string[] RunList;
 
 		public static ConesoleConfiguration Parse(params string[] args) {
 			var result = new ConesoleConfiguration();
@@ -137,21 +139,27 @@ namespace Conesole
 			var m = OptionPattern.Match(item);
 			if(!m.Success)
 				throw new ArgumentException("Unknown option:" + item);
-
 			var option = m.Groups["option"].Value;
 			var valueRaw =  m.Groups["value"].Value;
-			if(option == "include-tests") {
+			if (option == "include-tests") {
 				filters.IncludeTests(valueRaw);
+			} else if (option == "run-list") {
+				RunList = File.ReadAllLines(valueRaw);
 			}
-			else if(option == "categories") {
+			else if (option == "categories")
+			{
 				filters.Categories(valueRaw);
 			}
-			else if(option == "xml") {
+			else if (option == "xml")
+			{
 				XmlOutput = valueRaw.ToMaybe();
-			} else if(option == "config") {
+			}
+			else if (option == "config")
+			{
 				var fullPath = Path.GetFullPath(valueRaw);
 				ConfigPath = fullPath;
-			} else 
+			}
+			else
 				throw new ArgumentException("Unknown option:" + item);
 		}
 	}

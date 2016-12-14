@@ -7,12 +7,14 @@ namespace Cone.Runners
 {
 	class ConePadTest : IConeTest
 	{
+		readonly ConePadSuite suite;
 		readonly ITestName name;
 		readonly object[] args;
 		readonly IConeAttributeProvider attributes;
 		readonly ConeTestMethod test;
 
-		public ConePadTest(ITestName name, ConeTestMethod test, object[] args, IConeAttributeProvider attributes) {
+		public ConePadTest(ConePadSuite suite, ITestName name, ConeTestMethod test, object[] args, IConeAttributeProvider attributes) {
+			this.suite = suite;
 			this.name = name;
 			this.args = args;
 			this.attributes = attributes;
@@ -22,6 +24,7 @@ namespace Cone.Runners
 		public Assembly Assembly => test.Assembly;
 		public ITestName TestName => name;
 		public string Location => test.Location;
+		public IConeSuite Suite => suite;
 
 		IConeAttributeProvider IConeTest.Attributes => attributes;
 		string IConeEntity.Name => TestName.FullName;

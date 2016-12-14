@@ -75,6 +75,18 @@ namespace Cone.Runners
 			sessionLog.EndSession();
 		}
 
+		public void RunTests(IEnumerable<IConeTest> tests) {
+			sessionLog.BeginSession();
+			var singleTest = new IConeTest[1];
+			foreach (var item in tests){
+				var log = sessionLog.BeginSuite(item.Suite);
+				singleTest[0] = item;
+				CollectResults(singleTest, item.Suite.Fixture, log);
+				log.EndSuite();
+			}
+			sessionLog.EndSession();
+		}
+
 		void CollectSuite(ConePadSuite suite) {
 			var log = sessionLog.BeginSuite(suite);
 			suite.Run((tests, fixture) => CollectResults(tests, fixture, log));

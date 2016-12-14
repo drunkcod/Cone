@@ -10,6 +10,9 @@ Options are:
 	
 	--labels                              Display test names while running.
 
+	--test-names                          Display test names, sutiable for 
+	                                      runlist
+
 	--xml-console                         Output results as XML.
 
 	--xml=<file|uri>                      Writes results as XML to <file>
@@ -17,6 +20,8 @@ Options are:
 	
 	--include-tests=<pattern>             Run only tests matchingt pattern.
 	                                      '*' acts as wildcard.
+	--run-list=<file>                     Executes tests in specified order.
+	                                      One test name per line.
 	
 	--dry-run                             Show tests that would have run.
 	

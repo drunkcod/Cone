@@ -39,7 +39,30 @@ namespace Cone.Runners
 		}
 
 		public int Workers = 1;
-			
+
+		public void RunTests(ICollection<string> runList, TestSession results, IEnumerable<Assembly> assemblies) {
+			var runOrder = new Dictionary<string, int>();
+			var n = 0;
+			foreach (var item in runList)
+				runOrder.Add(item, n++);
+			var found = new int[runList.Count + 1];
+			n = 0;
+			var toRun = assemblies.SelectMany(x => x.GetExportedTypes())
+				.Choose<Type, ConePadSuite>(TryBuildSuite)
+				.Flatten(x => x.Subsuites)
+				.SelectMany(x => x.Tests)
+				.Where(x => {
+					var r = runOrder.TryGetValue(x.Name, out found[n]);
+					if(r)
+						++n;
+					return r;
+				})
+				.ToArray();
+			Array.Sort(found, toRun, 0, n);
+			Check.Initialize();
+			results.RunTests(toRun);
+		}
+
 		public void RunTests(TestSession results, IEnumerable<Assembly> assemblies) {
 			RunTests(results, assemblies.SelectMany(x => x.GetExportedTypes()));
 		}
@@ -50,6 +73,7 @@ namespace Cone.Runners
 				.Flatten(x => x.Subsuites)
 				.Where(x => results.IncludeSuite(x))
 				.ToList();
+
 			var claimed = -1;
 
 			Check.Initialize();
@@ -70,7 +94,6 @@ namespace Cone.Runners
 				runSuite();
 				workers.ForEach(x => x.Join());
 			});
-			results.Report();
 		}
 
 		bool TryBuildSuite(Type input, out ConePadSuite suite) {
