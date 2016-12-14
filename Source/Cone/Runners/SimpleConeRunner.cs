@@ -41,42 +41,49 @@ namespace Cone.Runners
 		public int Workers = 1;
 
 		public void RunTests(ICollection<string> runList, TestSession results, IEnumerable<Assembly> assemblies) {
+			Check.Initialize();
+			results.RunTests(CreateTestRun(
+				runList, 
+				BuildFlatSuites(assemblies.SelectMany(x => x.GetExportedTypes()))
+				.SelectMany(x => x.Tests)));
+		}
+
+		IConeTest[] CreateTestRun(ICollection<string> runList, IEnumerable<IConeTest> tests) {
 			var runOrder = new Dictionary<string, int>();
 			var n = 0;
 			foreach (var item in runList)
-				runOrder.Add(item, n++);
+				try {
+					runOrder.Add(item, n);
+					++n;
+				} catch { }
 			var found = new int[runList.Count + 1];
 			n = 0;
-			var toRun = assemblies.SelectMany(x => x.GetExportedTypes())
-				.Choose<Type, ConePadSuite>(TryBuildSuite)
-				.Flatten(x => x.Subsuites)
-				.SelectMany(x => x.Tests)
+
+			var toRun = tests
 				.Where(x => {
 					var r = runOrder.TryGetValue(x.Name, out found[n]);
-					if(r)
+					if(r) {
+						runOrder.Remove(x.Name);
 						++n;
+					}
 					return r;
 				})
 				.ToArray();
 			Array.Sort(found, toRun, 0, n);
-			Check.Initialize();
-			results.RunTests(toRun);
+			return toRun;
 		}
 
-		public void RunTests(TestSession results, IEnumerable<Assembly> assemblies) {
+		public void RunTests(TestSession results, IEnumerable<Assembly> assemblies) =>
 			RunTests(results, assemblies.SelectMany(x => x.GetExportedTypes()));
-		}
 
 		public void RunTests(TestSession results, IEnumerable<Type> suiteTypes) {
-			var toRun = suiteTypes
-				.Choose<Type, ConePadSuite>(TryBuildSuite)
-				.Flatten(x => x.Subsuites)
+			Check.Initialize();
+			var toRun = BuildFlatSuites(suiteTypes)
 				.Where(x => results.IncludeSuite(x))
 				.ToList();
 
 			var claimed = -1;
 
-			Check.Initialize();
 			results.RunSession(collectResults => {
 				ThreadStart runSuite = () => {
 					for(;;) {
@@ -95,6 +102,10 @@ namespace Cone.Runners
 				workers.ForEach(x => x.Join());
 			});
 		}
+
+		IEnumerable<ConePadSuite> BuildFlatSuites(IEnumerable<Type> suiteTypes) => suiteTypes
+			.Choose<Type, ConePadSuite>(TryBuildSuite)
+			.Flatten(x => x.Subsuites);
 
 		bool TryBuildSuite(Type input, out ConePadSuite suite) {
 			suite = (suiteBuilders.FirstOrDefault(x => x.SupportedType(input)) ?? NullBuilder)

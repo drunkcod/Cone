@@ -11,6 +11,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Cone;
 
 namespace Conesole
 {
@@ -102,9 +103,8 @@ namespace Conesole
 				var config = ConesoleConfiguration.Parse(Options);
 				var results = CreateTestSession(config, result);
 
-				if(config.IsDryRun) {
+				if(config.IsDryRun)
 					results.GetTestExecutor = _ => new DryRunTestExecutor();
-				}
 				var runner = new SimpleConeRunner {
 					Workers = config.Multicore ? Environment.ProcessorCount : 1,
 				};
