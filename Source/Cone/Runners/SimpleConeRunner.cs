@@ -48,7 +48,7 @@ namespace Cone.Runners
 				.SelectMany(x => x.Tests)));
 		}
 
-		IConeTest[] CreateTestRun(ICollection<string> runList, IEnumerable<IConeTest> tests) {
+		ArraySegment<IConeTest> CreateTestRun(ICollection<string> runList, IEnumerable<IConeTest> tests) {
 			var runOrder = new Dictionary<string, int>();
 			var n = 0;
 			foreach (var item in runList)
@@ -56,21 +56,19 @@ namespace Cone.Runners
 					runOrder.Add(item, n);
 					++n;
 				} catch { }
-			var found = new int[runList.Count + 1];
+			var foundAt = new int[runList.Count + 1];
+			var foundTest = new IConeTest[runList.Count + 1];
 			n = 0;
 
-			var toRun = tests
-				.Where(x => {
-					var r = runOrder.TryGetValue(x.Name, out found[n]);
-					if(r) {
-						runOrder.Remove(x.Name);
-						++n;
-					}
-					return r;
-				})
-				.ToArray();
-			Array.Sort(found, toRun, 0, n);
-			return toRun;
+			foreach(var item in tests) {
+				if(runOrder.TryGetValue(item.Name, out foundAt[n])) {
+					foundTest[n] = item;
+					runOrder.Remove(item.Name);
+					++n;
+				}
+			}
+			Array.Sort(foundAt, foundTest, 0, n);
+			return new ArraySegment<IConeTest>(foundTest, 0, n);
 		}
 
 		public void RunTests(TestSession results, IEnumerable<Assembly> assemblies) =>

@@ -1,2 +1,2 @@
 @echo off
-Tools\Conesole.exe Build\Cone.Specs.dll %*
+Bin\Conesole.exe Build\Cone.Specs.dll %*
