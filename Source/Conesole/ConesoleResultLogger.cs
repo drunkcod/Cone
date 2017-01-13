@@ -32,8 +32,8 @@ namespace Conesole
 
 		public void Skipped() { }
 
-		void ITestLogger.BeginTest() { }
+		void ITestLogger.TestStarted() { }
 
-		public void EndTest() { }
+		public void TestFinished() { }
 	}
 }

@@ -22,7 +22,7 @@ namespace Cone.Runners
 		public void Success() { }
 		public void Pending(string reason) { }
 		public void Skipped() { }
-		public void BeginTest() { }
-		public void EndTest() { }
+		public void TestStarted() { }
+		public void TestFinished() { }
 	}
 }

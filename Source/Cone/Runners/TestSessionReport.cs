@@ -48,9 +48,9 @@ namespace Cone.Runners
 
 		public void Skipped() { Interlocked.Increment(ref Excluded); }
 
-		void ITestLogger.BeginTest() { }
+		void ITestLogger.TestStarted() { }
 
-		public void EndTest() { }
+		public void TestFinished() { }
 
 		public void WriteReport(ISessionWriter output) {
 			output.Info("\n{0} tests found. {1} Passed. {2} Failed. ({3} Skipped)\n", Total, passed, Failed, Excluded);

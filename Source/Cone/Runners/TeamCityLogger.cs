@@ -2,6 +2,7 @@
 using System.IO;
 using Cone.Core;
 using System.Threading;
+using System.Diagnostics;
 
 namespace Cone.Runners
 {
@@ -15,6 +16,7 @@ namespace Cone.Runners
 			readonly TeamCityLogger parent;
 			readonly IConeSuite activeSuite;
 			readonly int flowId;
+			readonly Stopwatch duration = new Stopwatch();
 
 			IConeTest activeTest;
 
@@ -25,13 +27,11 @@ namespace Cone.Runners
 
 			ITestLogger ISuiteLogger.BeginTest(IConeTest test) {
 				activeTest = test;
-				WriteLine("testStarted name='{0}'", activeTest.TestName.Name);
 				return this;
 			}
 
-			void ISuiteLogger.EndSuite() {
+			void ISuiteLogger.EndSuite() => 
 				WriteLine("testSuiteFinished name='{0}'", activeSuite.Name);
-			}
 
 			void ITestLogger.Failure(ConeTestFailure testFailure) {
 				foreach(var failure in testFailure.Errors) {
@@ -43,19 +43,23 @@ namespace Cone.Runners
 
 			void ITestLogger.Success() { }
 
-			void ITestLogger.Pending(string reason) {
+			void ITestLogger.Pending(string reason) =>
 				WriteLine("testIgnored name='{0}' message='{1}'", activeTest.TestName.Name, reason);
-			}
 
 			void ITestLogger.Skipped() { }
 
-			void ITestLogger.BeginTest() { }
-
-			public void EndTest() { 
-				WriteLine("testFinished name='{0}'", activeTest.TestName.Name);
+			void ITestLogger.TestStarted() {
+				WriteLine("testStarted name='{0}'", activeTest.TestName.Name);
+				duration.Restart();
 			}
 
-			public void WriteLine(string format, params object[] args) => parent.WriteLine($"##teamcity[{format} flowId='{flowId}']", args);
+			void ITestLogger.TestFinished() {
+				duration.Stop();
+				WriteLine("testFinished name='{0}' duration='{1}'", activeTest.TestName.Name, duration.ElapsedMilliseconds);
+			}
+
+			public void WriteLine(string format, params object[] args) => 
+				parent.WriteLine($"##teamcity[{format} flowId='{flowId}']", args);
 		}
 
 		public TeamCityLogger(TextWriter output) {
@@ -78,16 +82,16 @@ namespace Cone.Runners
 
 		void ISessionLogger.EndSession() { }
 
-		void WriteLine(string format, params object[] args) {
+		void WriteLine(string format, params object[] args) =>
 			output.WriteLine(format, Array.ConvertAll(args, x => Escape((x ?? string.Empty).ToString())));
-		}
 
-		string Escape(string input) {
+		static string Escape(string input) {
 			return input
 				.Replace("|", "||")
 				.Replace("'", "|'")
 				.Replace("\n", "|n")
 				.Replace("\r", "|r")
+				.Replace("[", "|[")
 				.Replace("]", "|]");
 		}
 	}

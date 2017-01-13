@@ -104,7 +104,7 @@ namespace Cone.Runners
 			this.test = test;
 		}
 
-		public void BeginTest() {
+		public void TestStarted() {
 			xml.WriteStartElement("test-case");
 			duration.Start();
 		}
@@ -144,7 +144,7 @@ namespace Cone.Runners
 			xml.WriteAttributeString("skipped", "True");
 		}
 
-		public void EndTest() {
+		public void TestFinished() {
 			FinalizeAttributes();
 			xml.WriteEndElement();
 			xml.Flush();

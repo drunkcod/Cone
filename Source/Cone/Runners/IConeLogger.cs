@@ -61,12 +61,12 @@ namespace Cone.Runners
 
 	public interface ITestLogger
 	{
-		void BeginTest();
+		void TestStarted();
 		void Failure(ConeTestFailure failure);
 		void Success();
 		void Pending(string reason);
 		void Skipped();
-		void EndTest();
+		void TestFinished();
 	}
 
 	public static class LoggerExtensions
@@ -74,7 +74,7 @@ namespace Cone.Runners
 		public static void WithTestLog(this ISuiteLogger log, IConeTest test, Action<ITestLogger> action) {
 			var testLog = log.BeginTest(test);
 			action(testLog);
-			testLog.EndTest();
+			testLog.TestFinished();
 		}
 	}
 }

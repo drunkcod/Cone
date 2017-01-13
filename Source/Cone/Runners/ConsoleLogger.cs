@@ -277,10 +277,10 @@ namespace Cone.Runners
 
 		public void Skipped() { }
 
-		public void BeginTest() {
+		public void TestStarted() {
 			time.Start();
 		}
 
-		public void EndTest() { }
+		public void TestFinished() { }
 	}
 }

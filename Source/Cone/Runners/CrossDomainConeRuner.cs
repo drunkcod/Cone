@@ -74,9 +74,9 @@ namespace Cone.Runners
 
 		void ITestLogger.Skipped() { }
 
-		void ITestLogger.BeginTest() { }
+		void ITestLogger.TestStarted() { }
 
-		void ITestLogger.EndTest() { }
+		void ITestLogger.TestFinished() { }
 	}
 
 	public class CorssDomainRunnerConfiguration

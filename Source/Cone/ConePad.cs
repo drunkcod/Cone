@@ -48,9 +48,9 @@ namespace Cone
 
 			public void Skipped() { }
 
-			public void BeginTest() { }
+			public void TestStarted() { }
 
-			public void EndTest() { }
+			public void TestFinished() { }
 		}
 
 		public static void RunTests() {

@@ -22,7 +22,7 @@ namespace Cone.Runners
 
 			void ITestResult.Begin() {
 				Status = TestStatus.Running;
-				log.BeginTest();
+				log.TestStarted();
 			}
 
 			void ITestResult.Success() { 

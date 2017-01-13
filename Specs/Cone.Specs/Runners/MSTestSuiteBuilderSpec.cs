@@ -226,7 +226,7 @@ namespace Cone.Runners
 
 				public void EndSuite() { }
 
-				public void BeginTest() { }
+				public void TestStarted() { }
 
 				public void Failure(ConeTestFailure failure) { }
 
@@ -236,7 +236,7 @@ namespace Cone.Runners
 
 				public void Skipped() { }
 
-				public void EndTest() { currentTest = null; }
+				public void TestFinished() { currentTest = null; }
 			}
 
 			ConePadSuite TestSuite;

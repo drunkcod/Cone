@@ -28,64 +28,65 @@ namespace Cone.Runners
 			Check.That(() => Result.Last() == "##teamcity[message text='Hello World!' status='NORMAL']");
 		} 
 
-		[DisplayAs("suite starting: ##teamcity[testSuiteStarted name='suite.name' flowId='0']")]
+		[DisplayAs("suite starting: ##teamcity[testSuiteStarted name='suite.name']")]
 		public void suite_starting() {
 			Logger.BeginSuite(Suite().WithName("Namespace.SuiteName"));
-			Check.That(() => Result.Last() == "##teamcity[testSuiteStarted name='Namespace.SuiteName' flowId='0']");
+			Check.That(() => Result.Last().StartsWith("##teamcity[testSuiteStarted name='Namespace.SuiteName'"));
 		}
 
-		[DisplayAs("suite finished: ##teamcity[testSuiteFinished name='suite.name' flowId='0']")]
+		[DisplayAs("suite finished: ##teamcity[testSuiteFinished name='suite.name']")]
 		public void suite_finished() {
 			Logger.BeginSuite(Suite().WithName("Namespace.SuiteName"))
 				.EndSuite();
 
-			Check.That(() => Result.Last() == "##teamcity[testSuiteFinished name='Namespace.SuiteName' flowId='0']");
+			Check.That(() => Result.Last().StartsWith("##teamcity[testSuiteFinished name='Namespace.SuiteName'"));
 		}
 
-		[DisplayAs("test started: ##teamcity[testStarted name='testname' flowId='0']")]
+		[DisplayAs("test started: ##teamcity[testStarted name='testname']")]
 		public void test_started() {
 			Logger.BeginSuite(Suite().WithName("Namespace.SuiteName"))
-				.BeginTest(Test().InContext("Namespace.SuiteName").WithName("MyTest"));
+				.BeginTest(Test().InContext("Namespace.SuiteName").WithName("MyTest"))
+				.TestStarted();
 
-			Check.That(() => Result.Last() == "##teamcity[testStarted name='MyTest' flowId='0']");		
+			Check.That(() => Result.Last().StartsWith("##teamcity[testStarted name='MyTest'"));		
 		}
 
-		[DisplayAs("test finished: ##teamcity[testFinished name='testname' flowId='0']")]
+		[DisplayAs("test finished: ##teamcity[testFinished name='testname']")]
 		public void test_finished() {
 			Logger.BeginSuite(Suite().WithName("Namespace.SuiteName"))
 				.WithTestLog(Test().InContext("Namespace.SuiteName").WithName("MyTest"), log => log.Success());
-			Check.That(() => Result.Last() == "##teamcity[testFinished name='MyTest' flowId='0']");
+			Check.That(() => Result.Last().StartsWith("##teamcity[testFinished name='MyTest'"));
 		}
 
-		[DisplayAs("test ignored: ##teamcity[testIgnored message='ignore comment' flowId='0']")]
+		[DisplayAs("test ignored: ##teamcity[testIgnored message='ignore comment']")]
 		public void test_ignored() {
 			Logger.BeginSuite(Suite().WithName("Namespace.SuiteName"))
 				.WithTestLog(Test().InContext("Namespace.SuiteName").WithName("MyTest"), log => log.Pending("Teh Reason!"));
-			Check.That(() => Result.Any(line => line == "##teamcity[testIgnored name='MyTest' message='Teh Reason!' flowId='0']"));
-			Check.That(() => Result.Last() == "##teamcity[testFinished name='MyTest' flowId='0']");
+			Check.That(() => Result.Any(line => line.StartsWith("##teamcity[testIgnored name='MyTest' message='Teh Reason!'")));
+			Check.That(() => Result.Last().StartsWith("##teamcity[testFinished name='MyTest'"));
 		}
 
-		[DisplayAs("test failed: ##teamcity[testFailed name='testname' message='failure message' details='message and stack trace' flowId='0'")]
+		[DisplayAs("test failed: ##teamcity[testFailed name='testname' message='failure message' details='message and stack trace'")]
 		public void test_failed() {
 			var test = Test().InContext("Namespace.SuiteName").WithName("MyTest");
 			Logger.BeginSuite(Suite().WithName("Namespace.SuiteName"))
 				.WithTestLog(test, log => log.Failure(new ConeTestFailure(test.TestName, new Exception("Teh Error!"), FailureType.Test)));
 			//Check.That(() => Result.Any(line => line == "##teamcity[testFailed name='MyTest' message='Teh Error!' details='Namespace.SuiteName.MyTest: Teh Error!']"));
-			Check.That(() => Result.Last() == "##teamcity[testFinished name='MyTest' flowId='0']");
+			Check.That(() => Result.Last().StartsWith("##teamcity[testFinished name='MyTest'"));
 		}
 
-		[DisplayAs("test failed: ##teamcity[testFailed type='comparisionFailure' name='testname' message='failure message' details='message and stack trace' flowId='0'")]
+		[DisplayAs("test failed: ##teamcity[testFailed type='comparisionFailure' name='testname' message='failure message' details='message and stack trace'")]
 		public void comparision_test_failed() {
 			var test = Test().InContext("Namespace.SuiteName").WithName("MyTest");
 			Logger.BeginSuite(Suite().WithName("Namespace.SuiteName"))
 				.WithTestLog(test, log => log.Failure(new ConeTestFailure(test.TestName, new CheckFailed(string.Empty, new[]{ new FailedExpectation("Teh Error!", Maybe<object>.Some(1), Maybe<object>.Some(2)) }, null), FailureType.Test)));		
 			//Check.That(() => Result.Any(line => line == "##teamcity[testFailed type='comparisionFailure' name='MyTest' message='Teh Error!' details='Namespace.SuiteName.MyTest: Teh Error!'] actual='1' expected='2'"));
-			Check.That(() => Result.Last() == "##teamcity[testFinished name='MyTest' flowId='0']");
+			Check.That(() => Result.Last().StartsWith("##teamcity[testFinished name='MyTest'"));
 		}
 
 		public void escapes_values() {
-			Logger.WriteInfo(output => output.Write("'\n\r|]"));
-			Check.That(() => Result.Last() == "##teamcity[message text='|'|n|r|||]' status='NORMAL']");
+			Logger.WriteInfo(output => output.Write("'\n\r|[]"));
+			Check.That(() => Result.Last() == "##teamcity[message text='|'|n|r|||[|]' status='NORMAL']");
 		}
 
 		ConeSuiteStub Suite() {
