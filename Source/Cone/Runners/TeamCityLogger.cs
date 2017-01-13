@@ -9,7 +9,6 @@ namespace Cone.Runners
 	public class TeamCityLogger : ISessionLogger
 	{
 		readonly TextWriter output;
-		int flowId = 0;
 
 		class TeamCitySuiteLogger : ISuiteLogger, ITestLogger
 		{ 
@@ -23,6 +22,7 @@ namespace Cone.Runners
 			public TeamCitySuiteLogger(TeamCityLogger parent, IConeSuite suite, int flowId) {
 				this.parent = parent;
 				this.activeSuite = suite;
+				this.flowId = flowId;
 			}
 
 			ITestLogger ISuiteLogger.BeginTest(IConeTest test) {
@@ -75,7 +75,7 @@ namespace Cone.Runners
 		void ISessionLogger.BeginSession() { }
 
 		ISuiteLogger ISessionLogger.BeginSuite(IConeSuite suite) {
-			var logger = new TeamCitySuiteLogger(this, suite, Interlocked.Increment(ref flowId));
+			var logger = new TeamCitySuiteLogger(this, suite, Thread.CurrentThread.ManagedThreadId);
 			logger.WriteLine("testSuiteStarted name='{0}'", suite.Name);
 			return logger; 
 		}
