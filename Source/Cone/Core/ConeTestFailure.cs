@@ -74,9 +74,9 @@ namespace Cone.Core
 		public void WriteTo(ISessionWriter writer) {
 		var prefix = string.IsNullOrEmpty(File) ? string.Empty : $"{File}({Line}:{Column}) ";
 			writer.Write("{0}{1}.{2}:\n", prefix, Context, TestName);
-			var sep = "  -> ";
+			var sep = "  → ";
 			if(!string.IsNullOrEmpty(ErrorsContext)) {
-				writer.Info("given {0} ->\n", ErrorsContext);
+				writer.Info("given {0} →\n", ErrorsContext);
 				sep = string.Empty;
 			}
 			writer.Important("{1}{0}\n", Message, sep);

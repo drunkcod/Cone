@@ -197,20 +197,20 @@ namespace Cone.Runners
 
 		public override void Write(ConsoleResult result) {
 			switch(result.Status) {
-				case TestStatus.TestFailure: WriteTestLabel(FailureColor, result.Context, result.TestName); break;
+				case TestStatus.TestFailure: WriteTestLabel(FailureColor, result.Context, result.TestName, '×'); break;
 				case TestStatus.Pending: 
-					WriteTestLabel(PendingColor, result.Context, result.TestName); 
+					WriteTestLabel(PendingColor, result.Context, result.TestName, '?'); 
 					if(!string.IsNullOrEmpty(result.PendingReason))
 						Write(InfoColor, " \"{0}\"", result.PendingReason);
 					break;
-				case TestStatus.Success: WriteTestLabel(SuccessColor, result.Context, result.TestName); break;
+				case TestStatus.Success: WriteTestLabel(SuccessColor, result.Context, result.TestName, '√'); break;
 			}
 			if(showTimings)
 				Write(DebugColor, " [{0}]", result.Duration);
 			WriteLine();
 		}
 
-		void WriteTestLabel(ConsoleColor color, string contextName, string testName) {
+		void WriteTestLabel(ConsoleColor color, string contextName, string testName, char marker) {
 			var parts = contextName.Split('.');
 			var skip = 0;
 			while(skip != context.Count && skip != parts.Length && context[skip] == parts[skip])
@@ -218,7 +218,7 @@ namespace Cone.Runners
 			context.Set(parts);
 			for(; skip != context.Count; ++skip)
 				Write(InfoColor, "{0}{1}\n", new string(' ', skip << 1), context[skip]);
-			Write(color, "{0}* {1}", new string(' ', skip << 1), testName);
+			Write(color, "{0}{2} {1}", new string(' ', skip << 1), testName, marker);
 		}
 	}
 
