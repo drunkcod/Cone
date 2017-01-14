@@ -44,9 +44,8 @@ namespace Cone.Expectations
 			throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
 		}
 
-		public IExpect FromLambda(Expression body, ExpressionEvaluatorParameters parameters) {
-			return Lambda(body, parameters);
-		} 
+		public IExpect FromLambda(Expression body, ExpressionEvaluatorParameters parameters) => 
+			Lambda(body, parameters);
 
 		static bool SupportedExpressionType(ExpressionType nodeType) {
 			switch (nodeType) {
@@ -105,17 +104,14 @@ namespace Cone.Expectations
 			return Boolean(body, parameters);
 		}
 
-		bool TryGetExpectProvider(MethodInfo method, out IMethodExpectProvider provider) {
-			return methodExpects.TryGetExpectProvider(method, out provider);
-		}
+		bool TryGetExpectProvider(MethodInfo method, out IMethodExpectProvider provider) =>
+			methodExpects.TryGetExpectProvider(method, out provider);
 
-		IExpect Boolean(Expression body, ExpressionEvaluatorParameters parameters) {
-			return new BooleanExpect(body, new ExpectValue(EvaluateAs<bool>(body, parameters)));
-		}
+		IExpect Boolean(Expression body, ExpressionEvaluatorParameters parameters) =>
+			new BooleanExpect(body, new ExpectValue(EvaluateAs<bool>(body, parameters)));
 
-		IExpect Conversion(UnaryExpression conversion) {
-			return new ConversionExpect(conversion, EvaluateAs<object>(conversion.Operand, null), conversion.Method);
-		}
+		IExpect Conversion(UnaryExpression conversion) =>
+			new ConversionExpect(conversion, EvaluateAs<object>(conversion.Operand, null), conversion.Method);
 
 		Expect Binary(BinaryExpression body, ExpressionEvaluatorParameters parameters) {
 			var left = Evaluate(body.Left, body, parameters);
