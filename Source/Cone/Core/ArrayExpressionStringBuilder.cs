@@ -4,34 +4,35 @@ using System.Text;
 
 namespace Cone.Core
 {
-    class ToStringFormatter<T> : IFormatter<T>
-    {
-        string IFormatter<T>.Format(T expression) { return expression.ToString(); }
-    }
+	class ToStringFormatter<T> : IFormatter<T>
+	{
+		string IFormatter<T>.Format(T expression) => expression.ToString();
+	}
 
-    class ArrayExpressionStringBuilder<T> : ICollectionFormatter<T>
-    {
-        public string Format(IEnumerable<T> collection, IFormatter<T> itemFormatter) {
-            return FormatCore(collection, itemFormatter);
-        }
+	class ArrayExpressionStringBuilder<T> : ICollectionFormatter<T>
+	{
+		public string Format(IEnumerable<T> collection, IFormatter<T> itemFormatter) =>
+			FormatCore(collection, itemFormatter);
 
-        string ICollectionFormatter<T>.Format(IEnumerable collection, IFormatter<T> itemFormatter) {
-            return FormatCore(collection, itemFormatter);
-        }
+		
+		string ICollectionFormatter<T>.Format(IEnumerable collection, IFormatter<T> itemFormatter) =>
+			FormatCore(collection, itemFormatter);
 
-        string IFormatter<IEnumerable<T>>.Format(IEnumerable<T> collection) { return FormatCore(collection, new ToStringFormatter<T>()); }
+		
+		string IFormatter<IEnumerable<T>>.Format(IEnumerable<T> collection) => FormatCore(collection, new ToStringFormatter<T>());
 
-        string IFormatter<IEnumerable>.Format(IEnumerable collection) { return FormatCore(collection, new ToStringFormatter<T>()); }
-
-        string FormatCore(IEnumerable collection, IFormatter<T> itemFormatter) {
-            var result = new StringBuilder("new[] {");
-            var format = " {0}";
-            foreach (var item in collection) {
-                result.AppendFormat(format, itemFormatter.Format((T)item));
-                format = ", {0}";
-            }
-            result.Append(" }");
-            return result.ToString();
-        }
-    }
+		string IFormatter<IEnumerable>.Format(IEnumerable collection) => FormatCore(collection, new ToStringFormatter<T>());
+		
+		string FormatCore(IEnumerable collection, IFormatter<T> itemFormatter) {
+			var result = new StringBuilder("new[] { ");
+			var sep = string.Empty;
+			foreach (T item in collection) {
+				result.Append(sep);
+				result.Append(itemFormatter.Format(item));
+				sep = ", ";
+			}
+			result.Append(" }");
+			return result.ToString();
+		}
+	}
 }
