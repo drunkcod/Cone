@@ -28,12 +28,12 @@ namespace Cone.Expectations
 
             var first = Math.Max(0, position - left);
             if(first > 0) {
-                prefix = "...";
+                prefix = "…";
             }
             var end = position + 1 + left;
 
             if(end < input.Length)
-                postfix = "...";
+                postfix = "…";
 
             var start = first + prefix.Length;
 
@@ -49,8 +49,8 @@ namespace Cone.Expectations
             var displayActual = formatter.Format(Center(ActualString, n, DisplayWidth));
             var displayExpected = formatter.Format(Center(ExpectedString, n, DisplayWidth));
 
-            var format = string.Format("{0}\n{1}\n{2}^", Preamble, MessageFormat, 
-                new string('-', displayActual.IndexOfDifference(displayExpected) + ExpectMessages.EqualFormat.IndexOf('{')));
+            var format = string.Format("{0}\n{1}\n{2}↑", Preamble, MessageFormat, 
+                new string(' ', displayActual.IndexOfDifference(displayExpected) + ExpectMessages.EqualFormat.IndexOf('{')));
             return string.Format(format, displayActual, displayExpected);
         }
 

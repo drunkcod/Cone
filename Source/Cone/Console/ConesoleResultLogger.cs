@@ -6,7 +6,7 @@ using System.Threading;
 namespace Conesole
 {
 
-	class ConesoleResultLogger : ISessionLogger, ISuiteLogger, ITestLogger
+	public class ConesoleResultLogger : ISessionLogger, ISuiteLogger, ITestLogger
 	{
 		public int FailureCount;
 

@@ -9,16 +9,6 @@ namespace Cone.Expectations
 {
 	public class ExpectFactory
 	{
-		delegate Expect Expector(BinaryExpression body, IExpectValue left, IExpectValue right);
-
-		static readonly Expector EqualExpector = (body, left, right) => new EqualExpect(body, left, right);
-		static readonly Expector NotEqualExpector = (body, left, right) => new NotEqualExpect(body, left, right);     
-		static readonly Expector BinaryExpector = (body, left, right) => new BinaryExpect(body, left, right);
-		static readonly Expector LessThanExpector = (body, left, right) => new LessThanExpect(body, left, right);     
-		static readonly Expector LessThanOrEqualExpector = (body, left, right) => new LessThanOrEqualExpect(body, left, right);     
-		static readonly Expector GreaterThanExpector = (body, left, right) => new GreaterThanExpect(body, left, right);
-		static readonly Expector GreaterThanOrEqualExpector = (body, left, right) => new GreaterThanOrEqualExpect(body, left, right);
-
 		readonly ExpressionEvaluator evaluator;
 		readonly MethodExpectProviderLookup methodExpects = new MethodExpectProviderLookup();
 
@@ -134,7 +124,7 @@ namespace Cone.Expectations
 			if(IsStringEquals(body))
 				return new StringEqualExpect(body, (string)left.Value, (string)right.Value);
 
-			return GetExpector(body.NodeType)(body, left, right);
+			return GetExpector(body, left, right);
 		}
 
 		static bool IsStringEquals(BinaryExpression body) {
@@ -143,16 +133,16 @@ namespace Cone.Expectations
 			&& body.Right.Type == typeof(string);
 		}
 
-		static Expector GetExpector(ExpressionType op) {
-			switch(op) {
-				case ExpressionType.Equal: return EqualExpector;
-				case ExpressionType.NotEqual: return NotEqualExpector;
-				case ExpressionType.LessThan: return LessThanExpector;
-				case ExpressionType.LessThanOrEqual: return LessThanOrEqualExpector;
-				case ExpressionType.GreaterThan: return GreaterThanExpector;
-				case ExpressionType.GreaterThanOrEqual: return GreaterThanOrEqualExpector;
+		static Expect GetExpector(BinaryExpression body, IExpectValue left, IExpectValue right) {
+			switch(body.NodeType) {
+				case ExpressionType.Equal: return new EqualExpect(body, left, right);
+				case ExpressionType.NotEqual: return new NotEqualExpect(body, left, right);
+				case ExpressionType.LessThan: return new LessThanExpect(body, left, right);
+				case ExpressionType.LessThanOrEqual: return new LessThanOrEqualExpect(body, left, right);
+				case ExpressionType.GreaterThan: return new GreaterThanExpect(body, left, right);
+				case ExpressionType.GreaterThanOrEqual: return new GreaterThanOrEqualExpect(body, left, right);
 			}
-			return BinaryExpector;
+			return new BinaryExpect(body, left, right);
 		}
 		
 		class WrappedExpectValue : IExpectValue

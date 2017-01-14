@@ -23,7 +23,7 @@ namespace Conesole
 		static int Main(string[] args) {
 			if(args.Length == 0)
 				return DisplayUsage();
-
+			Console.OutputEncoding = Encoding.UTF8;
 			string configPath = null;
 			string[] assemblyPaths;
 			try {

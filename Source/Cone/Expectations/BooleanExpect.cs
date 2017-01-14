@@ -51,7 +51,7 @@ namespace Cone.Expectations
         }
 
         public CheckResult Check() {
-            return new CheckResult(CheckCore(), Maybe<object>.Some(ActualValue), Maybe<object>.Some(ExpectedValue));
+            return new CheckResult(CheckCore(), Maybe.Some(ActualValue), Maybe.Some(ExpectedValue));
         }
 
         public virtual object ActualValue { get { return actual.Value; } }
