@@ -16,11 +16,8 @@ namespace Cone.Runners
 				this.children = children;
 			}
 
-			public ITestLogger BeginTest(IConeTest test) {
-				var log = new MulticastLogger();
-				children.ForEach(x => log.Add(x.BeginTest(test)));
-				return log;
-			}
+			public ITestLogger BeginTest(IConeTest test) =>
+				new MulticastLogger(children.ConvertAll(x => x.BeginTest(test)));
 
 			public void EndSuite() {
 				children.ForEach(x => x.EndSuite());
@@ -29,10 +26,10 @@ namespace Cone.Runners
 
 		class MulticastLogger : ITestLogger
 		{
-			readonly List<ITestLogger> children = new List<ITestLogger>();
-
-			public void Add(ITestLogger log) {
-				children.Add(log);
+			readonly ITestLogger[] children;
+			
+			public MulticastLogger(ITestLogger[] children) {
+				this.children = children;	
 			}
 
 			public void Failure(ConeTestFailure failure) {
@@ -64,32 +61,22 @@ namespace Cone.Runners
 			}
 		}
 
-		readonly List<ISessionLogger> children = new List<ISessionLogger>();
+		readonly ISessionLogger[] children;
 
-		public MulticastSessionLogger(params ISessionLogger[] sessionLoggers) : this(sessionLoggers.AsEnumerable()) { }
-
-		public MulticastSessionLogger(IEnumerable<ISessionLogger> sessionLoggers) {
-			this.children.AddRange(sessionLoggers);
+		public MulticastSessionLogger(params ISessionLogger[] sessionLoggers) {
+			this.children = sessionLoggers;
 		}
 
-		public void Add(ISessionLogger log) {
-			children.Add(log);
-		}
+		public MulticastSessionLogger(IEnumerable<ISessionLogger> sessionLoggers) : this(sessionLoggers.ToArray()) { }
 
-		public void BeginSession() {
-			children.ForEach(x => x.BeginSession());
-		}
+		public void BeginSession() => children.ForEach(x => x.BeginSession());
 
-		public ISuiteLogger BeginSuite(IConeSuite suite) {
-			return new MultiCastSuiteLogger(children.ConvertAll(x => x.BeginSuite(suite)).ToArray());
-		}
+		public ISuiteLogger BeginSuite(IConeSuite suite) =>
+			new MultiCastSuiteLogger(children.ConvertAll(x => x.BeginSuite(suite)));
 
-		public void EndSession() {
-			children.ForEach(x => x.EndSession());
-		}
+		public void EndSession() => children.ForEach(x => x.EndSession());
 
-		public void WriteInfo(Action<ISessionWriter> output) {
+		public void WriteInfo(Action<ISessionWriter> output) =>
 			children.ForEach(x => x.WriteInfo(output));
-		}
 	}
 }
