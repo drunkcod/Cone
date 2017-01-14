@@ -1,8 +1,6 @@
-﻿using System;
+﻿using Cone.Core;
+using System;
 using System.Diagnostics;
-using System.IO;
-using Cone.Core;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace Cone.Runners
@@ -15,18 +13,14 @@ namespace Cone.Runners
 
 	class LabledConsoleLoggerContext 
 	{
-		readonly List<string> parts = new List<string>();
+		string[] parts = new string[0];
 
-		public int Count { get { return parts.Count; } }
+		public int Count => parts.Length;
 
-		public string this[int index]{
-			get { return parts[index]; }
-		}
+		public string this[int index] => parts[index];
 
-		public void Set(string[] newContext) {
-			parts.Clear();
-			parts.AddRange(newContext);
-		}
+		public void Set(string[] newContext) => 
+			parts = newContext;
 	}
 
 	public class ConsoleLoggerSettings
@@ -44,9 +38,8 @@ namespace Cone.Runners
 		readonly Thread worker;
 		bool jobsDone;
 
-		public static IConsoleResultWriter For(IConsoleResultWriter writer) {
-			return new MultiCoreConsoleResultWriter(writer);
-		}
+		public static IConsoleResultWriter For(IConsoleResultWriter writer) =>
+			new MultiCoreConsoleResultWriter(writer);
 
 		MultiCoreConsoleResultWriter(IConsoleResultWriter inner) {
 			worker = new Thread(() => {
@@ -162,23 +155,19 @@ namespace Cone.Runners
 
 		protected void Write(ConsoleColor color, string format, params object[] args) {
 			var message = string.Format(format, args);
-			lock(Console.Out) {
-				var tmp = Console.ForegroundColor;
-				Console.ForegroundColor = color;
-				Console.Out.Write(message);
-				Console.ForegroundColor = tmp;
-			}
+			var tmp = Console.ForegroundColor;
+			Console.ForegroundColor = color;
+			Console.Out.Write(message);
+			Console.ForegroundColor = tmp;
 		}
 
-		protected void WriteLine() {
-			Console.Out.WriteLine();
-		}
+		protected void WriteLine() => Console.Out.WriteLine();
 
 		public virtual void Write(ConsoleResult result) {
 			switch(result.Status) {
-				case TestStatus.Success: Write(SuccessColor, "."); break;
+				case TestStatus.Success: Write(SuccessColor, "√"); break;
 				case TestStatus.Pending: Write(PendingColor, "?"); break;
-				case TestStatus.TestFailure: Write(FailureColor, "F"); break;
+				case TestStatus.TestFailure: Write(FailureColor, "×"); break;
 			}
 		}
 
@@ -277,10 +266,7 @@ namespace Cone.Runners
 
 		public void Skipped() { }
 
-		public void TestStarted() {
-			time.Start();
-		}
-
-		public void TestFinished() { }
+		public void TestStarted() => time.Start();
+		public void TestFinished() => time.Stop();
 	}
 }
