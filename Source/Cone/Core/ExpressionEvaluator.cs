@@ -14,10 +14,14 @@ namespace Cone.Core
 			NullSubexpression = EvaluateNullSubexpression;
 		}
 
-		public Expression Unwrap(Expression expression) =>
-			expression.NodeType == ExpressionType.Convert
-				? (expression as UnaryExpression).Operand
-				: expression;
+		public bool TryUnwrap(Expression expression, out Expression unwrapped) {
+			if(expression.NodeType == ExpressionType.Convert) {
+				unwrapped = (expression as UnaryExpression).Operand;
+				return true;
+			}
+			unwrapped = null;
+			return false;
+		}
 
 		public EvaluationResult Evaluate(Expression body, Expression context, ExpressionEvaluatorParameters parameters) => 
 			Evaluate(body, context, parameters, x => { throw new ExceptionExpressionException(x.Expression, context, x.Exception); });

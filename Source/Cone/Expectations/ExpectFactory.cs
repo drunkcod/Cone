@@ -124,7 +124,7 @@ namespace Cone.Expectations
 			if(IsStringEquals(body))
 				return new StringEqualExpect(body, (string)left.Value, (string)right.Value);
 
-			return GetExpector(body, left, right);
+			return MakeExpect(body, left, right);
 		}
 
 		static bool IsStringEquals(BinaryExpression body) {
@@ -133,7 +133,7 @@ namespace Cone.Expectations
 			&& body.Right.Type == typeof(string);
 		}
 
-		static Expect GetExpector(BinaryExpression body, IExpectValue left, IExpectValue right) {
+		static Expect MakeExpect(BinaryExpression body, IExpectValue left, IExpectValue right) {
 			switch(body.NodeType) {
 				case ExpressionType.Equal: return new EqualExpect(body, left, right);
 				case ExpressionType.NotEqual: return new NotEqualExpect(body, left, right);
@@ -164,11 +164,11 @@ namespace Cone.Expectations
 		T EvaluateAs<T>(Expression body, ExpressionEvaluatorParameters parameters) { return (T)(Evaluate(body, body, parameters).Value); }
 		
 		IExpectValue Evaluate(Expression body, Expression context, ExpressionEvaluatorParameters parameters) { 
-			var unwrapped = evaluator.Unwrap(body);
+			Expression unwrapped;
 			var value = evaluator.Evaluate(body, context, parameters).Result;
-			if(unwrapped == body)
-				return new ExpectValue(value); 
-			return new WrappedExpectValue(value, evaluator.Evaluate(unwrapped, context, parameters).Result);
+			if(evaluator.TryUnwrap(body, out unwrapped))
+				return new WrappedExpectValue(value, evaluator.Evaluate(unwrapped, context, parameters).Result);
+			return new ExpectValue(value); 
 		}
 
 		Expect TypeIs(TypeBinaryExpression body) =>

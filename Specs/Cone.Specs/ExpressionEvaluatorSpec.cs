@@ -21,7 +21,10 @@ namespace Cone
 		}
 
 		public void unwrapping_conversions() {
-			Check.That(() => Evaluator.Unwrap(Expression.Convert(Expression.Constant(MyEnum.Value), typeof(int))).Type == typeof(MyEnum));
+			Expression unwrapped;
+			Check.That(() => 
+				Evaluator.TryUnwrap(Expression.Convert(Expression.Constant(MyEnum.Value), typeof(int)), out unwrapped) 
+				&& unwrapped.Type == typeof(MyEnum));
 		}
 
 		public void constant_evaluation() {
