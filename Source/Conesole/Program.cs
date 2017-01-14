@@ -98,10 +98,9 @@ namespace Conesole
 		}
 
 		int Execute(){
-			var result = new ConesoleResultLogger();
 			try {
 				var config = ConesoleConfiguration.Parse(Options);
-				var results = CreateTestSession(config, result);
+				var results = CreateTestSession(config);
 
 				if(config.IsDryRun)
 					results.GetTestExecutor = _ => new DryRunTestExecutor();
@@ -113,6 +112,7 @@ namespace Conesole
 					runner.RunTests(results, assemblies);
 				else runner.RunTests(config.RunList, results, assemblies);
 				results.Report();
+				return results.FailureCount;
 			} catch (ReflectionTypeLoadException tle) {
 				foreach (var item in tle.LoaderExceptions)
 					Error("{0}\n---", item);
@@ -124,25 +124,21 @@ namespace Conesole
 				Error(e);
 				return -1;
 			}
-
-			return result.FailureCount;
 		}
 
 		void Error(string message) { Console.Error.WriteLine(message); }
 		void Error(string format, params object[] args) { Console.Error.WriteLine(format, args); }
 		void Error(Exception e) { Console.Error.WriteLine(e); }
 
-		static TestSession CreateTestSession(ConesoleConfiguration config, ISessionLogger baseLogger) {
-			return new TestSession(CreateLogger(config, baseLogger)) {
+		static TestSession CreateTestSession(ConesoleConfiguration config) {
+			return new TestSession(CreateLogger(config)) {
 				IncludeSuite = config.IncludeSuite,
 				ShouldSkipTest = x => !config.IncludeTest(x)
 			};
 		}
 
-		static ISessionLogger CreateLogger(ConesoleConfiguration config, ISessionLogger baseLogger) {
-			var loggers = new List<ISessionLogger> {
-				baseLogger
-			};
+		static ISessionLogger CreateLogger(ConesoleConfiguration config) {
+			var loggers = new List<ISessionLogger>();
 
 			if (config.XmlConsole) {
 				loggers.Add(new XmlSessionLogger(new XmlTextWriter(Console.Out){

@@ -44,7 +44,6 @@
     </Compile>
     <Compile Include="Assume.cs" />
     <Compile Include="ConePad.cs" />
-    <Compile Include="Console\ConesoleResultLogger.cs" />
     <Compile Include="Core\CircularQueue.cs" />
     <Compile Include="Core\ConeFixtureMethodCollection.cs" />
     <Compile Include="Core\ConeStackFrame.cs" />

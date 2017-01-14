@@ -69,6 +69,8 @@ namespace Cone.Runners
 		public Predicate<IConeSuite> IncludeSuite = _ => true;
 		public Func<IConeFixture, ITestExecutor> GetTestExecutor = x => new TestExecutor(x);
 
+		public int FailureCount => report.Failed;
+
 		public void RunSession(Action<Action<ConePadSuite>> @do) {
 			sessionLog.BeginSession();
 			@do(CollectSuite);
