@@ -14,7 +14,7 @@
     <OutputPath>$(BuildPath)</OutputPath>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <BuildPath>$(SolutionDir)</BuildPath>
-    <OutputPath>$(BuildPath)Bin</OutputPath>
+    <OutputPath>$(BuildPath)Bin\$(MSBuildProjectName)</OutputPath>
     <IntermediateOutputPath>$(SolutionDir)Build\</IntermediateOutputPath>
     <TargetFrameworkProfile />
   </PropertyGroup>

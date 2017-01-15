@@ -4,7 +4,7 @@
     <id>Cone</id>
     <version>$Version$</version>
     <authors>Torbjörn Gyllebring</authors>
-    <copyright>Copyright 2013</copyright>
+    <copyright>Copyright 2017</copyright>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>a more ergonomic checkin/testing framework for .Net</summary>
 <description>
@@ -20,6 +20,6 @@ Say no to FluentCobol, say hello to Check.That(() => actual == expected);
     <tags></tags>
   </metadata>
   <files>
-    <file src="Build\Cone.dll" target="lib\Net35" />
+    <file src="Build\Cone\*.dll" target="lib\net45" />
   </files>
 </package>

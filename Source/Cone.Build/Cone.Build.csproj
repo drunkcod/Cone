@@ -13,8 +13,8 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <BuildPath>$(SolutionDir)</BuildPath>
-    <OutputPath>$(BuildPath)Bin</OutputPath>
-    <IntermediateOutputPath>$(SolutionDir)Build\</IntermediateOutputPath>
+    <OutputPath>$(BuildPath)Bin\$(MSBuildProjectName)</OutputPath>
+    <IntermediateOutputPath>$(BuildPath)Build\</IntermediateOutputPath>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
