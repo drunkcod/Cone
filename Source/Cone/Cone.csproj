@@ -84,10 +84,8 @@
     <Compile Include="Core\IConeTestMethodSink.cs" />
     <Compile Include="Core\TypeFormatter.cs" />
     <Compile Include="Core\VersionUpdater.cs" />
-    <Compile Include="Expectations\CheckResult.cs" />
     <Compile Include="Reflection\ILGeneratorExtensions.cs" />
     <Compile Include="Core\IRowData.cs" />
-    <Compile Include="Core\Maybe.cs" />
     <Compile Include="Core\MethodClassifier.cs" />
     <Compile Include="Core\PredicateExtensions.cs" />
     <Compile Include="Core\TimedTestContext.cs" />
@@ -134,8 +132,6 @@
     <Compile Include="Expectations\ExpectedNull.cs" />
     <Compile Include="Expectations\ExpectFactory.cs" />
     <Compile Include="Expectations\ExpectMessages.cs" />
-    <Compile Include="Expectations\IExpect.cs" />
-    <Compile Include="Expectations\IMethodExpectProvider.cs" />
     <Compile Include="Expectations\MemberMethodExpect.cs" />
     <Compile Include="Expectations\NotExpect.cs" />
     <Compile Include="Expectations\StaticMethodExpect.cs" />
@@ -151,7 +147,6 @@
     <Compile Include="Core\IConeSuite.cs" />
     <Compile Include="Core\IConeFixture.cs" />
     <Compile Include="Core\IConeTest.cs" />
-    <Compile Include="Core\IFormatter.cs" />
     <Compile Include="ITestDescription.cs" />
     <Compile Include="ITestContext.cs" />
     <Compile Include="ITestResult.cs" />
@@ -170,6 +165,12 @@
     <Compile Include="DisplayAsAttribute.cs" />
     <Compile Include="Core\TypeExtensions.cs" />
     <Compile Include="Check.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Cone.Extensions\Cone.Extensions.csproj">
+      <Project>{76820b3d-8095-4e5f-a14f-26c9f3d8a367}</Project>
+      <Name>Cone.Extensions</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -17,7 +17,7 @@ namespace Cone
 	 */
 	public static class Check
 	{
-		static Assembly ThisAssembly => typeof(Check).Assembly;
+		static Assembly ExtensionsAssembly => typeof(IMethodExpectProvider).Assembly;
 		static ExpectFactory expect;
 
 		static readonly ExpressionEvaluator Evaluator = new ExpressionEvaluator();
@@ -28,12 +28,10 @@ namespace Cone
 		public static Func<IEnumerable<Assembly>> GetPluginAssemblies = GetDefaultPluginAssemblies;
 
 		static IEnumerable<Assembly> GetDefaultPluginAssemblies() =>
-			new []{ ThisAssembly }.Concat(
-				AppDomain.CurrentDomain.GetAssemblies()
-				.Where(ReferencesCone));
+            AppDomain.CurrentDomain.GetAssemblies().Where(ReferencesExtensionPoints);
 
-		static bool ReferencesCone(Assembly assembly) => 
-			assembly.GetReferencedAssemblies().Any(a => a.FullName == ThisAssembly.FullName);
+		static bool ReferencesExtensionPoints(Assembly assembly) => 
+			assembly.GetReferencedAssemblies().Any(a => a.FullName == ExtensionsAssembly.FullName);
 
 		internal static void Initialize() {
 			DoMakeFail = DefaultFail;
@@ -155,7 +153,7 @@ namespace Cone
 
 		static ExpressionFormatter GetExpressionFormatter() {
 			var context = new StackTrace().GetFrames()
-				.Select(x => x.GetMethod()).First(x => x.DeclaringType.Assembly != ThisAssembly);
+				.Select(x => x.GetMethod()).First(x => x.DeclaringType.Assembly != typeof(Check).Assembly);
 			return ExpressionFormatter.Rebind(context.DeclaringType);
 		}
 

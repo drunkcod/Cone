@@ -68,7 +68,7 @@ namespace Conesole
 		public LoggerVerbosity Verbosity = LoggerVerbosity.Default;
 		public bool IsDryRun;
 		public bool XmlConsole;
-		public Maybe<string> XmlOutput;
+		public string XmlOutput;
 		public bool TeamCityOutput;
 		public bool Multicore;
 		public bool ShowTimings;
@@ -152,7 +152,7 @@ namespace Conesole
 			}
 			else if (option == "xml")
 			{
-				XmlOutput = valueRaw.ToMaybe();
+				XmlOutput = valueRaw;
 			}
 			else if (option == "config")
 			{

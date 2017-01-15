@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+  <Metadata>
+    <Identity Id="Cone.TestAdapter.Install.Tobbe Gyllebring.2f808f91-3a57-45c9-9796-123deb62079f" Version="1.0" Language="en-US" Publisher="Tobbe Gyllebring" />
+    <DisplayName>Cone TestAdapter</DisplayName>
+    <Description xml:space="preserve">The Cone TestAdapter enables the integrated running of Cone framework tests.</Description>
+    <MoreInfo>http://github.com/drunkcod/Cone</MoreInfo>
+  </Metadata>
+  <Installation>
+    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[11.0,16.0)" />
+    <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[11.0,16.0)" />
+    <InstallationTarget Id="Microsoft.VisualStudio.Enterprise" Version="[11.0,16.0)"/>
+  </Installation>
+  <Dependencies>
+    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
+  </Dependencies>
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="Cone.TestAdapter" Path="|Cone.TestAdapter|" />
+    <Asset Type="UnitTestExtension" d:Source="Project" d:ProjectName="Cone.TestAdapter" Path="|Cone.TestAdapter|" />
+    <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="Cone" Path="|Cone|" AssemblyName="|Cone;AssemblyName|" />
+    <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="Cone.Extensions" Path="|Cone.Extensions|" AssemblyName="|Cone.Extensions;AssemblyName|" />
+  </Assets>
+  <Prerequisites>
+    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0.25904.2,16.0)" DisplayName="Visual Studio core editor" />
+    <Prerequisite Id="Microsoft.VisualStudio.Component.ManagedDesktop.Prerequisites" Version="[15.0.25904.2,16.0)" DisplayName=".NET desktop development tools" />
+  </Prerequisites>
+</PackageManifest>

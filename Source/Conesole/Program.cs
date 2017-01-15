@@ -159,8 +159,8 @@ namespace Conesole
 				loggers.Add(new ConsoleSessionLogger(settings));
 			}
 
-			if (config.XmlOutput.IsSomething) {
-				loggers.Add(CreateXmlLogger(config.XmlOutput.Value));
+			if (!string.IsNullOrEmpty(config.XmlOutput)) {
+				loggers.Add(CreateXmlLogger(config.XmlOutput));
 			} 
 			return loggers.Count == 1
 				? loggers[0]

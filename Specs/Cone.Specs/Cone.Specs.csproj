@@ -100,6 +100,10 @@
       <Project>{f6104751-d8b9-4def-a7cc-3a5a45ec50b3}</Project>
       <Name>Cone.Build</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\Cone.Extensions\Cone.Extensions.csproj">
+      <Project>{76820b3d-8095-4e5f-a14f-26c9f3d8a367}</Project>
+      <Name>Cone.Extensions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\Cone\Cone.csproj">
       <Project>{E557FD03-E249-4211-80CF-FB0923FD4C7D}</Project>
       <Name>Cone</Name>
