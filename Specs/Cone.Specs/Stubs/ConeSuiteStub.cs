@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Cone.Core;
 
 namespace Cone.Stubs
@@ -37,7 +35,7 @@ namespace Cone.Stubs
 			throw new NotImplementedException();
 		}
 
-		void IConeSuite.DiscoverTests(ConeTestNamer names)
+		void IConeSuite.DiscoverTests(IConeTestNamer names)
 		{
 			throw new NotImplementedException();
 		}

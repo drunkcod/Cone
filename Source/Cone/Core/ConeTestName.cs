@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Cone.Core
 {
@@ -10,9 +10,8 @@ namespace Cone.Core
 			this.Name = name.TrimStart();
 		}
 
-		public static ConeTestName From(ITestName testName) {
-			return new ConeTestName(testName.Context, testName.Name);
-		}
+		public static ConeTestName From(ITestName testName)=>
+			new ConeTestName(testName.Context, testName.Name);
 
 		public string Context { get; }
 		public string Name { get; }

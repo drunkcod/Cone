@@ -153,7 +153,7 @@ namespace Cone.Runners
 			public void FixtureTearDown() { FixtureTearDownCalled = ++Calls; }
 		}
 
-		readonly NUnitSuiteBuilder SuiteBuilder = new NUnitSuiteBuilder(new DefaultFixtureProvider());
+		readonly NUnitSuiteBuilder SuiteBuilder = new NUnitSuiteBuilder(new ConeTestNamer(), new DefaultFixtureProvider());
 
 		public void supports_building_suites_for_types_with_NUnit_TestFixture_attribute() {
 			Check.That(() => SuiteBuilder.SupportedType(typeof(MyNUnitFixture)));
@@ -167,7 +167,7 @@ namespace Cone.Runners
 			[BeforeAll]
 			public void Given_description_of_MyNUnitFixture()
 			{
-				var suiteBuilder = new NUnitSuiteBuilder(new DefaultFixtureProvider());
+				var suiteBuilder = new NUnitSuiteBuilder(new ConeTestNamer(), new DefaultFixtureProvider());
 				Description = suiteBuilder.DescriptionOf(typeof(MyNUnitFixture));
 			}
 
@@ -201,7 +201,7 @@ namespace Cone.Runners
 
 			[BeforeAll]
 			public void CreateFixtureInstance() {
-				NUnitSuite = new NUnitSuiteBuilder(new LambdaObjectProvider(t => NUnitFixture = new MyNUnitFixture())).BuildSuite(typeof(MyNUnitFixture)); 
+				NUnitSuite = new NUnitSuiteBuilder(new ConeTestNamer(), new LambdaObjectProvider(t => NUnitFixture = new MyNUnitFixture())).BuildSuite(typeof(MyNUnitFixture)); 
 				new TestSession(new NullLogger()).RunSession(collectResult => collectResult(NUnitSuite));
 			}
 
@@ -236,7 +236,7 @@ namespace Cone.Runners
 
 			[BeforeEach]
 			public void GivenFixtureWithTestCases() {
-				NUnitSuite = new NUnitSuiteBuilder(new DefaultFixtureProvider()).BuildSuite(typeof(FixtureWithTestCases)); 
+				NUnitSuite = new NUnitSuiteBuilder(new ConeTestNamer(), new DefaultFixtureProvider()).BuildSuite(typeof(FixtureWithTestCases)); 
 			}
 
 			public void theres_one_test_per_case() {
@@ -279,7 +279,7 @@ namespace Cone.Runners
 
 			[BeforeEach]
 			public void GivenFixtureWithTestCases() {
-				NUnitSuite = new NUnitSuiteBuilder(new DefaultFixtureProvider()).BuildSuite(typeof(FixtureWithTestCaseSource)); 
+				NUnitSuite = new NUnitSuiteBuilder(new ConeTestNamer(), new DefaultFixtureProvider()).BuildSuite(typeof(FixtureWithTestCaseSource)); 
 			}
 
 			public void locates_TestCaseData_source_method_in_same_class() {

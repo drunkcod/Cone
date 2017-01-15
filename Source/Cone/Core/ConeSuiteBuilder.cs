@@ -15,7 +15,7 @@ namespace Cone.Core
 	{
 		static readonly Type[] FixtureAttributes = { typeof(DescribeAttribute), typeof(FeatureAttribute) };
 
-		readonly ConeTestNamer names = new ConeTestNamer(); 
+		readonly IConeTestNamer testNamer; 
 
 		class ContextDescription : IFixtureDescription
 		{
@@ -44,6 +44,10 @@ namespace Cone.Core
 			}
 		}
 
+		public ConeSuiteBuilder(IConeTestNamer testNamer) { 
+			this.testNamer = testNamer;	
+		}
+
 		public virtual bool SupportedType(Type type) { return type.HasAny(FixtureAttributes); }
 
 		public TSuite BuildSuite(Type suiteType) {
@@ -57,7 +61,7 @@ namespace Cone.Core
 			var suite = NewSuite(type, description);
 
 			suite.AddCategories(description.Categories);
-			suite.DiscoverTests(names);
+			suite.DiscoverTests(testNamer);
 			AddNestedContexts(type, suite);
 			return suite;
 		}

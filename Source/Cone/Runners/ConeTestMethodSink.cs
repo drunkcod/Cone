@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Cone.Core;
@@ -7,11 +7,11 @@ namespace Cone.Runners
 {
 	public abstract class ConeTestMethodSink : IConeTestMethodSink
 	{
-		readonly ConeTestNamer names;
+		readonly IConeTestNamer names;
 		readonly RowSuiteLookup<IRowSuite> rowSuites;
 
 
-		public ConeTestMethodSink(ConeTestNamer names) {
+		public ConeTestMethodSink(IConeTestNamer names) {
 			this.names = names;
 			this.rowSuites = new RowSuiteLookup<IRowSuite>(CreateRowSuite);
 		}

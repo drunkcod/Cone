@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -152,7 +152,7 @@ namespace Cone.Runners
 			}
 		}
 
-		public NUnitSuiteBuilder(FixtureProvider objectProvider) : base(objectProvider) { }
+		public NUnitSuiteBuilder(IConeTestNamer testNamer, FixtureProvider objectProvider) : base(testNamer, objectProvider) { }
 
 		public override bool SupportedType(Type type)
 		{

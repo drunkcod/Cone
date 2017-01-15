@@ -104,7 +104,7 @@ namespace Conesole
 
 				if(config.IsDryRun)
 					results.GetTestExecutor = _ => new DryRunTestExecutor();
-				var runner = new SimpleConeRunner {
+				var runner = new SimpleConeRunner(new ConeTestNamer()) {
 					Workers = config.Multicore ? Environment.ProcessorCount : 1,
 				};
 				var assemblies = CrossDomainConeRunner.LoadTestAssemblies(AssemblyPaths, Error);

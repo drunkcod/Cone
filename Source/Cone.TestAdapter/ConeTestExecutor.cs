@@ -4,7 +4,6 @@ using System.Linq;
 using Cone.Runners;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 
 namespace Cone.TestAdapter
 {
@@ -16,7 +15,7 @@ namespace Cone.TestAdapter
 
 		public void RunTests(IEnumerable<TestCase> tests, IRunContext runContext, IFrameworkHandle frameworkHandle) {
 			foreach(var source in tests.GroupBy(x => x.Source, x => x.FullyQualifiedName)) {
-                var xDomainSink = CreateLogger(frameworkHandle, source.Key);
+				var xDomainSink = CreateLogger(frameworkHandle, source.Key);
 				CrossDomainConeRunner.WithProxyInDomain<ConeTestAdapterProxy, int>(string.Empty,  new [] { source.Key, },
 					proxy => proxy.RunTests(source.Key, xDomainSink, source.ToArray())
 				);
@@ -25,7 +24,7 @@ namespace Cone.TestAdapter
 
 		public void RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle) {
 			foreach(var source in sources) {
-                var xDomainSink = CreateLogger(frameworkHandle, source);
+				var xDomainSink = CreateLogger(frameworkHandle, source);
 				CrossDomainConeRunner.WithProxyInDomain<ConeTestAdapterProxy, int>(string.Empty,  new [] { source },
 					proxy => proxy.RunTests(source, xDomainSink)
 				);
@@ -42,9 +41,9 @@ namespace Cone.TestAdapter
 					ErrorMessage = e.ErrorMessage,
 					ErrorStackTrace = e.ErrorStackTrace,
 				});
-            return xDomainSink;
-        }
-
+			return xDomainSink;
+		}
+		
 		public void Cancel() { }
 	}
 }

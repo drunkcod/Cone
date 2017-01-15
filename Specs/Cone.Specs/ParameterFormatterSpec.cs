@@ -15,7 +15,7 @@ namespace Cone.Core
         public void VerifyFormat(object input, string expected) { Check.That(() => Formatter.Format(input) == expected); }
 
         public IEnumerable<IRowTestData> VerifyFormatRows() {
-            return new RowBuilder<ParameterFormatterSpec>()
+            return new RowBuilder<ParameterFormatterSpec>(new ConeTestNamer())
                 .Add(x => x.VerifyFormat(typeof(Int32), "typeof(int)"))
                 .Add(x => x.VerifyFormat(DummyEnum.Value, "DummyEnum.Value"))
                 .Add(x => x.VerifyFormat(new[] { typeof(Int32) }, "new[] { typeof(int) }"));

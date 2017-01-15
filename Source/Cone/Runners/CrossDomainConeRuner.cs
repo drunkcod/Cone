@@ -99,7 +99,7 @@ namespace Cone.Runners
 				var logger = new CrossDomainSessionLoggerAdapter(Logger) {
 					ShowProgress = false
 				};
-				new SimpleConeRunner() {
+				new SimpleConeRunner(new ConeTestNamer()) {
 					Workers = UseMulticore ? Environment.ProcessorCount : 1,
 				}.RunTests(new TestSession(logger), LoadTestAssemblies(AssemblyPaths, error => Logger.Info(error)));
 			}

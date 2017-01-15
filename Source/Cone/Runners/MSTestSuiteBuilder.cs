@@ -118,7 +118,7 @@ namespace Cone.Runners
 			}
 		}
 
-		public MSTestSuiteBuilder(FixtureProvider objectProvider) : base(objectProvider) { }
+		public MSTestSuiteBuilder(IConeTestNamer testNamer, FixtureProvider objectProvider) : base(testNamer, objectProvider) { }
 
 		public override bool SupportedType(Type type) {
 			return IsTestClass(type) && (type.DeclaringType == null || !IsTestClass(type.DeclaringType));

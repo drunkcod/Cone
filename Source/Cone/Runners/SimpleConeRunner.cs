@@ -21,21 +21,21 @@ namespace Cone.Runners
 
 		readonly IConeSuiteBuilder<ConePadSuite>[] suiteBuilders;
 
-		public SimpleConeRunner(): this(new DefaultFixtureProvider())
+		public SimpleConeRunner(IConeTestNamer testNamer): this(testNamer, new DefaultFixtureProvider())
 		{ }
 
-		public SimpleConeRunner(FixtureProvider objectProvider) : this(
-				new ConePadSuiteBuilder(objectProvider),
-				new NUnitSuiteBuilder(objectProvider),
-				new MSTestSuiteBuilder(objectProvider)
+		public SimpleConeRunner(IConeTestNamer testNamer, FixtureProvider objectProvider) : this(
+				new ConePadSuiteBuilder(testNamer, objectProvider),
+				new NUnitSuiteBuilder(testNamer, objectProvider),
+				new MSTestSuiteBuilder(testNamer, objectProvider)
 			) { }
 
 		SimpleConeRunner(params IConeSuiteBuilder<ConePadSuite>[] suiteBuilders) {
 			this.suiteBuilders = suiteBuilders;
 		}
 
-		public static SimpleConeRunner ConeOnlyRunner() {
-			return new SimpleConeRunner(new ConePadSuiteBuilder(new DefaultFixtureProvider()));
+		public static SimpleConeRunner ConeOnlyRunner(IConeTestNamer testNamer) {
+			return new SimpleConeRunner(new ConePadSuiteBuilder(testNamer, new DefaultFixtureProvider()));
 		}
 
 		public int Workers = 1;

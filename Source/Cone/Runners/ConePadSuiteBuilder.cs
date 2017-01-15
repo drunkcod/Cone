@@ -8,7 +8,7 @@ namespace Cone.Runners
 	{
 		readonly FixtureProvider objectProvider;
 
-		public ConePadSuiteBuilder(FixtureProvider objectProvider) {
+		public ConePadSuiteBuilder(IConeTestNamer testNamer, FixtureProvider objectProvider) : base(testNamer) {
 			this.objectProvider = objectProvider;
 		}
 		

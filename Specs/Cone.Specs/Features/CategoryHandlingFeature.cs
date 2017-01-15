@@ -29,7 +29,7 @@ namespace Cone.Features
 		}
 
 		public void categories_are_lexically_inherited() { 
-			var suite = new ConePadSuiteBuilder(new DefaultFixtureProvider())
+			var suite = new ConePadSuiteBuilder(new ConeTestNamer(), new DefaultFixtureProvider())
 				.BuildSuite(typeof(ExampleSpec));
 
 			var result = new List<string>();

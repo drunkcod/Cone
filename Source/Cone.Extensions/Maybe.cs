@@ -14,13 +14,13 @@ namespace Cone.Core
 
 		public static Maybe<T> None { get { return new Maybe<T>(); } }
 
-		public bool IsSomething { get { return value != null; } }
+		public bool IsSomething => value != null;
 	
-		public bool IsNone { get { return value == null; } }
+		public bool IsNone => value == null;
 		
-		bool IsDefault { get { return value == Maybe.DefaultTag; } }
+		bool IsDefault => ReferenceEquals(value, Maybe.DefaultTag);
 
-		T RawValue { get { return IsDefault ? default(T) : (T)value; } }
+		T RawValue => IsDefault ? default(T) : (T)value;
 
 		public T Value {
 			get { return GetValueOrDefault(() => { 
@@ -28,9 +28,8 @@ namespace Cone.Core
 			}); }
 		}
 
-		public T GetValueOrDefault(T defaultValue) {
-			return IsNone ? defaultValue : RawValue;
-		}
+		public T GetValueOrDefault(T defaultValue) =>
+			IsNone ? defaultValue : RawValue;
 
 		public T GetValueOrDefault(Func<T> getDefaultValue) {
 			return IsNone ? getDefaultValue() : RawValue;
@@ -48,18 +47,14 @@ namespace Cone.Core
 			return IsNone ? 0 : value.GetHashCode();
 		}
 
-		public override bool Equals(object obj) {
+		public override bool Equals(object obj) =>
+			ReferenceEquals(this, obj) || (obj is Maybe<T> && this == ((Maybe<T>)obj));
 
-			return ReferenceEquals(this, obj) || (obj is Maybe<T> && this == ((Maybe<T>)obj));
-		}
+		public override string ToString() =>
+			IsSomething ? string.Format("Some({0})", Value) : "None";
 
-		public override string ToString() {
-			return IsSomething ? string.Format("Some({0})", Value) : "None";
-		}
-
-		public bool Equals(Maybe<T> other) {
-			return Equals(value, other.value);
-		}
+		public bool Equals(Maybe<T> other) => 
+			Equals(value, other.value);
 	}
 
 	public static class Maybe

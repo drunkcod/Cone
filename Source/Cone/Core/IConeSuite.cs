@@ -13,6 +13,6 @@ namespace Cone.Core
 		IConeFixture Fixture { get; }
 		void AddCategories(IEnumerable<string> categories);
 		IRowSuite AddRowSuite(ConeMethodThunk thunk, string suiteName);
-		void DiscoverTests(ConeTestNamer names);
+		void DiscoverTests(IConeTestNamer names);
 	}
 }

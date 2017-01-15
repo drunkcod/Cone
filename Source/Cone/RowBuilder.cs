@@ -42,9 +42,13 @@ namespace Cone
 	
 	public class RowBuilder<T> : IEnumerable<IRowTestData>
 	{
-		readonly ConeTestNamer testNamer = new ConeTestNamer();
+		readonly IConeTestNamer testNamer;
 		readonly List<IRowTestData> rows = new List<IRowTestData>();
 		readonly ExpressionEvaluator evaluator = new ExpressionEvaluator();
+
+		public RowBuilder(IConeTestNamer testNamer) {
+			this.testNamer = testNamer;	
+		}
 
 		public RowBuilder<T> Add(Expression<Action<T>> testCase) =>
 			AddRow(testCase, row => { });

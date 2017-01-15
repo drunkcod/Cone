@@ -75,7 +75,7 @@ namespace Cone
 			log.WriteInfo(writer => writer.Write("Running tests!\n----------------------------------\n"));
 			var session = new TestSession(log);
 			sessionSetup(session);
-			new SimpleConeRunner().RunTests(session, suites);
+			new SimpleConeRunner(new ConeTestNamer()).RunTests(session, suites);
 		}
 	}
 }

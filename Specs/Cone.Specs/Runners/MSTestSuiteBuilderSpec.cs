@@ -39,10 +39,10 @@ namespace Cone.Runners
 	[Describe(typeof(MSTestSuiteBuilder))]
 	public class MSTestSuiteBuilderSpec
 	{
-		readonly MSTestSuiteBuilder SuiteBuilder = new MSTestSuiteBuilder(new DefaultFixtureProvider());
+		readonly MSTestSuiteBuilder SuiteBuilder = new MSTestSuiteBuilder(new ConeTestNamer(), new DefaultFixtureProvider());
 
 		static ConePadSuite BuildSuite<T>(T fixture) {
-			return new MSTestSuiteBuilder(new LambdaObjectProvider(t => fixture)).BuildSuite(fixture.GetType());
+			return new MSTestSuiteBuilder(new ConeTestNamer(), new LambdaObjectProvider(t => fixture)).BuildSuite(fixture.GetType());
 		}
 
 		[TestClass]
@@ -107,7 +107,7 @@ namespace Cone.Runners
 
 			[BeforeAll]
 			public void Given_description_of_MyMSTestFixture() {
-				var suiteBuilder = new MSTestSuiteBuilder(new DefaultFixtureProvider());
+				var suiteBuilder = new MSTestSuiteBuilder(new ConeTestNamer(), new DefaultFixtureProvider());
 				Description = suiteBuilder.DescriptionOf(typeof(MyMSTestFixture));
 			}
 
