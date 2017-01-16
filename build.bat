@@ -1,3 +1,3 @@
 @echo off
 fsi Build.fsx
-Tools\Conesole Build\Cone.Specs.dll
+Bin\Conesole Build\Cone.Specs.dll

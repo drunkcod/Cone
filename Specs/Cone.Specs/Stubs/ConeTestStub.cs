@@ -10,7 +10,6 @@ namespace Cone.Stubs
 		string context = string.Empty;
 		string location = string.Empty;
 		string[] categories = new string[0];
-		IConeFixture fixture;
 
 		public ConeTestStub WithName(string name) {
 			this.name = name;

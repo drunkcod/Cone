@@ -43,8 +43,8 @@
     <CopyBuildOutputToOutputDirectory>false</CopyBuildOutputToOutputDirectory>
     <CopyOutputSymbolsToOutputDirectory>false</CopyOutputSymbolsToOutputDirectory>
     <BuildPath>$(SolutionDir)</BuildPath>
-    <OutputPath>$(BuildPath)Bin\TestAdapter</OutputPath>
-    <IntermediateOutputPath>$(SolutionDir)Build\</IntermediateOutputPath>
+    <OutputPath>$(BuildPath)Build\$(MSBuildProjectName)</OutputPath>
+    <IntermediateOutputPath>$(SolutionDir)Build\obj\$(MSBuildProjectName)</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

@@ -13,12 +13,12 @@ let msBuild =
   let searchRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "MSBuild")
   Directory.GetFiles(searchRoot, "MSBuild.exe",SearchOption.AllDirectories).OrderByDescending(fun x -> x).First()
 
-let build args =
+let build proj args =
   use build =
     Process.Start(
       ProcessStartInfo(
         FileName = msBuild,
-        Arguments = "Cone.sln /nologo /v:m /p:Configuration=Release " + args,
+        Arguments = proj + " /nologo /v:m /p:Configuration=Release " + args,
         UseShellExecute = false))
   build.WaitForExit()
   Console.WriteLine("build {0} exited with {1}", args, build.ExitCode)
@@ -31,9 +31,12 @@ let package() =
 
     zip.AddDirectory("Bin", "Bin") |> ignore
     zip.AddDirectory("Docs", "Docs") |> ignore
+    zip.AddFile("Build\Cone.TestAdapter.Install\Cone.TestAdapter.vsix", "") |> ignore
     zip.Save(@"Bin\Cone-" + version + ".zip")
     true
 
 clean ["Build";"Bin"]
-&& build ""
+&& build "Source\Cone\Cone.csproj" "/p:SolutionDir=..\..\;TargetFramework=net45"
+&& build "Source\Cone\Cone.csproj" "/p:SolutionDir=..\..\;TargetFramework=net452"
+&& build "Cone.sln" ""
 && package()

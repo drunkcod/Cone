@@ -20,6 +20,6 @@ Say no to FluentCobol, say hello to Check.That(() => actual == expected);
     <tags></tags>
   </metadata>
   <files>
-    <file src="Build\Cone\*.dll" target="lib\net45" />
+    <file src="Bin\Cone\**" target="lib\" />
   </files>
 </package>
