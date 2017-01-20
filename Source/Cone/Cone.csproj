@@ -13,11 +13,9 @@
     <FileAlignment>512</FileAlignment>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <TargetFrameworkProfile />
+    <OutputPath>$(SolutionDir)Bin\$(MSBuildProjectName)\$(TargetFramework)</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
-      <BuildPath>$(SolutionDir)</BuildPath>
-      <OutputPath>$(BuildPath)Bin\$(MSBuildProjectName)\$(TargetFramework)</OutputPath>
-      <IntermediateOutputPath>$(BuildPath)Build\$(Configuration)\$(TargetFramework)</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG</DefineConstants>

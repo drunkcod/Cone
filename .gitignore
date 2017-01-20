@@ -1,6 +1,6 @@
 $RECYCLE.BIN/
-_ReSharper.Cone/
 packages/
+.vs/
 Bin
 Build
 *.suo

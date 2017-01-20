@@ -4,5 +4,9 @@
         <TargetFramework Condition="'$(TargetFramework)' == ''">net45</TargetFramework>
         <TargetFrameworkVersion Condition="'$(TargetFramework)' == 'net45'">v4.5</TargetFrameworkVersion>
         <TargetFrameworkVersion Condition="'$(TargetFramework)' == 'net452'">v4.5.2</TargetFrameworkVersion>
+        <!-- Better Build Paths-->
+        <BuildPath>$(SolutionDir)Build\</BuildPath>
+        <OutputPath>$(BuildPath)$(MSBuildProjectName)\$(TargetFramework)</OutputPath>
+        <IntermediateOutputPath>$(BuildPath)obj\$(Configuration)\$(TargetFramework)</IntermediateOutputPath>
     </PropertyGroup>
 </Project>

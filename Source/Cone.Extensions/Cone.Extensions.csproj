@@ -12,9 +12,6 @@
     <AssemblyName>Cone.Extensions</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-    <BuildPath>$(SolutionDir)</BuildPath>
-    <OutputPath>$(BuildPath)Build\$(MSBuildProjectName)\$(TargetFramework)</OutputPath>
-    <IntermediateOutputPath>$(BuildPath)Build\$(Configuration)\$(TargetFramework)</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
