@@ -152,7 +152,7 @@ namespace Cone.Runners
 			}
 		}
 
-		public NUnitSuiteBuilder(IConeTestNamer testNamer, FixtureProvider objectProvider) : base(testNamer, objectProvider) { }
+		public NUnitSuiteBuilder(ITestNamer testNamer, FixtureProvider objectProvider) : base(testNamer, objectProvider) { }
 
 		public override bool SupportedType(Type type)
 		{

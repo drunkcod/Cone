@@ -39,8 +39,7 @@ namespace Cone.Core
 			Check.That(() => TestNamer.NameFor(thisMethod) == "override heading");       
 		}
 
-		void MyMethod(int arg){}
-		void MyMethod(object obj){}
+		void MyMethod<T>(T arg){}
 
 		[Row("0x{0:x4}", 10)
 		,Row("{0,3}", 10)
@@ -50,6 +49,27 @@ namespace Cone.Core
 			var myMethod = ((MethodCallExpression)(e.Body)).Method;
 
 			Check.That(() => TestNamer.NameFor(myMethod, new object[]{ value }, new FormatString(format)) == string.Format(format, value));
+		}
+
+		public void formats_array_arguments() {
+			Expression<Action<string[]>> e = x => MyMethod(x);
+			var myMethod = ((MethodCallExpression)(e.Body)).Method;
+
+			Check.That(() => TestNamer.NameFor(myMethod, new []{ new string[] {"A", "1" } }, new FormatString("{arg}")) == "new [] { \"A\", \"1\" }");
+		}
+
+		public void doesnt_mangle_unknown_parameter_names() {
+			Expression<Action<int>> e = x => MyMethod(x);
+			var myMethod = ((MethodCallExpression)(e.Body)).Method;
+
+			Check.That(() => TestNamer.NameFor(myMethod, new object[] { 42 }, new FormatString("{theAnswer}")) == "{theAnswer}");
+		}
+
+		public void ignores_escaped_format() {
+			Expression<Action<int>> e = x => MyMethod(x);
+			var myMethod = ((MethodCallExpression)(e.Body)).Method;
+
+			Check.That(() => TestNamer.NameFor(myMethod, new object[] { 42 }, new FormatString("{{arg}} {{0}}")) == "{{arg}} {{0}}");
 		}
 
 		[Row("{0:D}", MyEnum.Value, "0")
@@ -75,6 +95,5 @@ namespace Cone.Core
 				() => TestNamer.NameFor(target , new object[]{ true }, format) == "Valid",
 				() => TestNamer.NameFor(target , new object[]{ false }, format) == "Invalid");
 		}
-
 	}
 }

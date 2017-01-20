@@ -54,12 +54,12 @@ namespace Cone
 		}
 
 		public static void RunTests() {
-			Check.GetPluginAssemblies = () => new[]{ typeof(Check).Assembly };
+			Check.GetPluginAssemblies = () => new []{ typeof(Check).Assembly };
 			RunTests(Assembly.GetCallingAssembly().GetTypes());
 		}
 
 		public static void RunTests(IEnumerable<Assembly> assemblies) {
-			Check.GetPluginAssemblies = () => assemblies.Concat(new[]{ typeof(Check).Assembly });
+			Check.GetPluginAssemblies = () => assemblies.Concat(new []{ typeof(Check).Assembly });
 			RunTests(assemblies.SelectMany(x => x.GetTypes()));
 		}
 

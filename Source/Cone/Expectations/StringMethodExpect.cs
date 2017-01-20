@@ -15,7 +15,7 @@ namespace Cone.Expectations
 
         public StringMethodsProvider() {
             var s = typeof(string);
-            var t = new[]{ s };
+            var t = new []{ s };
             methodDisplay = new Dictionary<MethodInfo, MethodDisplay> {
                 { s.GetMethod("Contains"), _ => "a string containing {0}" },
                 { s.GetMethod("EndsWith", t), _ => "a string ending with {0}" },

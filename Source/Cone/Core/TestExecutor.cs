@@ -21,7 +21,7 @@ namespace Cone.Core
 			this.fixture = fixture;
 			var interceptorContext = TestExecutionContext.For(fixture);
 			if(!interceptorContext.IsEmpty)
-				fixtureContext = new[]{ interceptorContext };
+				fixtureContext = new []{ interceptorContext };
 		}
 
 		class FixtureContext : IFixtureContext

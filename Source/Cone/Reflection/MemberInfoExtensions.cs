@@ -68,7 +68,7 @@ namespace Cone.Reflection
         }
 
 		static Getter NewGetter(string name, Action<ILGenerator> buildIl) {
-            var getter = new DynamicMethod(name, typeof(object), new[]{ typeof(object) }, true);
+            var getter = new DynamicMethod(name, typeof(object), new []{ typeof(object) }, true);
 			buildIl(getter.GetILGenerator());
             return (Getter)getter.CreateDelegate(typeof(Getter));
 		}

@@ -106,9 +106,9 @@ namespace Cone.Core
 			if(conversion.Type == typeof(object))
 				return Format(conversion.Operand);
 			var operandMethod = conversion.Operand as MethodCallExpression;
-			if(operandMethod != null && operandMethod.Method == typeof(Delegate).GetMethod("CreateDelegate", new[]{ typeof(Type), typeof(object), typeof(MethodInfo) }))
+			if(operandMethod != null && operandMethod.Method == typeof(Delegate).GetMethod("CreateDelegate", new []{ typeof(Type), typeof(object), typeof(MethodInfo) }))
 				return ((operandMethod.Arguments[2] as ConstantExpression).Value as MethodInfo).Name;
-			if(operandMethod != null && operandMethod.Method == typeof(MethodInfo).GetMethod("CreateDelegate", new[]{ typeof(Type), typeof(object) }))
+			if(operandMethod != null && operandMethod.Method == typeof(MethodInfo).GetMethod("CreateDelegate", new []{ typeof(Type), typeof(object) }))
 				return ((operandMethod.Object as ConstantExpression).Value as MethodInfo).Name;
 			return string.Format("({0}){1}", FormatType(conversion.Type), Format(conversion.Operand));
 		}

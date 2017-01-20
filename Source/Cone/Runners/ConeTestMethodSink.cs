@@ -7,11 +7,11 @@ namespace Cone.Runners
 {
 	public abstract class ConeTestMethodSink : IConeTestMethodSink
 	{
-		readonly IConeTestNamer names;
+		readonly ITestNamer names;
 		readonly RowSuiteLookup<IRowSuite> rowSuites;
 
 
-		public ConeTestMethodSink(IConeTestNamer names) {
+		public ConeTestMethodSink(ITestNamer names) {
 			this.names = names;
 			this.rowSuites = new RowSuiteLookup<IRowSuite>(CreateRowSuite);
 		}

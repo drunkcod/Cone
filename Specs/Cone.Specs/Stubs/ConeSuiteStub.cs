@@ -35,7 +35,7 @@ namespace Cone.Stubs
 			throw new NotImplementedException();
 		}
 
-		void IConeSuite.DiscoverTests(IConeTestNamer names)
+		void IConeSuite.DiscoverTests(ITestNamer names)
 		{
 			throw new NotImplementedException();
 		}

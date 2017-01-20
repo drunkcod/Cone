@@ -17,7 +17,7 @@ namespace Cone.Expectations
 
         protected override bool CheckCore() {
             if(method != null && method.IsStatic)
-                return (bool)method.Invoke(null, new[]{ ActualValue, ExpectedValue });
+                return (bool)method.Invoke(null, new []{ ActualValue, ExpectedValue });
 
             return Expression.Lambda<Func<bool>>(Expression.MakeBinary(body.NodeType, 
                 Expression.Constant(ActualValue), 

@@ -92,7 +92,7 @@ namespace Cone.Core
 		EvaluationResult Binary(BinaryExpression binary, object left, object right) {
 			var op = binary.Method;
 			if(op != null)
-				return Success(op.ReturnType, op.Invoke(null, new[]{ left, right }));
+				return Success(op.ReturnType, op.Invoke(null, new []{ left, right }));
 			switch(binary.NodeType) {
 				case ExpressionType.Equal: return Success(typeof(bool), Object.Equals(left, right));
 				case ExpressionType.NotEqual: return Success(typeof(bool), !Object.Equals(left, right));
@@ -133,7 +133,7 @@ namespace Cone.Core
 			return Evaluate(expression.Operand).Then<object>(value => {
 				var convertMethod = expression.Method;
 				if(convertMethod != null && convertMethod.IsStatic) {
-					return GuardedInvocation(expression, () => Success(convertMethod.ReturnType, convertMethod.Invoke(null, new[] { value })));
+					return GuardedInvocation(expression, () => Success(convertMethod.ReturnType, convertMethod.Invoke(null, new [] { value })));
 				}
 				return Success(expression.Type, ChangeType(value, expression.Type));
 			});

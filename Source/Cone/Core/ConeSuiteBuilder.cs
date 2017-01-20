@@ -15,7 +15,7 @@ namespace Cone.Core
 	{
 		static readonly Type[] FixtureAttributes = { typeof(DescribeAttribute), typeof(FeatureAttribute) };
 
-		readonly IConeTestNamer testNamer; 
+		readonly ITestNamer testNamer; 
 
 		class ContextDescription : IFixtureDescription
 		{
@@ -44,7 +44,7 @@ namespace Cone.Core
 			}
 		}
 
-		public ConeSuiteBuilder(IConeTestNamer testNamer) { 
+		public ConeSuiteBuilder(ITestNamer testNamer) { 
 			this.testNamer = testNamer;	
 		}
 

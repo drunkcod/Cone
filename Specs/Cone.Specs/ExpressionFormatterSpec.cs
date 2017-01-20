@@ -96,7 +96,7 @@ namespace Cone.Core
 
 		public void array_with_property_access() {
 			var date = DateTime.Now;
-			VerifyFormat(() => new[] { date.Year }, "new[] { date.Year }");
+			VerifyFormat(() => new [] { date.Year }, "new [] { date.Year }");
 		}
 
 		public void type_test()
@@ -155,7 +155,7 @@ namespace Cone.Core
 		public void cast_any() { VerifyFormat(() => (Expression)Obj, "(Expression)Obj"); }
 
 		public void array_index() {
-			var rows = new[]{ 42 }; 
+			var rows = new []{ 42 }; 
 			VerifyFormat(() => rows[0], "rows[0]");
 		}
 
@@ -225,7 +225,7 @@ namespace Cone.Core
 		}
 
 		public void as_expression() {
-			var items = new List<object[]>{ new[] { "Hello" } };
+			var items = new List<object[]>{ new [] { "Hello" } };
 			VerifyFormat(() => (items[0][0] as string), "(items[0][0] as string)");
 		}
 
@@ -251,7 +251,7 @@ namespace Cone.Core
 			var expr = Expression.Convert(
 				Expression.Call(
 					Expression.Constant(Check.That(() => GetType().GetMethod("MyPredicate", BindingFlags.NonPublic | BindingFlags.Static) != null), typeof(MethodInfo)), 
-					typeof(MethodInfo).GetMethod("CreateDelegate", new[]{ typeof(Type), typeof(object) }), 
+					typeof(MethodInfo).GetMethod("CreateDelegate", new []{ typeof(Type), typeof(object) }), 
 					Expression.Constant(typeof(Func<int, bool>)), Expression.Constant(this)),
 				typeof(Func<int, bool>));
 			VerifyFormat(Expression.Lambda<Func<Func<int,bool>>>(expr), "MyPredicate");
@@ -314,6 +314,5 @@ namespace Cone.Core
 				VerifyFormat(() => false == (a == b), "false == (a == b)");
 			}
 		}
-
 	}
 }

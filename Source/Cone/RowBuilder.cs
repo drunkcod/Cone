@@ -42,11 +42,11 @@ namespace Cone
 	
 	public class RowBuilder<T> : IEnumerable<IRowTestData>
 	{
-		readonly IConeTestNamer testNamer;
+		readonly ITestNamer testNamer;
 		readonly List<IRowTestData> rows = new List<IRowTestData>();
 		readonly ExpressionEvaluator evaluator = new ExpressionEvaluator();
 
-		public RowBuilder(IConeTestNamer testNamer) {
+		public RowBuilder(ITestNamer testNamer) {
 			this.testNamer = testNamer;	
 		}
 

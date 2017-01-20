@@ -16,8 +16,8 @@ namespace Cone.Core
 
 		public void Join_string() {
 			Check.That(
-				() => new[]{ "Hello" }.Join(",") == "Hello",
-				() => new[]{ "Hello", "World" }.Join(" ") == "Hello World");
+				() => new []{ "Hello" }.Join(",") == "Hello",
+				() => new []{ "Hello", "World" }.Join(" ") == "Hello World");
 		}
 	}
 }

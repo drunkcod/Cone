@@ -5,25 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace Cone.Core
 {
-	public interface IConeTestNamer 
-	{
-		string NameFor(MethodBase method);
-		ITestName TestNameFor(string context, MethodInfo method, object[] parameters);
-		string NameFor(MethodInfo method, object[] parameters);
-	}
-
-	public class BasicTestNamer : IConeTestNamer
-	{
-		public string NameFor(MethodBase method) => $"{method.DeclaringType.FullName}.{method.Name}";
-
-		public string NameFor(MethodInfo method, object[] parameters) =>
-			NameFor(method) + "(" + string.Join(", ", Array.ConvertAll(parameters, x => x?.ToString())) + ")";
-
-		public ITestName TestNameFor(string context, MethodInfo method, object[] parameters) =>
-			new ConeTestName(method.DeclaringType.FullName, method.Name);
-	}
-
-	public class ConeTestNamer : IConeTestNamer
+	public class ConeTestNamer : ITestNamer
 	{
 		static readonly Regex NormalizeNamePattern = new Regex(@"_|\+", RegexOptions.Compiled);
 
@@ -48,9 +30,10 @@ namespace Cone.Core
 		public string NameFor(MethodInfo method, object[] parameters, FormatString formatString) {
 			if (parameters == null)
 				return formatString.ToString();
-			var displayParameters = DisplayParameters(method.GetParameters(), parameters);
+			var methodParameters = method.GetParameters();
+			var displayParameters = DisplayParameters(methodParameters, parameters);
 			if(formatString.HasItemFormat)
-				return formatString.Format(displayParameters);
+				return formatString.Format(methodParameters, displayParameters, formatter.Format);
 			return string.Format("{0}({1})", formatString, FormatParameters(displayParameters));
 		}
 

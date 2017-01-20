@@ -21,10 +21,10 @@ namespace Cone.Runners
 
 		readonly IConeSuiteBuilder<ConePadSuite>[] suiteBuilders;
 
-		public SimpleConeRunner(IConeTestNamer testNamer): this(testNamer, new DefaultFixtureProvider())
+		public SimpleConeRunner(ITestNamer testNamer): this(testNamer, new DefaultFixtureProvider())
 		{ }
 
-		public SimpleConeRunner(IConeTestNamer testNamer, FixtureProvider objectProvider) : this(
+		public SimpleConeRunner(ITestNamer testNamer, FixtureProvider objectProvider) : this(
 				new ConePadSuiteBuilder(testNamer, objectProvider),
 				new NUnitSuiteBuilder(testNamer, objectProvider),
 				new MSTestSuiteBuilder(testNamer, objectProvider)
@@ -34,7 +34,7 @@ namespace Cone.Runners
 			this.suiteBuilders = suiteBuilders;
 		}
 
-		public static SimpleConeRunner ConeOnlyRunner(IConeTestNamer testNamer) {
+		public static SimpleConeRunner ConeOnlyRunner(ITestNamer testNamer) {
 			return new SimpleConeRunner(new ConePadSuiteBuilder(testNamer, new DefaultFixtureProvider()));
 		}
 

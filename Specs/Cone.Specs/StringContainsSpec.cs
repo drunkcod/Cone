@@ -30,7 +30,7 @@ namespace Cone
         }
 
         StringMethodExpect ContainsExpect(Expression body, string actual, string value) {
-            return new StringMethodExpect(_ => "string containing", body, typeof(string).GetMethod("Contains"), actual, new[]{ value });
+            return new StringMethodExpect(_ => "string containing", body, typeof(string).GetMethod("Contains"), actual, new []{ value });
         }
 
         string HelloWorld { get { return "Hello World"; } }

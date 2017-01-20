@@ -24,7 +24,7 @@ namespace Cone.Core
 		string IFormatter<IEnumerable>.Format(IEnumerable collection) => FormatCore(collection, new ToStringFormatter<T>());
 		
 		string FormatCore(IEnumerable collection, IFormatter<T> itemFormatter) {
-			var result = new StringBuilder("new[] { ");
+			var result = new StringBuilder("new [] { ");
 			var sep = string.Empty;
 			foreach (T item in collection) {
 				result.Append(sep);

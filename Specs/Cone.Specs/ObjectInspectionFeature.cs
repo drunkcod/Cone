@@ -18,7 +18,7 @@ namespace Cone
         }
 
         public void sequence_formatting() {
-            Check.That(() => new[]{1, 2, 3}.Inspect() == "new[] { 1, 2, 3 }");
+            Check.That(() => new []{1, 2, 3}.Inspect() == "new [] { 1, 2, 3 }");
         }
     }
 }

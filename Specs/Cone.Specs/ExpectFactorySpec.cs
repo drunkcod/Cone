@@ -10,7 +10,7 @@ namespace Cone
 	[Describe(typeof(ExpectFactory))]
 	public class ExpectFactorySpec
 	{
-		ExpectFactory Expectory = new ExpectFactory(new ExpressionEvaluator(), new[]{ typeof(CustomMethodExpectProviders).Assembly, typeof(Check).Assembly });
+		ExpectFactory Expectory = new ExpectFactory(new ExpressionEvaluator(), new []{ typeof(CustomMethodExpectProviders).Assembly, typeof(Check).Assembly });
 		int A = 1, B = 2;
 
 		public void string_equality() {

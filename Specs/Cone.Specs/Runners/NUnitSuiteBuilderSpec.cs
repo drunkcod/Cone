@@ -99,7 +99,7 @@ namespace Cone.Runners
 			return a + b;
 		}
 
-		[TestCase(new[]{ 1, 2, 3 }, Result = 6)]
+		[TestCase(new []{ 1, 2, 3 }, Result = 6)]
 		public int sum(int[] xs) {
 			return xs.Sum();
 		}

@@ -14,7 +14,7 @@ namespace Cone.Runners
 
 			readonly ConePadSuite suite;
 
-			public ConePadTestMethodSink(IConeTestNamer names, ConePadSuite suite) : base(names) {
+			public ConePadTestMethodSink(ITestNamer names, ConePadSuite suite) : base(names) {
 				this.suite = suite;
 			}
 
@@ -107,7 +107,7 @@ namespace Cone.Runners
 			}
 		}
 
-		public void DiscoverTests(IConeTestNamer names) {
+		public void DiscoverTests(ITestNamer names) {
 			var testSink = new ConePadTestMethodSink(names, this);
 			testSink.TestFound += (thunk, args, result) => AddTest(thunk.TestNameFor(Name, args), thunk, args, result);
 			var setup = new ConeFixtureSetup(GetMethodClassifier(fixture.FixtureMethods, testSink));

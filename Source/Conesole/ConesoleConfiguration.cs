@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Cone.Core;
 using Cone.Runners;
-using System.Diagnostics;
 
 namespace Conesole
 {

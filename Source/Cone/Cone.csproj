@@ -40,6 +40,7 @@
     </Compile>
     <Compile Include="Assume.cs" />
     <Compile Include="ConePad.cs" />
+    <Compile Include="Core\BasicTestNamer.cs" />
     <Compile Include="Core\CircularQueue.cs" />
     <Compile Include="Core\ConeFixtureMethodCollection.cs" />
     <Compile Include="Core\ConeStackFrame.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="Core\IFixtureContext.cs" />
     <Compile Include="Core\ITestExecutionContext.cs" />
     <Compile Include="Core\ITestExecutor.cs" />
+    <Compile Include="Core\ITestNamer.cs" />
     <Compile Include="Core\LambdaObjectProvider.cs" />
     <Compile Include="Core\MissingLinq.cs" />
     <Compile Include="Core\ConeAttributeProvider.cs" />

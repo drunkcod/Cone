@@ -79,7 +79,7 @@ namespace Cone.Expectations
 
         protected override bool CheckCore() {
             if(ActualValue != null)
-                return conversion.Invoke(null, new[]{ ActualValue }).Equals(ExpectedValue);
+                return conversion.Invoke(null, new []{ ActualValue }).Equals(ExpectedValue);
             return ExpectedValue.Equals(ActualValue);
         }
     }

@@ -7,14 +7,14 @@ namespace Cone.Core
 {
 	public class ConeMethodThunk : ICallable, IConeAttributeProvider
 	{
-		readonly IConeTestNamer namer;
+		readonly ITestNamer namer;
 		readonly IEnumerable<object> attributes; 
 
 		public readonly MethodInfo Method;
 
 		public string Name => Method.Name;
 
-		public ConeMethodThunk(MethodInfo method, IEnumerable<object> attributes, IConeTestNamer namer) {
+		public ConeMethodThunk(MethodInfo method, IEnumerable<object> attributes, ITestNamer namer) {
 			this.namer = namer;
 			this.attributes = attributes;
 			this.Method = method;

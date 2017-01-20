@@ -39,7 +39,7 @@ namespace Cone
 		}
 		
 		internal static Exception MakeFail(FailedExpectation fail, Exception innerException) => 
-			DoMakeFail(string.Empty, new[] { fail }, innerException);
+			DoMakeFail(string.Empty, new [] { fail }, innerException);
 
 		internal delegate Exception NewFailedExpectationException(string context, FailedExpectation[] fails, Exception inner); 
 
@@ -55,7 +55,7 @@ namespace Cone
 			var innerException = Expression.Parameter(typeof (Exception), "innerException");
 			
 			return Expression.Lambda<NewFailedExpectationException>(
-				Expression.New(nunit.GetConstructor(new[] {typeof (string), typeof (Exception)}),
+				Expression.New(nunit.GetConstructor(new [] {typeof (string), typeof (Exception)}),
 					Expression.Call(typeof (Check).GetMethod("FormatFailMessage", BindingFlags.Static | BindingFlags.NonPublic), fails),
 					innerException),
 				fails, innerException).Compile();
@@ -68,11 +68,11 @@ namespace Cone
 			var result = CheckExpect(expr.Body, ExpressionEvaluatorParameters.Empty);
 			if (result.IsSuccess)
 				return result.Value;
-			throw DoMakeFail(string.Empty, new[] { result.Error }, null);
+			throw DoMakeFail(string.Empty, new [] { result.Error }, null);
 		}
 
 		public static void That(Expression<Func<bool>> expr, params Expression<Func<bool>>[] extras) {
-			var failed = Eval(new[]{ expr }.Concat(extras));
+			var failed = Eval(new []{ expr }.Concat(extras));
 			if(failed != null)
 				throw failed;
 		}
@@ -180,7 +180,7 @@ namespace Cone
 				var result = boundEval(expr);
 				if (result.IsSuccess)
 					return result.Value;
-				throw MakeFail(new[] { result.Error });
+				throw MakeFail(new [] { result.Error });
 			}
 
 			public void That(Expression<Func<T,bool>> expr, params Expression<Func<T,bool>>[] extras) {

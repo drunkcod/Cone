@@ -27,7 +27,7 @@ namespace Cone
 			get {
 				if(string.IsNullOrEmpty(Category))
 					return new string[0];
-				return Category.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+				return Category.Split(new [] { ',' }, StringSplitOptions.RemoveEmptyEntries)
 					.Select(x => x.Trim());
 			}
 		}

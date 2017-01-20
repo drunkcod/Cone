@@ -1,4 +1,4 @@
-namespace Cone
+﻿namespace Cone
 {
 	[Describe(typeof(Check), "With")]
 	public class CheckWithSpec
