@@ -1,4 +1,6 @@
-﻿namespace Cone
+﻿using Cone.Core;
+
+namespace Cone
 {
 	public interface ITestContext
 	{

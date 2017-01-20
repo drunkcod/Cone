@@ -115,7 +115,7 @@
     <Compile Include="Runners\TestSessionReport.cs" />
     <Compile Include="Runners\ValueResultTestMethod.cs" />
     <Compile Include="Runners\XmlLogger.cs" />
-    <Compile Include="TestStatus.cs" />
+    <Compile Include="Core\TestStatus.cs" />
     <Compile Include="DescribeAttribute.cs" />
     <Compile Include="DisplayClassAttribute.cs" />
     <Compile Include="Core\EvaluationResult.cs" />
@@ -145,7 +145,7 @@
     <Compile Include="Core\IConeTest.cs" />
     <Compile Include="ITestDescription.cs" />
     <Compile Include="ITestContext.cs" />
-    <Compile Include="ITestResult.cs" />
+    <Compile Include="Core\ITestResult.cs" />
     <Compile Include="Reflection\MemberInfoExtensions.cs" />
     <Compile Include="NullSubexpressionException.cs" />
     <Compile Include="Core\ObjectConverter.cs" />
