@@ -1,12 +1,13 @@
-﻿using System.Reflection;
+﻿using System;
 using System.Text.RegularExpressions;
-using System;
 
 namespace Cone.Core
 {
-    public struct FormatString
+	public delegate bool TryGetFormatted(string name, out string result);
+
+	public struct FormatString
     {
-        static readonly Regex FormatStringPattern = new Regex(@"\{\d(?:,.+?)?(?::.+?)?\}|\{(?<named>.+?)\}", RegexOptions.Compiled);
+        static readonly Regex FormatStringPattern = new Regex(@"\{\d(?:,.+?)?(?::.+?)?\}|(\{{1,2})(?<named>.+?)\}", RegexOptions.Compiled);
 		static readonly int NamedGroupIndex = FormatStringPattern.GroupNumberFromName("named");
 
         readonly string format;
@@ -17,14 +18,14 @@ namespace Cone.Core
 
         public bool HasItemFormat => FormatStringPattern.Match(format).Success;
 
-        public string Format(ParameterInfo[] parameters, object[] values, Func<object, string> formatNamed) =>
+        public string Format(object[] values, TryGetFormatted formatNamed) =>
 			FormatStringPattern.Replace(format, m => { 
 				var named = m.Groups[NamedGroupIndex];
 				if(named.Success) {
-					var n = Array.FindIndex(parameters, x => x.Name == named.Value);
-					return n >= 0
-					? formatNamed(values[n])
-					: m.Value;
+					string result;
+					if(m.Groups[NamedGroupIndex - 1].Length == 1 && formatNamed(named.Value, out result))
+						return result;
+					else return m.Value;
 				}
 				return string.Format(m.Value, values);
 			});

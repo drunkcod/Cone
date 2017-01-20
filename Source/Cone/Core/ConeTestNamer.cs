@@ -33,7 +33,15 @@ namespace Cone.Core
 			var methodParameters = method.GetParameters();
 			var displayParameters = DisplayParameters(methodParameters, parameters);
 			if(formatString.HasItemFormat)
-				return formatString.Format(methodParameters, displayParameters, formatter.Format);
+				return formatString.Format(displayParameters, (string x, out string r) => {
+					var n = Array.FindIndex(methodParameters, p => p.Name == x);
+					if(n < 0) {
+						r = null;
+						return false;
+					}
+					r = formatter.Format(parameters[n]);
+					return true;
+				});
 			return string.Format("{0}({1})", formatString, FormatParameters(displayParameters));
 		}
 
