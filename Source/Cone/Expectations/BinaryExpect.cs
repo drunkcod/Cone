@@ -27,7 +27,8 @@ namespace Cone.Expectations
 
     public class EqualExpect : Expect
     {
-        public EqualExpect(BinaryExpression body, IExpectValue actual, IExpectValue expected): base(body, actual, expected) { }
+        public EqualExpect(BinaryExpression body, IExpectValue actual, IExpectValue expected): base(body, actual, expected) 
+		{ }
 
         public override string MessageFormat { get { return ExpectMessages.EqualFormat; } }
     }

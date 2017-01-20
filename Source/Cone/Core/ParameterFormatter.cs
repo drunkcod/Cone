@@ -32,6 +32,8 @@ namespace Cone.Core
 				return WritableEnum(obj, typeOfObj);
 			if(typeOfObj == typeof(bool))
 				return (bool)obj ? "true": "false";
+			if(typeOfObj == typeof(char))
+				return $"'{obj}'";
 			return obj; 
 		}
 

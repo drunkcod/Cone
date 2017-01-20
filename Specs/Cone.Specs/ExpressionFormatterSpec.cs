@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Linq;
-using System.Diagnostics;
 using System.Reflection;
 
 namespace Cone.Core
@@ -205,6 +204,15 @@ namespace Cone.Core
 		public void enum_return() {
 			var bar = false;
 			VerifyFormat(() => GetEnum() == (bar ? MyEnum.Value : MyEnum.Value), "GetEnum() == (bar ? MyEnum.Value : MyEnum.Value)");
+		}
+
+		public void @char() {
+			var a = 'a';
+			VerifyFormat(() => a == 'a', "a == 'a'");
+		}
+
+		public void string_indexer() {
+			VerifyFormat(() => "a"[0] == 'a', "\"a\"[0] == 'a'");
 		}
 
 		MyEnum GetEnum(){ return MyEnum.Value; }

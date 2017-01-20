@@ -15,6 +15,9 @@ namespace Cone.Expectations
     {
         readonly object value;
 
+		public static readonly ExpectValue Null = new ExpectValue(ExpectedNull.IsNull);
+		public static readonly ExpectValue True = new ExpectValue(true);
+
         public ExpectValue(object value) { this.value = value; }
 
         public object Value { get { return value; } }
@@ -34,33 +37,28 @@ namespace Cone.Expectations
             this.actual = actual;
         }
 
-        public virtual string FormatExpression(IFormatter<Expression> formatter) { 
-			return formatter.Format(body); 
-		}
+        public virtual string FormatExpression(IFormatter<Expression> formatter) =>
+			formatter.Format(body); 
+
+        public virtual string FormatMessage(IFormatter<object> formatter) => 
+			string.Format(MessageFormat, FormatActual(formatter), FormatExpected(formatter));
+
+		public string FormatActual(IFormatter<object> formatter) =>
+			Actual.ToString(formatter);
+
+        public string FormatExpected(IFormatter<object> formatter) =>
+			Expected.ToString(formatter);
+
+        public CheckResult Check() => 
+			new CheckResult(CheckCore(), Maybe.Some(ActualValue), Maybe.Some(ExpectedValue));
+
+        public virtual object ActualValue => actual.Value;
+        public object ExpectedValue => Expected.Value; 
+
+        public virtual string MessageFormat => ExpectMessages.EqualFormat;
         
-        public virtual string FormatMessage(IFormatter<object> formatter) { 
-            return string.Format(MessageFormat, FormatActual(formatter), FormatExpected(formatter));
-        }
-
-        public string FormatActual(IFormatter<object> formatter) {
-            return Actual.ToString(formatter);
-        }
-
-        public string FormatExpected(IFormatter<object> formatter) {
-            return Expected.ToString(formatter);
-        }
-
-        public CheckResult Check() {
-            return new CheckResult(CheckCore(), Maybe.Some(ActualValue), Maybe.Some(ExpectedValue));
-        }
-
-        public virtual object ActualValue { get { return actual.Value; } }
-        public object ExpectedValue { get { return Expected.Value; } }
-
-        public virtual string MessageFormat { get { return ExpectMessages.EqualFormat; } }
-        
-        IExpectValue Actual { get { return actual; } }
-        protected virtual IExpectValue Expected { get { return new ExpectValue(true); } }
+        IExpectValue Actual => actual;
+        protected virtual IExpectValue Expected => ExpectValue.True;
 
         protected virtual bool CheckCore() {
             if(ActualValue != null)
@@ -89,9 +87,9 @@ namespace Cone.Expectations
         readonly IExpectValue expected;
 
         public Expect(Expression body, IExpectValue actual, IExpectValue expected) : base(body, actual) {            
-            this.expected = expected.Value != null ? expected : new ExpectValue(ExpectedNull.IsNull);
+            this.expected = expected.Value != null ? expected : ExpectValue.Null;
         }
 
-        protected override IExpectValue Expected { get { return expected; } }
+        protected override IExpectValue Expected => expected;
     }
 }

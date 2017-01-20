@@ -10,6 +10,7 @@ namespace Cone.Core
 	public class ExpressionFormatter : IFormatter<Expression>
 	{
 		const string IndexerGet = "get_Item";
+		const string CharsGet = "get_Chars";
 		const string MethodArgumentsFormat = "({0})";
 
 		readonly Type context;
@@ -83,7 +84,7 @@ namespace Cone.Core
 			var method = call.Method;
 			var invocation = string.Empty;
 			var parameterFormat = MethodArgumentsFormat;
-			if (method.IsSpecialName && IndexerGet == method.Name)
+			if (method.IsSpecialName && (IndexerGet == method.Name || CharsGet == method.Name))
 				parameterFormat = "[{0}]";
 			else if (IsAnonymousOrContextMember(call.Object)) {
 				target = string.Empty;
@@ -169,6 +170,8 @@ namespace Cone.Core
 				return FormatBinary(Expression.MakeBinary(binary.NodeType, 
 					left, UnpackEnum(left.Type, right)));
 			}
+			if(left.Type == typeof(char) && right.NodeType == ExpressionType.Constant)
+				right = Expression.Constant(Convert.ToChar((right as ConstantExpression).Value), typeof(char));
 			var format = string.Format(GetBinaryOp(binary.NodeType), BinaryFormat(left, 0), BinaryFormat(right, 1));
 			return string.Format(format, Format(left), Format(right));
 		}

@@ -42,7 +42,7 @@ namespace Cone.Core
 					r = formatter.Format(parameters[n]);
 					return true;
 				});
-			return string.Format("{0}({1})", formatString, FormatParameters(displayParameters));
+			return formatString.ToString() + '(' + FormatParameters(displayParameters) + ')';
 		}
 
 		object[] DisplayParameters(ParameterInfo[] info, object[] parameters) {
@@ -60,14 +60,15 @@ namespace Cone.Core
 		string[] DisplayParameters(ParameterInfo[] parameters) =>
 			Array.ConvertAll(parameters, x => x.Name);
 
-		object Format(object obj) => formatter.AsWritable(obj);
+		string Format(object obj) => formatter.AsWritable(obj).ToString();
 
-		object FormatParameters(object[] arguments) {
-			var result = new StringBuilder();
-			var sep = "";
-			for(var i = 0; i != arguments.Length; ++i, sep = ", ")
-				result.Append(sep).Append(Format(arguments[i]));
-			return result;
+		string FormatParameters(object[] arguments) {
+			if(arguments.Length == 0)
+				return string.Empty;
+			var result = new StringBuilder(Format(arguments[0]));
+			for(var i = 1; i != arguments.Length; ++i)
+				result.Append(", ").Append(Format(arguments[i]));
+			return result.ToString();
 		}
 	}
 }

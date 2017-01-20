@@ -119,6 +119,10 @@ namespace Cone.Expectations
 
 			if(IsStringEquals(body))
 				return new StringEqualExpect(body, (string)left.Value, (string)right.Value);
+			if(body.Left.NodeType == ExpressionType.Convert && body.Left.Type == typeof(int)
+				&& (body.Left as UnaryExpression).Operand.Type == typeof(char)
+			)
+				right = new WrappedExpectValue(right.Value, Convert.ToChar(right.Value));
 
 			return MakeExpect(body, left, right);
 		}
