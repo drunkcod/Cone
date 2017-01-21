@@ -105,6 +105,7 @@
     <Compile Include="Runners\ConeTestMethodSink.cs" />
     <Compile Include="Runners\ExpectedExceptionTestMethod.cs" />
     <Compile Include="Runners\ExpectedTestResult.cs" />
+    <Compile Include="Runners\ISessionWriter.cs" />
     <Compile Include="Runners\MSTestSuiteBuilder.cs" />
     <Compile Include="Runners\MulticastSessionLogger.cs" />
     <Compile Include="Runners\NullSessionLogger.cs" />

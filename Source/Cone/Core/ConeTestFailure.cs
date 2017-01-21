@@ -77,11 +77,8 @@ namespace Cone.Core
 			if(!string.IsNullOrEmpty(ErrorsContext)) {
 				writer.Info("given {0} →\n", ErrorsContext);
 			}
-			foreach(var item in Errors) {
-				writer.Info("→ ");
-				writer.Important(item.Message);
-				writer.Important("\n");
-			}
+			foreach(var item in Errors) 
+				writer.Error(item.Message);
 			StackFrames.ForEach(frame => writer.Write("  at {0}\n", frame));
 		}
 

@@ -83,6 +83,7 @@
     <Compile Include="ObjectInspectionFeature.cs" />
     <Compile Include="ParameterFormatterSpec.cs" />
     <Compile Include="RowBuilderSpec.cs" />
+    <Compile Include="Runners\SessionWriterSpec.cs" />
     <Compile Include="Runners\TeamCityLoggerSpec.cs" />
     <Compile Include="SampleFixture.cs" />
     <Compile Include="StringContainsSpec.cs" />

@@ -4,13 +4,6 @@ using System.IO;
 
 namespace Cone.Runners
 {
-	public interface ISessionWriter
-	{
-		void Write(string format, params object[] args);
-		void Important(string format, params object[] args);
-		void Info(string format, params object[] args);
-	}
-
 	public class TextSessionWriter : ISessionWriter
 	{
 		readonly TextWriter writer;
