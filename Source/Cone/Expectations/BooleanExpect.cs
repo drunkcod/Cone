@@ -5,27 +5,6 @@ using Cone.Core;
 
 namespace Cone.Expectations
 {
-    public interface IExpectValue
-    {
-        object Value { get; }
-        string ToString(IFormatter<object> formatter);
-    }
-
-    public class ExpectValue : IExpectValue
-    {
-        readonly object value;
-
-		public static readonly ExpectValue Null = new ExpectValue(ExpectedNull.IsNull);
-		public static readonly ExpectValue True = new ExpectValue(true);
-
-        public ExpectValue(object value) { this.value = value; }
-
-        public object Value { get { return value; } }
-
-        public string ToString(IFormatter<object> formatter) { return formatter.Format(Value); }
-        public override string ToString() { return Value.ToString(); }
-    }
-
     public class BooleanExpect : IExpect
     {
         protected readonly Expression body;

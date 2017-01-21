@@ -14,6 +14,6 @@ namespace Cone.Core
 			NameFor(method) + "(" + string.Join(", ", Array.ConvertAll(parameters, formatter.Format)) + ")";
 
 		public ITestName TestNameFor(string context, MethodInfo method, object[] parameters) =>
-			new ConeTestName(method.DeclaringType.FullName, method.Name);
+			new ConeTestName(method.DeclaringType.FullName, method.Name.Replace('_', ' '));
 	}
 }

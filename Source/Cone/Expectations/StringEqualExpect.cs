@@ -7,6 +7,7 @@ namespace Cone.Expectations
 	public class StringEqualExpect : EqualExpect
 	{
 		const int DisplayWidth = 62;
+		static readonly int Guideoffset = ExpectMessages.EqualFormat.IndexOf('{');
 		
 		public StringEqualExpect(BinaryExpression body, string actual, string expected) : base(body, new ExpectValue(actual), new ExpectValue(expected)) { }
 
@@ -51,7 +52,7 @@ namespace Cone.Expectations
 			var displayExpected = formatter.Format(Center(ExpectedString, n, DisplayWidth));
 
 			var guide = IncludeGuide 
-				? '\n' + new string(' ', displayActual.IndexOfDifference(displayExpected) + ExpectMessages.EqualFormat.IndexOf('{')) + '↑'
+				? '\n' + new string(' ', displayActual.IndexOfDifference(displayExpected) + Guideoffset) + '↑'
 				: string.Empty;
 
 			return Preamble 

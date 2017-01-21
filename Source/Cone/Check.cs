@@ -1,5 +1,4 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
@@ -26,6 +25,12 @@ namespace Cone
 		static readonly ExpressionFormatter ExpressionFormatter = new ExpressionFormatter(typeof(Check), ParameterFormatter);
 
 		public static Func<IEnumerable<Assembly>> GetPluginAssemblies = GetDefaultPluginAssemblies;
+
+		public static bool IncludeGuide 
+		{
+			get { return Expect.IncludeGuide; } 
+			set { Expect.IncludeGuide = value; }
+		}
 
 		static IEnumerable<Assembly> GetDefaultPluginAssemblies() =>
             AppDomain.CurrentDomain.GetAssemblies().Where(ReferencesExtensionPoints);

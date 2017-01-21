@@ -14,21 +14,19 @@ namespace Cone.TestAdapter
 		public static readonly Uri ExecutorUri = new Uri(ExecutorUriString);
 
 		public void RunTests(IEnumerable<TestCase> tests, IRunContext runContext, IFrameworkHandle frameworkHandle) {
-			foreach(var source in tests.GroupBy(x => x.Source, x => x.FullyQualifiedName)) {
-				var xDomainSink = CreateLogger(frameworkHandle, source.Key);
-				CrossDomainConeRunner.WithProxyInDomain<ConeTestAdapterProxy, int>(string.Empty,  new [] { source.Key, },
-					proxy => proxy.RunTests(source.Key, xDomainSink, source.ToArray())
-				);
-			}
+			foreach(var source in tests.GroupBy(x => x.Source, x => x.FullyQualifiedName)) 
+				RunSourceInDomain(source.Key, runContext, frameworkHandle);
 		}
 
 		public void RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle) {
-			foreach(var source in sources) {
-				var xDomainSink = CreateLogger(frameworkHandle, source);
-				CrossDomainConeRunner.WithProxyInDomain<ConeTestAdapterProxy, int>(string.Empty,  new [] { source },
-					proxy => proxy.RunTests(source, xDomainSink)
-				);
-			}
+			foreach(var source in sources) 
+				RunSourceInDomain(source, runContext, frameworkHandle);
+		}
+
+		void RunSourceInDomain(string source, IRunContext runContext, IFrameworkHandle frameworkHandle) { 
+			var xDomainSink = CreateLogger(frameworkHandle, source);
+			CrossDomainConeRunner.WithProxyInDomain<ConeTestAdapterProxy, int>(string.Empty,  new [] { source },
+				proxy => proxy.RunTests(source, xDomainSink));
 		}
 
         TestAdapterLogger CreateLogger(IFrameworkHandle frameworkHandle, string source) {

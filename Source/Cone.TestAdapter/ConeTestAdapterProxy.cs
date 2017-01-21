@@ -30,8 +30,10 @@ namespace Cone.TestAdapter
 			return RunSession(source, sink, session);
 		}
 
-		private int RunSession(string source, ICrossDomainLogger sink, TestSession session) {
-			runner.RunTests(session, CrossDomainConeRunner.LoadTestAssemblies(new [] {source}, sink.Error));
+		private int RunSession(string source, ICrossDomainLogger sink, TestSession session) {			
+			var loaded = CrossDomainConeRunner.LoadTestAssemblies(new [] {source}, sink.Error);
+			Check.IncludeGuide = false;
+			runner.RunTests(session, loaded);
 			return 0;
 		}
 	}

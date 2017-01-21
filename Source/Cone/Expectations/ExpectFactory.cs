@@ -12,6 +12,8 @@ namespace Cone.Expectations
 		readonly ExpressionEvaluator evaluator;
 		readonly MethodExpectProviderLookup methodExpects = new MethodExpectProviderLookup();
 
+		public bool IncludeGuide = true;
+
 		public ExpectFactory(ExpressionEvaluator evaluator, IEnumerable<Assembly> assembliesToScan) {
 			this.evaluator = evaluator;
 			var providers = assembliesToScan
@@ -118,7 +120,7 @@ namespace Cone.Expectations
 			var right = Evaluate(body.Right, body, parameters);
 
 			if(IsStringEquals(body))
-				return new StringEqualExpect(body, (string)left.Value, (string)right.Value);
+				return new StringEqualExpect(body, (string)left.Value, (string)right.Value) { IncludeGuide = IncludeGuide };
 			if(body.Left.NodeType == ExpressionType.Convert && body.Left.Type == typeof(int)
 				&& (body.Left as UnaryExpression).Operand.Type == typeof(char)
 			)

@@ -82,6 +82,7 @@
     <Compile Include="Core\IConeTestMethodSink.cs" />
     <Compile Include="Core\TypeFormatter.cs" />
     <Compile Include="Core\VersionUpdater.cs" />
+    <Compile Include="Expectations\ExpectValue.cs" />
     <Compile Include="Reflection\ILGeneratorExtensions.cs" />
     <Compile Include="Core\IRowData.cs" />
     <Compile Include="Core\MethodClassifier.cs" />
