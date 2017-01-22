@@ -35,11 +35,11 @@ namespace Cone.Expectations
             return formatter.Format(body);
         }
 
-        public virtual string FormatMessage(IFormatter<object> formatter) {
-            return string.Format(
+        public virtual ConeMessage FormatMessage(IFormatter<object> formatter) {
+            return ConeMessage.Parse(string.Format(
                 ExpectMessages.EqualFormat,
                 FormatActual(formatter),
-                FormatExpected(formatter));
+                FormatExpected(formatter)));
         }
     }
 

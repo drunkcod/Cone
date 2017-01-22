@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Cone.Core;
 
@@ -44,20 +45,21 @@ namespace Cone.Expectations
 			return prefix + value + postfix;      
         }
 
-		public override string FormatMessage(IFormatter<object> formatter) {
+		public override ConeMessage FormatMessage(IFormatter<object> formatter) {
 			if(ActualValue == null)
-				return string.Format(ExpectMessages.EqualFormat, formatter.Format(null), formatter.Format(ExpectedString));
+				return ConeMessage.Parse(string.Format(ExpectMessages.EqualFormat, formatter.Format(null), formatter.Format(ExpectedString)));
 			var n = ActualString.IndexOfDifference(ExpectedString);
 			var displayActual = formatter.Format(Center(ActualString, n, DisplayWidth));
 			var displayExpected = formatter.Format(Center(ExpectedString, n, DisplayWidth));
 
 			var guide = IncludeGuide 
-				? '\n' + new string(' ', displayActual.IndexOfDifference(displayExpected) + Guideoffset) + '↑'
-				: string.Empty;
+				? new[] { new ConeMessageElement(new string(' ', displayActual.IndexOfDifference(displayExpected) + Guideoffset) + '↑', "info") }
+				: new ConeMessageElement[0];
 
-			return Preamble 
-				+ '\n' + string.Format(MessageFormat, displayActual, displayExpected) 
-				+ guide;
+			return ConeMessage.Combine(
+				ConeMessage.Parse(Preamble),
+				ConeMessage.Parse(string.Format(MessageFormat, displayActual, displayExpected)),
+				guide);
 		}
 
 		string ActualString { get { return ActualValue.ToString(); } }

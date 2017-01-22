@@ -26,8 +26,7 @@ namespace Cone.Expectations
             return inner.FormatExpected(formatter);
         }
 
-        public string FormatMessage(IFormatter<object> formatter) {
-            return string.Empty;
-        }
+        public ConeMessage FormatMessage(IFormatter<object> formatter) =>
+			ConeMessage.Empty;
     }
 }

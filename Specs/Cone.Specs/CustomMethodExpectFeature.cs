@@ -53,8 +53,8 @@ namespace Cone
                 return "<expected>";
             }
 
-            public string FormatMessage(IFormatter<object> formatter) {
-                return "<message>";
+            public ConeMessage FormatMessage(IFormatter<object> formatter) {
+                return ConeMessage.Parse("<message>");
             }
         }
 

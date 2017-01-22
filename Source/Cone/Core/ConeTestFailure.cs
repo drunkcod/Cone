@@ -58,7 +58,7 @@ namespace Cone.Core
 			}
 		}
 
-		public string Message => Errors.Select(x => x.Message).Join("\n");
+		public string Message => Errors.Select(x => x.Message.ToString()).Join("\n");
 
 		static bool ShouldIncludeFrame(StackFrame frame) {
 			var m = frame.GetMethod();

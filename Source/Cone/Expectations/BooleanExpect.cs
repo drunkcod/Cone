@@ -19,8 +19,8 @@ namespace Cone.Expectations
         public virtual string FormatExpression(IFormatter<Expression> formatter) =>
 			formatter.Format(body); 
 
-        public virtual string FormatMessage(IFormatter<object> formatter) => 
-			string.Format(MessageFormat, FormatActual(formatter), FormatExpected(formatter));
+        public virtual ConeMessage FormatMessage(IFormatter<object> formatter) => 
+			ConeMessage.Parse(string.Format(MessageFormat, FormatActual(formatter), FormatExpected(formatter)));
 
 		public string FormatActual(IFormatter<object> formatter) =>
 			Actual.ToString(formatter);

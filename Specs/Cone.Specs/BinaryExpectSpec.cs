@@ -42,7 +42,7 @@ namespace Cone
 			var expect = new EqualExpect(Expression.MakeBinary(ExpressionType.Equal, Expression.Constant(actual), Expression.Constant(expected)), new ExpectValue(actual), new ExpectValue(expected));
 
 			var expectedMessage = string.Format(ExpectMessages.EqualFormat, "<actual>", "<expected>");
-			Check.That(() => expect.FormatMessage(formatter.Object) == expectedMessage);
+			Check.That(() => expect.FormatMessage(formatter.Object).ToString() == expectedMessage);
 		}
 
 		public void operator_overloading_supported() {

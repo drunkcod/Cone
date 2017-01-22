@@ -1,4 +1,6 @@
-﻿namespace Cone.Runners
+﻿using Cone.Core;
+
+namespace Cone.Runners
 {
 	public interface ISessionWriter
 	{
@@ -9,13 +11,14 @@
 
 	public static class SessionWriterExtensions
 	{
-		public static void Error(this ISessionWriter writer, string message) {
+		public static void Error(this ISessionWriter writer, ConeMessage message) {
 			writer.Info("→ ");
-			var lines = message.Split('\n');
-			writer.Important(lines[0]);
-			for(var i = 1; i != lines.Length; ++i) {
-				writer.Write("\n  ");
-				writer.Important(lines[i]);
+			foreach(var e in message) {
+				if(e == ConeMessageElement.NewLine)
+					writer.Write("\n  ");
+				else if(e.Style == "info")
+					writer.Info(e.ToString());
+				else writer.Important(e.ToString());
 			}
 			writer.Write("\n");
 		}

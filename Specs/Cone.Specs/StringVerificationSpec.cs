@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Linq.Expressions;
+using Cone.Core;
 using Cone.Expectations;
 
 namespace Cone
@@ -22,7 +23,7 @@ namespace Cone
 		public void guide_aligns_to_difference() {
 			var expect = new StringEqualExpect(IgnoredBody, "a", "b");
 			var message = expect.FormatMessage(new NullFormatter());
-			var lines = message.Split('\n');
+			var lines = message.ToString().Split('\n');
 
 			var lastLine = lines.Length - 1;
 			var n = lines[lastLine].Length - 1;
@@ -34,9 +35,9 @@ namespace Cone
 
 		public void guide_is_last_line() { 
 			var expect = new StringEqualExpect(IgnoredBody, "a", "b");
-			var linesWithGuide = expect.FormatMessage(new NullFormatter()).Split('\n');
+			var linesWithGuide = expect.FormatMessage(new NullFormatter()).ToString().Split('\n');
 			expect.IncludeGuide = false;
-			var linesWithoutGuide = expect.FormatMessage(new NullFormatter()).Split('\n');
+			var linesWithoutGuide = expect.FormatMessage(new NullFormatter()).ToString().Split('\n');
 
 			Check.That(
 				() => linesWithGuide.Length == 1 + linesWithoutGuide.Length,

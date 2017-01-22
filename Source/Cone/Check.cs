@@ -107,11 +107,11 @@ namespace Cone
 				return Expect.FromLambda(body, parameters);
 			} catch(ExceptionExpressionException e) {
 				var formatter = GetExpressionFormatter();
-				var fail = new FailedExpectation(string.Format("{0}\nraised by '{1}' in\n'{2}'",e.InnerException.Message, formatter.Format(e.Expression), formatter.Format(e.Subexpression)), Maybe<object>.None, Maybe<object>.None);
+				var fail = new FailedExpectation(ConeMessage.Parse($"{e.InnerException.Message}\nraised by '{formatter.Format(e.Expression)}' in\n'{formatter.Format(e.Subexpression)}'"), Maybe<object>.None, Maybe<object>.None);
 				throw MakeFail(fail, e);
 			} catch(NullSubexpressionException e) {
 				var formatter = GetExpressionFormatter();
-				var fail = new FailedExpectation(string.Format("Null subexpression '{1}' in\n'{0}'", formatter.Format(e.Expression), formatter.Format(e.Context)), Maybe<object>.None, Maybe<object>.None);
+				var fail = new FailedExpectation(ConeMessage.Parse($"Null subexpression '{formatter.Format(e.Context)}' in\n'{formatter.Format(e.Expression)}'"), Maybe<object>.None, Maybe<object>.None);
 				throw MakeFail(fail, e);
 			}
 		}
@@ -149,7 +149,9 @@ namespace Cone
 				return EvalResult.Success(result.Actual.Value);
 
 			return EvalResult.Failure(new FailedExpectation(
-				expect.FormatExpression(GetExpressionFormatter()) + "\n" + expect.FormatMessage(ParameterFormatter), 
+				ConeMessage.Combine(
+					ConeMessage.Parse(expect.FormatExpression(GetExpressionFormatter())),
+					expect.FormatMessage(ParameterFormatter)), 
 				result.Actual, 
 				result.Expected));
 		}
