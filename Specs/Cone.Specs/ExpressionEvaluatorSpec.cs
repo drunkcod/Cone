@@ -144,6 +144,16 @@ namespace Cone
 			});
 		}
 
+		public void detects_out_of_bounds_access() {
+			var formatter = new ExpressionFormatter(GetType());
+
+			var a = new int[0];
+			EvaluateError(() => a[1], x => {
+				Check.That(() => formatter.Format(x.Expression) == "a[1]");
+				return x;
+			});
+		}
+
 		public void detect_errors_when_computing_arguments() {
 			var formatter = new ExpressionFormatter(GetType());
 			EvaluateError(() => Object.Equals(Throws<string>(), ""), x => {

@@ -75,7 +75,9 @@ namespace Cone.Core
 		EvaluationResult EvaluateArrayIndex1(BinaryExpression rank1) {
 			var array = (Array)Evaluate(rank1.Left).Result;
 			var index = (int)Evaluate(rank1.Right).Result;
-			return Success(rank1.Type, array.GetValue(index));
+			if(index >= 0 && index <= array.Length)
+				return Success(rank1.Type, array.GetValue(index));
+			return Failure(rank1, new IndexOutOfRangeException());
 		}
 
 		EvaluationResult ArrayLength(Expression expression) {
