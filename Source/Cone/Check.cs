@@ -150,7 +150,10 @@ namespace Cone
 
 			return EvalResult.Failure(new FailedExpectation(
 				ConeMessage.Combine(
-					ConeMessage.Parse(expect.FormatExpression(GetExpressionFormatter())),
+					new [] {
+						new ConeMessageElement(expect.FormatExpression(GetExpressionFormatter()), "expression"),
+						ConeMessageElement.NewLine
+					},
 					expect.FormatMessage(ParameterFormatter)), 
 				result.Actual, 
 				result.Expected));

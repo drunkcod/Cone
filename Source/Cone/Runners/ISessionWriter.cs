@@ -16,9 +16,11 @@ namespace Cone.Runners
 			foreach(var e in message) {
 				if(e == ConeMessageElement.NewLine)
 					writer.Write("\n  ");
-				else if(e.Style == "info")
-					writer.Info(e.ToString());
-				else writer.Important(e.ToString());
+				else switch(e.Style) {
+					default: writer.Important(e.ToString()); break;
+					case "info": writer.Info(e.ToString()); break;
+					case "expression": writer.Write(e.ToString()); break;
+				}
 			}
 			writer.Write("\n");
 		}

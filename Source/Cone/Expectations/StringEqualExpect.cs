@@ -53,11 +53,15 @@ namespace Cone.Expectations
 			var displayExpected = formatter.Format(Center(ExpectedString, n, DisplayWidth));
 
 			var guide = IncludeGuide 
-				? new[] { new ConeMessageElement(new string(' ', displayActual.IndexOfDifference(displayExpected) + Guideoffset) + '↑', "info") }
+				? new[] {
+					ConeMessageElement.NewLine,
+					new ConeMessageElement(new string(' ', displayActual.IndexOfDifference(displayExpected) + Guideoffset) + '↑', "info") 
+				}
 				: new ConeMessageElement[0];
 
 			return ConeMessage.Combine(
 				ConeMessage.Parse(Preamble),
+				ConeMessage.NewLine,
 				ConeMessage.Parse(string.Format(MessageFormat, displayActual, displayExpected)),
 				guide);
 		}
