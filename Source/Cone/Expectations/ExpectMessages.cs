@@ -4,7 +4,14 @@ namespace Cone.Expectations
 {
     public static class ExpectMessages
     {        
-        public static ConeMessage EqualFormat(string actual, string expected) => ConeMessage.Format("  Expected: {1}\n  But was:  {0}", actual, expected);
+		public static ConeMessage EqualFormat(string actual, string expected) => EqualFormat(ConeMessage.Parse(actual), ConeMessage.Parse(expected));
+        public static ConeMessage EqualFormat(ConeMessage actual, ConeMessage expected) => ConeMessage.Combine(
+			ConeMessage.Parse("  Expected: "),
+			expected, 
+			ConeMessage.NewLine,
+			ConeMessage.Parse("  But was:  "),
+			actual);
+
         public const string NotEqualFormat = "  Didn't expect both to be {1}";
         public const string LessThanFormat = " Expected: less than {1}\n  But was:  {0}";
         public const string LessThanOrEqualFormat = " Expected: less than or equal to {1}\n  But was:  {0}";

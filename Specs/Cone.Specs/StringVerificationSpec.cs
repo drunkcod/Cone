@@ -50,12 +50,12 @@ namespace Cone
 		,Row("0123", 3, 4, "0123")]
 		public void center_message_on(string input, int position, int width, string output)
 		{
-			Check.That(() => StringEqualExpect.Center(input, position, width) == output);
+			Check.That(() => StringEqualExpect.Center(input, position, width).ToString() == output);
 		}
 
 		public void foo() {
-			var greeting = "Hello World!";
-			Check.That(() => greeting == "Hello.");
+			var greeting = "012345678901234567890123456789 Hello World! 01234567890123456789012345678901234567890123456789";
+			Check.That(() => greeting == "012345678901234567890123456789 Hello. 01234567890123456789012345678901234567890123456789");
 		}
 	}
 }

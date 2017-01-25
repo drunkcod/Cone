@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using Cone.Core;
 
@@ -9,6 +8,7 @@ namespace Cone.Expectations
 	{
 		const int DisplayWidth = 62;
 		static readonly int Guideoffset = ExpectMessages.EqualFormat("{", "{").ToString().IndexOf('{');
+		static readonly ConeMessageElement[] Ellipsis = new [] { new ConeMessageElement("…", "info") };
 		
 		public StringEqualExpect(BinaryExpression body, string actual, string expected) : base(body, new ExpectValue(actual), new ExpectValue(expected)) { }
 
@@ -22,47 +22,47 @@ namespace Cone.Expectations
 			}
 		}
 
-		public static string Center(string input, int position, int width) {
+		public static ConeMessage Center(string input, int position, int width) {
 			if(input.Length <= width)
-				return input;
+				return ConeMessage.Parse(input);
 			
 			var left = width / 2;
-			var prefix = string.Empty;
-			var postfix = string.Empty;
+			var prefix = new ConeMessageElement[0];
+			var postfix = prefix;
 
 			var first = Math.Max(0, position - left);
 			if(first > 0)
-				prefix = "…";
+				prefix = Ellipsis;
 
 			var end = position + 1 + left;
 
 			if(end < input.Length)
-				postfix = "…";
+				postfix = Ellipsis;
 
 			var start = first + prefix.Length;
 			var value = input.Substring(start, Math.Min(width - prefix.Length - postfix.Length, input.Length - start));
 
-			return prefix + value + postfix;
+			return ConeMessage.Combine(prefix, new [] { new ConeMessageElement(value, string.Empty) }, postfix);
         }
 
 		public override ConeMessage FormatMessage(IFormatter<object> formatter) {
 			if(ActualValue == null)
 				return ExpectMessages.EqualFormat(formatter.Format(null), formatter.Format(ExpectedString));
 			var n = ActualString.IndexOfDifference(ExpectedString);
-			var displayActual = formatter.Format(Center(ActualString, n, DisplayWidth));
-			var displayExpected = formatter.Format(Center(ExpectedString, n, DisplayWidth));
+			var displayActual = Center(ActualString, n, DisplayWidth);
+			var displayExpected = Center(ExpectedString, n, DisplayWidth);
 
 			var guide = IncludeGuide 
 				? new[] {
 					ConeMessageElement.NewLine,
-					new ConeMessageElement(new string(' ', displayActual.IndexOfDifference(displayExpected) + Guideoffset) + '↑', "info") 
+					new ConeMessageElement(new string(' ', displayActual.ToString().IndexOfDifference(displayExpected.ToString()) + Guideoffset) + '↑', "info") 
 				}
 				: new ConeMessageElement[0];
 
 			return ConeMessage.Combine(
 				Preamble,
 				ConeMessage.NewLine,
-				MessageFormat(displayActual, displayExpected),
+				ExpectMessages.EqualFormat(displayActual, displayExpected),
 				guide);
 		}
 
