@@ -35,13 +35,9 @@ namespace Cone.Expectations
             return formatter.Format(body);
         }
 
-        public virtual ConeMessage FormatMessage(IFormatter<object> formatter) {
-            return ConeMessage.Parse(string.Format(
-                ExpectMessages.EqualFormat,
-                FormatActual(formatter),
-                FormatExpected(formatter)));
-        }
-    }
+		public virtual ConeMessage FormatMessage(IFormatter<object> formatter) =>
+			ExpectMessages.EqualFormat(FormatActual(formatter), FormatExpected(formatter));
+		}
 
     public class MemberMethodExpect : MethodExpect
     {

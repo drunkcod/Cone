@@ -32,6 +32,8 @@ namespace Cone.Core
 		public static readonly ConeMessage Empty = new ConeMessage(new ConeMessageElement[0]);
 		public static readonly ConeMessage NewLine = new ConeMessage(new [] { ConeMessageElement.NewLine });
 
+		public static ConeMessage Format(string format, params object[] args) => Parse(string.Format(format, args));
+
 		public static ConeMessage Parse(string message) { 
 			var parts = Array.ConvertAll(message.Split('\n'), x => new ConeMessageElement(x, string.Empty));
 			return new ConeMessage(Lines(parts).ToArray());

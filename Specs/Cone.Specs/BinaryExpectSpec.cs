@@ -41,7 +41,7 @@ namespace Cone
 
 			var expect = new EqualExpect(Expression.MakeBinary(ExpressionType.Equal, Expression.Constant(actual), Expression.Constant(expected)), new ExpectValue(actual), new ExpectValue(expected));
 
-			var expectedMessage = string.Format(ExpectMessages.EqualFormat, "<actual>", "<expected>");
+			var expectedMessage = ExpectMessages.EqualFormat("<actual>", "<expected>").ToString();
 			Check.That(() => expect.FormatMessage(formatter.Object).ToString() == expectedMessage);
 		}
 

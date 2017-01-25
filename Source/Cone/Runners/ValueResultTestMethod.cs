@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Reflection;
 using Cone.Core;
 using Cone.Expectations;
@@ -17,7 +17,7 @@ namespace Cone.Runners
 			var x = Invoke(parameters);
 			if(ReturnType == typeof(void) || expectedResult.Matches(x))
 				result.Success();
-			else result.TestFailure(new Exception("\n" + string.Format(ExpectMessages.EqualFormat, x, expectedResult)));
+			else result.TestFailure(new Exception("\n" + ExpectMessages.EqualFormat(x.ToString(), expectedResult.ToString()).ToString()));
 		}
 	}
 }

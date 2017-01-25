@@ -12,12 +12,12 @@ namespace Cone
 
 		public void preamble_when_lengths_differ() {
 			var expect = new StringEqualExpect(IgnoredBody, "Hello World", "Hello world!");
-			Check.That(() => expect.Preamble == "Expected string length 12 but was 11.");
+			Check.That(() => expect.Preamble.ToString() == "Expected string length 12 but was 11.");
 		}
 
 		public void preamble_with_equal_lengths() {
 			var expect = new StringEqualExpect(IgnoredBody, "Hello World", "Hello World");
-			Check.That(() => expect.Preamble == "String lengths are both 11.");
+			Check.That(() => expect.Preamble.ToString() == "String lengths are both 11.");
 		}
 
 		public void guide_aligns_to_difference() {
@@ -51,6 +51,11 @@ namespace Cone
 		public void center_message_on(string input, int position, int width, string output)
 		{
 			Check.That(() => StringEqualExpect.Center(input, position, width) == output);
+		}
+
+		public void foo() {
+			var greeting = "Hello World!";
+			Check.That(() => greeting == "Hello.");
 		}
 	}
 }

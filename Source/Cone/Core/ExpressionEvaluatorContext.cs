@@ -96,8 +96,8 @@ namespace Cone.Core
 			if(op != null)
 				return Success(op.ReturnType, op.Invoke(null, new []{ left, right }));
 			switch(binary.NodeType) {
-				case ExpressionType.Equal: return Success(typeof(bool), Object.Equals(left, right));
-				case ExpressionType.NotEqual: return Success(typeof(bool), !Object.Equals(left, right));
+				case ExpressionType.Equal: return Success(typeof(bool), object.Equals(left, right));
+				case ExpressionType.NotEqual: return Success(typeof(bool), !object.Equals(left, right));
 				default: return Unsupported(binary);
 			}
 		}

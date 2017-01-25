@@ -19,8 +19,7 @@ namespace Cone.Expectations
         public virtual string FormatExpression(IFormatter<Expression> formatter) =>
 			formatter.Format(body); 
 
-        public virtual ConeMessage FormatMessage(IFormatter<object> formatter) => 
-			ConeMessage.Parse(string.Format(MessageFormat, FormatActual(formatter), FormatExpected(formatter)));
+        public virtual ConeMessage FormatMessage(IFormatter<object> formatter) => MessageFormat(FormatActual(formatter), FormatExpected(formatter));
 
 		public string FormatActual(IFormatter<object> formatter) =>
 			Actual.ToString(formatter);
@@ -34,7 +33,7 @@ namespace Cone.Expectations
         public virtual object ActualValue => actual.Value;
         public object ExpectedValue => Expected.Value; 
 
-        public virtual string MessageFormat => ExpectMessages.EqualFormat;
+        public virtual ConeMessage MessageFormat(string actual, string expected) => ExpectMessages.EqualFormat(actual, expected);
         
         IExpectValue Actual => actual;
         protected virtual IExpectValue Expected => ExpectValue.True;

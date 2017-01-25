@@ -1,8 +1,10 @@
-﻿namespace Cone.Expectations
+﻿using Cone.Core;
+
+namespace Cone.Expectations
 {
     public static class ExpectMessages
     {        
-        public const string EqualFormat = "  Expected: {1}\n  But was:  {0}";
+        public static ConeMessage EqualFormat(string actual, string expected) => ConeMessage.Format("  Expected: {1}\n  But was:  {0}", actual, expected);
         public const string NotEqualFormat = "  Didn't expect both to be {1}";
         public const string LessThanFormat = " Expected: less than {1}\n  But was:  {0}";
         public const string LessThanOrEqualFormat = " Expected: less than or equal to {1}\n  But was:  {0}";

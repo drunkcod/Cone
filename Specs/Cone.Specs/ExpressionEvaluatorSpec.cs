@@ -156,7 +156,7 @@ namespace Cone
 
 		public void detect_errors_when_computing_arguments() {
 			var formatter = new ExpressionFormatter(GetType());
-			EvaluateError(() => Object.Equals(Throws<string>(), ""), x => {
+			EvaluateError(() => object.Equals(Throws<string>(), ""), x => {
 				Check.That(() => formatter.Format(x.Expression) == "Throws()");
 				return x;
 			});
