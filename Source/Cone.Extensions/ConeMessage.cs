@@ -11,6 +11,7 @@ namespace Cone.Core
 		readonly string style;
 
 		public static readonly ConeMessageElement NewLine = new ConeMessageElement("\n", string.Empty);
+		public static readonly ConeMessageElement[] NoElements = new ConeMessageElement[0];
 
 		public ConeMessageElement(string value, string style) { 
 			this.value = value;
@@ -29,7 +30,7 @@ namespace Cone.Core
 
 		ConeMessage(ConeMessageElement[] elements) { this.elements = elements; }
 
-		public static readonly ConeMessage Empty = new ConeMessage(new ConeMessageElement[0]);
+		public static readonly ConeMessage Empty = new ConeMessage(ConeMessageElement.NoElements);
 		public static readonly ConeMessage NewLine = new ConeMessage(new [] { ConeMessageElement.NewLine });
 
 		public static ConeMessage Format(string format, params object[] args) => Parse(string.Format(format, args));

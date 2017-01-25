@@ -52,10 +52,5 @@ namespace Cone
 		{
 			Check.That(() => StringEqualExpect.Center(input, position, width).ToString() == output);
 		}
-
-		public void foo() {
-			var greeting = "012345678901234567890123456789 Hello World! 01234567890123456789012345678901234567890123456789";
-			Check.That(() => greeting == "012345678901234567890123456789 Hello. 01234567890123456789012345678901234567890123456789");
-		}
 	}
 }

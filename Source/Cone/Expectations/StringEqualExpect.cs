@@ -27,8 +27,8 @@ namespace Cone.Expectations
 				return ConeMessage.Parse(input);
 			
 			var left = width / 2;
-			var prefix = new ConeMessageElement[0];
-			var postfix = prefix;
+			var prefix = ConeMessageElement.NoElements;
+			var postfix = ConeMessageElement.NoElements;
 
 			var first = Math.Max(0, position - left);
 			if(first > 0)
@@ -57,7 +57,7 @@ namespace Cone.Expectations
 					ConeMessageElement.NewLine,
 					new ConeMessageElement(new string(' ', displayActual.ToString().IndexOfDifference(displayExpected.ToString()) + Guideoffset) + '↑', "info") 
 				}
-				: new ConeMessageElement[0];
+				: ConeMessageElement.NoElements;
 
 			return ConeMessage.Combine(
 				Preamble,
