@@ -36,17 +36,19 @@ namespace Cone.Core
 		public static ConeMessage Format(string format, params object[] args) => Parse(string.Format(format, args));
 
 		public static ConeMessage Parse(string message) { 
-			var parts = Array.ConvertAll(message.Split('\n'), x => new ConeMessageElement(x, string.Empty));
+			var parts = message.Split('\n').Select(x => new ConeMessageElement(x, string.Empty));
 			return new ConeMessage(Lines(parts).ToArray());
 		}
 
-		static IEnumerable<ConeMessageElement> Lines(ConeMessageElement[] parts) {
-			if(parts.Length == 0)
-				yield break;
-			yield return parts[0];
-			for(var i = 1; i != parts.Length; ++i) {
-				yield return ConeMessageElement.NewLine;
-				yield return parts[i];
+		static IEnumerable<ConeMessageElement> Lines(IEnumerable<ConeMessageElement> parts) {
+			using(var item = parts.GetEnumerator()) {
+				if(!item.MoveNext())
+					yield break;
+				yield return item.Current;
+				while(item.MoveNext()) {
+					yield return ConeMessageElement.NewLine;
+					yield return item.Current;
+				}
 			}
 		}
 
