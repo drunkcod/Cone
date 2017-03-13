@@ -102,8 +102,8 @@ namespace Cone.Runners
 				case LoggerVerbosity.Labels: writer = new LabledConsoleLoggerWriter(new LabledConsoleLoggerContext(), settings.ShowTimings); break;
 				case LoggerVerbosity.TestNames: writer = new TestNameConsoleLoggerWriter(); break;
 			}
-			writer.InfoColor = Console.ForegroundColor;
-			writer.SuccessColor = settings.SuccessColor;
+			writer.Configuration.InfoColor = Console.ForegroundColor;
+			writer.Configuration.SuccessColor = settings.SuccessColor;
 			return settings.Multicore ? MultiCoreConsoleResultWriter.For(writer) : writer;
 		}
 
@@ -145,13 +145,26 @@ namespace Cone.Runners
 		void Close();
 	}
 
-	public class ConsoleLoggerWriter : IConsoleResultWriter
+	public class ConsoleWriterConfiguration
 	{
 		public ConsoleColor DebugColor = ConsoleColor.DarkGray;
 		public ConsoleColor InfoColor = ConsoleColor.Gray;
 		public ConsoleColor SuccessColor = ConsoleColor.Green;
 		public ConsoleColor FailureColor = ConsoleColor.Red;
 		public ConsoleColor PendingColor = ConsoleColor.Yellow;
+
+		public char PassMarker = '√';
+		public char PendingMarker = '?';
+		public char FailMarker = '×';
+
+		public static ConsoleWriterConfiguration Create() => Console.IsOutputRedirected
+			? new ConsoleWriterConfiguration { PassMarker = '.', FailMarker = 'F' }
+			: new ConsoleWriterConfiguration();
+	}
+
+	public class ConsoleLoggerWriter : IConsoleResultWriter
+	{
+		public ConsoleWriterConfiguration Configuration = ConsoleWriterConfiguration.Create();
 
 		protected void Write(ConsoleColor color, string format, params object[] args) {
 			var message = string.Format(format, args);
@@ -165,9 +178,9 @@ namespace Cone.Runners
 
 		public virtual void Write(ConsoleResult result) {
 			switch(result.Status) {
-				case TestStatus.Success: Write(SuccessColor, "√"); break;
-				case TestStatus.Pending: Write(PendingColor, "?"); break;
-				case TestStatus.TestFailure: Write(FailureColor, "×"); break;
+				case TestStatus.Success: Write(Configuration.SuccessColor, "{0}", Configuration.PassMarker); break;
+				case TestStatus.Pending: Write(Configuration.PendingColor, "{0}", Configuration.PendingMarker); break;
+				case TestStatus.TestFailure: Write(Configuration.FailureColor, "{0}", Configuration.FailMarker); break;
 			}
 		}
 
@@ -186,16 +199,16 @@ namespace Cone.Runners
 
 		public override void Write(ConsoleResult result) {
 			switch(result.Status) {
-				case TestStatus.TestFailure: WriteTestLabel(FailureColor, result.Context, result.TestName, '×'); break;
+				case TestStatus.TestFailure: WriteTestLabel(Configuration.FailureColor, result.Context, result.TestName, Configuration.FailMarker); break;
 				case TestStatus.Pending: 
-					WriteTestLabel(PendingColor, result.Context, result.TestName, '?'); 
+					WriteTestLabel(Configuration.PendingColor, result.Context, result.TestName, Configuration.PendingMarker); 
 					if(!string.IsNullOrEmpty(result.PendingReason))
-						Write(InfoColor, " \"{0}\"", result.PendingReason);
+						Write(Configuration.InfoColor, " \"{0}\"", result.PendingReason);
 					break;
-				case TestStatus.Success: WriteTestLabel(SuccessColor, result.Context, result.TestName, '√'); break;
+				case TestStatus.Success: WriteTestLabel(Configuration.SuccessColor, result.Context, result.TestName, Configuration.PendingMarker); break;
 			}
 			if(showTimings)
-				Write(DebugColor, " [{0}]", result.Duration);
+				Write(Configuration.DebugColor, " [{0}]", result.Duration);
 			WriteLine();
 		}
 
@@ -206,7 +219,7 @@ namespace Cone.Runners
 				++skip;
 			context.Set(parts);
 			for(; skip != context.Count; ++skip)
-				Write(InfoColor, "{0}{1}\n", new string(' ', skip << 1), context[skip]);
+				Write(Configuration.InfoColor, "{0}{1}\n", new string(' ', skip << 1), context[skip]);
 			Write(color, "{0}{2} {1}", new string(' ', skip << 1), testName, marker);
 		}
 	}
@@ -215,9 +228,9 @@ namespace Cone.Runners
 	{
 		public override void Write(ConsoleResult result) {
 			switch(result.Status) {
-				case TestStatus.TestFailure: WriteTestName(FailureColor, result.Context, result.TestName); break;
-				case TestStatus.Pending: WriteTestName(PendingColor, result.Context, result.TestName); break;
-				case TestStatus.Success: WriteTestName(SuccessColor, result.Context, result.TestName); break;
+				case TestStatus.TestFailure: WriteTestName(Configuration.FailureColor, result.Context, result.TestName); break;
+				case TestStatus.Pending: WriteTestName(Configuration.PendingColor, result.Context, result.TestName); break;
+				case TestStatus.Success: WriteTestName(Configuration.SuccessColor, result.Context, result.TestName); break;
 			}
 		}
 

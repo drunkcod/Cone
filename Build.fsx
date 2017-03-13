@@ -31,7 +31,6 @@ let package() =
 
     zip.AddDirectory("Bin", "Bin") |> ignore
     zip.AddDirectory("Docs", "Docs") |> ignore
-    zip.AddFile("Build\Cone.TestAdapter.Install\Cone.TestAdapter.vsix", "") |> ignore
     zip.Save(@"Bin\Cone-" + version + ".zip")
     true
 
