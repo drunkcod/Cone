@@ -86,7 +86,6 @@ namespace Cone.Runners
 			public ITestLogger BeginTest(IConeTest test) {
 				return new ConsoleLogger(test, writer);
 			}
-
 		}
 
 		public ConsoleSessionLogger(ConsoleLoggerSettings settings) {

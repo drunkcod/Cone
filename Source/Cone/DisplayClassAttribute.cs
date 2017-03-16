@@ -13,7 +13,7 @@ namespace Cone
             this.parameters = parameters;
         }
 
-        public object DisplayFor(object value) {
+        public object DisplayFor(object value, Type valueType) {
             var length = Length(parameters) + 1;
             var ctorParameters = new object[length];
             Array.Copy(parameters, 0, ctorParameters, 1, length - 1);
@@ -22,7 +22,7 @@ namespace Cone
             for(var i = 1; i < length; ++i)
                 types[i] = ctorParameters[i].GetType();
 
-            types[0] = value.GetType();
+            types[0] = valueType;
             ctorParameters[0] = value;
             return displayClass.GetConstructor(types).Invoke(ctorParameters);
         }

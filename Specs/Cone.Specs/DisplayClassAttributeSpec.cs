@@ -11,13 +11,13 @@ namespace Cone
 		public void default_is_value_based_ctor() {
 			var displayClass = new DisplayClassAttribute(typeof(BoolDisplay));
 
-			Check.That(() => displayClass.DisplayFor(true).ToString() == "true");
+			Check.That(() => displayClass.DisplayFor(true, typeof(bool)).ToString() == "true");
 		}
 
 		public void with_additional_parameters() {
 			var displayClass = new DisplayClassAttribute(typeof(BoolDisplay), "T", "F");
 
-			Check.That(() => displayClass.DisplayFor(true).ToString() == "T");
+			Check.That(() => displayClass.DisplayFor(true, typeof(bool)).ToString() == "T");
 		}
 	}
 }

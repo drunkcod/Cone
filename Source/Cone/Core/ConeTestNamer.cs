@@ -49,10 +49,11 @@ namespace Cone.Core
 			var result = new object[parameters.Length];
 			for(var i = 0; i != parameters.Length; ++i) {
 				var displayClassAttribute = info[i].GetCustomAttributes(typeof(DisplayClassAttribute), true);
+				var p = parameters[i];
 				if(displayClassAttribute.Length == 0)
-					result[i] = parameters[i];
+					result[i] = p;
 				else
-					result[i] = (displayClassAttribute[0] as DisplayClassAttribute).DisplayFor(parameters[i]);
+					result[i] = (displayClassAttribute[0] as DisplayClassAttribute).DisplayFor(p, info[i].ParameterType);
 			}
 			return result;
 		}

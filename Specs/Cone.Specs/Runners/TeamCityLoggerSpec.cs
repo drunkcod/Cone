@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -71,7 +70,7 @@ namespace Cone.Runners
 			var test = Test().InContext("Namespace.SuiteName").WithName("MyTest");
 			Logger.BeginSuite(Suite().WithName("Namespace.SuiteName"))
 				.WithTestLog(test, log => log.Failure(new ConeTestFailure(test.TestName, new Exception("Teh Error!"), FailureType.Test)));
-			//Check.That(() => Result.Any(line => line == "##teamcity[testFailed name='MyTest' message='Teh Error!' details='Namespace.SuiteName.MyTest: Teh Error!']"));
+			Check.That(() => Result[Result.Length - 2].StartsWith("##teamcity[testFailed name='MyTest' message='Teh Error!' details='Namespace.SuiteName.MyTest:|n→ Teh Error!|n'"));
 			Check.That(() => Result.Last().StartsWith("##teamcity[testFinished name='MyTest'"));
 		}
 
@@ -79,8 +78,8 @@ namespace Cone.Runners
 		public void comparision_test_failed() {
 			var test = Test().InContext("Namespace.SuiteName").WithName("MyTest");
 			Logger.BeginSuite(Suite().WithName("Namespace.SuiteName"))
-				.WithTestLog(test, log => log.Failure(new ConeTestFailure(test.TestName, new CheckFailed(string.Empty, new []{ new FailedExpectation(ConeMessage.Parse("Teh Error!"), Maybe<object>.Some(1), Maybe<object>.Some(2)) }, null), FailureType.Test)));		
-			//Check.That(() => Result.Any(line => line == "##teamcity[testFailed type='comparisionFailure' name='MyTest' message='Teh Error!' details='Namespace.SuiteName.MyTest: Teh Error!'] actual='1' expected='2'"));
+				.WithTestLog(test, log => log.Failure(new ConeTestFailure(test.TestName, new CheckFailed(string.Empty, new []{ new FailedExpectation(ConeMessage.Parse("Teh Error!"), Maybe<object>.Some(1), Maybe<object>.Some(2)) }, null), FailureType.Test)));
+			Check.That(() => Result[Result.Length - 2].StartsWith("##teamcity[testFailed type='comparisionFailure' name='MyTest' message='Teh Error!' details='Namespace.SuiteName.MyTest:|n→ Teh Error!|n' actual='1' expected='2'"));
 			Check.That(() => Result.Last().StartsWith("##teamcity[testFinished name='MyTest'"));
 		}
 
