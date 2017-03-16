@@ -11,6 +11,7 @@ namespace Cone.Runners
 	[Describe(typeof(TeamCityLogger))]
 	public class TeamCityLoggerSpec
 	{
+		const int FlowId = 1;
 		ISessionLogger Logger;
 		StringBuilder Output;
 		string[] Result { get { return Output.ToString().Split(new []{ Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries); } }
@@ -18,7 +19,7 @@ namespace Cone.Runners
 		[BeforeEach]
 		public void CreateLogger() {
 			Output = new StringBuilder();
-			Logger = new TeamCityLogger(new StringWriter(Output));
+			Logger = new TeamCityLogger(new StringWriter(Output), () => FlowId);
 		}
 
 		[DisplayAs("information message: ##teamcity[message text='<message text>' status='NORMAL']")]
@@ -81,6 +82,19 @@ namespace Cone.Runners
 				.WithTestLog(test, log => log.Failure(new ConeTestFailure(test.TestName, new CheckFailed(string.Empty, new []{ new FailedExpectation(ConeMessage.Parse("Teh Error!"), Maybe<object>.Some(1), Maybe<object>.Some(2)) }, null), FailureType.Test)));
 			Check.That(() => Result[Result.Length - 2].StartsWith("##teamcity[testFailed type='comparisionFailure' name='MyTest' message='Teh Error!' details='Namespace.SuiteName.MyTest:|n→ Teh Error!|n' actual='1' expected='2'"));
 			Check.That(() => Result.Last().StartsWith("##teamcity[testFinished name='MyTest'"));
+		}
+
+		public void prints_only_single_failure_row() {
+			var test = Test().InContext("Namespace.SuiteName").WithName("MyTest");
+			Logger.BeginSuite(Suite().WithName("Namespace.SuiteName"))
+				.WithTestLog(test, log => log.Failure(new ConeTestFailure(test.TestName, new CheckFailed(string.Empty, new[] {
+					new FailedExpectation(ConeMessage.Parse("Error 1"), Maybe<object>.Some(1), Maybe<object>.Some(2)),
+					new FailedExpectation(ConeMessage.Parse("Error 2"), Maybe<object>.Some(1), Maybe<object>.Some(2)),
+				}, null), FailureType.Test)));
+			Check.With(() => Result).That(
+				r => r.Length == 3,
+				r => r.Count(x => x.Contains("testFailed")) == 1,
+				r => r.Reverse().Skip(1).First() == $"##teamcity[testFailed name='MyTest' message='Error 1|nError 2' details='Namespace.SuiteName.MyTest:|n→ Error 1|n→ Error 2|n' flowId='{FlowId}']");
 		}
 
 		public void escapes_values() {

@@ -9,6 +9,7 @@ namespace Cone.Runners
 	public class TeamCityLogger : ISessionLogger
 	{
 		readonly TextWriter output;
+		readonly Func<int> getFlowId;
 
 		class TeamCitySuiteLogger : ISuiteLogger, ITestLogger
 		{ 
@@ -34,11 +35,14 @@ namespace Cone.Runners
 				WriteLine("testSuiteFinished name='{0}'", activeSuite.Name);
 
 			void ITestLogger.Failure(ConeTestFailure testFailure) {
-				foreach(var failure in testFailure.Errors) {
-				Maybe.Map(failure.Actual, failure.Expected, (actual, expected) => new { actual, expected })
-					.Do( x => WriteLine("testFailed type='comparisionFailure' name='{0}' message='{1}' details='{2}' actual='{3}' expected='{4}'", activeTest.TestName.Name, failure.Message, testFailure, x.actual, x.expected),
-						() => WriteLine("testFailed name='{0}' message='{1}' details='{2}'", activeTest.TestName.Name, failure.Message, testFailure));
-				}			
+				if(testFailure.Errors.Length > 1)
+					WriteLine("testFailed name='{0}' message='{1}' details='{2}'", activeTest.TestName.Name, testFailure.Message, testFailure);
+				else
+					foreach(var failure in testFailure.Errors) {
+					Maybe.Map(failure.Actual, failure.Expected, (actual, expected) => new { actual, expected })
+						.Do( x => WriteLine("testFailed type='comparisionFailure' name='{0}' message='{1}' details='{2}' actual='{3}' expected='{4}'", activeTest.TestName.Name, failure.Message, testFailure, x.actual, x.expected),
+							() => WriteLine("testFailed name='{0}' message='{1}' details='{2}'", activeTest.TestName.Name, failure.Message, testFailure));
+					}			
 			}
 
 			void ITestLogger.Success() { }
@@ -62,8 +66,9 @@ namespace Cone.Runners
 				parent.WriteLine($"##teamcity[{format} flowId='{flowId}']", args);
 		}
 
-		public TeamCityLogger(TextWriter output) {
+		public TeamCityLogger(TextWriter output, Func<int> getFlowId) {
 			this.output = output;
+			this.getFlowId = getFlowId;
 		}
 
 		void ISessionLogger.WriteInfo(Action<ISessionWriter> output) {
@@ -75,7 +80,7 @@ namespace Cone.Runners
 		void ISessionLogger.BeginSession() { }
 
 		ISuiteLogger ISessionLogger.BeginSuite(IConeSuite suite) {
-			var logger = new TeamCitySuiteLogger(this, suite, Thread.CurrentThread.ManagedThreadId);
+			var logger = new TeamCitySuiteLogger(this, suite, getFlowId());
 			logger.WriteLine("testSuiteStarted name='{0}'", suite.Name);
 			return logger; 
 		}
