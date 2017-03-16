@@ -146,7 +146,7 @@ namespace Conesole
 				}));
 			} 
 			else if(config.TeamCityOutput)
-				loggers.Add(new TeamCityLogger(Console.Out, () => Thread.CurrentThread.ManagedThreadId));
+				loggers.Add(new TeamCityLogger(Console.Out));
 			else {
 				var settings = new ConsoleLoggerSettings {
 					Verbosity = config.Verbosity,

@@ -66,6 +66,9 @@ namespace Cone.Runners
 				parent.WriteLine($"##teamcity[{format} flowId='{flowId}']", args);
 		}
 
+		public TeamCityLogger(TextWriter output) : this(output, () => Thread.CurrentThread.ManagedThreadId)
+		{ }
+
 		public TeamCityLogger(TextWriter output, Func<int> getFlowId) {
 			this.output = output;
 			this.getFlowId = getFlowId;
