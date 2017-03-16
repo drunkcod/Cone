@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cone.Core;
+using System;
 
 namespace Cone
 {
@@ -24,7 +25,10 @@ namespace Cone
 
             types[0] = valueType;
             ctorParameters[0] = value;
-            return displayClass.GetConstructor(types).Invoke(ctorParameters);
+			var ctor = displayClass.GetConstructor(types);
+			if(ctor == null)
+				throw new InvalidOperationException($"No constructor for {displayClass} found that takes {string.Join(", ", Array.ConvertAll(types, TypeFormatter.Format))}");
+			return ctor.Invoke(ctorParameters);
         }
 
         int Length(object[] array) {
