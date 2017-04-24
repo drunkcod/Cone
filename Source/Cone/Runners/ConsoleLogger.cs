@@ -204,7 +204,7 @@ namespace Cone.Runners
 					if(!string.IsNullOrEmpty(result.PendingReason))
 						Write(Configuration.InfoColor, " \"{0}\"", result.PendingReason);
 					break;
-				case TestStatus.Success: WriteTestLabel(Configuration.SuccessColor, result.Context, result.TestName, Configuration.PendingMarker); break;
+				case TestStatus.Success: WriteTestLabel(Configuration.SuccessColor, result.Context, result.TestName, Configuration.PassMarker); break;
 			}
 			if(showTimings)
 				Write(Configuration.DebugColor, " [{0}]", result.Duration);
