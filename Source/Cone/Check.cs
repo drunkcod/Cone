@@ -100,6 +100,24 @@ namespace Cone
 
 		public static TException Exception<TException>(Expression<Action> expr) where TException : Exception => Check<TException>.When(expr);
 
+		class NotExpectedExpect : IExpect
+		{
+			readonly Expression expression;
+			readonly ConeMessage message;
+
+			public NotExpectedExpect(Expression expression, ConeMessage message) {
+				this.expression = expression;
+				this.message = message;
+			}
+
+			public CheckResult Check() => new CheckResult(false, Maybe<object>.None, Maybe<object>.None);
+
+			public string FormatActual(IFormatter<object> formatter) => string.Empty;
+			public string FormatExpected(IFormatter<object> formatter) => string.Empty;
+			public string FormatExpression(IFormatter<Expression> formatter) => formatter.Format(expression);
+			public ConeMessage FormatMessage(IFormatter<object> formatter) => message;
+		}
+
 		internal static IExpect ToExpect(Expression body, ExpressionEvaluatorParameters parameters) {
 			try {
 				if(parameters.Count == 0)
@@ -107,12 +125,10 @@ namespace Cone
 				return Expect.FromLambda(body, parameters);
 			} catch(ExceptionExpressionException e) {
 				var formatter = GetExpressionFormatter();
-				var fail = new FailedExpectation(ConeMessage.Parse($"{e.InnerException.Message}\nraised by '{formatter.Format(e.Expression)}' in\n'{formatter.Format(e.Subexpression)}'"), Maybe<object>.None, Maybe<object>.None);
-				throw MakeFail(fail, e);
+				return new NotExpectedExpect(e.Context, ConeMessage.Parse($"{e.InnerException.Message}\nraised by '{formatter.Format(e.Expression)}'"));
 			} catch(NullSubexpressionException e) {
 				var formatter = GetExpressionFormatter();
-				var fail = new FailedExpectation(ConeMessage.Parse($"Null subexpression '{formatter.Format(e.Context)}' in\n'{formatter.Format(e.Expression)}'"), Maybe<object>.None, Maybe<object>.None);
-				throw MakeFail(fail, e);
+				return new NotExpectedExpect(e.Context, ConeMessage.Parse($"Null subexpression '{formatter.Format(e.Context)}' in\n'{formatter.Format(e.Expression)}'"));
 			}
 		}
 

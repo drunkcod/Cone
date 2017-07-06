@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Cone
@@ -107,6 +108,15 @@ namespace Cone
 				Check.That(
 					() => 1 == 2,
 					() => 1 == 3));
+			Check.That(() => e.Failures.Length == 2);
+		}
+
+		public void aggregate_collection_check() {
+			var x = new List<int>();
+			var e = Check<CheckFailed>.When(() =>
+				Check.That(
+					() => x.Count == 1,
+					() => x[0] == 1));
 			Check.That(() => e.Failures.Length == 2);
 		}
 

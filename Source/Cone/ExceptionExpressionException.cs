@@ -6,11 +6,11 @@ namespace Cone
     public class ExceptionExpressionException : Exception
     {
         public readonly Expression Expression;
-        public readonly Expression Subexpression;
+        public readonly Expression Context;
 
-        public ExceptionExpressionException(Expression expression, Expression subexpression, Exception innerException) : base("", innerException) {
+        public ExceptionExpressionException(Expression expression, Expression context, Exception innerException) : base("", innerException) {
             this.Expression = expression;
-            this.Subexpression = subexpression;
+            this.Context = context;
         }
     }
 }
