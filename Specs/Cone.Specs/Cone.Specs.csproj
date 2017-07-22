@@ -58,7 +58,7 @@
     <Compile Include="Core\ConeAttributeProviderSpec.cs" />
     <Compile Include="Core\ConeFixtureMethodCollectionSpec.cs" />
     <Compile Include="Core\ConeFixtureSpec.cs" />
-    <Compile Include="Core\ConeMessageSpec.cs" />
+    <Compile Include="Expectations\ConeMessageSpec.cs" />
     <Compile Include="Core\ConeTestFailureSpec.cs" />
     <Compile Include="Core\ConeTestNameSpec.cs" />
     <Compile Include="Core\MaybeSpec.cs" />
@@ -105,9 +105,9 @@
       <Project>{f6104751-d8b9-4def-a7cc-3a5a45ec50b3}</Project>
       <Name>Cone.Build</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\Cone.Extensions\Cone.Extensions.csproj">
+    <ProjectReference Include="..\..\Source\Cone.Expectations\Cone.Expectations.csproj">
       <Project>{76820b3d-8095-4e5f-a14f-26c9f3d8a367}</Project>
-      <Name>Cone.Extensions</Name>
+      <Name>Cone.Expectations</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Conesole\Conesole.csproj">
       <Project>{6096118b-3f90-453f-a5e9-9a9e117891f0}</Project>

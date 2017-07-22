@@ -1,4 +1,4 @@
-﻿using Cone.Core;
+﻿using Cone.Expectations;
 
 namespace Cone.Runners
 {

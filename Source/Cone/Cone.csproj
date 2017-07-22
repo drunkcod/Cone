@@ -167,9 +167,9 @@
     <Compile Include="Check.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Cone.Extensions\Cone.Extensions.csproj">
+    <ProjectReference Include="..\Cone.Expectations\Cone.Expectations.csproj">
       <Project>{76820b3d-8095-4e5f-a14f-26c9f3d8a367}</Project>
-      <Name>Cone.Extensions</Name>
+      <Name>Cone.Expectations</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

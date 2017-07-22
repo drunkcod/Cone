@@ -74,8 +74,8 @@ namespace Cone
 			var actual = new { Value = MyEnum.Value };
 			var eq = (EqualExpect)Check.That(() => ExpectFrom(() => actual.Value == MyEnum.Value) is EqualExpect);
 			Check.That(
-				() => eq.FormatActual(new NullFormatter()) == "Value",
-				() => eq.FormatExpected(new NullFormatter()) == "Value");
+				() => eq.FormatActual(new ToStringFormatter()) == "Value",
+				() => eq.FormatExpected(new ToStringFormatter()) == "Value");
 		}
 
 		IExpect ExpectFrom(Expression<Func<bool>> expression) {

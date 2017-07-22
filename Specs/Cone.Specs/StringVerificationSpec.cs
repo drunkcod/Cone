@@ -21,7 +21,7 @@ namespace Cone
 
 		public void guide_aligns_to_difference() {
 			var expect = new StringEqualExpect(IgnoredBody, "a", "b");
-			var message = expect.FormatMessage(new NullFormatter());
+			var message = expect.FormatMessage(new ToStringFormatter());
 			var lines = message.ToString().Split('\n');
 
 			var lastLine = lines.Length - 1;
@@ -34,9 +34,9 @@ namespace Cone
 
 		public void guide_is_last_line() { 
 			var expect = new StringEqualExpect(IgnoredBody, "a", "b");
-			var linesWithGuide = expect.FormatMessage(new NullFormatter()).ToString().Split('\n');
+			var linesWithGuide = expect.FormatMessage(new ToStringFormatter()).ToString().Split('\n');
 			expect.IncludeGuide = false;
-			var linesWithoutGuide = expect.FormatMessage(new NullFormatter()).ToString().Split('\n');
+			var linesWithoutGuide = expect.FormatMessage(new ToStringFormatter()).ToString().Split('\n');
 
 			Check.That(
 				() => linesWithGuide.Length == 1 + linesWithoutGuide.Length,

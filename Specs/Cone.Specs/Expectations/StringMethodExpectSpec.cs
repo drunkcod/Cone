@@ -5,7 +5,7 @@ using System.Globalization;
 
 namespace Cone.Expectations
 {
-    class NullFormatter : IFormatter<object>
+    class ToStringFormatter : IFormatter<object>
     {
         public string Format(object value) {
             return value.ToString();
@@ -39,10 +39,10 @@ namespace Cone.Expectations
             IMethodExpectProvider provider = new StringMethodsProvider();
             var eval = new ExpressionEvaluator();
             var call = (MethodCallExpression)expression.Body;
-            var expect = provider.GetExpectation(call, call.Method, 
+            var expect = (StringMethodExpect)provider.GetExpectation(call, call.Method, 
                 eval.EvaluateAsTarget(call.Object, call, ExpressionEvaluatorParameters.Empty).Result,
                 (object[])eval.EvaluateAll(call.Arguments, call).Result);
-            return expect.FormatExpected(new NullFormatter());
+            return expect.FormatExpected(new ToStringFormatter());
         }
     }
 }

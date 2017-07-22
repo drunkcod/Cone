@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Cone.Core;
 using Cone.Stubs;
+using Cone.Expectations;
 
 namespace Cone.Runners
 {
