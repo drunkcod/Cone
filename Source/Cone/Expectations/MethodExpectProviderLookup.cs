@@ -7,9 +7,8 @@ namespace Cone.Expectations
 	{
 		readonly Dictionary<MethodInfo, IMethodExpectProvider> lookup = new Dictionary<MethodInfo, IMethodExpectProvider>();
 
-		public void Insert(MethodInfo method, IMethodExpectProvider provider) {
-			lookup[method] = provider;
-		}
+		public void Insert(MethodInfo method, IMethodExpectProvider provider) =>
+			lookup.Add(method, provider);
 
 		public bool TryGetExpectProvider(MethodInfo method, out IMethodExpectProvider provider) {
 			var foundExact = lookup.TryGetValue(method, out provider);

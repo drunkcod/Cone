@@ -66,6 +66,7 @@
     <Compile Include="Core\MissingLinqSpec.cs" />
     <Compile Include="Core\TypeFormatterSpec.cs" />
     <Compile Include="ExecutionEnvironmentSpec.cs" />
+    <Compile Include="Features\AsyncTestsFeature.cs" />
     <Compile Include="Features\CategoryHandlingFeature.cs" />
     <Compile Include="Features\RowTests.cs" />
     <Compile Include="Helpers\EventSpySpec.cs" />

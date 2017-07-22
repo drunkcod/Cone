@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -9,7 +9,7 @@ namespace Cone.Reflection
     {
 		delegate object Getter(object source);
 
-		static readonly Dictionary<MemberInfo, Getter> getterCache = new Dictionary<MemberInfo, Getter>();
+		static readonly ConcurrentDictionary<MemberInfo, Getter> getterCache = new ConcurrentDictionary<MemberInfo, Getter>();
 
 		public static object GetValue(this MemberInfo self, object target) {
             switch(self.MemberType) {
@@ -37,12 +37,7 @@ namespace Cone.Reflection
         }
 
 		static Getter GetGetter(MemberInfo member, Func<string, Getter> createGetter) {
-			Getter getter;
-			if(!getterCache.TryGetValue(member, out getter)) {
-				getter = createGetter(member.DeclaringType.Name + "." + member.Name);
-				getterCache.Add(member, getter);
-			}
-			return getter;
+			return getterCache.GetOrAdd(member, x => createGetter(x.DeclaringType.Name + "." + x.Name));
 		}
 
 		static Getter CreateGetter(this FieldInfo self, string name) {
