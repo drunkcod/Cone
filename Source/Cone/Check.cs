@@ -125,7 +125,12 @@ namespace Cone
 				return Expect.FromLambda(body, parameters);
 			} catch(ExceptionExpressionException e) {
 				var formatter = GetExpressionFormatter();
-				return new NotExpectedExpect(e.Context, ConeMessage.Parse($"{e.InnerException.Message}\nraised by '{formatter.Format(e.Expression)}'"));
+				return new NotExpectedExpect(e.Context, ConeMessage.Combine(
+					ConeMessage.Parse($"{e.InnerException.Message}\nraised by '"),
+					new[] {
+						new ConeMessageElement(formatter.Format(e.Expression), "info"),
+						new ConeMessageElement("'", string.Empty)
+					}));
 			} catch(NullSubexpressionException e) {
 				var formatter = GetExpressionFormatter();
 				return new NotExpectedExpect(e.Context, ConeMessage.Parse($"Null subexpression '{formatter.Format(e.Context)}' in\n'{formatter.Format(e.Expression)}'"));
