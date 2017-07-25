@@ -13,12 +13,10 @@ namespace Cone.Core
 
         readonly Type resultType;
         readonly object value;
-        readonly bool isError;
 
         EvaluationResult(Type resultType, object value, bool isError) {
-            this.resultType = resultType;
+			this.resultType = resultType;
             this.value = value;
-            this.isError = isError;
         }
 
         public static EvaluationResult Failure(Expression expression, Exception e) { 
@@ -26,11 +24,9 @@ namespace Cone.Core
         public static EvaluationResult Success(Type resultType, object result) { 
             return new EvaluationResult(resultType, result, false); }
 
-        public Type ResultType { get { return resultType; } }
-
         public object Result { 
             get {
-                if(isError)
+                if(IsError)
                     throw Exception;
                 return value;
             } 
@@ -39,13 +35,13 @@ namespace Cone.Core
         public Exception Exception { get { return Error.Exception; } }
         public Expression Expression { get { return Error.Expression; } }
 
-        public bool IsError { get { return isError; } }
+        public bool IsError { get { return value is EvaluationError; } }
         public bool IsNull { get { return !resultType.IsValueType && Result == null; } }
 
         EvaluationError Error { get { return (EvaluationError)value; } }
 
         public EvaluationResult Then(Func<EvaluationResult, EvaluationResult> next) {
-            if(isError)
+            if(IsError)
                 return this;
             return next(this);
         }

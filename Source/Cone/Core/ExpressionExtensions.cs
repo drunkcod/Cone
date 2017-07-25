@@ -5,11 +5,9 @@ namespace Cone.Core
 {
     public static class ExpressionExtensions
     {
-        public static T Execute<T>(this Expression<Func<T>> expression) { return expression.Compile()(); }
-
-        public static T Execute<T>(this Expression body) { return Execute<T>(Expression.Lambda<Func<T>>(body)); }
-
-        public static void Execute(this Expression<Action> expression) { expression.Compile()(); }
+        public static T Execute<T>(this Expression<Func<T>> expression) => expression.Compile()();
+        public static T Execute<T>(this Expression body) => Execute(Expression.Lambda<Func<T>>(body));
+        public static void Execute(this Expression<Action> expression) => expression.Compile()();
 
         public static Expression Box(this Expression self) {
             if(self.Type.IsValueType)

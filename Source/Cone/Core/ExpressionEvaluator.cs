@@ -34,10 +34,8 @@ namespace Cone.Core
 		public EvaluationResult EvaluateAsTarget(Expression expression, Expression context, ExpressionEvaluatorParameters contextParameters) =>
 			CreateContext(context, contextParameters).EvaluateAsTarget(expression);
 
-
 		public EvaluationResult EvaluateAll(ICollection<Expression> expressions, Expression context) =>
 			CreateContext(context, ExpressionEvaluatorParameters.Empty).EvaluateAll(expressions);
-
 
 		ExpressionEvaluatorContext CreateContext(Expression context, ExpressionEvaluatorParameters parameters) =>
 			new ExpressionEvaluatorContext(context, parameters) {

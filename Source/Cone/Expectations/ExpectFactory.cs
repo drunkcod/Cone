@@ -25,9 +25,8 @@ namespace Cone.Expectations
 					methodExpects.Insert(method, provider);
 		}
 
-		public static bool IsMethodExpectProvider(Type type) {
-			return type.IsVisible && type.IsClass && type.Implements<IMethodExpectProvider>();
-		}
+		public static bool IsMethodExpectProvider(Type type) =>
+			type.IsVisible && type.IsClass && type.Implements<IMethodExpectProvider>();
 
 		public IExpect From(Expression body) {
 			switch(body.NodeType) {
@@ -157,13 +156,13 @@ namespace Cone.Expectations
 				this.rawValue = rawValue;
 			}
 
-			public object Value { get { return value;} }
+			public object Value => value;
 
-			public string ToString(IFormatter<object> formatter) { return formatter.Format(rawValue); }
-			public override string ToString() { return rawValue.ToString(); }
+			public string ToString(IFormatter<object> formatter) => formatter.Format(rawValue);
+			public override string ToString() => rawValue.ToString();
 		}
 
-		T EvaluateAs<T>(Expression body, ExpressionEvaluatorParameters parameters) { return (T)(Evaluate(body, body, parameters).Value); }
+		T EvaluateAs<T>(Expression body, ExpressionEvaluatorParameters parameters) => (T)(Evaluate(body, body, parameters).Value);
 		
 		IExpectValue Evaluate(Expression body, Expression context, ExpressionEvaluatorParameters parameters) { 
 			Expression unwrapped;
