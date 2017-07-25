@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Cone.Features
@@ -21,14 +19,15 @@ namespace Cone.Features
 				Task.Run(() => { }));
 		}
 
-		public async Task producer_consumer() {
+		[Row(1)]
+		[Row(1000)]
+		public static async Task producer_consumer(int numProducers) {
 			var work = new BlockingCollection<int>();
-
-			var producer = Task.Run(() => {
-				for(var i = 0; i != 100; ++i)
+			var producers = Enumerable.Range(0, numProducers).Select(x => Task.Factory.StartNew(() => {
+				for(var i = 0; i != 100; ++i) { 
 					work.Add(i);
-				work.CompleteAdding();
-			});
+				}
+			}));
 
 			var sum = 0;
 			var consumer = Task.Run(() => {
@@ -36,8 +35,30 @@ namespace Cone.Features
 					sum += item;
 			});
 
-			await Task.WhenAll(producer, consumer);
-			Check.That(() => sum == 4950);
+			await Task.WhenAll(
+				Task.WhenAll(producers).ContinueWith(_ => work.CompleteAdding()), 
+				consumer);
+			Check.That(() => sum == numProducers * 4950);
 		}
-	}
+
+		[Context("parallel async")]
+		public class ParallelAsyncTests
+		{
+			public Task more_prodsumers() => producer_consumer(1000);
+		}
+
+		public void info() {
+			Check.That(() => SynchronizationContext.Current == null);
+		}
+
+		public Task result() {
+			return Task.Run(() => { 
+				var a = GetValue(41).Result;
+				var b = GetValue(1).Result;
+				Check.That(() => a + b == 42);
+			});
+		}
+
+		async Task<int> GetValue(int value) => await Task.Factory.StartNew(() => value);
+ 	}
 }
