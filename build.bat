@@ -1,3 +1,3 @@
 @echo off
 fsi Build.fsx
-Bin\Conesole Build\Cone.Specs.dll
+Build\Conesole Build\Cone.Specs.dll --multicore

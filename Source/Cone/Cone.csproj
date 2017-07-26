@@ -184,7 +184,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Target Name="AfterBuild">
-    <RemoveDir Directories="obj" />
-  </Target>
 </Project>

@@ -7,7 +7,9 @@ open System.Linq
 open Ionic.Zip
 
 let clean what =
-    what |> Seq.map (fun p -> try Directory.Delete(p, true); true with | :? DirectoryNotFoundException -> true | _ -> false) |> Seq.reduce (&&)
+    what 
+    |> Seq.map (fun p -> try Directory.Delete(p, true); true with | :? DirectoryNotFoundException -> true | _ -> false) 
+    |> Seq.reduce (&&)
 
 let msBuild =
   let searchRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "MSBuild")
@@ -37,5 +39,7 @@ let package() =
 clean ["Build";"Bin"]
 && build "Source\Cone\Cone.csproj" "/p:SolutionDir=..\..\;TargetFramework=net45"
 && build "Source\Cone\Cone.csproj" "/p:SolutionDir=..\..\;TargetFramework=net452"
-&& build "Cone.sln" ""
+&& build "Source\Conesole\Conesole.csproj" "/p:SolutionDir=..\..\;TargetFramework=net45"
+&& build "Source\Conesole\Conesole.csproj" "/p:SolutionDir=..\..\;TargetFramework=net452"
+&& build "Cone.sln" "/p:TargetFramework=net45"
 && package()
