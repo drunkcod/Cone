@@ -13,22 +13,35 @@ namespace Cone.Expectations
             this.method = body.Method;
         }
 
-        public override ConeMessage MessageFormat(string actual, string expected) => ConeMessage.Empty;
-
         protected override bool CheckCore() {
-            if(method != null && method.IsStatic)
-                return (bool)method.Invoke(null, new []{ ActualValue, ExpectedValue });
-
-            return Expression.Lambda<Func<bool>>(Expression.MakeBinary(body.NodeType, 
-                Expression.Constant(ActualValue), 
-                Expression.Constant(ExpectedValue))).Execute();
+			var e = Expected == ExpectValue.Null ? null : Expected.Value;
+			if(method != null && method.IsStatic)
+                return (bool)method.Invoke(null, new []{ ActualValue, e});
+            return CheckOp(ActualValue, e);
         }
+
+		protected virtual bool CheckOp(object actual, object expected) =>
+			Expression.Lambda<Func<bool>>(Expression.MakeBinary(body.NodeType, 
+                Expression.Constant(actual), 
+                Expression.Constant(expected))).Execute();
     }
 
-    public class EqualExpect : Expect
+    public class EqualExpect : BinaryExpect
     {
-        public EqualExpect(BinaryExpression body, IExpectValue actual, IExpectValue expected): base(body, actual, expected) 
+        public EqualExpect(BinaryExpression body, IExpectValue actual, IExpectValue expected): 
+			base(body, actual, expected) 
 		{ }
+
+		protected override bool CheckOp(object actual, object expected) => Equals(actual, expected);
+	}
+
+    public class NotEqualExpect : BinaryExpect 
+    {
+        public NotEqualExpect(BinaryExpression body, IExpectValue actual, IExpectValue expected): base(body, actual, expected) { }
+
+        public override ConeMessage MessageFormat(string actual, string expected) => ConeMessage.Format(ExpectMessages.NotEqualFormat, actual, expected);
+
+		protected override bool CheckOp(object actual, object expected) => !Equals(actual, expected);
     }
 
     public class TypeIsExpect : Expect
@@ -39,17 +52,6 @@ namespace Cone.Expectations
 
         protected override bool CheckCore() {
             return ((Type)ExpectedValue).IsAssignableFrom(ActualType);
-        }
-    }
-
-    public class NotEqualExpect : Expect 
-    {
-        public NotEqualExpect(BinaryExpression body, IExpectValue actual, IExpectValue expected): base(body, actual, expected) { }
-
-        public override ConeMessage MessageFormat(string actual, string expected) => ConeMessage.Format(ExpectMessages.NotEqualFormat, actual, expected);
-
-        protected override bool CheckCore() {
-            return !base.CheckCore();
         }
     }
 
