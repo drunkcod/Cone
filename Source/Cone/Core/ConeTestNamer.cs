@@ -11,8 +11,8 @@ namespace Cone.Core
 
 		readonly ParameterFormatter formatter = new ParameterFormatter();
 
-		public string NameFor(MethodBase method) =>
-			string.Format(GetBaseName(method, x => x.Heading), DisplayParameters(method.GetParameters()));
+		public string NameFor(MethodBase method) => new FormatString(GetBaseName(method, x => x.Heading))
+			.Format(DisplayParameters(method.GetParameters()), (string x, out string r) => { r = x; return true; });
 
 		public string GetBaseName(MethodBase method, Func<DisplayAsAttribute, string> selectName) {
 			var nameAttribute = method.GetCustomAttributes(typeof(DisplayAsAttribute), true);
@@ -42,7 +42,9 @@ namespace Cone.Core
 					r = formatter.Format(parameters[n]);
 					return true;
 				});
-			return formatString.ToString() + '(' + FormatParameters(displayParameters) + ')';
+			var result = new StringBuilder(formatString.ToString())
+				.Append('(');
+			return FormatParameters(result, displayParameters).Append(')').ToString();
 		}
 
 		object[] DisplayParameters(ParameterInfo[] info, object[] parameters) {
@@ -63,13 +65,13 @@ namespace Cone.Core
 
 		string Format(object obj) => formatter.AsWritable(obj).ToString();
 
-		string FormatParameters(object[] arguments) {
+		StringBuilder FormatParameters(StringBuilder target, object[] arguments) {
 			if(arguments.Length == 0)
-				return string.Empty;
-			var result = new StringBuilder(Format(arguments[0]));
+				return target;
+			var result = target.Append(Format(arguments[0]));
 			for(var i = 1; i != arguments.Length; ++i)
 				result.Append(", ").Append(Format(arguments[i]));
-			return result.ToString();
+			return result;
 		}
 	}
 }

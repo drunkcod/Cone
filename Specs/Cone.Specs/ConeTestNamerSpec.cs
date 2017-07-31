@@ -95,5 +95,14 @@ namespace Cone.Core
 				() => TestNamer.NameFor(target , new object[]{ true }, format) == "Valid",
 				() => TestNamer.NameFor(target , new object[]{ false }, format) == "Invalid");
 		}
+
+		[DisplayAs("{b} op {a}")]
+		void BinaryOp(int a, int b){ }
+
+		public void display_as_extrapolated_heading() {
+			Expression<Action<int,int>> e = (x, y) => BinaryOp(x, y);
+			var target = ((MethodCallExpression)e.Body).Method;		
+			Check.That(() => TestNamer.NameFor(target) == "b op a");
+		}
 	}
 }
