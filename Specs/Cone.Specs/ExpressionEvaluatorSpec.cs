@@ -9,9 +9,9 @@ namespace Cone
 	[Describe(typeof(ExpressionEvaluator))]
 	public class ExpressionEvaluatorSpec
 	{
-		readonly ExpressionEvaluator Evaluator = new ExpressionEvaluator {
-			Unsupported = (x, p) => { throw new NotSupportedException("Unsupported expression type:" + x.NodeType.ToString()); }
-		};
+		readonly ExpressionEvaluator Evaluator = new ExpressionEvaluator((x, p) => { 
+			throw new NotSupportedException("Unsupported expression type:" + x.NodeType.ToString());
+		});
 
 		T Evaluate<T>(Expression<Func<T>> lambda){ return Evaluate(lambda, x => { throw x.Exception; }); }
 		T Evaluate<T>(Expression<Func<T>> lambda, Func<EvaluationResult, EvaluationResult> onError){ return (T)Evaluator.Evaluate(lambda.Body, lambda, ExpressionEvaluatorParameters.Empty, onError).Result; }

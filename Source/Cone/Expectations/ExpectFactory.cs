@@ -31,8 +31,8 @@ namespace Cone.Expectations
 		public IExpect From(Expression body) {
 			switch(body.NodeType) {
 				case ExpressionType.Not: return new NotExpect(From(((UnaryExpression)body).Operand));
-				case ExpressionType.AndAlso: return Boolean(body, null);
-				case ExpressionType.Invoke: return Boolean(body, null);
+				case ExpressionType.AndAlso: return Boolean(body, ExpressionEvaluatorParameters.Empty);
+				case ExpressionType.Invoke: return Boolean(body, ExpressionEvaluatorParameters.Empty);
 				case ExpressionType.Convert:
 					var conversion = (UnaryExpression)body;
 					if(conversion.Type == typeof(bool))
@@ -41,7 +41,7 @@ namespace Cone.Expectations
 			}
 
 			if (SupportedExpressionType(body.NodeType))
-				return Lambda(body, null);
+				return Lambda(body, ExpressionEvaluatorParameters.Empty);
 			throw new NotSupportedException(string.Format("Can't verify Expression of type {0}", body.NodeType));
 		}
 
@@ -99,7 +99,7 @@ namespace Cone.Expectations
 			var method = body.Method;
 			if(TryGetExpectProvider(method, out provider)) {
 				var target = evaluator.EvaluateAsTarget(body.Object, body, parameters).Result;
-				var args = body.Arguments.ConvertAll(x => EvaluateAs<object>(x, null));
+				var args = body.Arguments.ConvertAll(x => EvaluateAs<object>(x, ExpressionEvaluatorParameters.Empty));
 				return provider.GetExpectation(body, method, target, args);
 			}
 			return Boolean(body, parameters);
@@ -112,7 +112,7 @@ namespace Cone.Expectations
 			new BooleanExpect(body, new ExpectValue(EvaluateAs<bool>(body, parameters)));
 
 		IExpect Conversion(UnaryExpression conversion) =>
-			new ConversionExpect(conversion, EvaluateAs<object>(conversion.Operand, null), conversion.Method);
+			new ConversionExpect(conversion, EvaluateAs<object>(conversion.Operand, ExpressionEvaluatorParameters.Empty), conversion.Method);
 
 		Expect Binary(BinaryExpression body, ExpressionEvaluatorParameters parameters) {
 			var left = Evaluate(body.Left, body, parameters);
@@ -174,7 +174,7 @@ namespace Cone.Expectations
 
 		Expect TypeIs(TypeBinaryExpression body) =>
 			new TypeIsExpect(body,
-				Evaluate(body.Expression, body, null), 
+				Evaluate(body.Expression, body, ExpressionEvaluatorParameters.Empty), 
 				body.TypeOperand);
 	}
 }

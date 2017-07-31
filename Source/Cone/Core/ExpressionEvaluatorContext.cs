@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Cone.Reflection;
+using System.Diagnostics;
 
 namespace Cone.Core
 {
@@ -17,7 +18,7 @@ namespace Cone.Core
 
 		public ExpressionEvaluatorContext(Expression context, ExpressionEvaluatorParameters parameters, Func<Expression, ExpressionEvaluatorParameters, EvaluationResult> onUnsupported) {
 			this.context = context;
-			this.parameters = parameters;
+			this.parameters = parameters ?? throw new ArgumentNullException(nameof(parameters), new StackTrace().ToString());
 			this.Unsupported = onUnsupported;
 		}
 

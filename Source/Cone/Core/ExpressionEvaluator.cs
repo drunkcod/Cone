@@ -7,11 +7,14 @@ namespace Cone.Core
 {
 	public class ExpressionEvaluator
 	{
-		public Func<Expression, ExpressionEvaluatorParameters,EvaluationResult> Unsupported;
+		readonly Func<Expression, ExpressionEvaluatorParameters,EvaluationResult> Unsupported;
+		
 		public Func<Expression, Expression, EvaluationResult> NullSubexpression;
 
-		public ExpressionEvaluator() {
-			Unsupported = EvaluateUnsupported;
+		public ExpressionEvaluator() : this(EvaluateUnsupported) { }
+
+		public ExpressionEvaluator(Func<Expression, ExpressionEvaluatorParameters,EvaluationResult> unsupported) {
+			Unsupported = unsupported;
 			NullSubexpression = EvaluateNullSubexpression;
 		}
 
@@ -43,11 +46,13 @@ namespace Cone.Core
 				NullSubexpression = NullSubexpression
 			};
 
-		EvaluationResult EvaluateUnsupported(Expression expression, ExpressionEvaluatorParameters parameters) {
+		static EvaluationResult EvaluateUnsupported(Expression expression, ExpressionEvaluatorParameters parameters) {
 			try {
 				if(parameters != null) {
 					var e = Expression.Lambda(expression, parameters.GetParameters());
-					return EvaluationResult.Success(expression.Type, Expression.Lambda<Func<object>>(Expression.Invoke(e, parameters.Select(p => Expression.Constant(p.Value))).Box()).Compile()());
+					var p = parameters.Select(x => Expression.Constant(x.Value));
+
+					expression = Expression.Invoke(e, p);
 				}
 				return EvaluationResult.Success(expression.Type, Expression.Lambda<Func<object>>(expression.Box()).Compile()());
 			} catch(Exception e) {
