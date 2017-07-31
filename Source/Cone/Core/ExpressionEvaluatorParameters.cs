@@ -24,6 +24,7 @@ namespace Cone.Core
 		}
 
 		public ParameterExpression[] GetParameters() => Array.ConvertAll(values, x => x.Key);
+		public ConstantExpression[] GetValues() => Array.ConvertAll(values, x => Expression.Constant(x.Value, x.Key.Type));
 
 		IEnumerator<KeyValuePair<ParameterExpression, object>> IEnumerable<KeyValuePair<ParameterExpression, object>>.GetEnumerator() => values.Cast<KeyValuePair<ParameterExpression,object>>().GetEnumerator();
 		IEnumerator IEnumerable.GetEnumerator() => values.GetEnumerator();

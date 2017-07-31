@@ -48,12 +48,11 @@ namespace Cone.Core
 
 		static EvaluationResult EvaluateUnsupported(Expression expression, ExpressionEvaluatorParameters parameters) {
 			try {
-				if(parameters != null) {
-					var e = Expression.Lambda(expression, parameters.GetParameters());
-					var p = parameters.Select(x => Expression.Constant(x.Value));
+				if(parameters.Count > 0)
+					expression = Expression.Invoke(
+						Expression.Lambda(expression, parameters.GetParameters()), 
+						parameters.GetValues());
 
-					expression = Expression.Invoke(e, p);
-				}
 				return EvaluationResult.Success(expression.Type, Expression.Lambda<Func<object>>(expression.Box()).Compile()());
 			} catch(Exception e) {
 				Console.Error.WriteLine(e.Message);
