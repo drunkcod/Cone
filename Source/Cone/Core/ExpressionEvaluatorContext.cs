@@ -12,12 +12,13 @@ namespace Cone.Core
 		readonly Expression context;
 		readonly ExpressionEvaluatorParameters parameters;
 
-		public Func<Expression,EvaluationResult> Unsupported;
+		readonly Func<Expression, ExpressionEvaluatorParameters,EvaluationResult> Unsupported;
 		public Func<Expression, Expression, EvaluationResult> NullSubexpression;
 
-		public ExpressionEvaluatorContext(Expression context, ExpressionEvaluatorParameters parameters) {
+		public ExpressionEvaluatorContext(Expression context, ExpressionEvaluatorParameters parameters, Func<Expression, ExpressionEvaluatorParameters, EvaluationResult> onUnsupported) {
 			this.context = context;
 			this.parameters = parameters;
+			this.Unsupported = onUnsupported;
 		}
 
 		public EvaluationResult Evaluate(Expression body) {
@@ -37,7 +38,7 @@ namespace Cone.Core
 				case ExpressionType.Invoke: return Invoke(body);
 				case ExpressionType.AndAlso: return AndAlso(body);
 				case ExpressionType.Parameter: return Parameter(body);
-				default: return Unsupported(body);
+				default: return Unsupported(body, parameters);
 			}
 		}
 
@@ -69,7 +70,7 @@ namespace Cone.Core
 			var rank1 = expression as BinaryExpression;
 			if(rank1 != null)
 				return EvaluateArrayIndex1(rank1);
-			return Unsupported(expression);
+			return Unsupported(expression, parameters);
 		}
 
 		EvaluationResult EvaluateArrayIndex1(BinaryExpression rank1) {
@@ -98,7 +99,7 @@ namespace Cone.Core
 			switch(binary.NodeType) {
 				case ExpressionType.Equal: return Success(typeof(bool), object.Equals(left, right));
 				case ExpressionType.NotEqual: return Success(typeof(bool), !object.Equals(left, right));
-				default: return Unsupported(binary);
+				default: return Unsupported(binary, parameters);
 			}
 		}
 
@@ -196,8 +197,7 @@ namespace Cone.Core
 		EvaluationResult Parameter(ParameterExpression expression) => Success(expression.Type, parameters[expression]);
 
 		ExpressionEvaluatorContext Rebind(Expression newContext) =>
-			new ExpressionEvaluatorContext(newContext, ExpressionEvaluatorParameters.Empty) {
-				Unsupported = Unsupported,
+			new ExpressionEvaluatorContext(newContext, ExpressionEvaluatorParameters.Empty, Unsupported) {
 				NullSubexpression = NullSubexpression
 			};
 

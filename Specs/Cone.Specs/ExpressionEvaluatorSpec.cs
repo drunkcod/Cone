@@ -10,7 +10,7 @@ namespace Cone
 	public class ExpressionEvaluatorSpec
 	{
 		readonly ExpressionEvaluator Evaluator = new ExpressionEvaluator {
-			Unsupported = x => { throw new NotSupportedException("Unsupported expression type:" + x.NodeType.ToString()); }
+			Unsupported = (x, p) => { throw new NotSupportedException("Unsupported expression type:" + x.NodeType.ToString()); }
 		};
 
 		T Evaluate<T>(Expression<Func<T>> lambda){ return Evaluate(lambda, x => { throw x.Exception; }); }

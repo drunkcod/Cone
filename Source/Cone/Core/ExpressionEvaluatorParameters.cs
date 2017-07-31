@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +22,8 @@ namespace Cone.Core
 			Array.Resize(ref values, n + 1);
 			values[n] = new KeyValuePair<ParameterExpression, object>(parameter, value);
 		}
+
+		public ParameterExpression[] GetParameters() => Array.ConvertAll(values, x => x.Key);
 
 		IEnumerator<KeyValuePair<ParameterExpression, object>> IEnumerable<KeyValuePair<ParameterExpression, object>>.GetEnumerator() => values.Cast<KeyValuePair<ParameterExpression,object>>().GetEnumerator();
 		IEnumerator IEnumerable.GetEnumerator() => values.GetEnumerator();
