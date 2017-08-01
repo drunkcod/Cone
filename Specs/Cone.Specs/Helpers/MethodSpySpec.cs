@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Cone.Helpers
 {
@@ -14,8 +14,7 @@ namespace Cone.Helpers
 		public void doesnt_chain_into_null_target() {
 			Action<int,int> nothing = null;
 			Action<int,int> spy = MethodSpy.On(ref nothing);
-			spy(0, 1);
-		
+			spy(0, 1);		
 		}
 	}
 }

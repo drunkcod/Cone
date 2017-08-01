@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Cone.Helpers
 {
@@ -9,11 +11,8 @@ namespace Cone.Helpers
 		{
 			public event EventHandler<EventArgs> OnFoo;
 
-			public void Foo() {
-				var handler = OnFoo;
-				if(handler != null)
-					handler(this, EventArgs.Empty);
-			}
+			public void Foo() =>
+				OnFoo?.Invoke(this, EventArgs.Empty);
 		}
 
 		public void records_number_of_invocations() {
@@ -23,10 +22,12 @@ namespace Cone.Helpers
 			target.OnFoo += fooSpy;
 			target.Foo();
 			Check.That(() => fooSpy.HasBeenCalled);
-			fooSpy.Then((s, e) =>
-				Check.That(
-					() => Object.ReferenceEquals(s, target),
-					() => e == EventArgs.Empty));
+			var calls = new List<Tuple<object,EventArgs>>();
+			fooSpy.Then((s, e) => calls.Add(Tuple.Create(s, e)));
+			Check.That(
+				() => calls.Count == 1,
+				() => calls[0].Item1 == target,
+				() => calls[0].Item2 == EventArgs.Empty);
 		}
 	}
 }

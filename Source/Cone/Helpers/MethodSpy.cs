@@ -98,7 +98,7 @@ namespace Cone.Helpers
 			if (!HasBeenCalled)
 				throw new InvalidOperationException("Method has not been called.");
 			foreach (var args in invocations)
-				InvokeInner(args);
+				then.DynamicInvoke(args);
 		}
 
 		object InvokeInner(object[] args) {
