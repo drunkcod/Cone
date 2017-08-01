@@ -29,5 +29,15 @@ namespace Cone.Helpers
 				() => calls[0].Item1 == target,
 				() => calls[0].Item2 == EventArgs.Empty);
 		}
+
+		public void check_invocations() {
+			var target = new TestTarget();
+			var fooSpy = new EventSpy<EventArgs>();
+
+			target.OnFoo += fooSpy;
+			target.Foo();
+
+			fooSpy.Check((s, e) => s == target, (s, e) => e == EventArgs.Empty);
+		}
 	}
 }

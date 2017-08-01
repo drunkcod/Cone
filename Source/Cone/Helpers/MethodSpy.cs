@@ -11,8 +11,9 @@ namespace Cone.Helpers
 		static int nextSequenceNumber;
 
 		int sequenceNumber;
-		readonly List<object[]> invocations = new List<object[]>();
 		readonly Delegate inner;
+
+		protected readonly List<object[]> Invocations = new List<object[]>();
 
 		public MethodSpy(Delegate inner) {
 			this.inner = inner;
@@ -90,14 +91,14 @@ namespace Cone.Helpers
 
 		protected object Called(params object[] arguments) {
 			sequenceNumber = Interlocked.Increment(ref nextSequenceNumber);
-			invocations.Add(arguments);
+			Invocations.Add(arguments);
 			return InvokeInner(arguments);
 		}
 
 		protected void Then(Delegate then) {
 			if (!HasBeenCalled)
 				throw new InvalidOperationException("Method has not been called.");
-			foreach (var args in invocations)
+			foreach (var args in Invocations)
 				then.DynamicInvoke(args);
 		}
 
