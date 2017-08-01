@@ -39,5 +39,16 @@ namespace Cone.Helpers
 
 			fooSpy.Check((s, e) => s == target, (s, e) => e == EventArgs.Empty);
 		}
+
+		public void that_check() {
+			var target = new TestTarget();
+			var fooSpy = new EventSpy<EventArgs>();
+
+			target.OnFoo += fooSpy;
+			target.Foo();
+
+			Check.Exception<CheckFailed>(() => fooSpy.Then((s, e) => Check.That(() => s != target)));
+
+		}
 	}
 }

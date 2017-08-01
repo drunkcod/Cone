@@ -92,19 +92,19 @@ namespace Cone.Helpers
 		protected object Called(params object[] arguments) {
 			sequenceNumber = Interlocked.Increment(ref nextSequenceNumber);
 			Invocations.Add(arguments);
-			return InvokeInner(arguments);
+			return InplaceInvoke(inner, arguments);
 		}
 
 		protected void Then(Delegate then) {
 			if (!HasBeenCalled)
 				throw new InvalidOperationException("Method has not been called.");
 			foreach (var args in Invocations)
-				then.DynamicInvoke(args);
+				InplaceInvoke(then, args);
 		}
 
-		object InvokeInner(object[] args) {
+		static object InplaceInvoke(Delegate target, object[] args) {
 			try {
-				return inner?.DynamicInvoke(args);
+				return target?.DynamicInvoke(args);
 			}
 			catch(TargetInvocationException ex) {
 				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
