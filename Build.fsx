@@ -40,8 +40,10 @@ clean ["Build";"Bin"]
 && build "Source\Cone\Cone.csproj" "/p:SolutionDir=..\..\;TargetFramework=net45"
 && build "Source\Cone\Cone.csproj" "/p:SolutionDir=..\..\;TargetFramework=net452"
 && build "Source\Cone\Cone.csproj" "/p:SolutionDir=..\..\;TargetFramework=net462"
+&& build "Source\Cone\Cone.csproj" "/p:SolutionDir=..\..\;TargetFramework=net47"
 && build "Source\Conesole\Conesole.csproj" "/p:SolutionDir=..\..\;TargetFramework=net45"
 && build "Source\Conesole\Conesole.csproj" "/p:SolutionDir=..\..\;TargetFramework=net452"
 && build "Source\Conesole\Conesole.csproj" "/p:SolutionDir=..\..\;TargetFramework=net462"
+&& build "Source\Conesole\Conesole.csproj" "/p:SolutionDir=..\..\;TargetFramework=net47"
 && build "Cone.sln" "/p:TargetFramework=net45"
 && package()
