@@ -19,9 +19,8 @@ namespace Cone.Helpers
 			base.Then(then);
 
 		public void Check(Expression<Func<object, T, bool>> first, params Expression<Func<object, T, bool>>[] rest) {
-			Invocations.ForEach(args => {
+			foreach(var args in Invocations)
 				new CheckWith<object, T>(args[0], (T)args[1]).That(first, rest);	
-			});
 		}
 	}
 }

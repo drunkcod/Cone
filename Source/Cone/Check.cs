@@ -197,54 +197,57 @@ namespace Cone
 			throw MakeFail(result.Error, null);
 		}
 
-		public class CheckWith<T>
+		public class CheckWith
 		{
-			readonly Expression context;
-			readonly Func<LambdaExpression,EvalResult> boundEval; 
+			readonly object[] args;
 
-			public CheckWith(Expression context, T input) {
-				this.context = context;
-				this.boundEval = x => CheckExpect(x.Body, new ExpressionEvaluatorParameters { { x.Parameters[0], input } });
+			protected CheckWith(params object[] args) {
+				this.args = args;
 			}
 
-			public object That(Expression<Func<T,bool>> expr) {
-				var result = boundEval(expr);
+			internal EvalResult BoundEval(LambdaExpression x) =>
+				CheckExpect(x.Body, ExpressionEvaluatorParameters.Create(x.Parameters, args));
+
+			protected virtual string FormatContext() => string.Empty;
+
+			protected Exception MakeFail(FailedExpectation[] failed) => DoMakeFail(FormatContext(), failed, null);
+
+			protected object ThatCore(LambdaExpression expr) {
+				var result = BoundEval(expr);
 				if (result.IsSuccess)
 					return result.Value;
 				throw MakeFail(new [] { result.Error });
 			}
 
-			public void That(Expression<Func<T,bool>> expr, params Expression<Func<T,bool>>[] extras) {
-				var failed = GetFailed(new [] { expr }.Concat(extras), boundEval);
+			protected void ThatCore(IEnumerable<LambdaExpression> exprs) {
+				var failed = GetFailed(exprs, BoundEval);
 				if(failed.Length> 0)
 					throw MakeFail(failed);
 			}
-
-			Exception MakeFail(FailedExpectation[] failed) => DoMakeFail(ExpressionFormatter.Format(context), failed, null);
 		}
 
-		public class CheckWith<T0, T1>
+		public class CheckWith<T> : CheckWith
 		{
-			readonly Func<LambdaExpression,EvalResult> boundEval; 
+			readonly Expression context;
 
-			public CheckWith(T0 arg0, T1 arg1) {
-				this.boundEval = x => CheckExpect(x.Body, new ExpressionEvaluatorParameters { { x.Parameters[0], arg0 }, { x.Parameters[1], arg1 } });
+			public CheckWith(Expression context, T input) : base(input) {
+				this.context = context;
 			}
 
-			public object That(Expression<Func<T0, T1,bool>> expr) {
-				var result = boundEval(expr);
-				if (result.IsSuccess)
-					return result.Value;
-				throw MakeFail(new [] { result.Error });
-			}
+			public object That(Expression<Func<T,bool>> expr) => ThatCore(expr);
 
-			public void That(Expression<Func<T0, T1,bool>> expr, params Expression<Func<T0, T1,bool>>[] extras) {
-				var failed = GetFailed(new [] { expr }.Concat(extras), boundEval);
-				if(failed.Length> 0)
-					throw MakeFail(failed);
-			}
+			public void That(Expression<Func<T,bool>> expr, params Expression<Func<T,bool>>[] extras) =>
+				ThatCore(new [] { expr }.Concat(extras));
 
-			Exception MakeFail(FailedExpectation[] failed) => DoMakeFail(string.Empty, failed, null);
+			protected override string FormatContext() => ExpressionFormatter.Format(context);
+		}
+
+		internal class CheckWith<T0, T1> : CheckWith
+		{
+			public CheckWith(T0 arg0, T1 arg1) : base(arg0, arg1) { }
+
+			public void That(Expression<Func<T0, T1,bool>> expr, params Expression<Func<T0, T1,bool>>[] extras) =>
+				ThatCore(new [] { expr }.Concat(extras));
 		}
 	}
 

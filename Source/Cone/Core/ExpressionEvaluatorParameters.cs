@@ -12,6 +12,14 @@ namespace Cone.Core
 
 		public static readonly ExpressionEvaluatorParameters Empty = new ExpressionEvaluatorParameters();
 
+		public static ExpressionEvaluatorParameters Create(IReadOnlyList<ParameterExpression> parameters, object[] values) {
+			var r = new ExpressionEvaluatorParameters();
+			for(var i = 0; i != parameters.Count; ++i)
+				r.Add(parameters[i], values[i]);
+
+			return r;
+		}
+
 		public int Count => values.Length;
 		public object this[ParameterExpression parameter] => values.First(x => x.Key == parameter).Value;
 
