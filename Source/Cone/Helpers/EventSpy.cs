@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
-using static Cone.Check;
 
 namespace Cone.Helpers
 {
@@ -18,9 +18,7 @@ namespace Cone.Helpers
 		public void Then(EventHandler<T> then) =>
 			base.Then(then);
 
-		public void Check(Expression<Func<object, T, bool>> first, params Expression<Func<object, T, bool>>[] rest) {
-			foreach(var args in Invocations)
-				new CheckWith<object, T>(args[0], (T)args[1]).That(first, rest);	
-		}
+		public void Check(Expression<Func<object, T, bool>> first, params Expression<Func<object, T, bool>>[] rest) =>
+			CheckInvocations(new[]{ first }.Concat(rest));	
 	}
 }

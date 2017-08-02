@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
+using static Cone.Check;
 
 namespace Cone.Helpers
 {
@@ -13,7 +15,7 @@ namespace Cone.Helpers
 		int sequenceNumber;
 		readonly Delegate inner;
 
-		protected readonly List<object[]> Invocations = new List<object[]>();
+		readonly List<object[]> invocations = new List<object[]>();
 
 		public MethodSpy(Delegate inner) {
 			this.inner = inner;
@@ -91,15 +93,20 @@ namespace Cone.Helpers
 
 		protected object Called(params object[] arguments) {
 			sequenceNumber = Interlocked.Increment(ref nextSequenceNumber);
-			Invocations.Add(arguments);
+			invocations.Add(arguments);
 			return InplaceInvoke(inner, arguments);
 		}
 
 		protected void Then(Delegate then) {
 			if (!HasBeenCalled)
 				throw new InvalidOperationException("Method has not been called.");
-			foreach (var args in Invocations)
+			foreach (var args in invocations)
 				InplaceInvoke(then, args);
+		}
+
+		protected void CheckInvocations(IEnumerable<LambdaExpression> checks) {
+			foreach(var args in invocations)
+				new CheckWith(args).That(checks);	
 		}
 
 		static object InplaceInvoke(Delegate target, object[] args) {
