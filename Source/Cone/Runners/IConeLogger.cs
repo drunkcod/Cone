@@ -12,9 +12,13 @@ namespace Cone.Runners
 			this.writer = writer;
 		}
 
-		public void Write(string format, params object[] args) { writer.Write(format, args); }
-		public void Important(string format, params object[] args) { Write(format, args); }
-		public void Info(string format, params object[] args) { Write(format, args); }
+		public void Write(string message) => writer.Write(message);
+		public void Important(string message) => Write(message);
+		public void Info(string message) => Write(message);
+		
+		public void Write(string format, params object[] args) => writer.Write(format, args);
+		public void Important(string format, params object[] args) => Write(format, args);
+		public void Info(string format, params object[] args) => Write(format, args);
 	}
 
 	class ConsoleSessionWriter : ISessionWriter
@@ -22,17 +26,19 @@ namespace Cone.Runners
 		public const ConsoleColor ImportantColor = ConsoleColor.Yellow;
 		public const ConsoleColor InfoColor = ConsoleColor.Cyan;
 
-		public void Write(string format, params object[] args) { Console.Write(format, args); }
+		public void Write(string message) => Console.Write(message);
+		public void Important(string message) => ColorWrite(ImportantColor, x => x.Write(message));
+		public void Info(string message) => ColorWrite(InfoColor, x => x.Write(message));
 
-		public void Important(string format, params object[] args) { ColorWrite(ImportantColor, format, args); }
-
-		public void Info(string format, params object[] args) { ColorWrite(InfoColor, format, args);	}
+		public void Write(string format, params object[] args) => Console.Write(format, args);
+		public void Important(string format, params object[] args) => ColorWrite(ImportantColor, x => x.Write(format, args));
+		public void Info(string format, params object[] args) => ColorWrite(InfoColor, x => x.Write(format, args));
 		
-		private static void ColorWrite(ConsoleColor color, string format, object[] args) {
+		private static void ColorWrite(ConsoleColor color, Action<TextWriter> doWrite) {
 			lock(Console.Out) {
 				var tmp = Console.ForegroundColor;
 				Console.ForegroundColor = color;
-				Console.Out.Write(format, args);
+				doWrite(Console.Out);				
 				Console.ForegroundColor = tmp;
 			}
 		}
