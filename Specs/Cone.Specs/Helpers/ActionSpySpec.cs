@@ -17,6 +17,14 @@ namespace Cone.Helpers
 			Check.That(() => n == 2);
 		}
 
+		public void assignment() { 
+			var called = false;
+			ActionSpy mySpy = new Action(() => called = true);
+
+			mySpy.Invoke();
+			Check.That(() => called, () => mySpy.HasBeenCalled);
+		}
+
 		[Context("of T")]
 		public class ActioSpyOfTSpec
 		{
