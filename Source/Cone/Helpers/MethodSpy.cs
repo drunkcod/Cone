@@ -105,6 +105,8 @@ namespace Cone.Helpers
 		}
 
 		protected void CheckInvocations(IEnumerable<LambdaExpression> checks) {
+			if (!HasBeenCalled)
+				throw new InvalidOperationException("Method has not been called.");
 			foreach(var args in invocations)
 				new CheckWith(args).That(checks);	
 		}

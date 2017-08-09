@@ -1,58 +1,72 @@
 ﻿using System;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace Cone.Helpers
 {
 	public class ActionSpy : MethodSpy
 	{
-		public ActionSpy() : this(() => { }) { }
+		public ActionSpy() : this(null) { }
 		public ActionSpy(Action inner) : base(inner) { }
 
-		public static implicit operator Action(ActionSpy self) {
-			return () => self.Called();
-		}
+		public void Invoke() => Called();
+
+		public static implicit operator Action(ActionSpy self) => self.Invoke;
 	}
 
 	public class ActionSpy<T> : MethodSpy
 	{
+		public ActionSpy() : this(null) { }
 		public ActionSpy(Action<T> inner) : base(inner) { }
 
-		public static implicit operator Action<T>(ActionSpy<T> self) {
-			return x => self.Called(x);
-		}
+		public void Invoke(T arg0) => Called(arg0);
 
-		public void Then(Action<T> then) { base.Then(then); }
+		public static implicit operator Action<T>(ActionSpy<T> self) => self.Invoke;
+
+		public void Then(Action<T> then) => base.Then(then);
+		public void Check(Expression<Func<T, bool>> first, params Expression<Func<T, bool>>[] rest) =>
+			CheckInvocations(new[]{ first}.Concat(rest));
 	}
 
 	public class ActionSpy<T1, T2> : MethodSpy
 	{
+		public ActionSpy() : this(null) { }
 		public ActionSpy(Action<T1, T2> inner) : base(inner) { }
 
-		public static implicit operator Action<T1, T2>(ActionSpy<T1, T2> self) {
-			return (arg1, arg2) => self.Called(arg1, arg2);
-		}
+		public void Invoke(T1 arg0, T2 arg1) => Called(arg0, arg1);
 
-		public void Then(Action<T1, T2> then) { base.Then(then); }
+		public static implicit operator Action<T1, T2>(ActionSpy<T1, T2> self) => self.Invoke;
+
+		public void Then(Action<T1, T2> then) => base.Then(then);
+		public void Check(Expression<Func<T1, T2, bool>> first, params Expression<Func<T1, T2, bool>>[] rest) =>
+			CheckInvocations(new[]{ first }.Concat(rest));
 	}
 
 	public class ActionSpy<T1, T2, T3> : MethodSpy
 	{
+		public ActionSpy() : this(null) { }
 		public ActionSpy(Action<T1, T2, T3> inner) : base(inner) { }
 
-		public static implicit operator Action<T1, T2, T3>(ActionSpy<T1, T2, T3> self) {
-			return (arg1, arg2, arg3) => self.Called(arg1, arg2, arg3);
-		}
+		public void Invoke(T1 arg0, T2 arg1, T3 arg2) => Called(arg0, arg1, arg2);
 
-		public void Then(Action<T1, T2, T3> then) { base.Then(then); }
+		public static implicit operator Action<T1, T2, T3>(ActionSpy<T1, T2, T3> self) => self.Invoke;
+
+		public void Then(Action<T1, T2, T3> then) => base.Then(then);
+		public void Check(Expression<Func<T1,T2,T3,bool>> first, params Expression<Func<T1, T2, T3, bool>>[] rest) =>
+			CheckInvocations(new [] { first}.Concat(rest));
 	}
 
 	public class ActionSpy<T1, T2, T3, T4> : MethodSpy
 	{
+		public ActionSpy() : this(null) { }
 		public ActionSpy(Action<T1, T2, T3, T4> inner) : base(inner) { }
 
-		public static implicit operator Action<T1, T2, T3, T4>(ActionSpy<T1, T2, T3, T4> self) {
-			return (arg1, arg2, arg3, arg4) => self.Called(arg1, arg2, arg3, arg4);
-		}
+		public void Invoke(T1 arg0, T2 arg1, T3 arg2, T4 arg3) => Called(arg0, arg1, arg2, arg3);
 
-		public void Then(Action<T1, T2, T3, T4> then) { base.Then(then); }
+		public static implicit operator Action<T1, T2, T3, T4>(ActionSpy<T1, T2, T3, T4> self) => self.Invoke;
+
+		public void Then(Action<T1, T2, T3, T4> then) => base.Then(then);
+		public void Check(Expression<Func<T1,T2,T3, T4,bool>> first, params Expression<Func<T1, T2, T3, T4, bool>>[] rest) =>
+			CheckInvocations(new [] { first}.Concat(rest));
 	}
 }

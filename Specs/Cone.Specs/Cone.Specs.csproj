@@ -78,6 +78,7 @@
     <Compile Include="Features\AsyncTestsFeature.cs" />
     <Compile Include="Features\CategoryHandlingFeature.cs" />
     <Compile Include="Features\RowTests.cs" />
+    <Compile Include="Helpers\ActionSpySpec.cs" />
     <Compile Include="Helpers\EventSpySpec.cs" />
     <Compile Include="Helpers\MethodSpySpec.cs" />
     <Compile Include="Runners\ConeTestMethodSpec.cs" />

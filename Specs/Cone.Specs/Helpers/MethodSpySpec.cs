@@ -8,7 +8,7 @@ namespace Cone.Helpers
 		public void unwraps_exception() {
 			var spy = new ActionSpy(() => { throw new InvalidOperationException();});
 
-			Check.Exception<InvalidOperationException>(() => ((Action)spy)());
+			Check.Exception<InvalidOperationException>(() => spy.Invoke());
 		}
 
 		public void doesnt_chain_into_null_target() {
