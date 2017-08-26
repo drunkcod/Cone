@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 
 namespace Cone.Core
@@ -16,8 +16,10 @@ namespace Cone.Core
 			else awaitAction = null;
 		}
 
+		internal MethodInfo Target => method;
 		public Type ReturnType => method.ReturnType;
 		public string Name => method.Name;
+		public bool IsWaitable => awaitAction != null;
 
 		public object[] GetCustomAttributes(bool inherit) =>
 			method.GetCustomAttributes(inherit);
@@ -32,11 +34,6 @@ namespace Cone.Core
 			var r = Invoke(target, args);
 			awaitAction?.DynamicInvoke(r);
 			return r;
-		}
-
-		public static bool IsWaitable(Type type) {
-			MethodInfo wait;
-			return TryGetWait(type, out wait);
 		}
 
 		static bool TryGetWait(Type type, out MethodInfo wait) {

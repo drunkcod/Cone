@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -10,11 +10,11 @@ namespace Cone.Core
 		readonly ITestNamer namer;
 		readonly IEnumerable<object> attributes; 
 
-		public readonly MethodInfo Method;
+		public readonly Invokable Method;
 
 		public string Name => Method.Name;
 
-		public ConeMethodThunk(MethodInfo method, IEnumerable<object> attributes, ITestNamer namer) {
+		public ConeMethodThunk(Invokable method, IEnumerable<object> attributes, ITestNamer namer) {
 			this.namer = namer;
 			this.attributes = attributes;
 			this.Method = method;
@@ -25,15 +25,15 @@ namespace Cone.Core
 		}
 
 		public string GetHeading() {
-			return namer.NameFor(Method);
+			return namer.NameFor(Method.Target);
 		}
 
 		public string NameFor(object[] parameters) {
-			return namer.NameFor(Method, parameters);
+			return namer.NameFor(Method.Target, parameters);
 		}
 
 		public ITestName TestNameFor(string context, object[] parameters) {
-			return namer.TestNameFor(context, Method, parameters);
+			return namer.TestNameFor(context, Method.Target, parameters);
 		}
 
 		public IEnumerable<object> GetCustomAttributes(Type attributeType) {

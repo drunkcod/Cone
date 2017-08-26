@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Cone.Core;
@@ -16,7 +16,7 @@ namespace Cone.Runners
 			this.rowSuites = new RowSuiteLookup<IRowSuite>(CreateRowSuite);
 		}
 
-		public void Test(MethodInfo method, IEnumerable<object> attributes , ExpectedTestResult expectedResult) { TestCore(method, attributes, expectedResult); }
+		public void Test(Invokable method, IEnumerable<object> attributes , ExpectedTestResult expectedResult) { TestCore(method, attributes, expectedResult); }
 
 		public void RowTest(MethodInfo method, IEnumerable<IRowData> rows) {
 			GetRowSuite(method).Add(rows);
@@ -29,16 +29,16 @@ namespace Cone.Runners
 				RowTest(item.Key, item);
 		}
 
-		protected abstract void TestCore(MethodInfo method, IEnumerable<object> attributes, ExpectedTestResult expectedResult);
+		protected abstract void TestCore(Invokable method, IEnumerable<object> attributes, ExpectedTestResult expectedResult);
 		protected abstract object FixtureInvoke(MethodInfo method);
 		protected abstract IRowSuite CreateRowSuite(ConeMethodThunk method, string context);
 
-		protected ConeMethodThunk CreateMethodThunk(MethodInfo method, IEnumerable<object> attributes) {
+		protected ConeMethodThunk CreateMethodThunk(Invokable method, IEnumerable<object> attributes) {
 			return new ConeMethodThunk(method, attributes, names);
 		}
 
 		IRowSuite GetRowSuite(MethodInfo method) {
-			return rowSuites.GetSuite(CreateMethodThunk(method, method.GetCustomAttributes(true)));
+			return rowSuites.GetSuite(CreateMethodThunk(new Invokable(method), method.GetCustomAttributes(true)));
 		}
 	}
 }

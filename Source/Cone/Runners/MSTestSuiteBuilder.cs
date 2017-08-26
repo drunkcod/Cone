@@ -1,4 +1,4 @@
-﻿using Cone.Core;
+using Cone.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -79,7 +79,7 @@ namespace Cone.Runners
 							? ExpectedTestResult.None
 							: GetExpectedExceptionResult(attributes[e]);
 
-						Test(method, testAttributes, expectedResult);
+						Test(new Invokable(method), testAttributes, expectedResult);
 					}
 					else Unintresting(method);
 				}

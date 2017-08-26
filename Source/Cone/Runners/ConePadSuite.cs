@@ -20,7 +20,7 @@ namespace Cone.Runners
 
 			public Action<ConeMethodThunk, object[], ExpectedTestResult> TestFound;
 
-			protected override void TestCore(MethodInfo method, IEnumerable<object> attributes , ExpectedTestResult expectedResult) {
+			protected override void TestCore(Invokable method, IEnumerable<object> attributes , ExpectedTestResult expectedResult) {
 				var thunk = CreateMethodThunk(method, attributes);
 				TestFound(thunk, null, expectedResult); 
 			}
@@ -94,7 +94,7 @@ namespace Cone.Runners
 		}
 
 		IConeTest NewTest(ITestName displayName, ConeMethodThunk thunk, object[] args, ExpectedTestResult result) {
-			return new ConePadTest(this, displayName, NewTestMethod(Fixture, new Invokable(thunk.Method), result), args, thunk);
+			return new ConePadTest(this, displayName, NewTestMethod(Fixture, thunk.Method, result), args, thunk);
 		}
 
 		static ConeTestMethod NewTestMethod(IConeFixture fixture, Invokable method, ExpectedTestResult result) {

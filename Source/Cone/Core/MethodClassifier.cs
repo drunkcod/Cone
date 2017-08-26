@@ -35,7 +35,7 @@ namespace Cone.Core
 		protected void AfterEachWithResult(MethodInfo method) { fixtureSink.AfterEachWithResult(method); }
 		protected void AfterAll(MethodInfo method) { fixtureSink.AfterAll(method); }
 		protected void Unintresting(MethodInfo method) { fixtureSink.Unintresting(method); }
-		protected void Test(MethodInfo method, IEnumerable<object> attributes, ExpectedTestResult expectedResult) { testSink.Test(method, attributes, expectedResult); }
+		protected void Test(Invokable method, IEnumerable<object> attributes, ExpectedTestResult expectedResult) { testSink.Test(method, attributes, expectedResult); }
 		protected void RowTest(MethodInfo method, IEnumerable<IRowData> rows) { testSink.RowTest(method, rows); }
 		protected void RowSource(MethodInfo method) { testSink.RowSource(method); }
 	}
