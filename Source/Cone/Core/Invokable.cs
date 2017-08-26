@@ -1,19 +1,21 @@
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Cone.Core
 {
 	public struct Invokable
 	{
+		static Delegate TaskAwait = Delegate.CreateDelegate(
+			typeof(Action<Task>), 
+			typeof(Task).GetMethod(nameof(Task.Wait), Type.EmptyTypes));
+
 		readonly MethodInfo method;
 		readonly Delegate awaitAction;
 
 		public Invokable(MethodInfo method) {
 			this.method = method;
-			MethodInfo wait;
-			if(TryGetWait(method.ReturnType, out wait))
-				awaitAction = Delegate.CreateDelegate(typeof(Action<>).MakeGenericType(method.ReturnType), null, wait);
-			else awaitAction = null;
+			this.awaitAction = GetWaitActionOrDefault(method.ReturnType);
 		}
 
 		internal MethodInfo Target => method;
@@ -34,6 +36,17 @@ namespace Cone.Core
 			var r = Invoke(target, args);
 			awaitAction?.DynamicInvoke(r);
 			return r;
+		}
+
+		static Delegate GetWaitActionOrDefault(Type type)
+		{
+			if(typeof(Task).IsAssignableFrom(type))
+				return TaskAwait;
+			MethodInfo wait;
+			if(TryGetWait(type, out wait))
+				return Delegate.CreateDelegate(typeof(Action<>).MakeGenericType(type), null, wait);
+
+			return null;
 		}
 
 		static bool TryGetWait(Type type, out MethodInfo wait) {
