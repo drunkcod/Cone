@@ -1,4 +1,4 @@
-﻿using Cone.Core;
+using Cone.Core;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -36,6 +36,6 @@ namespace Cone.Runners
 		public void location_ends_with_parameters() => Check.With(() => TestMethod(typeof(MyType).GetMethod(nameof(MyType.Parameterized))))
 			.That(method => method.Location.EndsWith("(Int32 aInt, System.Object anObject)"));
 
-		ConeTestMethod TestMethod(MethodInfo method) => new ConeTestMethod(new ConeFixture(method.DeclaringType, new string[0], new DefaultFixtureProvider()), method);
+		ConeTestMethod TestMethod(MethodInfo method) => new ConeTestMethod(new ConeFixture(method.DeclaringType, new string[0], new DefaultFixtureProvider()), new Invokable(method));
 	}
 }

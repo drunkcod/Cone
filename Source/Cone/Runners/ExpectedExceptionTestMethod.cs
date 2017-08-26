@@ -8,7 +8,7 @@ namespace Cone.Runners
 	{
 		readonly ExpectedTestResult expectedExceptionType;
 
-		public ExpectedExceptionTestMethod(IConeFixture fixture, MethodInfo method, ExpectedTestResult expectedExceptionType) : base(fixture, method) {
+		public ExpectedExceptionTestMethod(IConeFixture fixture, Invokable method, ExpectedTestResult expectedExceptionType) : base(fixture, method) {
 			this.expectedExceptionType = expectedExceptionType;
 		}
 

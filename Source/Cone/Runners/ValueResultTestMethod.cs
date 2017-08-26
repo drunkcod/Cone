@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using Cone.Core;
 using Cone.Expectations;
@@ -9,7 +9,7 @@ namespace Cone.Runners
 	{
 		readonly ExpectedTestResult expectedResult;
 
-		public ValueResultTestMethod(IConeFixture fixture, MethodInfo method, ExpectedTestResult expectedResult) : base(fixture, method) {
+		public ValueResultTestMethod(IConeFixture fixture, Invokable method, ExpectedTestResult expectedResult) : base(fixture, method) {
 			this.expectedResult = expectedResult;
 		}
 

@@ -94,10 +94,10 @@ namespace Cone.Runners
 		}
 
 		IConeTest NewTest(ITestName displayName, ConeMethodThunk thunk, object[] args, ExpectedTestResult result) {
-			return new ConePadTest(this, displayName, NewTestMethod(Fixture, thunk.Method, result), args, thunk);
+			return new ConePadTest(this, displayName, NewTestMethod(Fixture, new Invokable(thunk.Method), result), args, thunk);
 		}
 
-		static ConeTestMethod NewTestMethod(IConeFixture fixture, MethodInfo method, ExpectedTestResult result) {
+		static ConeTestMethod NewTestMethod(IConeFixture fixture, Invokable method, ExpectedTestResult result) {
 			switch(result.ResultType) {
 				case ExpectedTestResultType.None: return new ConeTestMethod(fixture, method);
 				case ExpectedTestResultType.Value: return new ValueResultTestMethod(fixture, method, result);

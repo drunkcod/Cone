@@ -11,9 +11,9 @@ namespace Cone.Runners
 		readonly IConeFixture fixture;
 		readonly Invokable method;
 
-		public ConeTestMethod(IConeFixture fixture, MethodInfo method) {
+		public ConeTestMethod(IConeFixture fixture, Invokable method) {
 			this.fixture = fixture;
-			this.method = new Invokable(method);
+			this.method = method;
 		}
 
 		public bool IsAsync { get { return method.GetCustomAttributes(true).Any(x => x.GetType().FullName == "System.Runtime.CompilerServices.AsyncStateMachineAttribute"); } }

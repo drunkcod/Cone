@@ -22,55 +22,6 @@ namespace Cone.Core
 		internal void Add(Exception ex) { innerExceptions.Add(ex); }
 	}
 
-	struct Invokable
-	{
-		readonly MethodInfo method;
-		readonly Delegate awaitAction;
-
-		public Invokable(MethodInfo method) {
-			this.method = method;
-			MethodInfo wait;
-			if(TryGetWait(method.ReturnType, out wait))
-				awaitAction = Delegate.CreateDelegate(typeof(Action<>).MakeGenericType(method.ReturnType), null, wait);
-			else awaitAction = null;
-		}
-
-		public Type ReturnType => method.ReturnType;
-		public string Name => method.Name;
-
-		public object[] GetCustomAttributes(bool inherit) =>
-			method.GetCustomAttributes(inherit);
-
-		public ParameterInfo[] GetParameters() =>
-			method.GetParameters();
-
-		public object Invoke(object target, object[] args) =>
-			method.Invoke(target, args);
-
-		public object Await(object target, object[] args) {
-			var r = Invoke(target, args);
-			awaitAction?.DynamicInvoke(r);
-			return r;
-		}
-
-		public static bool IsWaitable(Type type) {
-			MethodInfo wait;
-			return TryGetWait(type, out wait);
-		}
-
-		static bool TryGetWait(Type type, out MethodInfo wait) {
-			wait = type.GetMethod("Wait", Type.EmptyTypes);
-			return wait != null;
-		}
-
-		public static void Await(object obj) {
-			MethodInfo wait;
-			if(obj == null || !TryGetWait(obj.GetType(), out wait))
-				return;
-			((Action)Delegate.CreateDelegate(typeof(Action), obj, wait))();
-		}
-	}
-
 	public class ConeFixtureMethodCollection : IConeFixtureMethodSink
 	{
 		readonly List<Invokable> beforeAll = new List<Invokable>();

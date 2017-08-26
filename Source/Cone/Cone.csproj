@@ -61,6 +61,7 @@
     <Compile Include="Core\FixtureProvider.cs" />
     <Compile Include="Core\ICallable.cs" />
     <Compile Include="Core\IFixtureContext.cs" />
+    <Compile Include="Core\Invokable.cs" />
     <Compile Include="Core\ITestExecutionContext.cs" />
     <Compile Include="Core\ITestExecutor.cs" />
     <Compile Include="Core\ITestNamer.cs" />
