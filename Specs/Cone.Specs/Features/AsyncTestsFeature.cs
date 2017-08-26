@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -61,4 +61,20 @@ namespace Cone.Features
 
 		async Task<int> GetValue(int value) => await Task.Factory.StartNew(() => value);
  	}
+
+	[Feature("async fixture actions")]
+	public class AsyncFixtureFeature
+	{
+		public bool IsInitialized;
+
+		[BeforeEach]
+		public async Task BeforeEach() {
+			this.IsInitialized = false;
+			await Task.Delay(50);
+			this.IsInitialized = true;
+		}
+
+		public void initilized_completed() => 
+			Check.That(() => IsInitialized);
+	}
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Cone.Core;
@@ -25,7 +25,7 @@ namespace Cone.Runners
 		public IConeFixture Fixture => fixture;
 
 		public virtual void Invoke(object[] parameters, ITestResult result) {
-			Await(Invoke(parameters));
+			Invokable.Await(Invoke(parameters));
 
 			result.Success();
 		}
@@ -34,23 +34,6 @@ namespace Cone.Runners
 
 		protected object Invoke(object[] parameters) {
 			return fixture.Invoke(method, parameters);
-		}
-
-		public static bool IsWaitable(Type type) {
-			MethodInfo wait;
-			return TryGetWait(type, out wait);
-		}
-
-		static bool TryGetWait(Type type, out MethodInfo wait) {
-			wait = type.GetMethod("Wait", Type.EmptyTypes);
-			return wait != null;
-		}
-
-		static void Await(object obj) {
-			MethodInfo wait;
-			if(obj == null || !TryGetWait(obj.GetType(), out wait))
-				return;
-			((Action)Delegate.CreateDelegate(typeof(Action), obj, wait))();
 		}
 	}
 }

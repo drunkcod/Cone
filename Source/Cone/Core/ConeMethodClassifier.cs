@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Cone.Runners;
@@ -49,7 +49,7 @@ namespace Cone.Core
 					sunk = true;
 				}
 			}
-			if (!sunk && (method.ReturnType == typeof(void) || ConeTestMethod.IsWaitable(method.ReturnType)))
+			if (!sunk && (method.ReturnType == typeof(void) || Invokable.IsWaitable(method.ReturnType)))
 				Test(method, attributes, ExpectedTestResult.None);
 			Unintresting(method);
 		}

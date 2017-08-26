@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Diagnostics;
 
 namespace Cone
@@ -119,6 +120,9 @@ namespace Cone
 					() => x[0] == 1));
 			Check.That(() => e.Failures.Length == 2);
 		}
+
+		public void with_cast() => Check.With(() => new[] { new SqlParameter("@1", 1), new SqlParameter("@2", 1) })
+			.That(x => x[0].SqlDbType == x[1].SqlDbType,x => x[0].Value == x[1].Value);
 
 		[Context("binary expressions")]
 		public class BinaryExpressions

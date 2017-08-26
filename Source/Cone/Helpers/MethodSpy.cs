@@ -13,7 +13,7 @@ namespace Cone.Helpers
 		static int nextSequenceNumber;
 
 		int sequenceNumber;
-		readonly Delegate inner;
+		Delegate inner;
 
 		readonly List<object[]> invocations = new List<object[]>();
 
