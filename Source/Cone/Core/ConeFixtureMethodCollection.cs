@@ -25,10 +25,21 @@ namespace Cone.Core
 	struct Invokable
 	{
 		readonly MethodInfo method;
+		readonly Delegate awaitAction;
 
 		public Invokable(MethodInfo method) {
 			this.method = method;
+			MethodInfo wait;
+			if(TryGetWait(method.ReturnType, out wait))
+				awaitAction = Delegate.CreateDelegate(typeof(Action<>).MakeGenericType(method.ReturnType), null, wait);
+			else awaitAction = null;
 		}
+
+		public Type ReturnType => method.ReturnType;
+		public string Name => method.Name;
+
+		public object[] GetCustomAttributes(bool inherit) =>
+			method.GetCustomAttributes(inherit);
 
 		public ParameterInfo[] GetParameters() =>
 			method.GetParameters();
@@ -36,8 +47,11 @@ namespace Cone.Core
 		public object Invoke(object target, object[] args) =>
 			method.Invoke(target, args);
 
-		public void Await(object target, object[] args) =>
-			Await(Invoke(target, args));
+		public object Await(object target, object[] args) {
+			var r = Invoke(target, args);
+			awaitAction?.DynamicInvoke(r);
+			return r;
+		}
 
 		public static bool IsWaitable(Type type) {
 			MethodInfo wait;
@@ -56,7 +70,6 @@ namespace Cone.Core
 			((Action)Delegate.CreateDelegate(typeof(Action), obj, wait))();
 		}
 	}
-
 
 	public class ConeFixtureMethodCollection : IConeFixtureMethodSink
 	{

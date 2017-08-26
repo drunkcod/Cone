@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -25,9 +25,8 @@ namespace Cone.Runners
 				TestFound(thunk, null, expectedResult); 
 			}
 
-			protected override object FixtureInvoke(MethodInfo method) {
-				return Fixture.Invoke(method);
-			}
+			protected override object FixtureInvoke(MethodInfo method) =>
+				method.Invoke(Fixture.GetFixtureInstance(), null);
 
 			protected override IRowSuite CreateRowSuite(ConeMethodThunk method, string suiteName) {
 				return suite.AddRowSuite(method, suiteName);

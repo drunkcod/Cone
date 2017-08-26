@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -9,7 +9,7 @@ namespace Cone.Core
 		Type FixtureType { get; }
 		IEnumerable<string> Categories { get; }
 
-		object Invoke(MethodInfo method, params object[] args);
+		object GetFixtureInstance();
 		object GetValue(FieldInfo field);
 		void Initialize();
 		void Release();

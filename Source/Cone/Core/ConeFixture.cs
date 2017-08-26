@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -46,12 +46,8 @@ namespace Cone.Core
 			fixtureMethods.InvokeAfterEach(fixture, testResult);
 		}
 
-		public object Invoke(MethodInfo method, params object[] parameters) {
-			return method.Invoke(EnsureFixture(), parameters);
-		}
-
 		public object GetValue(FieldInfo field) {
-			return field.GetValue(EnsureFixture());
+			return field.GetValue(GetFixtureInstance());
 		}
 
 		public void WithInitialized(Action<IConeFixture> action, Action<Exception> beforeFailure, Action<Exception> afterFailure) {
@@ -72,7 +68,7 @@ namespace Cone.Core
 		public void Initialize() {
 			if(fixtureInitialized) 
 				return;	
-			fixtureMethods.InvokeBeforeAll(EnsureFixture());
+			fixtureMethods.InvokeBeforeAll(GetFixtureInstance());
 			fixtureInitialized = true;
 		}
 
@@ -98,7 +94,7 @@ namespace Cone.Core
 
 		public IConeFixtureMethodSink FixtureMethods { get { return fixtureMethods; } }
 
-		object EnsureFixture() {
+		public object GetFixtureInstance() {
 			if(fixture == null) {
 				fixture = fixtureCreator.NewFixture(FixtureType);
 				FixtureCreated.Raise(this, new FixtureEventArgs(fixture));

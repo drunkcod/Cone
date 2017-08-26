@@ -9,15 +9,15 @@ namespace Cone.Runners
 	public class ConeTestMethod 
 	{
 		readonly IConeFixture fixture;
-		readonly MethodInfo method;
+		readonly Invokable method;
 
 		public ConeTestMethod(IConeFixture fixture, MethodInfo method) {
 			this.fixture = fixture;
-			this.method = method;
+			this.method = new Invokable(method);
 		}
 
 		public bool IsAsync { get { return method.GetCustomAttributes(true).Any(x => x.GetType().FullName == "System.Runtime.CompilerServices.AsyncStateMachineAttribute"); } }
-		public Assembly Assembly { get { return method.DeclaringType.Assembly; } }
+		public Assembly Assembly { get { return fixture.FixtureType.Assembly; } }
 
 		public IEnumerable<string> Categories { get { return fixture.Categories; } }
 		public Type ReturnType { get { return method.ReturnType; } }
@@ -25,15 +25,13 @@ namespace Cone.Runners
 		public IConeFixture Fixture => fixture;
 
 		public virtual void Invoke(object[] parameters, ITestResult result) {
-			Invokable.Await(Invoke(parameters));
-
+			Invoke(parameters);
 			result.Success();
 		}
 
 		public ParameterInfo[] GetParameters() { return method.GetParameters(); } 
 
-		protected object Invoke(object[] parameters) {
-			return fixture.Invoke(method, parameters);
-		}
+		protected object Invoke(object[] parameters) =>
+			method.Await(fixture.GetFixtureInstance(), parameters);
 	}
 }
