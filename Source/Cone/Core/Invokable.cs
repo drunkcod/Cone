@@ -1,4 +1,5 @@
 using System;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -6,9 +7,10 @@ namespace Cone.Core
 {
 	public struct Invokable
 	{
-		static Delegate TaskAwait = Delegate.CreateDelegate(
-			typeof(Action<Task>), 
-			typeof(Task).GetMethod(nameof(Task.Wait), Type.EmptyTypes));
+		static Delegate TaskAwait = new Action<Task>(task => {
+			var awaiter = task.GetAwaiter();
+			awaiter.GetResult();
+		});
 
 		readonly MethodInfo method;
 		readonly Delegate awaitAction;
@@ -40,25 +42,29 @@ namespace Cone.Core
 
 		static Delegate GetWaitActionOrDefault(Type type)
 		{
+			if(type == typeof(void))
+				return null;
+
 			if(typeof(Task).IsAssignableFrom(type))
 				return TaskAwait;
-			MethodInfo wait;
-			if(TryGetWait(type, out wait))
-				return Delegate.CreateDelegate(typeof(Action<>).MakeGenericType(type), null, wait);
 
+			var getAwaiter = type.GetMethod("GetAwaiter", Type.EmptyTypes);
+			if(getAwaiter != null) {			
+				var getResult = getAwaiter.ReturnType.GetMethod("GetResult") ??
+					throw new InvalidOperationException("Can't GetResult on " + getAwaiter.ReturnType);
+			
+				var awaitable = Expression.Parameter(type);
+				return Expression.Lambda(
+					Expression.Call(
+						Expression.Call(awaitable, getAwaiter),
+						getResult), 
+					awaitable)
+				.Compile();
+			}
 			return null;
 		}
-
-		static bool TryGetWait(Type type, out MethodInfo wait) {
-			wait = type.GetMethod("Wait", Type.EmptyTypes);
-			return wait != null;
-		}
-
-		public static void Await(object obj) {
-			MethodInfo wait;
-			if(obj == null || !TryGetWait(obj.GetType(), out wait))
-				return;
-			((Action)Delegate.CreateDelegate(typeof(Action), obj, wait))();
-		}
+	
+		public static void Await(object obj) =>
+			GetWaitActionOrDefault(obj.GetType())?.DynamicInvoke(obj);
 	}
 }

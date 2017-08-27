@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -76,5 +78,31 @@ namespace Cone.Features
 
 		public void initilized_completed() => 
 			Check.That(() => IsInitialized);
+
+		[Context("custom awailable")]
+		public class AsyncFixutreCustomAwailtableSpec
+		{
+			public class MyAwaitable 
+			{
+				public static int WaitedCount = 0;
+				
+				public struct MyAwaitableAwaiter : INotifyCompletion
+				{
+
+					public bool IsCompleted => true;
+					void INotifyCompletion.OnCompleted(Action continuation) => continuation();
+					public void GetResult() { ++WaitedCount; }
+				}
+
+				public MyAwaitableAwaiter GetAwaiter() => new MyAwaitableAwaiter();
+			}
+
+			MyAwaitable MyAwaitableAsync() => new MyAwaitable();
+
+			[BeforeEach]
+			public MyAwaitable UsingCustomAwitable() => new MyAwaitable();
+
+			public void has_been_awaited() => Check.That(() => MyAwaitable.WaitedCount == 1);
+		}
 	}
 }
