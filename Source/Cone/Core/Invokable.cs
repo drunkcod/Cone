@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -13,12 +14,14 @@ namespace Cone.Core
 			return null;
 		};
 
+		static readonly ConcurrentDictionary<Type, Func<object, object>> awaiterCache = new ConcurrentDictionary<Type, Func<object, object>>();
+
 		readonly MethodInfo method;
 		readonly Func<object, object> awaitAction;
 
 		public Invokable(MethodInfo method) {
 			this.method = method;
-			this.awaitAction = GetWaitActionOrDefault(method.ReturnType);
+			this.awaitAction = GetAwaiterOrDefault(method.ReturnType);
 		}
 
 		internal MethodInfo Target => method;
@@ -48,14 +51,17 @@ namespace Cone.Core
 			return IsWaitable ? awaitAction(r) : r;
 		}
 
-		static Func<object, object> GetWaitActionOrDefault(Type type)
-		{
+		static Func<object, object> GetAwaiterOrDefault(Type type) {
 			if(type == typeof(void))
 				return null;
 
 			if(type == typeof(Task))
 				return TaskAwait;
 
+			return awaiterCache.GetOrAdd(type, CreateAwaiterOrDefault);
+		}
+
+		static Func<object, object> CreateAwaiterOrDefault(Type type) {
 			var getAwaiter = type.GetMethod("GetAwaiter", Type.EmptyTypes);
 			if(getAwaiter != null) {			
 				var getResult = getAwaiter.ReturnType.GetMethod("GetResult") ??
@@ -77,6 +83,6 @@ namespace Cone.Core
 		}
 	
 		public static void Await(object obj) =>
-			GetWaitActionOrDefault(obj.GetType())?.DynamicInvoke(obj);
+			GetAwaiterOrDefault(obj.GetType())?.DynamicInvoke(obj);
 	}
 }
