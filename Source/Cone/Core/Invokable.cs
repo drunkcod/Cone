@@ -7,13 +7,14 @@ namespace Cone.Core
 {
 	public struct Invokable : ICustomAttributeProvider
 	{
-		static Delegate TaskAwait = new Action<Task>(task => {
-			var awaiter = task.GetAwaiter();
+		static Func<object, object> TaskAwait = obj => {
+			var awaiter = ((Task)obj).GetAwaiter();
 			awaiter.GetResult();
-		});
+			return null;
+		};
 
 		readonly MethodInfo method;
-		readonly Delegate awaitAction;
+		readonly Func<object, object> awaitAction;
 
 		public Invokable(MethodInfo method) {
 			this.method = method;
@@ -44,16 +45,15 @@ namespace Cone.Core
 
 		public object Await(object target, object[] args) {
 			var r = Invoke(target, args);
-			awaitAction?.DynamicInvoke(r);
-			return r;
+			return IsWaitable ? awaitAction(r) : r;
 		}
 
-		static Delegate GetWaitActionOrDefault(Type type)
+		static Func<object, object> GetWaitActionOrDefault(Type type)
 		{
 			if(type == typeof(void))
 				return null;
 
-			if(typeof(Task).IsAssignableFrom(type))
+			if(type == typeof(Task))
 				return TaskAwait;
 
 			var getAwaiter = type.GetMethod("GetAwaiter", Type.EmptyTypes);
@@ -61,13 +61,17 @@ namespace Cone.Core
 				var getResult = getAwaiter.ReturnType.GetMethod("GetResult") ??
 					throw new InvalidOperationException("Can't GetResult on " + getAwaiter.ReturnType);
 			
-				var awaitable = Expression.Parameter(type);
-				return Expression.Lambda(
+				var awaitable = Expression.Parameter(typeof(object));
+				var getUnboxedResult = Expression.Call(
 					Expression.Call(
-						Expression.Call(awaitable, getAwaiter),
-						getResult), 
-					awaitable)
-				.Compile();
+						Expression.Convert(awaitable, type), 
+						getAwaiter), 
+					getResult);
+				var body = getUnboxedResult.Type == typeof(void) 
+				? Expression.Block(getUnboxedResult, Expression.Constant(null))
+				: getUnboxedResult.Box();
+				return Expression.Lambda<Func<object, object>>(body, awaitable)
+					.Compile();
 			}
 			return null;
 		}

@@ -68,6 +68,7 @@
     <Compile Include="Core\ConeAttributeProviderSpec.cs" />
     <Compile Include="Core\ConeFixtureMethodCollectionSpec.cs" />
     <Compile Include="Core\ConeFixtureSpec.cs" />
+    <Compile Include="Core\InvokableSpec.cs" />
     <Compile Include="Expectations\ConeMessageSpec.cs" />
     <Compile Include="Core\ConeTestFailureSpec.cs" />
     <Compile Include="Core\ConeTestNameSpec.cs" />
