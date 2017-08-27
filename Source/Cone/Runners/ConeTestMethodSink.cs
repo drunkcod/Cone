@@ -10,7 +10,6 @@ namespace Cone.Runners
 		readonly ITestNamer names;
 		readonly RowSuiteLookup<IRowSuite> rowSuites;
 
-
 		public ConeTestMethodSink(ITestNamer names) {
 			this.names = names;
 			this.rowSuites = new RowSuiteLookup<IRowSuite>(CreateRowSuite);

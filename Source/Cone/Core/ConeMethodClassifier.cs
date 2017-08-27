@@ -49,9 +49,12 @@ namespace Cone.Core
 					sunk = true;
 				}
 			}
+			if(sunk)
+				return;
 			var invokable = new Invokable(method);
-			if (!sunk && (invokable.ReturnType == typeof(void) || invokable.IsWaitable))
+			if(invokable.ReturnType == typeof(void) || invokable.IsWaitable)
 				Test(invokable, attributes, ExpectedTestResult.None);
+
 			Unintresting(method);
 		}
 
