@@ -22,8 +22,10 @@ namespace Cone.Core
 
 		internal MethodInfo Target => method;
 		public Type ReturnType => method.ReturnType;
+		public Type DeclaringType => method.DeclaringType;
 		public string Name => method.Name;
 		public bool IsWaitable => awaitAction != null;
+		public bool IsStatic => method.IsStatic;
 
 		public object[] GetCustomAttributes(bool inherit) =>
 			method.GetCustomAttributes(inherit);

@@ -10,8 +10,8 @@ namespace Cone.Core
 		public ConeMethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) : base(fixtureSink, testSink)
 		{ }
 
-		protected override void ClassifyCore(MethodInfo method) {
-			if (method.AsConeAttributeProvider().Has<IRowData>(rows => RowTest(method, rows)))
+		protected override void ClassifyCore(Invokable method) {
+			if (method.Target.AsConeAttributeProvider().Has<IRowData>(rows => RowTest(method, rows)))
 				return;
 
 			var parameters = method.GetParameters();
@@ -22,7 +22,7 @@ namespace Cone.Core
 			}
 		}
 
-		void Niladic(MethodInfo method) {
+		void Niladic(Invokable method) {
 			if (typeof(IEnumerable<IRowTestData>).IsAssignableFrom(method.ReturnType)) {
 				RowSource(method);
 				return;
@@ -36,31 +36,30 @@ namespace Cone.Core
 					BeforeAll(method);
 					sunk = true;
 				}
-				if (item is BeforeEachAttribute) {
+				else if (item is BeforeEachAttribute) {
 					BeforeEach(method);
 					sunk = true;
 				}
-				if (item is AfterEachAttribute) {
+				else if (item is AfterEachAttribute) {
 					AfterEach(method);
 					sunk = true;
 				}
-				if (item is AfterAllAttribute) {
+				else if (item is AfterAllAttribute) {
 					AfterAll(method);
 					sunk = true;
 				}
 			}
 			if(sunk)
 				return;
-			var invokable = new Invokable(method);
-			if(invokable.ReturnType == typeof(void) || invokable.IsWaitable)
-				Test(invokable, attributes, ExpectedTestResult.None);
+			if(method.ReturnType == typeof(void) || method.IsWaitable)
+				Test(method, attributes, ExpectedTestResult.None);
 
 			Unintresting(method);
 		}
 
-		void Monadic(MethodInfo method, ParameterInfo parameter) {
+		void Monadic(Invokable method, ParameterInfo parameter) {
 			if (typeof(ITestResult).IsAssignableFrom(parameter.ParameterType)
-				&& method.AsConeAttributeProvider().Has<AfterEachAttribute>()) {
+				&& method.Target.AsConeAttributeProvider().Has<AfterEachAttribute>()) {
 				AfterEachWithResult(method);
 			}
 			else Unintresting(method);

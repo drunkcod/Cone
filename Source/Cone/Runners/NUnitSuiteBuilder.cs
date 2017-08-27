@@ -48,7 +48,7 @@ namespace Cone.Runners
 					this.fixtureType = fixtureType;
 				}
 
-				protected override void ClassifyCore(MethodInfo method) {
+				protected override void ClassifyCore(Invokable method) {
 					var attributes = method.GetCustomAttributes(true);
 					if(method.GetParameters().Length > 0) {
 						ClassifyParameterized(method, attributes);
@@ -67,12 +67,12 @@ namespace Cone.Runners
 
 					if(method.ReturnType == typeof(void) && attributeNames.Contains("NUnit.Framework.TestAttribute")) {
 						var expectsException = attributes.FirstOrDefault(x => x.GetType().FullName == "NUnit.Framework.ExpectedExceptionAttribute");
-						Test(new Invokable(method), attributes, expectsException == null ? ExpectedTestResult.None : ExpectedTestResult.Exception((Type)expectsException.GetPropertyValue("ExpectedException"), false));
+						Test(method, attributes, expectsException == null ? ExpectedTestResult.None : ExpectedTestResult.Exception((Type)expectsException.GetPropertyValue("ExpectedException"), false));
 					}
 					else Unintresting(method);
 				}
 
-				void ClassifyParameterized(MethodInfo method, object[] attributes) {
+				void ClassifyParameterized(Invokable method, object[] attributes) {
 					var testCases = attributes.Where(x => x.GetType().FullName == "NUnit.Framework.TestCaseAttribute").ToList();
 					var testSources = attributes.Where(x => x.GetType().FullName == "NUnit.Framework.TestCaseSourceAttribute").ToList();
 					if(testCases.Count == 0 && testSources.Count == 0) {

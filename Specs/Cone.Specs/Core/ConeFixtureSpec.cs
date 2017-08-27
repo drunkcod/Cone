@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Cone.Runners;
 using Moq;
@@ -70,8 +70,8 @@ namespace Cone.Core
 			}
 
 			public void BeforeAll_executed_exactly_once() {
-				FixtureMethods.BeforeAll( ((Action)FixtureInstance.BeforeAll).Method);
-				FixtureMethods.BeforeEach( ((Action)FixtureInstance.BeforeEach).Method);
+				FixtureMethods.BeforeAll(new Invokable(((Action)FixtureInstance.BeforeAll).Method));
+				FixtureMethods.BeforeEach(new Invokable(((Action)FixtureInstance.BeforeEach).Method));
 				Fixture.Initialize();
 				(Fixture as ITestContext).Before();
 				(Fixture as ITestContext).Before();
@@ -80,7 +80,7 @@ namespace Cone.Core
 			}
 
 			public void AfterAll_executeted_for_initialized_fixture_when_released() {
-				FixtureMethods.AfterAll(((Action)FixtureInstance.AfterAll).Method);
+				FixtureMethods.AfterAll(new Invokable(((Action)FixtureInstance.AfterAll).Method));
 				Fixture.WithInitialized(x => x.Before(), Nop, Nop);
 
 				Check.That(() => FixtureInstance.ExecutionPath == "AfterAll");

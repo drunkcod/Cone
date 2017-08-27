@@ -25,8 +25,8 @@ namespace Cone.Runners
 				TestFound(thunk, null, expectedResult); 
 			}
 
-			protected override object FixtureInvoke(MethodInfo method) =>
-				method.Invoke(Fixture.GetFixtureInstance(), null);
+			protected override object FixtureInvoke(Invokable method) =>
+				method.Await(Fixture.GetFixtureInstance(), null);
 
 			protected override IRowSuite CreateRowSuite(ConeMethodThunk method, string suiteName) {
 				return suite.AddRowSuite(method, suiteName);

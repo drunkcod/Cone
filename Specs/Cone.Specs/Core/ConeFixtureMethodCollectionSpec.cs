@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -33,12 +33,9 @@ namespace Cone.Core
 				() => fixture.SuccessCount == 2);
 		}
 
-		MethodInfo GetMethod<T>(T _, Expression<Action<T>> act) {
-			return ((MethodCallExpression)act.Body).Method;
-		}
-
-		private static ITestResult EmptyResult() {
-			return null;
-		}
+		Invokable GetMethod<T>(T _, Expression<Action<T>> act) =>
+			new Invokable(((MethodCallExpression)act.Body).Method);
+		
+		private static ITestResult EmptyResult() => null;
 	}
 }

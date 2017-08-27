@@ -1,14 +1,12 @@
-using System.Reflection;
-
 namespace Cone.Core
 {
 	public interface IConeFixtureMethodSink 
 	{
-		void Unintresting(MethodInfo method);
-		void BeforeAll(MethodInfo method);
-		void BeforeEach(MethodInfo method);
-		void AfterEach(MethodInfo method);
-		void AfterEachWithResult(MethodInfo method);
-		void AfterAll(MethodInfo method);
+		void Unintresting(Invokable method);
+		void BeforeAll(Invokable method);
+		void BeforeEach(Invokable  method);
+		void AfterEach(Invokable  method);
+		void AfterEachWithResult(Invokable method);
+		void AfterAll(Invokable method);
 	}
 }

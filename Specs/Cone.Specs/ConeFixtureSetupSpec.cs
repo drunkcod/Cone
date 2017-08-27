@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -9,18 +9,18 @@ namespace Cone
 {
 	class ConeFixtureMethods : IConeFixtureMethodSink
 	{
-		public List<MethodInfo> BeforeAll = new List<MethodInfo>();
-		public List<MethodInfo> BeforeEach = new List<MethodInfo>();
-		public List<MethodInfo> AfterEach = new List<MethodInfo>();
-		public List<MethodInfo> AfterAll = new List<MethodInfo>();
-		public List<MethodInfo> AfterEachWithResult = new List<MethodInfo>();
+		public List<Invokable> BeforeAll = new List<Invokable>();
+		public List<Invokable> BeforeEach = new List<Invokable>();
+		public List<Invokable> AfterEach = new List<Invokable>();
+		public List<Invokable> AfterAll = new List<Invokable>();
+		public List<Invokable> AfterEachWithResult = new List<Invokable>();
 
-		void IConeFixtureMethodSink.Unintresting(MethodInfo method) { }
-		void IConeFixtureMethodSink.BeforeAll(MethodInfo method) { BeforeAll.Add(method); }
-		void IConeFixtureMethodSink.BeforeEach(MethodInfo method) { BeforeEach.Add(method); }
-		void IConeFixtureMethodSink.AfterEach(MethodInfo method) { AfterEach.Add(method); }
-		void IConeFixtureMethodSink.AfterEachWithResult(MethodInfo method) { AfterEachWithResult.Add(method); }
-		void IConeFixtureMethodSink.AfterAll(MethodInfo method) { AfterAll.Add(method); }
+		void IConeFixtureMethodSink.Unintresting(Invokable method) { }
+		void IConeFixtureMethodSink.BeforeAll(Invokable method) { BeforeAll.Add(method); }
+		void IConeFixtureMethodSink.BeforeEach(Invokable method) { BeforeEach.Add(method); }
+		void IConeFixtureMethodSink.AfterEach(Invokable method) { AfterEach.Add(method); }
+		void IConeFixtureMethodSink.AfterEachWithResult(Invokable method) { AfterEachWithResult.Add(method); }
+		void IConeFixtureMethodSink.AfterAll(Invokable method) { AfterAll.Add(method); }
 	}
 
 	[Describe(typeof(ConeFixtureSetup))]
@@ -93,7 +93,7 @@ namespace Cone
 			}
 		}
 
-		static MethodInfo Base(Expression<Action<SampleFixture>> x) { return ((MethodCallExpression)x.Body).Method; }
-		static MethodInfo Derived(Expression<Action<DerivedFixture>> x) { return ((MethodCallExpression)x.Body).Method; }
+		static Invokable Base(Expression<Action<SampleFixture>> x) => new Invokable(((MethodCallExpression)x.Body).Method);
+		static Invokable Derived(Expression<Action<DerivedFixture>> x) => new Invokable(((MethodCallExpression)x.Body).Method);
 	}
 }

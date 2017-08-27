@@ -61,7 +61,7 @@ namespace Cone.Runners
 					this.ignoredFixture = fixtureType.GetCustomAttributes(true).Any(x => x.GetType().FullName == MSTestAttributeNames.Ignore);
 				}
 
-				protected override void ClassifyCore(MethodInfo method) {
+				protected override void ClassifyCore(Invokable method) {
 					var attributes = method.GetCustomAttributes(true);
 					var attributeNames = attributes.ConvertAll(x => x.GetType().FullName);
 
@@ -79,7 +79,7 @@ namespace Cone.Runners
 							? ExpectedTestResult.None
 							: GetExpectedExceptionResult(attributes[e]);
 
-						Test(new Invokable(method), testAttributes, expectedResult);
+						Test(method, testAttributes, expectedResult);
 					}
 					else Unintresting(method);
 				}
@@ -92,11 +92,11 @@ namespace Cone.Runners
 						(bool)getAlloweDerived.GetValue(expectedException, null));
 				}
 
-				private void ClassifySupportMethods(MethodInfo method, string[] attributeNames) {
+				private void ClassifySupportMethods(Invokable method, string[] attributeNames) {
 					foreach(var item in attributeNames)
 						switch(item) {
 							case MSTestAttributeNames.ClassInitialize:
-								if(method.ReturnType == typeof (void) && method.IsStatic) {
+								if(method.ReturnType == typeof(void) && method.IsStatic) {
 									var parameters = method.GetParameters();
 									if(parameters.Length == 1 &&
 										parameters[0].ParameterType.FullName == MSTestAttributeNames.TestContext)

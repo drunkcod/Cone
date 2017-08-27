@@ -6,7 +6,7 @@ namespace Cone.Core
 {
 	public interface IMethodClassifier
 	{
-		void Classify(MethodInfo method);
+		void Classify(Invokable method);
 	}
 
 	public abstract class MethodClassifier : IMethodClassifier
@@ -19,7 +19,7 @@ namespace Cone.Core
 			this.testSink = testSink;
 		}
 
-		public void Classify(MethodInfo method) {
+		public void Classify(Invokable method) {
 			if(method.DeclaringType == typeof(object)) {
 				Unintresting(method);
 				return;
@@ -27,16 +27,16 @@ namespace Cone.Core
 			ClassifyCore(method);
 		}
 
-		protected abstract void ClassifyCore(MethodInfo method);
+		protected abstract void ClassifyCore(Invokable method);
 
-		protected void BeforeAll(MethodInfo method) { fixtureSink.BeforeAll(method); }
-		protected void BeforeEach(MethodInfo method) { fixtureSink.BeforeEach(method); }
-		protected void AfterEach(MethodInfo method) { fixtureSink.AfterEach(method); }
-		protected void AfterEachWithResult(MethodInfo method) { fixtureSink.AfterEachWithResult(method); }
-		protected void AfterAll(MethodInfo method) { fixtureSink.AfterAll(method); }
-		protected void Unintresting(MethodInfo method) { fixtureSink.Unintresting(method); }
+		protected void BeforeAll(Invokable method) { fixtureSink.BeforeAll(method); }
+		protected void BeforeEach(Invokable method) { fixtureSink.BeforeEach(method); }
+		protected void AfterEach(Invokable method) { fixtureSink.AfterEach(method); }
+		protected void AfterEachWithResult(Invokable method) { fixtureSink.AfterEachWithResult(method); }
+		protected void AfterAll(Invokable method) { fixtureSink.AfterAll(method); }
+		protected void Unintresting(Invokable method) { fixtureSink.Unintresting(method); }
 		protected void Test(Invokable method, IEnumerable<object> attributes, ExpectedTestResult expectedResult) { testSink.Test(method, attributes, expectedResult); }
-		protected void RowTest(MethodInfo method, IEnumerable<IRowData> rows) { testSink.RowTest(method, rows); }
-		protected void RowSource(MethodInfo method) { testSink.RowSource(method); }
+		protected void RowTest(Invokable method, IEnumerable<IRowData> rows) { testSink.RowTest(method, rows); }
+		protected void RowSource(Invokable method) { testSink.RowSource(method); }
 	}
 }

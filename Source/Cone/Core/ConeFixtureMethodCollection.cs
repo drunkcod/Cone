@@ -10,12 +10,12 @@ namespace Cone.Core
 		readonly List<Invokable> afterEach = new List<Invokable>();
 		readonly List<Invokable> afterAll = new List<Invokable>();
 
-		public void Unintresting(MethodInfo method) { }
-		public void BeforeAll(MethodInfo method) => beforeAll.Add(new Invokable(method));
-		public void BeforeEach(MethodInfo method) => beforeEach.Add(new Invokable(method));
-		public void AfterEach(MethodInfo method) => afterEach.Add(new Invokable(method));
-		public void AfterEachWithResult(MethodInfo method) => afterEach.Add(new Invokable(method));
-		public void AfterAll(MethodInfo method) => afterAll.Add(new Invokable(method));
+		public void Unintresting(Invokable method) { }
+		public void BeforeAll(Invokable method) => beforeAll.Add(method);
+		public void BeforeEach(Invokable method) => beforeEach.Add(method);
+		public void AfterEach(Invokable method) => afterEach.Add(method);
+		public void AfterEachWithResult(Invokable method) => afterEach.Add(method);
+		public void AfterAll(Invokable method) => afterAll.Add(method);
 
 		public void InvokeBeforeAll(object target) =>
 			InvokeAll(target, beforeAll);

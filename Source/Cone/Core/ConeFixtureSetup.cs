@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -21,7 +21,7 @@ namespace Cone.Core
             var virtuals = new Dictionary<MethodInfo, MethodInfo>();
             CollectFixtureMethods(type, x => Classify(x, virtuals));
 			foreach(var item in virtuals.Values)
-				classifier.Classify(item);
+				classifier.Classify(new Invokable(item));
         }
 
         void CollectFixtureMethods(Type type, Action<MethodInfo> classify) {
@@ -36,7 +36,7 @@ namespace Cone.Core
 				virtuals[method.GetBaseDefinition()] = method;
 				return;
             }
-            classifier.Classify(method); 
+            classifier.Classify(new Invokable(method));
         }
 
         MethodInfo[] GetMethods(Type type) {
