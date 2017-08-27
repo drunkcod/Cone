@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Cone.Core;
@@ -31,10 +31,11 @@ namespace Cone.Expectations
 			new CheckResult(CheckCore(), Maybe.Some(ActualValue), Maybe.Some(ExpectedValue));
 
         public virtual object ActualValue => actual.Value;
+		public bool ExpectsNull => ExpectedValue == ExpectedNull.Value;
         public object ExpectedValue => Expected.Value; 
 
         public virtual ConeMessage MessageFormat(string actual, string expected) => ExpectMessages.EqualFormat(actual, expected);
-        
+		
         IExpectValue Actual => actual;
         protected virtual IExpectValue Expected => ExpectValue.True;
 

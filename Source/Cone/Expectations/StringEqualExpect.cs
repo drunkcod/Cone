@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Linq.Expressions;
 using Cone.Core;
+using System.Diagnostics;
 
 namespace Cone.Expectations
 {
@@ -47,7 +48,15 @@ namespace Cone.Expectations
 
 		public override ConeMessage FormatMessage(IFormatter<object> formatter) {
 			if(ActualValue == null)
-				return ExpectMessages.EqualFormat(formatter.Format(null), formatter.Format(ExpectedString));
+				return ExpectMessages.EqualFormat(
+					FormatNullValue(formatter), 
+					Center(ExpectedString, 0, DisplayWidth));
+
+			if(ExpectsNull)
+				return ExpectMessages.EqualFormat(
+					Center(ActualString, 0, DisplayWidth), 
+					FormatNullValue(formatter));
+
 			var n = ActualString.IndexOfDifference(ExpectedString);
 			var displayActual = Center(ActualString, n, DisplayWidth);
 			var displayExpected = Center(ExpectedString, n, DisplayWidth);
@@ -65,6 +74,9 @@ namespace Cone.Expectations
 				ExpectMessages.EqualFormat(displayActual, displayExpected),
 				guide);
 		}
+
+		ConeMessage FormatNullValue(IFormatter<object> formatter) => 
+			ConeMessage.Create(new ConeMessageElement(formatter.Format(null), "info"));
 
 		string ActualString { get { return ActualValue.ToString(); } }
 		string ExpectedString { get { return ExpectedValue.ToString(); } }

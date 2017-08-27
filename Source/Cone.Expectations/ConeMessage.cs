@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,6 +33,7 @@ namespace Cone.Expectations
 		public static readonly ConeMessage Empty = new ConeMessage(ConeMessageElement.NoElements);
 		public static readonly ConeMessage NewLine = new ConeMessage(new [] { ConeMessageElement.NewLine });
 
+		public static ConeMessage Create(params ConeMessageElement[] elements) => new ConeMessage(elements);
 		public static ConeMessage Format(string format, params object[] args) => Parse(string.Format(format, args));
 
 		public static ConeMessage Parse(string message) { 

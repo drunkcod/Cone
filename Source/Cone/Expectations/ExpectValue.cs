@@ -10,7 +10,7 @@ namespace Cone.Expectations
 
 	public class ExpectValue : IExpectValue
 	{
-		public static readonly ExpectValue Null = new ExpectValue(ExpectedNull.IsNull);
+		public static readonly ExpectValue Null = new ExpectValue(ExpectedNull.Value);
 		public static readonly ExpectValue True = new ExpectValue(true);
 
 		public ExpectValue(object value) { this.Value = value; }
