@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace Cone.Core
 {
-	public class ConeMethodThunk : ICallable, IConeAttributeProvider
+	public class ConeMethodThunk : IConeAttributeProvider
 	{
 		readonly ITestNamer namer;
 		readonly IEnumerable<object> attributes; 
@@ -25,15 +24,15 @@ namespace Cone.Core
 		}
 
 		public string GetHeading() {
-			return namer.NameFor(Method.Target);
+			return namer.NameFor(Method);
 		}
 
 		public string NameFor(object[] parameters) {
-			return namer.NameFor(Method.Target, parameters);
+			return namer.NameFor(Method, parameters);
 		}
 
 		public ITestName TestNameFor(string context, object[] parameters) {
-			return namer.TestNameFor(context, Method.Target, parameters);
+			return namer.TestNameFor(context, Method, parameters);
 		}
 
 		public IEnumerable<object> GetCustomAttributes(Type attributeType) {

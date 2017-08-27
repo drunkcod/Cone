@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -11,23 +11,23 @@ namespace Cone.Core
 
 		readonly ParameterFormatter formatter = new ParameterFormatter();
 
-		public string NameFor(MethodBase method) => new FormatString(GetBaseName(method, x => x.Heading))
+		public string NameFor(Invokable method) => new FormatString(GetBaseName(method, x => x.Heading))
 			.Format(DisplayParameters(method.GetParameters()), (string x, out string r) => { r = x; return true; });
 
-		public string GetBaseName(MethodBase method, Func<DisplayAsAttribute, string> selectName) {
+		public string GetBaseName(Invokable method, Func<DisplayAsAttribute, string> selectName) {
 			var nameAttribute = method.GetCustomAttributes(typeof(DisplayAsAttribute), true);
 			if(nameAttribute.Length != 0)
 				return selectName(((DisplayAsAttribute)nameAttribute[0]));
 			return NormalizeNamePattern.Replace(method.Name, " ");
 		}
 
-		public ITestName TestNameFor(string context, MethodInfo method, object[] parameters) =>
+		public ITestName TestNameFor(string context, Invokable method, object[] parameters) =>
 			new ConeTestName(context, NameFor(method, parameters));
 
-		public string NameFor(MethodInfo method, object[] parameters) =>
+		public string NameFor(Invokable method, object[] parameters) =>
 			NameFor(method, parameters, new FormatString(GetBaseName(method, x => x.Name)));
 
-		public string NameFor(MethodInfo method, object[] parameters, FormatString formatString) {
+		public string NameFor(Invokable method, object[] parameters, FormatString formatString) {
 			if (parameters == null)
 				return formatString.ToString();
 			var methodParameters = method.GetParameters();

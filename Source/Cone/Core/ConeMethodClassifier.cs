@@ -11,7 +11,7 @@ namespace Cone.Core
 		{ }
 
 		protected override void ClassifyCore(Invokable method) {
-			if (method.Target.AsConeAttributeProvider().Has<IRowData>(rows => RowTest(method, rows)))
+			if (method.AsConeAttributeProvider().Has<IRowData>(rows => RowTest(method, rows)))
 				return;
 
 			var parameters = method.GetParameters();
@@ -59,7 +59,7 @@ namespace Cone.Core
 
 		void Monadic(Invokable method, ParameterInfo parameter) {
 			if (typeof(ITestResult).IsAssignableFrom(parameter.ParameterType)
-				&& method.Target.AsConeAttributeProvider().Has<AfterEachAttribute>()) {
+				&& method.AsConeAttributeProvider().Has<AfterEachAttribute>()) {
 				AfterEachWithResult(method);
 			}
 			else Unintresting(method);

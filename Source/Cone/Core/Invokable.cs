@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Cone.Core
 {
-	public struct Invokable
+	public struct Invokable : ICustomAttributeProvider
 	{
 		static Delegate TaskAwait = new Action<Task>(task => {
 			var awaiter = task.GetAwaiter();
@@ -29,6 +29,12 @@ namespace Cone.Core
 
 		public object[] GetCustomAttributes(bool inherit) =>
 			method.GetCustomAttributes(inherit);
+
+		public object[] GetCustomAttributes(Type attributeType, bool inherit) =>
+			method.GetCustomAttributes(attributeType, inherit);
+
+		public bool IsDefined(Type attributeType, bool inherit) =>
+			method.IsDefined(attributeType, inherit);
 
 		public ParameterInfo[] GetParameters() =>
 			method.GetParameters();

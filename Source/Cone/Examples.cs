@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Cone.Core;
@@ -8,12 +8,12 @@ namespace Cone
     public class Examples : IEnumerable<IRowTestData>
     {
         readonly ConeTestNamer testNamer = new ConeTestNamer();
-        readonly MethodInfo method;
+        readonly Invokable method;
 
         readonly List<IRowTestData> rows = new List<IRowTestData>();
 
         protected Examples(MethodInfo method) {
-            this.method = method;
+            this.method = new Invokable(method);
         }
 
         IEnumerator<IRowTestData> IEnumerable<IRowTestData>.GetEnumerator() { return GetEnumerator(); }

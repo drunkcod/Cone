@@ -60,7 +60,6 @@
     <Compile Include="Core\ExpressionEvaluatorParameters.cs" />
     <Compile Include="Core\FixtureException.cs" />
     <Compile Include="Core\FixtureProvider.cs" />
-    <Compile Include="Core\ICallable.cs" />
     <Compile Include="Core\IFixtureContext.cs" />
     <Compile Include="Core\Invokable.cs" />
     <Compile Include="Core\ITestExecutionContext.cs" />

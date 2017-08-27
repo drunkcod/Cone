@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -8,19 +8,19 @@ namespace Cone
 {
 	public class RowTestData : IRowTestData
 	{
-		readonly MethodInfo method;
+		readonly Invokable method;
 		readonly object[] parameters;
 		string name;
 		bool isPending;
 		
-		public RowTestData(MethodInfo method, object[] parameters) {
+		public RowTestData(Invokable method, object[] parameters) {
 			this.method = method;
 			this.parameters = parameters;
 		}
 		
 		public string DisplayAs  { get { return name; } }
 
-		public MethodInfo Method { get { return method; } }
+		public Invokable Method { get { return method; } }
 
 		public object[] Parameters { get { return parameters; } }
 
@@ -72,8 +72,8 @@ namespace Cone
 
 		RowTestData CreateRow(MethodCallExpression call) {
 			var parameters = call.Arguments.ConvertAll(x => Collect(x, call));
-			return new RowTestData(call.Method, parameters)
-				.SetName(testNamer.NameFor(call.Method, parameters));
+			return new RowTestData(new Invokable(call.Method), parameters)
+				.SetName(testNamer.NameFor(new Invokable(call.Method), parameters));
 		}
 
 		object Collect(Expression expression, Expression context) =>
