@@ -16,6 +16,7 @@ let msBuild =
   Directory.GetFiles(searchRoot, "MSBuild.exe",SearchOption.AllDirectories).OrderByDescending(fun x -> x).First()
 
 let build proj args =
+  Console.WriteLine("{0}", [|proj :> obj|]) |> ignore
   use build =
     Process.Start(
       ProcessStartInfo(

@@ -54,6 +54,7 @@
     </Reference>
     <Reference Include="System.Net.Http.WebRequest" />
     <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinaryExpectSpec.cs" />
@@ -99,6 +100,7 @@
     <Compile Include="RowBuilderSpec.cs" />
     <Compile Include="Runners\SessionWriterSpec.cs" />
     <Compile Include="Runners\TeamCityLoggerSpec.cs" />
+    <Compile Include="Runners\XmlSessionLoggerSpec.cs" />
     <Compile Include="SampleFixture.cs" />
     <Compile Include="StringContainsSpec.cs" />
     <Compile Include="StringExtensionsSpec.cs" />

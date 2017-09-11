@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Cone.Core;
 
@@ -52,9 +52,6 @@ namespace Cone.Stubs
 			throw new System.NotImplementedException();
 		}
 
-		public System.Reflection.Assembly Assembly
-		{
-			get { throw new NotImplementedException(); }
-		}
+		public System.Reflection.Assembly Assembly => GetType().Assembly;
 	}
 }
