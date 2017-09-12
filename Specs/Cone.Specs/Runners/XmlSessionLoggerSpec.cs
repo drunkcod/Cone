@@ -3,8 +3,10 @@ using Cone.Stubs;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace Cone.Runners
 {
@@ -12,8 +14,8 @@ namespace Cone.Runners
 	public class XmlSessionLoggerSpec
 	{
 		public void setup_failure() {
-			var result = new StringWriter();
-			var xml = new XmlTextWriter(result);
+			var result = new MemoryStream();
+			var xml = new XmlTextWriter(result, Encoding.UTF8);
 			var log = new XmlSessionLogger(xml);
 
 			var suiteLog = log.BeginSuite(new ConeSuiteStub());
@@ -22,12 +24,18 @@ namespace Cone.Runners
 			testLog.Failure(new ConeTestFailure(testCase.TestName, new Exception(), FailureType.Setup));
 			testLog.TestFinished();
 			suiteLog.EndSuite();
-			Check.With(() => XDocument.Parse(result.ToString()).Root).That(
-				x => x.Name == "test-case",
-				x => x.Attribute("executed").Value == "True",
-				x => x.Attribute("success").Value == "False",
-				x => x.Element("failure").Attribute("type").Value == "Setup",
-				x => x.Attributes().All(attr => attr.Name != "duration"));
+			xml.Flush();
+			result.Position = 0;
+			Check.With(() => ParseTestCase(new StreamReader(result, Encoding.UTF8))).That(
+				x => x.Executed == true,
+				x => x.Success == false,
+				x => x.Duration == null,
+				x => x.Failures[0].Type == FailureType.Setup);
+		}
+
+		XmlSessionLoggerTestCase ParseTestCase(TextReader input) {
+			var xml = new XmlSerializer(typeof(XmlSessionLoggerTestCase));
+			return (XmlSessionLoggerTestCase)xml.Deserialize(input);
 		}
 	}
 }

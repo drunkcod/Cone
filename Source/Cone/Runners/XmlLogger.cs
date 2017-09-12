@@ -5,9 +5,19 @@ using System.Xml;
 using Cone.Core;
 using System.Diagnostics;
 using System.Threading;
+using System.Xml.Serialization;
 
 namespace Cone.Runners
 {		
+	static class XmlWriterExtensions
+	{
+		public static void WriteAttribute(this XmlWriter xml, string name, bool value) {
+			xml.WriteStartAttribute(name);
+			xml.WriteValue(value);
+			xml.WriteEndAttribute();
+		}
+	}
+
 	public class XmlSessionSummary
 	{
 		public int Passed;
@@ -17,6 +27,26 @@ namespace Cone.Runners
 		public readonly Stopwatch Duration = Stopwatch.StartNew();
 	}
 
+	[XmlRoot("test-case")]
+	public class XmlSessionLoggerTestCase
+	{
+		[XmlAttribute("executed")]
+		public bool Executed;
+		[XmlAttribute("success")]
+		public bool Success;
+		[XmlAttribute("duration")]
+		public string Duration;
+
+		[XmlElement("failure")]
+		public XmlSessionLoggerFailure[] Failures;
+	}
+
+	public class XmlSessionLoggerFailure
+	{
+		[XmlAttribute("type")]
+		public FailureType Type;
+	}
+	
 	public class XmlSessionLogger : ISessionLogger
 	{
 		readonly XmlWriter xml;
@@ -105,7 +135,7 @@ namespace Cone.Runners
 
 			public void Skipped() { 
 				Interlocked.Increment(ref summary.Skipped);
-				xml.WriteAttributeString("skipped", "True");
+				xml.WriteAttribute("skipped", true);
 			}
 
 			public void TestFinished() {
@@ -121,8 +151,8 @@ namespace Cone.Runners
 			
 				xml.WriteAttributeString("name", test.TestName.Name);
 				xml.WriteAttributeString("context", test.TestName.Context);
-				xml.WriteAttributeString("executed", executed.ToString());
-				xml.WriteAttributeString("success", success.ToString());
+				xml.WriteAttribute("executed", executed);
+				xml.WriteAttribute("success", success);
 				if(duration != null)
 					xml.WriteAttributeString("duration", duration.Elapsed.ToString());
 
