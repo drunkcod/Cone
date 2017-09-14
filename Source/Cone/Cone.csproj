@@ -122,6 +122,7 @@
     <Compile Include="Runners\SimpleConeRunner.cs" />
     <Compile Include="Runners\TestSessionReport.cs" />
     <Compile Include="Runners\ValueResultTestMethod.cs" />
+    <Compile Include="Runners\XmlExtensions.cs" />
     <Compile Include="Runners\XmlLogger.cs" />
     <Compile Include="Core\TestStatus.cs" />
     <Compile Include="DescribeAttribute.cs" />

@@ -1,23 +1,14 @@
-using System;
-using System.Globalization;
-using System.IO;
-using System.Xml;
 using Cone.Core;
+using Cone.Xml;
+using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace Cone.Runners
-{		
-	static class XmlWriterExtensions
-	{
-		public static void WriteAttribute(this XmlWriter xml, string name, bool value) {
-			xml.WriteStartAttribute(name);
-			xml.WriteValue(value);
-			xml.WriteEndAttribute();
-		}
-	}
-
+{
 	public class XmlSessionSummary
 	{
 		public int Passed;
@@ -114,8 +105,8 @@ namespace Cone.Runners
 					xml.WriteAttributeString("type", failure.FailureType.ToString());
 					xml.WriteAttributeString("context", failure.Context);
 					xml.WriteAttributeString("file", failure.File);
-					xml.WriteAttributeString("line", failure.Line.ToString(CultureInfo.InvariantCulture));
-					xml.WriteAttributeString("column", failure.Column.ToString(CultureInfo.InvariantCulture));
+					xml.WriteAttribute("line", failure.Line);
+					xml.WriteAttribute("column", failure.Column);
 					xml.WriteStartElement("message");
 						xml.WriteCData(failure.Message);
 					xml.WriteEndElement();
