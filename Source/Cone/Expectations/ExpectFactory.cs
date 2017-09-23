@@ -69,7 +69,7 @@ namespace Cone.Expectations
 			if (binary != null)
 				return Binary(LiftEnum(binary), parameters);
 			if(body.NodeType == ExpressionType.TypeIs)
-				return TypeIs((TypeBinaryExpression)body);
+				return TypeIs((TypeBinaryExpression)body, parameters);
 			return Unary(body, parameters);
 		}
 
@@ -172,10 +172,10 @@ namespace Cone.Expectations
 			return new ExpectValue(value); 
 		}
 
-		Expect TypeIs(TypeBinaryExpression body) =>
+		Expect TypeIs(TypeBinaryExpression body, ExpressionEvaluatorParameters parameters) =>
 			new TypeIsExpect(body,
 				body.Expression.Type,
-				Evaluate(body.Expression, body, ExpressionEvaluatorParameters.Empty), 
+				Evaluate(body.Expression, body, parameters), 
 				body.TypeOperand);
 	}
 }

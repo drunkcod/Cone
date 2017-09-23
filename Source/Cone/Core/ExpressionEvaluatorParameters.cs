@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -21,7 +22,14 @@ namespace Cone.Core
 		}
 
 		public int Count => values.Length;
-		public object this[ParameterExpression parameter] => values.First(x => x.Key == parameter).Value;
+		public object this[ParameterExpression parameter] {
+			get {
+				var found = Array.FindIndex(values, x => x.Key == parameter);
+				if(found == -1)
+					throw new InvalidOperationException($"Failed to bind '{parameter}'");
+				return values[found].Value;
+			}
+		}
 
 		public void Add(ParameterExpression parameter, object value) {
 			if(this == Empty)

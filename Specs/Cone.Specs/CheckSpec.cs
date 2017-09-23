@@ -72,6 +72,11 @@ namespace Cone
 			Check.That(() => thing is ICollection<float>);
 		}
 
+		public void type_test_sequence() {
+			Check.With(() => new List<double> { 3.14 }).That(xs => xs.Single() is double);
+
+		}
+
 		public void nullable_HasValue_when_empty() {
 			Check.That(() => new Nullable<int>().HasValue == false);
 		}
