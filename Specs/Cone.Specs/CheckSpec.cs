@@ -45,22 +45,19 @@ namespace Cone
 			Check.That(() => counter.Next() == 1);
 		}
 
-		public void support_constant_expressions() {
+		public void support_constant_expressions() =>
 			Check.That(() => 1 + 2 == 3);
-		}
 
 		public void support_identity_checking() {
 			var obj = new Counter();
 			Check.That(() => object.ReferenceEquals(obj, obj) == true);
 		}
 
-		public void support_static_fields() {
+		public void support_static_fields() =>
 			Check.That(() => TheAnswer == 42);
-		}
 
-		public void negated_expression() {
+		public void negated_expression() =>
 			Check.That(() => !(TheAnswer == 7));
-		}
 
 		public void type_test() {
 			var objAnswer = (object)TheAnswer;
@@ -72,18 +69,14 @@ namespace Cone
 			Check.That(() => thing is ICollection<float>);
 		}
 
-		public void type_test_sequence() {
-			Check.With(() => new List<double> { 3.14 }).That(xs => xs.Single() is double);
+		public void type_test_sequence() =>
+			Check.With(() => new List<object> { 3.14 }).That(xs => xs.Single() is double);
 
-		}
-
-		public void nullable_HasValue_when_empty() {
+		public void nullable_HasValue_when_empty() =>
 			Check.That(() => new Nullable<int>().HasValue == false);
-		}
 
-		public void nullable_HasValue_with_value() {
+		public void nullable_HasValue_with_value() =>
 			Check.That(() => new Nullable<int>(42).HasValue == true);
-		}
 
 		public void null_coalesce() {
 			var stuff = new { Value = default(int?) };
@@ -116,9 +109,8 @@ namespace Cone
 			Check.That(() => isTrue(true));
 		}
 
-		public void supports_implicit_bool_conversion() {
+		public void supports_implicit_bool_conversion() =>
 			Check.That(() => new PossiblyGreen());
-		}
 
 		public void aggregate_checks() {
 			var e = Check<CheckFailed>.When(() =>
