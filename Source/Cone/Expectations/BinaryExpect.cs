@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Cone.Core;
@@ -46,13 +46,19 @@ namespace Cone.Expectations
 
     public class TypeIsExpect : Expect
     {
-        public TypeIsExpect(Expression body, IExpectValue actual, Type expected): base(body, actual, new ExpectValue(expected)) { }
+		readonly Type expectedType;
+		readonly Type actualType;
 
-        Type ActualType { get { return ActualValue == null ? null : ActualValue.GetType(); } }
+        public TypeIsExpect(Expression body, Type actualType, IExpectValue actual, Type expected): base(body, actual, new ExpectValue(expected)) { 
+			this.expectedType = expected;
+			this.actualType = actual.Value == null ? actualType : actual.Value.GetType();	
+		}
 
-        protected override bool CheckCore() {
-            return ((Type)ExpectedValue).IsAssignableFrom(ActualType);
-        }
+		public override string FormatActual(IFormatter<object> formatter) =>
+			formatter.Format(actualType);
+
+		protected override bool CheckCore() => 
+			expectedType.IsAssignableFrom(actualType);
     }
 
     public class LessThanExpect : BinaryExpect

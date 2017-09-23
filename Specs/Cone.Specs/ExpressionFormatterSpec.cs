@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
@@ -48,6 +48,11 @@ namespace Cone.Core
 		public void iif() {
 			var foo = false;
 			VerifyFormat(() => foo ? true : false, "foo ? true : false"); 
+		}
+
+		public void coaelsce() {
+			var foo = default(int?);
+			VerifyFormat(() => foo ?? 0, "foo ?? 0");
 		}
 
 		public void extension_method() {

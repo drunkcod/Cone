@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Cone
 {
@@ -66,12 +67,22 @@ namespace Cone
 			Check.That(() => objAnswer is Int32);
 		}
 
+		public void type_test_object() {
+			var thing = new List<float>();
+			Check.That(() => thing is ICollection<float>);
+		}
+
 		public void nullable_HasValue_when_empty() {
 			Check.That(() => new Nullable<int>().HasValue == false);
 		}
 
 		public void nullable_HasValue_with_value() {
 			Check.That(() => new Nullable<int>(42).HasValue == true);
+		}
+
+		public void null_coalesce() {
+			var stuff = new { Value = default(int?) };
+			Check.That(() => (stuff.Value ?? 0) >= 0);
 		}
 
 		public void struct_with_interface_member_access() {

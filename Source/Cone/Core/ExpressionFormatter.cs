@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -302,7 +302,8 @@ namespace Cone.Core
 				case ExpressionType.ExclusiveOr: return "{0} ^ {1}";
 				case ExpressionType.LeftShift: return "{0} << {1}";
 				case ExpressionType.RightShift: return "{0} >> {1}";
-				default: throw new NotSupportedException("Unsupported BinaryExression type " + nodeType);
+				case ExpressionType.Coalesce: return "{0} ?? {1}";
+				default: throw new NotSupportedException("Can't format BinaryExression of type " + nodeType);
 			}
 		}
 	}

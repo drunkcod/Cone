@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -174,6 +174,7 @@ namespace Cone.Expectations
 
 		Expect TypeIs(TypeBinaryExpression body) =>
 			new TypeIsExpect(body,
+				body.Expression.Type,
 				Evaluate(body.Expression, body, ExpressionEvaluatorParameters.Empty), 
 				body.TypeOperand);
 	}

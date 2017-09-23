@@ -21,7 +21,7 @@ namespace Cone.Expectations
 
         public virtual ConeMessage FormatMessage(IFormatter<object> formatter) => MessageFormat(FormatActual(formatter), FormatExpected(formatter));
 
-		public string FormatActual(IFormatter<object> formatter) =>
+		public virtual string FormatActual(IFormatter<object> formatter) =>
 			Actual.ToString(formatter);
 
         public string FormatExpected(IFormatter<object> formatter) =>

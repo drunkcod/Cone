@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -58,7 +58,6 @@ namespace Cone.Core
 			var result = Array.ConvertAll(evald, x => x.Result);
 			return Success(typeof(object[]), result);
 		}
-
 
 		EvaluationResult Lambda(Expression expression) => Lambda((LambdaExpression)expression);
 		EvaluationResult Lambda(LambdaExpression expression) {
