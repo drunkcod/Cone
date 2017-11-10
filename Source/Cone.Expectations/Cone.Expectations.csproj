@@ -1,7 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <Import Project="$(SolutionDir)\Cone.props" />
   <PropertyGroup>
-    <TargetFramework>net45</TargetFramework>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+      <TargetFrameworks>net45;net462;net47</TargetFrameworks>
   </PropertyGroup>
 </Project>

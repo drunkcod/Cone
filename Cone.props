@@ -6,9 +6,8 @@
         <TargetFrameworkVersion Condition="'$(TargetFramework)' == 'net452'">v4.5.2</TargetFrameworkVersion>
         <TargetFrameworkVersion Condition="'$(TargetFramework)' == 'net462'">v4.6.2</TargetFrameworkVersion>
         <TargetFrameworkVersion Condition="'$(TargetFramework)' == 'net47'">v4.7</TargetFrameworkVersion>
-        <!-- Better Build Paths-->
-        <BuildPath>$(SolutionDir)Build\</BuildPath>
-        <OutputPath>$(BuildPath)$(MSBuildProjectName)\$(TargetFramework)</OutputPath>
-        <IntermediateOutputPath>$(BuildPath)obj\$(Configuration)\$(TargetFramework)</IntermediateOutputPath>
+    </PropertyGroup>
+    <PropertyGroup>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
 </Project>
