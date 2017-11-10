@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -26,9 +26,8 @@ namespace Cone.Runners
 		}
 
 		Assembly AssemblyResolve(object sender, ResolveEventArgs e) {
-			if(typeof(ConeResolver).Assembly.FullName == e.Name) {
+			if(typeof(ConeResolver).Assembly.FullName == e.Name)
 				return typeof(ConeResolver).Assembly;
-			}
 
 			if(candidates == null) {
 				candidates = CandidateResolvePaths((string[])AppDomain.CurrentDomain.GetData(ResolvePathsKey));

@@ -21,8 +21,8 @@ namespace Cone.Expectations
 				.Where(IsMethodExpectProvider)
 				.Select(x => x.New() as IMethodExpectProvider);
 			foreach(var provider in providers)
-				foreach(var method in provider.GetSupportedMethods())
-					methodExpects.Insert(method, provider);
+			foreach(var method in provider.GetSupportedMethods())
+				methodExpects.Insert(method, provider);
 		}
 
 		public static bool IsMethodExpectProvider(Type type) =>
