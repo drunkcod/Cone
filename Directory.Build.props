@@ -1,0 +1,14 @@
+<Project>
+    <PropertyGroup>
+        <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)\Build\obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+        <OutputPath>$(MSBuildThisFileDirectory)\Build\$(MSBuildProjectName)\$(Configuration)</OutputPath>
+        <SolutionDir>$(MSBuildThisFileDirectory)</SolutionDir>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <Authors>Torbjörn Gyllebring</Authors>
+        <Description>Ergonomic unit testing for .NET</Description>
+        <RepositoryUrl>https://github.com/drunkcod/Cone</RepositoryUrl>
+    </PropertyGroup>
+
+</Project>

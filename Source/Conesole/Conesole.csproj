@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net45</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <OutputPath>$(SolutionDir)Bin\$(MSBuildProjectName)\$(TargetFramework)</OutputPath>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
