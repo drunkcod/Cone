@@ -4,6 +4,9 @@
       <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>  
   <ItemGroup>
+    <Compile Include="..\..\Source\Cone.Platform\netstandard2.0\DynamicMember.cs" Link="NetStandard\DynamicMember.cs" />
+  </ItemGroup>  
+  <ItemGroup>
     <PackageReference Include="Moq" Version="4.7.145" />
   </ItemGroup>  
   <ItemGroup>
