@@ -1,4 +1,4 @@
-﻿using Cone.Core;
+using Cone.Core;
 using Cone.Runners;
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,6 @@ using System.Threading;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using Cone;
 
 namespace Conesole
 {
