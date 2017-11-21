@@ -4,20 +4,21 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace Conesole.CoreApp
+namespace Conesole.NetCoreApp
 {
     class Program
     {
         static int Main(string[] args) {
+			if(args.Length != 1)
+			{
+				Console.WriteLine("usage is: dotnet conesole <path-to-spec-assembly>");
+				return -1;
+			}
 			try { 
-				var a = Assembly.LoadFrom(args[0]);
-				var targetFramework = GetTargetFramework(a);
-				if(IsDesktopFramework(targetFramework)) {
-					return RunDesktopConesole(args);
-				} else { 
-					Console.WriteLine($"{targetFramework} support pending.");
-					return -1;
-				}
+				return IsDesktopFramework(GetTargetFramework(args[0])) 
+				? RunDesktopConesole(args)
+				: RunInProcConesole(args);
+
 			} catch(Exception ex) {
 				Console.Error.WriteLine("Failed to run specs: {0}", ex);
 				return -1;
@@ -28,13 +29,12 @@ namespace Conesole.CoreApp
 		{
 			var myPath = Path.GetDirectoryName(new Uri(typeof(Program).Assembly.CodeBase).LocalPath);
 			var probePaths = new [] {
-				Path.Combine(myPath, ".."),
+				Path.Combine(myPath, "..", "..", "tools"),
 				Path.Combine(myPath, "..", "..", "..", "Conesole", "Debug"),
 			};
 			var toolPath = probePaths.Select(x => Path.Combine(Path.GetFullPath(x), "net45", "Conesole.exe")).FirstOrDefault(File.Exists);
 			if(toolPath == null)
 				throw new Exception("Failed to locate Conesole.exe");
-			Console.WriteLine("Running from {0}", toolPath);
 			var conesole = Process.Start(new ProcessStartInfo { 
 				FileName = toolPath,
 				Arguments = string.Join(' ', Array.ConvertAll(args, x => $"\"{x}\""))
@@ -43,16 +43,42 @@ namespace Conesole.CoreApp
 			return conesole.ExitCode;
 		}
 
+		static int RunInProcConesole(string[] args) {
+			var specs = Assembly.LoadFrom(args[0]);
+			var localCone = Assembly.LoadFrom(Path.Combine(Path.GetDirectoryName(new Uri(specs.CodeBase).LocalPath), "Cone.dll"));
+			var inProcRunnerType = localCone.GetType("Cone.Runners.InProcRunner");
+			var inProcRunner = inProcRunnerType.GetConstructor(Type.EmptyTypes).Invoke(null);
+			return (int)inProcRunnerType.GetMethod("Main").Invoke(inProcRunner, new[]{ args });
+		}
+
 		static bool IsDesktopFramework(string targetFramework) => targetFramework.StartsWith(".NETFramework");
 
-		static string GetTargetFramework(Assembly specs) {
-			var localCone = Assembly.LoadFrom(Path.Combine(Path.GetDirectoryName(new Uri(specs.CodeBase).LocalPath), "Cone.dll"));
-			foreach (var item in localCone.GetCustomAttributes()) {
+		static string GetTargetFramework(string assembly) {
+			string frameworkName;
+			try { 
+				var specs = Assembly.LoadFrom(assembly);
+				if(TryGetFrameworkName(specs, out frameworkName))
+					return frameworkName;
+
+				var localCone = Assembly.LoadFrom(Path.Combine(Path.GetDirectoryName(new Uri(specs.CodeBase).LocalPath), "Cone.dll"));
+				if(TryGetFrameworkName(localCone, out frameworkName))
+					return frameworkName;
+			} catch(BadImageFormatException) { }
+
+			TryGetFrameworkName(typeof(Program).Assembly, out frameworkName);
+			return frameworkName;
+		}
+
+		static bool TryGetFrameworkName(ICustomAttributeProvider attrs, out string found) {
+			foreach (var item in attrs.GetCustomAttributes(true)) {
 				var t = item.GetType();
-				if (t.FullName == "System.Runtime.Versioning.TargetFrameworkAttribute")
-					return (string)t.GetProperty("FrameworkName").GetValue(item);
+				if (t.FullName == "System.Runtime.Versioning.TargetFrameworkAttribute") { 
+					found = (string)t.GetProperty("FrameworkName").GetValue(item);
+					return true;
+				}
 			}
-			return ".NETCoreApp,Version=2.0";
+			found = null;
+			return false;
 		}
 	}
 }
