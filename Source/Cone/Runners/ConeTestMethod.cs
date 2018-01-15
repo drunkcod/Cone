@@ -10,17 +10,20 @@ namespace Cone.Runners
 	{
 		readonly IConeFixture fixture;
 		readonly Invokable method;
+		readonly IEnumerable<string> testCategories;
 
-		public ConeTestMethod(IConeFixture fixture, Invokable method) {
+		public ConeTestMethod(IConeFixture fixture, Invokable method, IEnumerable<string> testCategories) {
 			this.fixture = fixture;
 			this.method = method;
+			this.testCategories = testCategories;
 		}
 
-		public bool IsAsync { get { return method.GetCustomAttributes(true).Any(x => x.GetType().FullName == "System.Runtime.CompilerServices.AsyncStateMachineAttribute"); } }
-		public Assembly Assembly { get { return fixture.FixtureType.Assembly; } }
+		public bool IsAsync => method.GetCustomAttributes(true).Any(x => x.GetType().FullName == "System.Runtime.CompilerServices.AsyncStateMachineAttribute");
+		public Assembly Assembly => fixture.FixtureType.Assembly;
 
-		public IEnumerable<string> Categories { get { return fixture.Categories; } }
-		public Type ReturnType { get { return method.ReturnType; } }
+		public IEnumerable<string> Categories => fixture.Categories.Concat(testCategories);
+
+		public Type ReturnType => method.ReturnType;
 		public string Location => $"{method.ReturnType} {fixture.FixtureType}.{method.Name}({method.GetParameters().Select(x => x.ToString()).Join(", ")})";
 		public IConeFixture Fixture => fixture;
 
@@ -29,7 +32,7 @@ namespace Cone.Runners
 			result.Success();
 		}
 
-		public ParameterInfo[] GetParameters() { return method.GetParameters(); } 
+		public ParameterInfo[] GetParameters() => method.GetParameters();
 
 		protected object Invoke(object[] parameters) =>
 			method.Await(fixture.GetFixtureInstance(), parameters);

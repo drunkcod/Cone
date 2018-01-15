@@ -8,6 +8,13 @@ namespace Cone.Runners
 {
 	public class MSTestSuiteBuilder : ConePadSuiteBuilder
 	{
+		static IEnumerable<string> GetCategories(ICustomAttributeProvider attr) {
+			var attrs = attr.GetCustomAttributes(true).Where(x => x.GetType().FullName == MSTestAttributeNames.TestCategory).ToArray();
+			if (attrs.Length == 0)
+				return NoStrings;
+			return attrs.Select(x => x.GetType().GetProperty("TestCategories").GetValue(x)).Cast<IList<string>>().SelectMany(x => x);
+		}
+
 		static class MSTestAttributeNames
 		{
 			public const string ClassInitialize =   "Microsoft.VisualStudio.TestTools.UnitTesting.ClassInitializeAttribute";
@@ -17,6 +24,7 @@ namespace Cone.Runners
 			public const string TestContext =       "Microsoft.VisualStudio.TestTools.UnitTesting.TestContext";
 			public const string TestClass =         "Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute";
 			public const string TestMethod =        "Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute";
+			public const string TestCategory =		"Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute";
 			public const string Ignore =            "Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute";
 			public const string ExpectedException = "Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedExceptionAttribute";
 		}
@@ -27,11 +35,14 @@ namespace Cone.Runners
 		{
 			private readonly Type type;
 
-			public MSTestFixtureDescription(Type type) {
+			MSTestFixtureDescription(Type type, IEnumerable<string> categories) {
 				this.type = type;
+				this.Categories = categories;
 			}
 
-			public IEnumerable<string> Categories => NoStrings;
+			public static MSTestFixtureDescription Create(Type type) => new MSTestFixtureDescription(type, GetCategories(type));
+			
+			public IEnumerable<string> Categories { get; }
 			public string SuiteName => type.Namespace; 
 			public string SuiteType => "TestClass";
 			public string TestName => type.Name;
@@ -41,12 +52,15 @@ namespace Cone.Runners
 		{
 			readonly Type type;
 
-			public MSTestContextDescription(Type type) {
+			MSTestContextDescription(Type type, IEnumerable<string> categories) {
 				this.type = type;
+				this.Categories = categories;
 			}
 
+			public static MSTestContextDescription Create(Type type) => new MSTestContextDescription(type, GetCategories(type));
+
 			public string Context => type.Name; 
-			public IEnumerable<string> Categories => NoStrings;
+			public IEnumerable<string> Categories { get; }
 		}
 
 		class MSTestSuite : ConePadSuite
@@ -79,7 +93,7 @@ namespace Cone.Runners
 							? ExpectedTestResult.None
 							: GetExpectedExceptionResult(attributes[e]);
 
-						Test(method, testAttributes, expectedResult);
+						Test(method, testAttributes, expectedResult, GetCategories(method));
 					}
 					else Unintresting(method);
 				}
@@ -130,7 +144,7 @@ namespace Cone.Runners
 		}
 
 		public override IFixtureDescription DescriptionOf(Type fixtureType) {
-			return new MSTestFixtureDescription(fixtureType);
+			return MSTestFixtureDescription.Create(fixtureType);
 		}
 
 		protected override ConePadSuite NewSuite(Type type, IFixtureDescription description) {
@@ -140,8 +154,8 @@ namespace Cone.Runners
 		}
 
 		protected override bool TryGetContext(Type nestedType, out IContextDescription context) {
-			context = IsTestClass(nestedType) 
-				? new MSTestContextDescription(nestedType) 
+			context = IsTestClass(nestedType)
+				? MSTestContextDescription.Create(nestedType) 
 				: null;
 			return context != null;
 		}

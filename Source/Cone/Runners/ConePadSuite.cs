@@ -17,11 +17,11 @@ namespace Cone.Runners
 				this.suite = suite;
 			}
 
-			public Action<ConeMethodThunk, object[], ExpectedTestResult> TestFound;
+			public Action<ConeMethodThunk, object[], ExpectedTestResult, IEnumerable<string>> TestFound;
 
-			protected override void TestCore(Invokable method, IEnumerable<object> attributes , ExpectedTestResult expectedResult) {
+			protected override void TestCore(Invokable method, IEnumerable<object> attributes , ExpectedTestResult expectedResult, IEnumerable<string> testCategories) {
 				var thunk = CreateMethodThunk(method, attributes);
-				TestFound(thunk, null, expectedResult); 
+				TestFound(thunk, null, expectedResult, testCategories);
 			}
 
 			protected override object FixtureInvoke(Invokable method) =>
@@ -49,13 +49,14 @@ namespace Cone.Runners
 					parent.AddTest(NameFor(item), thunk, item.Parameters, 
 						item.HasResult 
 							? ExpectedTestResult.Value(item.Result)
-							: ExpectedTestResult.None));
+							: ExpectedTestResult.None, NoCategories));
 			}
 
 			ConeTestName NameFor(IRowData item) {
 				return new ConeTestName(Name, item.DisplayAs ?? thunk.NameFor(item.Parameters));
 			}
 		}
+		static readonly string[] NoCategories = new string[0];
 
 		private readonly ConeFixture fixture;
 
@@ -88,30 +89,30 @@ namespace Cone.Runners
 
 		public void AddCategories(IEnumerable<string> categories) { this.categories = this.Categories.Concat(categories); }
 			
-		void AddTest(ITestName displayName, ConeMethodThunk thunk, object[] args, ExpectedTestResult result) {
-			Tests.Add(NewTest(displayName, thunk, args, result));
+		void AddTest(ITestName displayName, ConeMethodThunk thunk, object[] args, ExpectedTestResult result, IEnumerable<string> testCategories) {
+			Tests.Add(NewTest(displayName, thunk, args, result, testCategories));
 		}
 
-		IConeTest NewTest(ITestName displayName, ConeMethodThunk thunk, object[] args, ExpectedTestResult result) {
-			return new ConePadTest(this, displayName, NewTestMethod(Fixture, thunk.Method, result), args, thunk);
+		IConeTest NewTest(ITestName displayName, ConeMethodThunk thunk, object[] args, ExpectedTestResult result, IEnumerable<string> testCategories) {
+			return new ConePadTest(this, displayName, NewTestMethod(Fixture, thunk.Method, result, testCategories), args, thunk);
 		}
 
-		static ConeTestMethod NewTestMethod(IConeFixture fixture, Invokable method, ExpectedTestResult result) {
+		static ConeTestMethod NewTestMethod(IConeFixture fixture, Invokable method, ExpectedTestResult result, IEnumerable<string> testCategories) {
 			switch(result.ResultType) {
-				case ExpectedTestResultType.None: return new ConeTestMethod(fixture, method);
-				case ExpectedTestResultType.Value: return new ValueResultTestMethod(fixture, method, result);
-				case ExpectedTestResultType.Exception: return new ExpectedExceptionTestMethod(fixture, method, result);
+				case ExpectedTestResultType.None: return new ConeTestMethod(fixture, method, testCategories);
+				case ExpectedTestResultType.Value: return new ValueResultTestMethod(fixture, method, result, testCategories);
+				case ExpectedTestResultType.Exception: return new ExpectedExceptionTestMethod(fixture, method, result, testCategories);
 				default: throw new NotSupportedException();
 			}
 		}
 
 		public void DiscoverTests(ITestNamer names) {
 			var testSink = new ConePadTestMethodSink(names, this);
-			testSink.TestFound += (thunk, args, result) => AddTest(thunk.TestNameFor(Name, args), thunk, args, result);
+			testSink.TestFound += (thunk, args, result, cats) => AddTest(thunk.TestNameFor(Name, args), thunk, args, result, cats);
 			var setup = new ConeFixtureSetup(GetMethodClassifier(fixture.FixtureMethods, testSink));
 			setup.CollectFixtureMethods(Fixture.FixtureType);
 		}
-
+		
 		protected virtual IMethodClassifier GetMethodClassifier(
 			IConeFixtureMethodSink fixtureSink, 
 			IConeTestMethodSink testSink) {

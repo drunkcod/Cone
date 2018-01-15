@@ -1,4 +1,4 @@
-﻿using Cone.Core;
+using Cone.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -14,6 +14,12 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
 	public class TestInitializeAttribute : Attribute { }
 
 	public class TestCleanupAttribute : Attribute { }
+
+	public class TestCategoryAttribute : Attribute
+	{
+		public TestCategoryAttribute(string category) { TestCategories = new[] { category }; }
+		public IList<string> TestCategories { get; set; }
+	}
 
 	public class ClassInitializeAttribute : Attribute { }
 
@@ -40,7 +46,7 @@ namespace Cone.Runners
 	public class MSTestSuiteBuilderSpec
 	{
 		readonly MSTestSuiteBuilder SuiteBuilder = new MSTestSuiteBuilder(new ConeTestNamer(), new DefaultFixtureProvider());
-
+			
 		static ConePadSuite BuildSuite<T>(T fixture) {
 			return new MSTestSuiteBuilder(new ConeTestNamer(), new LambdaObjectProvider(t => fixture)).BuildSuite(fixture.GetType());
 		}
@@ -85,6 +91,13 @@ namespace Cone.Runners
 		{
 			[TestMethod]
 			public void my_test() { }
+		}
+
+		[TestClass, TestCategory("FixtureCategory")]
+		class CategorizedTestFixture
+		{
+			[TestMethod, TestCategory("MethodCategory")]
+			public void test() { }
 		}
 
 		public void supports_types_with_TestClass_attribute() {
@@ -188,8 +201,9 @@ namespace Cone.Runners
 				Check.That(() => TestReport.Pending == TestSuite.TestCount);
 			}
 		}
+		
 		[Context("given expected exceptions")]
-		public class MSTestsuiteBuilderExpectedExceptionsSepc
+		public class MSTestsuiteBuilderExpectedExceptionsSpec
 		{
 			[TestClass]
 			class ExpectedExceptions
@@ -259,6 +273,20 @@ namespace Cone.Runners
 
 			public void allow_derived_types() {
 				Check.That(() => TestReport.Passed.Contains("allow derived types"));
+			}
+		}
+
+		[Context("given a categorized fixture")]
+		public class MSTestBuilderCategoriesSpec
+		{
+			public void fixture_category() {
+				var suite = BuildSuite(new CategorizedTestFixture());
+				Check.That(() => suite.Categories.Any(x => x == "FixtureCategory"));
+			}
+
+			public void test_category() {
+				var suite = BuildSuite(new CategorizedTestFixture());
+				Check.That(() => suite.Tests.Single(x => x.TestName.Name == nameof(CategorizedTestFixture.test)).Categories.Any(x => x == "MethodCategory"));
 			}
 		}
 	}

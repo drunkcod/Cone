@@ -1,0 +1,17 @@
+<Project>   
+    <Target Name="Cone-TargetInfo">
+        <PropertyGroup>
+            <Fx>$(TargetFramework)</Fx>
+            <Fx Condition="'$(TargetFramework)'==''">$(TargetFrameworks)</Fx>
+            <Lines>
+                <TargetInfo>;
+                    <ProjectName>$(MSBuildProjectName)</ProjectName>;
+                    <OutputPath>$(OutputPath)</OutputPath>;
+                    <TargetFileName>$(TargetFileName)</TargetFileName>;
+                    <TargetFrameworks>$(Fx.Replace(';',','))</TargetFrameworks>;
+                </TargetInfo>
+            </Lines>
+        </PropertyGroup>
+        <WriteLinesToFile Encoding="UTF-8" File="$(Cone-TargetFile)" Lines="$(Lines)" Overwrite="true" />
+    </Target>
+</Project>

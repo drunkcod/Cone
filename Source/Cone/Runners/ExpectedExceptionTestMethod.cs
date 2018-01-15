@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Cone.Core;
 
@@ -8,7 +9,7 @@ namespace Cone.Runners
 	{
 		readonly ExpectedTestResult expectedExceptionType;
 
-		public ExpectedExceptionTestMethod(IConeFixture fixture, Invokable method, ExpectedTestResult expectedExceptionType) : base(fixture, method) {
+		public ExpectedExceptionTestMethod(IConeFixture fixture, Invokable method, ExpectedTestResult expectedExceptionType, IEnumerable<string> testCategories) : base(fixture, method, testCategories) {
 			this.expectedExceptionType = expectedExceptionType;
 		}
 

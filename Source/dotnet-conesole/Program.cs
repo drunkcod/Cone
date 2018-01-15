@@ -1,31 +1,57 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace Conesole.NetCoreApp
 {
-    class Program
-    {
-        static int Main(string[] args) {
-			if(args.Length != 1)
+	public class TargetInfo
+	{
+		public string ProjectName;
+		public string OutputPath;
+		public string TargetFileName;
+		public string TargetFrameworks;
+
+		public string[] GetTargetFrameworks() => TargetFrameworks.Split(',');
+	}
+
+	class Program
+	{
+		static string[] DesktopFrameworks = new[] {
+			"net45",
+			"net451",
+			"net452",
+			"net462",
+			"net47",
+			"net471",
+		};
+
+		static int Main(string[] args) {
+			if(args.Length > 0)
 			{
-				Console.WriteLine("usage is: dotnet conesole <path-to-spec-assembly>");
+				Console.WriteLine("usage is: dotnet conesole");
 				return -1;
 			}
 			try { 
-				return IsDesktopFramework(GetTargetFramework(args[0])) 
-				? RunDesktopConesole(args)
-				: RunInProcConesole(args);
-
+				var targetInfo = GetTargetInfo();
+				foreach(var fx in targetInfo.GetTargetFrameworks()) {
+//					Console.WriteLine("Running specs from {0} targeting {1}", targetInfo.TargetProject, fx);
+					return IsDesktopFramework(fx) 
+					? RunDesktopConesole(targetInfo.TargetFileName)
+					: RunInProcConesole(args);
+				}
+				return 0;
 			} catch(Exception ex) {
 				Console.Error.WriteLine("Failed to run specs: {0}", ex);
 				return -1;
 			}
-        }
+		}
 
-		static int RunDesktopConesole(string[] args)
+		static int RunDesktopConesole(params string[] args)
 		{
 			var myPath = Path.GetDirectoryName(new Uri(typeof(Program).Assembly.CodeBase).LocalPath);
 			var probePaths = new [] {
@@ -36,7 +62,7 @@ namespace Conesole.NetCoreApp
 			if(toolPath == null)
 				throw new Exception("Failed to locate Conesole.exe");
 			var conesole = Process.Start(new ProcessStartInfo { 
-				FileName = toolPath,
+				FileName = toolPath,	
 				Arguments = string.Join(' ', Array.ConvertAll(args, x => $"\"{x}\""))
 			});
 			conesole.WaitForExit();
@@ -51,34 +77,30 @@ namespace Conesole.NetCoreApp
 			return (int)inProcRunnerType.GetMethod("Main").Invoke(inProcRunner, new[]{ args });
 		}
 
-		static bool IsDesktopFramework(string targetFramework) => targetFramework.StartsWith(".NETFramework");
+		static bool IsDesktopFramework(string targetFramework) => DesktopFrameworks.Contains(targetFramework);
 
-		static string GetTargetFramework(string assembly) {
-			string frameworkName;
-			try { 
-				var specs = Assembly.LoadFrom(assembly);
-				if(TryGetFrameworkName(specs, out frameworkName))
-					return frameworkName;
-
-				var localCone = Assembly.LoadFrom(Path.Combine(Path.GetDirectoryName(new Uri(specs.CodeBase).LocalPath), "Cone.dll"));
-				if(TryGetFrameworkName(localCone, out frameworkName))
-					return frameworkName;
-			} catch(BadImageFormatException) { }
-
-			TryGetFrameworkName(typeof(Program).Assembly, out frameworkName);
-			return frameworkName;
-		}
-
-		static bool TryGetFrameworkName(ICustomAttributeProvider attrs, out string found) {
-			foreach (var item in attrs.GetCustomAttributes(true)) {
-				var t = item.GetType();
-				if (t.FullName == "System.Runtime.Versioning.TargetFrameworkAttribute") { 
-					found = (string)t.GetProperty("FrameworkName").GetValue(item);
-					return true;
+		static TargetInfo GetTargetInfo() {
+			var tmp = Path.GetTempFileName();
+			try {
+				var proj = Directory.GetFiles(".", "*.csproj").Single();
+				var msbuild = Process.Start(new ProcessStartInfo { 
+					FileName = "dotnet",
+					Arguments = $"msbuild {proj} /nologo /p:Cone-TargetFile={tmp} /t:Cone-TargetInfo"
+				});
+				msbuild.WaitForExit();
+				using(var info = File.OpenRead(tmp)) {
+					var xml = new XmlSerializer(typeof(TargetInfo));
+					var result = (TargetInfo)xml.Deserialize(XmlReader.Create(info, new XmlReaderSettings { ConformanceLevel = ConformanceLevel.Fragment }));
+					//result.TargetProject = proj;
+					return result;
 				}
+			} catch(Exception ex) {
+				throw new InvalidOperationException("Failed to detect project", ex);
 			}
-			found = null;
-			return false;
+			finally {
+				File.Delete(tmp);
+			}
+			
 		}
 	}
 }
