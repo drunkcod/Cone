@@ -7,12 +7,12 @@ namespace Cone.Runners
 {
 	public class ConeTestMethodContext
 	{
-		public readonly object[] Arguments;
+		public static readonly ConeTestMethodContext Null = new ConeTestMethodContext(ExpectedTestResult.None, new string[0]);
+
 		public readonly IReadOnlyCollection<string> Categories;
 		public readonly ExpectedTestResult ExpectedResult;
 
-		public ConeTestMethodContext(object[] args, ExpectedTestResult result, IReadOnlyCollection<string> cats) {
-			this.Arguments = args;
+		public ConeTestMethodContext(ExpectedTestResult result, IReadOnlyCollection<string> cats) {
 			this.ExpectedResult = result;
 			this.Categories = cats;
 		}
@@ -32,9 +32,9 @@ namespace Cone.Runners
 
 			public Action<ConeMethodThunk, ConeTestMethodContext> TestFound;
 
-			protected override void TestCore(Invokable method, IEnumerable<object> attributes , ExpectedTestResult expectedResult, IEnumerable<string> testCategories) {
+			protected override void TestCore(Invokable method, IEnumerable<object> attributes, ConeTestMethodContext context) {
 				var thunk = CreateMethodThunk(method, attributes);
-				TestFound(thunk, new ConeTestMethodContext(null, expectedResult, testCategories.ToArray()));
+				TestFound(thunk, context);
 			}
 
 			protected override object FixtureInvoke(Invokable method) =>
@@ -121,7 +121,7 @@ namespace Cone.Runners
 
 		public void DiscoverTests(ITestNamer names) {
 			var testSink = new ConePadTestMethodSink(names, this);
-			testSink.TestFound += (thunk, context) => AddTest(thunk.TestNameFor(Name, context.Arguments), thunk, context.Arguments, context.ExpectedResult, context.Categories);
+			testSink.TestFound += (thunk, context) => AddTest(thunk.TestNameFor(Name, null), thunk, null, context.ExpectedResult, context.Categories);
 			var setup = new ConeFixtureSetup(GetMethodClassifier(fixture.FixtureMethods, testSink));
 			setup.CollectFixtureMethods(Fixture.FixtureType);
 		}

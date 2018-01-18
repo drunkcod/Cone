@@ -8,11 +8,11 @@ namespace Cone.Runners
 {
 	public class MSTestSuiteBuilder : ConePadSuiteBuilder
 	{
-		static IEnumerable<string> GetCategories(ICustomAttributeProvider attr) {
+		static IReadOnlyCollection<string> GetCategories(ICustomAttributeProvider attr) {
 			var attrs = attr.GetCustomAttributes(true).Where(x => x.GetType().FullName == MSTestAttributeNames.TestCategory).ToArray();
 			if (attrs.Length == 0)
 				return NoStrings;
-			return attrs.Select(x => x.GetType().GetProperty("TestCategories").GetValue(x)).Cast<IList<string>>().SelectMany(x => x);
+			return attrs.Select(x => x.GetType().GetProperty("TestCategories").GetValue(x)).Cast<IList<string>>().SelectMany(x => x).ToArray();
 		}
 
 		static class MSTestAttributeNames
@@ -93,7 +93,7 @@ namespace Cone.Runners
 							? ExpectedTestResult.None
 							: GetExpectedExceptionResult(attributes[e]);
 
-						Test(method, testAttributes, expectedResult, GetCategories(method));
+						Test(method, testAttributes, new ConeTestMethodContext(expectedResult, GetCategories(method)));
 					}
 					else Unintresting(method);
 				}

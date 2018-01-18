@@ -52,12 +52,10 @@ namespace Cone.Core
 			if(sunk)
 				return;
 			if(method.ReturnType == typeof(void) || method.IsWaitable)
-				Test(method, attributes, ExpectedTestResult.None, NoCategories);
+				Test(method, attributes, ConeTestMethodContext.Null);
 
 			Unintresting(method);
 		}
-
-		static string[] NoCategories = new string[0];
 
 		void Monadic(Invokable method, ParameterInfo parameter) {
 			if (typeof(ITestResult).IsAssignableFrom(parameter.ParameterType)
