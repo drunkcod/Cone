@@ -45,7 +45,7 @@ namespace Cone.Core
 				.Select(x => new ConeStackFrame(x))
 				.ToArray();
 
-			var expectationFailed = testError as CheckFailed;
+			var expectationFailed = testError as IFailureMessage;
 			if(expectationFailed != null)
 			{
 				ErrorsContext = expectationFailed.Context;

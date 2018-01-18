@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Cone.Core;
 using Cone.Expectations;
@@ -19,8 +19,14 @@ namespace Cone
 		public readonly Maybe<object> Expected;
 	}
 
+	public interface IFailureMessage
+	{
+		string Context {get; }
+		FailedExpectation[] Failures { get; }
+	}
+
 	[Serializable]
-	public class CheckFailed : Exception
+	public class CheckFailed : Exception, IFailureMessage
 	{
 		public CheckFailed(string message) : this(string.Empty, new []{ new FailedExpectation(message) }, null) { }
 
@@ -31,8 +37,8 @@ namespace Cone
 			this.Failures = fails;
 		}
 
-		public readonly string Context;
-		public readonly FailedExpectation[] Failures;
+		public string Context { get; }
+		public FailedExpectation[] Failures { get; }
 
     }
 }
