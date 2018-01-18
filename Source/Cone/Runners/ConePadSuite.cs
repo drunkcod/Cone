@@ -102,26 +102,24 @@ namespace Cone.Runners
 
 		public void AddCategories(IEnumerable<string> categories) { this.categories = this.Categories.Concat(categories); }
 			
-		void AddTest(ITestName displayName, ConeMethodThunk thunk, object[] args, ExpectedTestResult result, IEnumerable<string> testCategories) {
-			Tests.Add(NewTest(displayName, thunk, args, result, testCategories));
-		}
+		void AddTest(ITestName displayName, ConeMethodThunk thunk, object[] args, ConeTestMethodContext context) =>
+			Tests.Add(NewTest(displayName, thunk, args, context));
 
-		IConeTest NewTest(ITestName displayName, ConeMethodThunk thunk, object[] args, ExpectedTestResult result, IEnumerable<string> testCategories) {
-			return new ConePadTest(this, displayName, NewTestMethod(Fixture, thunk.Method, result, testCategories), args, thunk);
-		}
+		IConeTest NewTest(ITestName displayName, ConeMethodThunk thunk, object[] args, ConeTestMethodContext context) =>
+			new ConePadTest(this, displayName, NewTestMethod(Fixture, thunk.Method, context), args, thunk);
 
-		static ConeTestMethod NewTestMethod(IConeFixture fixture, Invokable method, ExpectedTestResult result, IEnumerable<string> testCategories) {
-			switch(result.ResultType) {
-				case ExpectedTestResultType.None: return new ConeTestMethod(fixture, method, testCategories);
-				case ExpectedTestResultType.Value: return new ValueResultTestMethod(fixture, method, result, testCategories);
-				case ExpectedTestResultType.Exception: return new ExpectedExceptionTestMethod(fixture, method, result, testCategories);
+		static ConeTestMethod NewTestMethod(IConeFixture fixture, Invokable method, ConeTestMethodContext context) {
+			switch(context.ExpectedResult.ResultType) {
+				case ExpectedTestResultType.None: return new ConeTestMethod(fixture, method, context.Categories);
+				case ExpectedTestResultType.Value: return new ValueResultTestMethod(fixture, method, context.ExpectedResult, context.Categories);
+				case ExpectedTestResultType.Exception: return new ExpectedExceptionTestMethod(fixture, method, context.ExpectedResult, context.Categories);
 				default: throw new NotSupportedException();
 			}
 		}
 
 		public void DiscoverTests(ITestNamer names) {
 			var testSink = new ConePadTestMethodSink(names, this);
-			testSink.TestFound += (thunk, context) => AddTest(thunk.TestNameFor(Name, null), thunk, null, context.ExpectedResult, context.Categories);
+			testSink.TestFound += (thunk, context) => AddTest(thunk.TestNameFor(Name, null), thunk, null, context);
 			var setup = new ConeFixtureSetup(GetMethodClassifier(fixture.FixtureMethods, testSink));
 			setup.CollectFixtureMethods(Fixture.FixtureType);
 		}
