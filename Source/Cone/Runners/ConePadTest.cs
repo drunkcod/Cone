@@ -1,4 +1,4 @@
-﻿using Cone.Core;
+using Cone.Core;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -32,10 +32,10 @@ namespace Cone.Runners
 		void IConeTest.Run(ITestResult result) {
 			if(test.IsAsync && test.ReturnType == typeof(void))
 				throw new NotSupportedException("async void methods aren't supported");
-			test.Invoke(ConvertArgs(test.GetParameters()), result);
+			test.Invoke(ConvertArgs(args, test.GetParameters()), result);
 		}
 
-		private object[] ConvertArgs(ParameterInfo[] parameters) {
+		static object[] ConvertArgs(object[] args, ParameterInfo[] parameters) {
 			if(args == null)
 				return null;
 			var x = new object[args.Length];
@@ -47,7 +47,7 @@ namespace Cone.Runners
 			return x;
 		}
 
-		object ChangeType(object value, Type conversionType) {
+		static object ChangeType(object value, Type conversionType) {
 			return KeepOriginal(value, conversionType) 
 				? value 
 				: Convert.ChangeType(value, conversionType);
