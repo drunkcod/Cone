@@ -66,11 +66,12 @@ namespace Cone.Runners
 
 		public readonly List<IConeTest> Tests = new List<IConeTest>();
 
-		public ConeSuite(ConeFixture fixture) {
+		public ConeSuite(ConeFixture fixture, string name) {
 			this.fixture = fixture;
+			this.Name = name;
 		}
 
-		public string Name { get; set; }
+		public string Name { get; }
 		public IEnumerable<string> Categories => categories; 
 		public IEnumerable<ConeSuite> Subsuites => subsuites;
 

@@ -12,18 +12,13 @@ namespace Cone.Runners
 			this.objectProvider = objectProvider;
 		}
 		
-		protected override ConeSuite NewSuite(Type type, IFixtureDescription description) {
-			return new ConeSuite(MakeFixture(type, description.Categories)) { 
-				Name = description.SuiteName + "." + description.TestName
-			};
-		}
+		protected override ConeSuite NewSuite(Type type, IFixtureDescription description) =>
+			new ConeSuite(MakeFixture(type, description.Categories), description.SuiteName + "." + description.TestName);
 
-		protected ConeFixture MakeFixture(Type type, IEnumerable<string> categories) {
-			return new ConeFixture(type, categories, objectProvider);
-		}
+		protected ConeFixture MakeFixture(Type type, IEnumerable<string> categories)=>
+			new ConeFixture(type, categories, objectProvider);
 
-		protected override void AddSubSuite(ConeSuite suite, ConeSuite subsuite) {
+		protected override void AddSubSuite(ConeSuite suite, ConeSuite subsuite) =>
 			suite.AddSubSuite(subsuite);
-		}
 	}
 }

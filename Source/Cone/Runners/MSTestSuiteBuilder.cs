@@ -125,7 +125,7 @@ namespace Cone.Runners
 				}
 			}
 
-			public MSTestSuite(ConeFixture fixture) : base(fixture) { }
+			public MSTestSuite(ConeFixture fixture, string name) : base(fixture, name) { }
 
 			protected override IMethodClassifier GetMethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) {
 				return new MSTestMethodClassifier(FixtureType, fixtureSink, testSink);
@@ -134,24 +134,18 @@ namespace Cone.Runners
 
 		public MSTestSuiteBuilder(ITestNamer testNamer, FixtureProvider objectProvider) : base(testNamer, objectProvider) { }
 
-		public override bool SupportedType(Type type) {
-			return IsTestClass(type) && (type.DeclaringType == null || !IsTestClass(type.DeclaringType));
-		}
+		public override bool SupportedType(Type type) =>
+			IsTestClass(type) && (type.DeclaringType == null || !IsTestClass(type.DeclaringType));
 
-		private static bool IsTestClass(Type type) {
-			return type.GetCustomAttributes(true)
-				.Any(x => x.GetType().FullName == MSTestAttributeNames.TestClass);
-		}
+		private static bool IsTestClass(Type type) => type
+			.GetCustomAttributes(true)
+			.Any(x => x.GetType().FullName == MSTestAttributeNames.TestClass);
 
-		public override IFixtureDescription DescriptionOf(Type fixtureType) {
-			return MSTestFixtureDescription.Create(fixtureType);
-		}
+		public override IFixtureDescription DescriptionOf(Type fixtureType) =>
+			MSTestFixtureDescription.Create(fixtureType);
 
-		protected override ConeSuite NewSuite(Type type, IFixtureDescription description) {
-			return new MSTestSuite(MakeFixture(type, description.Categories)) {
-				Name = description.SuiteName + "." + description.TestName
-			};
-		}
+		protected override ConeSuite NewSuite(Type type, IFixtureDescription description) =>
+			new MSTestSuite(MakeFixture(type, description.Categories), description.SuiteName + "." + description.TestName);
 
 		protected override bool TryGetContext(Type nestedType, out IContextDescription context) {
 			context = IsTestClass(nestedType)

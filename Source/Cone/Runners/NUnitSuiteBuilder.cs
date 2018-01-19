@@ -146,7 +146,7 @@ namespace Cone.Runners
 				}
 			}
 
-			public NUnitSuite(ConeFixture fixture) : base(fixture) { }
+			public NUnitSuite(ConeFixture fixture, string name) : base(fixture, name) { }
 
 			protected override IMethodClassifier GetMethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink)
 			{
@@ -156,21 +156,14 @@ namespace Cone.Runners
 
 		public NUnitSuiteBuilder(ITestNamer testNamer, FixtureProvider objectProvider) : base(testNamer, objectProvider) { }
 
-		public override bool SupportedType(Type type)
-		{
-			return type.GetCustomAttributes(true)
-				.Any(x => x.GetType().FullName == "NUnit.Framework.TestFixtureAttribute"); 
-		}
+		public override bool SupportedType(Type type) => type
+			.GetCustomAttributes(true)
+			.Any(x => x.GetType().FullName == "NUnit.Framework.TestFixtureAttribute"); 
 
-		public override IFixtureDescription DescriptionOf(Type fixtureType)
-		{
-			return new NUnitFixtureDescription(fixtureType);
-		}
+		public override IFixtureDescription DescriptionOf(Type fixtureType) =>
+			new NUnitFixtureDescription(fixtureType);
 
-		protected override ConeSuite NewSuite(Type type, IFixtureDescription description) {
-			return new NUnitSuite(MakeFixture(type, description.Categories)) { 
-				Name = description.SuiteName + "." + description.TestName
-			};
-		}
+		protected override ConeSuite NewSuite(Type type, IFixtureDescription description) =>
+			new NUnitSuite(MakeFixture(type, description.Categories), description.SuiteName + "." + description.TestName);
 	}
 }
