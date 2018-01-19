@@ -47,7 +47,7 @@ namespace Cone.Runners
 	{
 		readonly MSTestSuiteBuilder SuiteBuilder = new MSTestSuiteBuilder(new ConeTestNamer(), new DefaultFixtureProvider());
 			
-		static ConePadSuite BuildSuite<T>(T fixture) {
+		static ConeSuite BuildSuite<T>(T fixture) {
 			return new MSTestSuiteBuilder(new ConeTestNamer(), new LambdaObjectProvider(t => fixture)).BuildSuite(fixture.GetType());
 		}
 
@@ -137,7 +137,7 @@ namespace Cone.Runners
 			}
 		}
 
-		static void RunSuite(ConePadSuite suite, ISessionLogger logger) {
+		static void RunSuite(ConeSuite suite, ISessionLogger logger) {
 			new TestSession(logger).RunSession(x => x(suite));
 		}
 
@@ -145,7 +145,7 @@ namespace Cone.Runners
 		public class MSTestSuiteBuilderSimpleTestClassSpec
 		{
 			MyMSTestFixture FixtureInstance;
-			ConePadSuite TestSuite;
+			ConeSuite TestSuite;
 
 			[BeforeAll]
 			public void CreateFixtureInstance() {
@@ -183,7 +183,7 @@ namespace Cone.Runners
 		[Context("given a ignored test class")]
 		public class MSTestSuiteBuilderIgnoredTestClassSpec
 		{
-			ConePadSuite TestSuite;
+			ConeSuite TestSuite;
 			TestSessionReport TestReport;
 
 			[BeforeAll]
@@ -253,7 +253,7 @@ namespace Cone.Runners
 				public void TestFinished() { currentTest = null; }
 			}
 
-			ConePadSuite TestSuite;
+			ConeSuite TestSuite;
 			RecordingTestSession TestReport;
 
 			[BeforeAll]

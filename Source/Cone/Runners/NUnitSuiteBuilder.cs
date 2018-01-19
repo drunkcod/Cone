@@ -38,7 +38,7 @@ namespace Cone.Runners
 			public string TestName => type.Name;
 		}
 
-		class NUnitSuite : ConePadSuite 
+		class NUnitSuite : ConeSuite 
 		{
 			class NUnitMethodClassifier : MethodClassifier
 			{
@@ -167,7 +167,7 @@ namespace Cone.Runners
 			return new NUnitFixtureDescription(fixtureType);
 		}
 
-		protected override ConePadSuite NewSuite(Type type, IFixtureDescription description) {
+		protected override ConeSuite NewSuite(Type type, IFixtureDescription description) {
 			return new NUnitSuite(MakeFixture(type, description.Categories)) { 
 				Name = description.SuiteName + "." + description.TestName
 			};

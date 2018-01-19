@@ -1,4 +1,4 @@
-﻿using Cone.Core;
+using Cone.Core;
 using System;
 using System.Collections.Generic;
 
@@ -70,7 +70,7 @@ namespace Cone.Runners
 
 		public int FailureCount => report.Failed;
 
-		public void RunSession(Action<Action<ConePadSuite>> @do) {
+		public void RunSession(Action<Action<ConeSuite>> @do) {
 			sessionLog.BeginSession();
 			@do(CollectSuite);
 			sessionLog.EndSession();
@@ -88,7 +88,7 @@ namespace Cone.Runners
 			sessionLog.EndSession();
 		}
 
-		void CollectSuite(ConePadSuite suite) {
+		void CollectSuite(ConeSuite suite) {
 			var log = sessionLog.BeginSuite(suite);
 			suite.Run((tests, fixture) => CollectResults(tests, fixture, log));
 			log.EndSuite();

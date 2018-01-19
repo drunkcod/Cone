@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Cone.Core;
 
 namespace Cone.Runners
 {
-	public class ConePadSuiteBuilder : ConeSuiteBuilder<ConePadSuite>
+	public class ConePadSuiteBuilder : ConeSuiteBuilder<ConeSuite>
 	{
 		readonly FixtureProvider objectProvider;
 
@@ -12,8 +12,8 @@ namespace Cone.Runners
 			this.objectProvider = objectProvider;
 		}
 		
-		protected override ConePadSuite NewSuite(Type type, IFixtureDescription description) {
-			return new ConePadSuite(MakeFixture(type, description.Categories)) { 
+		protected override ConeSuite NewSuite(Type type, IFixtureDescription description) {
+			return new ConeSuite(MakeFixture(type, description.Categories)) { 
 				Name = description.SuiteName + "." + description.TestName
 			};
 		}
@@ -22,7 +22,7 @@ namespace Cone.Runners
 			return new ConeFixture(type, categories, objectProvider);
 		}
 
-		protected override void AddSubSuite(ConePadSuite suite, ConePadSuite subsuite) {
+		protected override void AddSubSuite(ConeSuite suite, ConeSuite subsuite) {
 			suite.AddSubSuite(subsuite);
 		}
 	}

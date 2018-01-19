@@ -63,7 +63,7 @@ namespace Cone.Runners
 			public IEnumerable<string> Categories { get; }
 		}
 
-		class MSTestSuite : ConePadSuite
+		class MSTestSuite : ConeSuite
 		{
 			class MSTestMethodClassifier : MethodClassifier
 			{
@@ -147,7 +147,7 @@ namespace Cone.Runners
 			return MSTestFixtureDescription.Create(fixtureType);
 		}
 
-		protected override ConePadSuite NewSuite(Type type, IFixtureDescription description) {
+		protected override ConeSuite NewSuite(Type type, IFixtureDescription description) {
 			return new MSTestSuite(MakeFixture(type, description.Categories)) {
 				Name = description.SuiteName + "." + description.TestName
 			};

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Cone.Core
 {
@@ -23,6 +24,9 @@ namespace Cone.Core
 			this.method = method;
 			this.awaitAction = GetAwaiterOrDefault(method.ReturnType);
 		}
+
+		public bool IsAsync => GetCustomAttributes(true).Any(x => x.GetType().FullName == "System.Runtime.CompilerServices.AsyncStateMachineAttribute");
+		public string Location => $"{method.ReturnType} {method.DeclaringType}.{method.Name}({method.GetParameters().Select(x => x.ToString()).Join(", ")})";
 
 		internal MethodInfo Target => method;
 		public Type ReturnType => method.ReturnType;

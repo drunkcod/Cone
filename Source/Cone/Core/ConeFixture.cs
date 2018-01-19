@@ -28,7 +28,7 @@ namespace Cone.Core
 
 		public ConeFixture(Type fixtureType, IEnumerable<string> categories, FixtureProvider fixtureCreator) {
 			this.fixtureType = fixtureType;
-			this.categories = categories;
+			this.categories = categories ?? throw new ArgumentNullException(nameof(categories));
 			this.fixtureCreator = fixtureCreator;
 		}
 

@@ -2,62 +2,37 @@ using Cone.Core;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 
 namespace Cone.Runners
 {
-	class ConePadTest : IConeTest
+	class ConeTest : IConeTest
 	{
-		readonly ConePadSuite suite;
+		readonly ConeSuite suite;
 		readonly ITestName name;
-		readonly object[] args;
-		readonly IConeAttributeProvider attributes;
 		readonly ConeTestMethod test;
+		readonly ConeTestMethodContext context;
 
-		public ConePadTest(ConePadSuite suite, ITestName name, ConeTestMethod test, object[] args, IConeAttributeProvider attributes) {
+		public ConeTest(ConeSuite suite, ITestName name, ConeTestMethod test, ConeTestMethodContext context) {
 			this.suite = suite;
 			this.name = name;
-			this.args = args;
-			this.attributes = attributes;
 			this.test = test;
+			this.context = context;
 		}
 
-		public Assembly Assembly => test.Assembly;
+		public Assembly Assembly => suite.Fixture.FixtureType.Assembly;
 		public ITestName TestName => name;
 		public string Location => test.Location;
 		public IConeSuite Suite => suite;
 
-		IConeAttributeProvider IConeTest.Attributes => attributes;
+		IConeAttributeProvider IConeTest.Attributes => context;
 		string IConeEntity.Name => TestName.FullName;
-		IEnumerable<string> IConeEntity.Categories => test.Categories;
+		IEnumerable<string> IConeEntity.Categories => suite.Fixture.Categories.Concat(context.Categories);
+		
 		void IConeTest.Run(ITestResult result) {
 			if(test.IsAsync && test.ReturnType == typeof(void))
 				throw new NotSupportedException("async void methods aren't supported");
-			test.Invoke(ConvertArgs(args, test.GetParameters()), result);
-		}
-
-		static object[] ConvertArgs(object[] args, ParameterInfo[] parameters) {
-			if(args == null)
-				return null;
-			var x = new object[args.Length];
-			for(var i = 0; i != x.Length; ++i) {
-				var parameterType = parameters[i].ParameterType;
-				var arg = args[i];
-				x[i] = ChangeType(arg, parameterType);
-			}
-			return x;
-		}
-
-		static object ChangeType(object value, Type conversionType) {
-			return KeepOriginal(value, conversionType) 
-				? value 
-				: Convert.ChangeType(value, conversionType);
-		}
-
-		static bool KeepOriginal(object arg, Type targetType) {
-			return arg == null
-				|| targetType == typeof(object)
-				|| targetType.IsInstanceOfType(arg)
-				|| (targetType.IsEnum && arg.GetType() == typeof(int));
+			test.Invoke(suite.Fixture.GetFixtureInstance(), context.Arguments, result);
 		}
     }
 }

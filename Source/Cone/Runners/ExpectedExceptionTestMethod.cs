@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Cone.Core;
 
@@ -9,13 +8,13 @@ namespace Cone.Runners
 	{
 		readonly ExpectedTestResult expectedExceptionType;
 
-		public ExpectedExceptionTestMethod(IConeFixture fixture, Invokable method, ExpectedTestResult expectedExceptionType, IEnumerable<string> testCategories) : base(fixture, method, testCategories) {
+		public ExpectedExceptionTestMethod(Invokable method, ExpectedTestResult expectedExceptionType) : base(method) {
 			this.expectedExceptionType = expectedExceptionType;
 		}
 
-		public override void Invoke(object[] parameters, ITestResult result) {
+		public override void Invoke(object fixture, object[] parameters, ITestResult result) {
 			try {
-				Invoke(parameters);
+				Invoke(fixture, parameters);
 				result.TestFailure(new Exception("Expected exception of type " + expectedExceptionType));
 			} catch(TargetInvocationException te) {
 				var e = te.InnerException;

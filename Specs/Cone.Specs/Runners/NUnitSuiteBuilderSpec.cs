@@ -197,7 +197,7 @@ namespace Cone.Runners
 		public class NUnitSuiteBuilderFixtureInstanceSpec
 		{
 			private MyNUnitFixture NUnitFixture;
-			private ConePadSuite NUnitSuite;
+			private ConeSuite NUnitSuite;
 
 			[BeforeAll]
 			public void CreateFixtureInstance() {
@@ -232,7 +232,7 @@ namespace Cone.Runners
 				public int add(int a, int b) { return a + b; }
 			}
 
-			ConePadSuite NUnitSuite;
+			ConeSuite NUnitSuite;
 
 			[BeforeEach]
 			public void GivenFixtureWithTestCases() {
@@ -275,7 +275,7 @@ namespace Cone.Runners
 				}
 			}
 
-			ConePadSuite NUnitSuite;
+			ConeSuite NUnitSuite;
 
 			[BeforeEach]
 			public void GivenFixtureWithTestCases() {

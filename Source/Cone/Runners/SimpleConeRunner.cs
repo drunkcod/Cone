@@ -9,17 +9,17 @@ namespace Cone.Runners
 {
 	public class SimpleConeRunner
 	{
-		class NullSuiteBuilder : IConeSuiteBuilder<ConePadSuite>
+		class NullSuiteBuilder : IConeSuiteBuilder<ConeSuite>
 		{
 			public bool SupportedType(Type type) { return true; }
 
-			public ConePadSuite BuildSuite(Type suiteType) {
+			public ConeSuite BuildSuite(Type suiteType) {
 				return null;
 			}
 		}
 		static readonly NullSuiteBuilder NullBuilder = new NullSuiteBuilder();
 
-		readonly IConeSuiteBuilder<ConePadSuite>[] suiteBuilders;
+		readonly IConeSuiteBuilder<ConeSuite>[] suiteBuilders;
 
 		public SimpleConeRunner(ITestNamer testNamer): this(testNamer, new DefaultFixtureProvider())
 		{ }
@@ -30,7 +30,7 @@ namespace Cone.Runners
 				new MSTestSuiteBuilder(testNamer, objectProvider)
 			) { }
 
-		SimpleConeRunner(params IConeSuiteBuilder<ConePadSuite>[] suiteBuilders) {
+		SimpleConeRunner(params IConeSuiteBuilder<ConeSuite>[] suiteBuilders) {
 			this.suiteBuilders = suiteBuilders;
 		}
 
@@ -101,11 +101,11 @@ namespace Cone.Runners
 			});
 		}
 
-		IEnumerable<ConePadSuite> BuildFlatSuites(IEnumerable<Type> suiteTypes) => suiteTypes
-			.Choose<Type, ConePadSuite>(TryBuildSuite)
+		IEnumerable<ConeSuite> BuildFlatSuites(IEnumerable<Type> suiteTypes) => suiteTypes
+			.Choose<Type, ConeSuite>(TryBuildSuite)
 			.Flatten(x => x.Subsuites);
 
-		bool TryBuildSuite(Type input, out ConePadSuite suite) {
+		bool TryBuildSuite(Type input, out ConeSuite suite) {
 			suite = (suiteBuilders.FirstOrDefault(x => x.SupportedType(input)) ?? NullBuilder)
 				.BuildSuite(input);
 			return suite != null;
