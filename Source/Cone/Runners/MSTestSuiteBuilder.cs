@@ -93,7 +93,7 @@ namespace Cone.Runners
 							? ExpectedTestResult.None
 							: GetExpectedExceptionResult(attributes[e]);
 
-						Test(method, testAttributes, new ConeTestMethodContext(expectedResult, GetCategories(method)));
+						Test(method, new ConeTestMethodContext(expectedResult, GetCategories(method), testAttributes));
 					}
 					else Unintresting(method);
 				}

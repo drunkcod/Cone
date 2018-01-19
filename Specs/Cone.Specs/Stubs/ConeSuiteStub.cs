@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Cone.Core;
 
@@ -30,7 +30,7 @@ namespace Cone.Stubs
 			throw new NotImplementedException();
 		}
 
-		IRowSuite IConeSuite.AddRowSuite(ConeMethodThunk thunk, string suiteName)
+		IRowSuite IConeSuite.AddRowSuite(ITestNamer names, Invokable test, string suiteName)
 		{
 			throw new NotImplementedException();
 		}

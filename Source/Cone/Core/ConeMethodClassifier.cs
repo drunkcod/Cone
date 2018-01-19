@@ -52,7 +52,7 @@ namespace Cone.Core
 			if(sunk)
 				return;
 			if(method.ReturnType == typeof(void) || method.IsWaitable)
-				Test(method, attributes, ConeTestMethodContext.Null);
+				Test(method, ConeTestMethodContext.Attributes(attributes));
 
 			Unintresting(method);
 		}

@@ -7,5 +7,4 @@ namespace Cone.Core
     {
         IEnumerable<object> GetCustomAttributes(Type type);
     }
-
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace Cone.Core
 {
@@ -12,7 +12,7 @@ namespace Cone.Core
 	{
 		IConeFixture Fixture { get; }
 		void AddCategories(IEnumerable<string> categories);
-		IRowSuite AddRowSuite(ConeMethodThunk thunk, string suiteName);
+		IRowSuite AddRowSuite(ITestNamer names, Invokable test, string suiteName);
 		void DiscoverTests(ITestNamer names);
 	}
 }

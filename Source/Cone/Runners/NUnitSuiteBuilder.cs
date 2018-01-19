@@ -67,7 +67,7 @@ namespace Cone.Runners
 
 					if(method.ReturnType == typeof(void) && attributeNames.Contains("NUnit.Framework.TestAttribute")) {
 						var expectsException = attributes.FirstOrDefault(x => x.GetType().FullName == "NUnit.Framework.ExpectedExceptionAttribute");
-						Test(method, attributes, new ConeTestMethodContext(expectsException == null ? ExpectedTestResult.None : ExpectedTestResult.Exception((Type)expectsException.GetPropertyValue("ExpectedException"), false), NoCategories));
+						Test(method, new ConeTestMethodContext(expectsException == null ? ExpectedTestResult.None : ExpectedTestResult.Exception((Type)expectsException.GetPropertyValue("ExpectedException"), false), NoCategories, attributes));
 					}
 					else Unintresting(method);
 				}

@@ -5,23 +5,6 @@ using Cone.Core;
 
 namespace Cone.Runners
 {
-	public class ConeTestMethodContext
-	{
-		public static readonly ConeTestMethodContext Null = new ConeTestMethodContext(ExpectedTestResult.None, new string[0]);
-
-		public readonly object[] Arguments;
-		public readonly IReadOnlyCollection<string> Categories;
-		public readonly ExpectedTestResult ExpectedResult;
-
-		public ConeTestMethodContext(ExpectedTestResult result, IReadOnlyCollection<string> cats) : this(null, result, cats) { }
-
-		public ConeTestMethodContext(object[] arguments, ExpectedTestResult result, IReadOnlyCollection<string> cats) {
-			this.Arguments = arguments;
-			this.ExpectedResult = result;
-			this.Categories = cats;
-		}
-	}
-
 	public class ConePadSuite : IConeSuite
 	{
 		class ConePadTestMethodSink : ConeTestMethodSink
@@ -34,47 +17,45 @@ namespace Cone.Runners
 				this.suite = suite;
 			}
 
-			public Action<ConeMethodThunk, ConeTestMethodContext> TestFound;
+			public Action<Invokable, ConeTestMethodContext> TestFound;
 
-			protected override void TestCore(Invokable method, IEnumerable<object> attributes, ConeTestMethodContext context) {
-				var thunk = CreateMethodThunk(method, attributes);
-				TestFound(thunk, context);
-			}
+			protected override void TestCore(Invokable method, ConeTestMethodContext context) =>
+				TestFound(method, context);
 
 			protected override object FixtureInvoke(Invokable method) =>
 				method.Await(Fixture.GetFixtureInstance(), null);
 
-			protected override IRowSuite CreateRowSuite(ConeMethodThunk method, string suiteName) {
-				return suite.AddRowSuite(method, suiteName);
-			}
+			protected override IRowSuite CreateRowSuite(Invokable method, string suiteName) =>
+				suite.AddRowSuite(names, method, suiteName);
 		}
 
 		class ConePadRowSuite : IRowSuite
 		{
 			readonly ConePadSuite parent;
-			readonly ConeMethodThunk thunk;
+			readonly ITestNamer names;
+			readonly Invokable test;
 
-			public ConePadRowSuite(ConePadSuite parent, ConeMethodThunk thunk) {
+			public ConePadRowSuite(ConePadSuite parent, ITestNamer names, Invokable thunk) {
 				this.parent = parent;
-				this.thunk = thunk;
+				this.names = names;
+				this.test = thunk;
 			}
 
 			public string Name;
 
 			public void Add(IEnumerable<IRowData> rows) {
 				rows.ForEach(item =>
-					parent.AddTest(NameFor(item), thunk, 
+					parent.AddTest(NameFor(item), test, 
 						new ConeTestMethodContext(
 							item.Parameters,
 							item.HasResult 
 								? ExpectedTestResult.Value(item.Result)
 								: ExpectedTestResult.None, 
-							ConeTestMethodContext.Null.Categories)));
+							ConeTestMethodContext.Null.Categories, ConeTestMethodContext.NoAttributes)));
 			}
 
-			ConeTestName NameFor(IRowData item) {
-				return new ConeTestName(Name, item.DisplayAs ?? thunk.NameFor(item.Parameters));
-			}
+			ConeTestName NameFor(IRowData item) =>
+				new ConeTestName(Name, item.DisplayAs ?? names.NameFor(test, item.Parameters));
 		}
 
 		private readonly ConeFixture fixture;
@@ -100,19 +81,18 @@ namespace Cone.Runners
 			subsuites.Add(suite);
 		}
 
-		public IRowSuite AddRowSuite(ConeMethodThunk thunk, string suiteName) {
-			return new ConePadRowSuite(this, thunk) {
+		public IRowSuite AddRowSuite(ITestNamer names, Invokable test, string suiteName) =>
+			new ConePadRowSuite(this, names, test) {
 				Name = Name + "." + suiteName
 			};
-		}
 
 		public void AddCategories(IEnumerable<string> categories) { this.categories = this.Categories.Concat(categories); }
 			
-		void AddTest(ITestName displayName, ConeMethodThunk thunk, ConeTestMethodContext context) =>
+		void AddTest(ITestName displayName, Invokable thunk, ConeTestMethodContext context) =>
 			Tests.Add(NewTest(displayName, thunk, context));
 
-		IConeTest NewTest(ITestName displayName, ConeMethodThunk thunk, ConeTestMethodContext context) =>
-			new ConePadTest(this, displayName, NewTestMethod(Fixture, thunk.Method, context), context.Arguments, thunk);
+		IConeTest NewTest(ITestName displayName, Invokable thunk, ConeTestMethodContext context) =>
+			new ConePadTest(this, displayName, NewTestMethod(Fixture, thunk, context), context.Arguments, context);
 
 		static ConeTestMethod NewTestMethod(IConeFixture fixture, Invokable method, ConeTestMethodContext context) {
 			switch(context.ExpectedResult.ResultType) {
@@ -125,7 +105,7 @@ namespace Cone.Runners
 
 		public void DiscoverTests(ITestNamer names) {
 			var testSink = new ConePadTestMethodSink(names, this);
-			testSink.TestFound += (thunk, context) => AddTest(thunk.TestNameFor(Name, context.Arguments), thunk, context);
+			testSink.TestFound += (thunk, context) => AddTest(names.TestNameFor(Name, thunk, context.Arguments), thunk, context);
 			var setup = new ConeFixtureSetup(GetMethodClassifier(fixture.FixtureMethods, testSink));
 			setup.CollectFixtureMethods(Fixture.FixtureType);
 		}

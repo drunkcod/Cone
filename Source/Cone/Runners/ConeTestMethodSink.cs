@@ -6,18 +6,18 @@ namespace Cone.Runners
 {
 	public abstract class ConeTestMethodSink : IConeTestMethodSink
 	{
-		readonly ITestNamer names;
+		protected readonly ITestNamer names;
 		readonly RowSuiteLookup<IRowSuite> rowSuites;
 
 		public ConeTestMethodSink(ITestNamer names) {
 			this.names = names;
-			this.rowSuites = new RowSuiteLookup<IRowSuite>(CreateRowSuite);
+			this.rowSuites = new RowSuiteLookup<IRowSuite>(names, CreateRowSuite);
 		}
 
-		public void Test(Invokable method, IEnumerable<object> attributes , ConeTestMethodContext context) =>
-			TestCore(method, attributes, context);
+		public void Test(Invokable method, ConeTestMethodContext context) =>
+			TestCore(method, context);
 
-		public void RowTest(Invokable method, IEnumerable<IRowData> rows) => 
+		public void RowTest(Invokable method, IEnumerable<IRowData> rows) =>
 			GetRowSuite(method).Add(rows);
 
 		public void RowSource(Invokable method) {
@@ -27,14 +27,11 @@ namespace Cone.Runners
 				RowTest(item.Key, item);
 		}
 
-		protected abstract void TestCore(Invokable method, IEnumerable<object> attributes, ConeTestMethodContext context);
+		protected abstract void TestCore(Invokable method, ConeTestMethodContext context);
 		protected abstract object FixtureInvoke(Invokable method);
-		protected abstract IRowSuite CreateRowSuite(ConeMethodThunk method, string context);
-
-		protected ConeMethodThunk CreateMethodThunk(Invokable method, IEnumerable<object> attributes) =>
-			new ConeMethodThunk(method, attributes, names);
+		protected abstract IRowSuite CreateRowSuite(Invokable method, string context);
 
 		IRowSuite GetRowSuite(Invokable method) =>
-			rowSuites.GetSuite(CreateMethodThunk(method, method.GetCustomAttributes(true)));
+			rowSuites.GetSuite(method);
 	}
 }

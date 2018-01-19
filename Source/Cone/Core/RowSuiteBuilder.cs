@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Cone.Core
@@ -11,17 +11,19 @@ namespace Cone.Core
 	public class RowSuiteLookup<T> where T : IRowSuite
 	{
 		readonly Dictionary<string, T> items = new Dictionary<string,T>();
-		readonly Func<ConeMethodThunk, string, T> create;
+		readonly ITestNamer names;
+		readonly Func<Invokable, string, T> create;
 
-		public RowSuiteLookup(Func<ConeMethodThunk, string, T> create) {
+		public RowSuiteLookup(ITestNamer names, Func<Invokable, string, T> create) {
+			this.names = names;
 			this.create = create;
 		}
 
-		public T GetSuite(ConeMethodThunk thunk) {
-			return GetSuite(thunk, thunk.GetHeading());
+		public T GetSuite(Invokable test) {
+			return GetSuite(test, names.NameFor(test));
 		}
 
-		public T GetSuite(ConeMethodThunk method, string name) {
+		public T GetSuite(Invokable method, string name) {
 			T suite;
 			var key = method.Name + "." + name;
 			if (!items.TryGetValue(key, out suite))
