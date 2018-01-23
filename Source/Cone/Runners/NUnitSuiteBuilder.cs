@@ -17,15 +17,11 @@ namespace Cone.Runners
 				this.type = type;
 			}
 
-			public IEnumerable<string> Categories
-			{
-				get { 
-					return type.GetCustomAttributes(true)
-						.Select(x => new { Type = x.GetType(), Item = x })
-						.Where(x => IsCategoryAttribute(x.Type))
-						.Select(x => x.Type.GetProperty("Name").GetValue(x.Item, null).ToString());
-				}
-			}
+			public IEnumerable<string> Categories => type
+				.GetCustomAttributes(true)
+				.Select(x => new { Type = x.GetType(), Item = x })
+				.Where(x => IsCategoryAttribute(x.Type))
+				.Select(x => x.Type.GetProperty("Name").GetValue(x.Item, null).ToString());
 
 			static bool IsCategoryAttribute(Type type) {
 				if(type == null)
@@ -67,7 +63,10 @@ namespace Cone.Runners
 
 					if(method.ReturnType == typeof(void) && attributeNames.Contains("NUnit.Framework.TestAttribute")) {
 						var expectsException = attributes.FirstOrDefault(x => x.GetType().FullName == "NUnit.Framework.ExpectedExceptionAttribute");
-						Test(method, new ConeTestMethodContext(expectsException == null ? ExpectedTestResult.None : ExpectedTestResult.Exception((Type)expectsException.GetPropertyValue("ExpectedException"), false), NoCategories, attributes));
+						Test(method, new ConeTestMethodContext(
+							expectsException == null ? ExpectedTestResult.None : ExpectedTestResult.Exception((Type)expectsException.GetPropertyValue("ExpectedException"), false), 
+							ConeTestMethodContext.Null.Categories, 
+							attributes));
 					}
 					else Unintresting(method);
 				}
@@ -148,10 +147,8 @@ namespace Cone.Runners
 
 			public NUnitSuite(ConeFixture fixture, string name) : base(fixture, name) { }
 
-			protected override IMethodClassifier GetMethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink)
-			{
-				return new NUnitMethodClassifier(FixtureType, fixtureSink, testSink);
-			}
+			protected override IMethodClassifier GetMethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) =>
+				new NUnitMethodClassifier(FixtureType, fixtureSink, testSink);
 		}
 
 		public NUnitSuiteBuilder(ITestNamer testNamer, FixtureProvider objectProvider) : base(testNamer, objectProvider) { }

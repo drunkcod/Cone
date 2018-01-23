@@ -15,7 +15,8 @@ namespace Cone.Runners
 		public readonly IReadOnlyCollection<string> Categories;
 		public readonly ExpectedTestResult ExpectedResult;
 
-		public static ConeTestMethodContext Attributes(object[] attributes) => new ConeTestMethodContext(ExpectedTestResult.None, Null.Categories, attributes);
+		public static ConeTestMethodContext Attributes(object[] attributes) => 
+			new ConeTestMethodContext(ExpectedTestResult.None, Null.Categories, attributes);
 
 		public ConeTestMethodContext(ExpectedTestResult result, IReadOnlyCollection<string> cats, object[] attributes) : this(null, result, cats, attributes) { }
 

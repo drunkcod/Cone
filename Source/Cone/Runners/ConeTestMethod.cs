@@ -37,17 +37,16 @@ namespace Cone.Runners
 			return x;
 		}
 
-		static object ChangeType(object value, Type conversionType) {
-			return KeepOriginal(value, conversionType)
-				? value
-				: Convert.ChangeType(value, conversionType);
-		}
+		static object ChangeType(object value, Type conversionType) =>
+			KeepOriginal(value, conversionType)
+			? value
+			: Convert.ChangeType(value, conversionType);
 
-		static bool KeepOriginal(object arg, Type targetType) {
-			return arg == null
-				|| targetType == typeof(object)
-				|| targetType.IsInstanceOfType(arg)
-				|| (targetType.IsEnum && arg.GetType() == typeof(int));
-		}
+		static bool KeepOriginal(object arg, Type targetType) =>
+			arg == null
+			|| targetType == typeof(object)
+			|| targetType.IsInstanceOfType(arg)
+			|| (targetType.IsEnum && arg.GetType() == typeof(int));
+
 	}
 }

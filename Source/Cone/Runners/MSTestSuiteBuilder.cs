@@ -127,9 +127,8 @@ namespace Cone.Runners
 
 			public MSTestSuite(ConeFixture fixture, string name) : base(fixture, name) { }
 
-			protected override IMethodClassifier GetMethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) {
-				return new MSTestMethodClassifier(FixtureType, fixtureSink, testSink);
-			}
+			protected override IMethodClassifier GetMethodClassifier(IConeFixtureMethodSink fixtureSink, IConeTestMethodSink testSink) =>
+				new MSTestMethodClassifier(FixtureType, fixtureSink, testSink);
 		}
 
 		public MSTestSuiteBuilder(ITestNamer testNamer, FixtureProvider objectProvider) : base(testNamer, objectProvider) { }
