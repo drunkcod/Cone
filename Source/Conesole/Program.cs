@@ -99,13 +99,15 @@ namespace Conesole
 		int Execute(){
 			try {
 				var config = ConesoleConfiguration.Parse(Options);
-				var results = CreateTestSession(config);
+				var logger = CreateLogger(config);
+				var results = CreateTestSession(logger, config);
 				if(config.IsDryRun)
 					results.GetTestExecutor = _ => new DryRunTestExecutor();
 				var runner = new SimpleConeRunner(new ConeTestNamer()) {
 					Workers = config.Multicore ? Environment.ProcessorCount : 1,
 				};
-				Console.WriteLine(runner.GetType().Assembly.GetName().Version.ToString(3));
+				if(!config.NoLogo)
+					logger.WriteInfo(x => x.Info("Cone {0}\n", runner.GetType().Assembly.GetName().Version.ToString(3)));
 				var assemblies = CrossDomainConeRunner.LoadTestAssemblies(AssemblyPaths, Error);
 				if (config.RunList == null)
 					runner.RunTests(results, assemblies);
@@ -129,8 +131,8 @@ namespace Conesole
 		void Error(string format, params object[] args) { Console.Error.WriteLine(format, args); }
 		void Error(Exception e) { Console.Error.WriteLine(e); }
 
-		static TestSession CreateTestSession(ConesoleConfiguration config) {
-			return new TestSession(CreateLogger(config)) {
+		static TestSession CreateTestSession(ISessionLogger logger, ConesoleConfiguration config) {
+			return new TestSession(logger) {
 				IncludeSuite = config.IncludeSuite,
 				ShouldSkipTest = x => !config.IncludeTest(x)
 			};

@@ -70,6 +70,7 @@ namespace Conesole
 		public string XmlOutput;
 		public bool TeamCityOutput;
 		public bool Multicore;
+		public bool NoLogo;
 		public bool ShowTimings;
 		public string ConfigPath;
 		public string[] AssemblyPaths;
@@ -134,6 +135,11 @@ namespace Conesole
 
 			if(item == "--debug")
 				return;
+
+			if(item == "--nologo") {
+				NoLogo = true;
+				return;
+			}
 			
 			var m = OptionPattern.Match(item);
 			if(!m.Success)
