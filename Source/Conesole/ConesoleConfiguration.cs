@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,8 +25,8 @@ namespace Conesole
 			Predicate<IConeTest> testFilter;
 			Predicate<IConeSuite> suiteFilter;
 
-			public bool Include(IConeTest test) { return CategoryCheck(test) && (testFilter == null || testFilter(test)); }
-			public bool Include(IConeSuite suite) { return CategoryCheck(suite) && (suiteFilter == null || suiteFilter(suite)); }  
+			public bool Include(IConeTest test) => CategoryCheck(test) && (testFilter == null || testFilter(test));
+			public bool Include(IConeSuite suite) => suiteFilter == null || suiteFilter(suite); 
 	
 			public void IncludeTests(string value) {
 				var suitePattern = "*";

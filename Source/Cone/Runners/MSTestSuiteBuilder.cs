@@ -8,7 +8,7 @@ namespace Cone.Runners
 {
 	public class MSTestSuiteBuilder : ConePadSuiteBuilder
 	{
-		static IReadOnlyCollection<string> GetCategories(ICustomAttributeProvider attr) =>attr
+		static IReadOnlyCollection<string> GetCategories(ICustomAttributeProvider attr) => attr
 			.GetCustomAttributes(true)
 			.Select(x => new {  attr = x, getTestCategories = x.GetType().GetProperty("TestCategories", typeof(IList<string>))?.GetMethod })
 			.Where(x => x.getTestCategories != null && x.getTestCategories.GetBaseDefinition().DeclaringType.FullName == MSTestAttributeNames.TestCategoryBase)
