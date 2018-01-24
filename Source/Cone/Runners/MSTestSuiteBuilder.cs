@@ -8,13 +8,14 @@ namespace Cone.Runners
 {
 	public class MSTestSuiteBuilder : ConePadSuiteBuilder
 	{
-		static IReadOnlyCollection<string> GetCategories(ICustomAttributeProvider attr) {
-			var attrs = attr.GetCustomAttributes(true).Where(x => x.GetType().FullName == MSTestAttributeNames.TestCategory).ToArray();
-			if (attrs.Length == 0)
-				return NoStrings;
-			return attrs.Select(x => x.GetType().GetProperty("TestCategories").GetValue(x)).Cast<IList<string>>().SelectMany(x => x).ToArray();
-		}
-
+		static IReadOnlyCollection<string> GetCategories(ICustomAttributeProvider attr) =>attr
+			.GetCustomAttributes(true)
+			.Select(x => new {  attr = x, getTestCategories = x.GetType().GetProperty("TestCategories", typeof(IList<string>))?.GetMethod })
+			.Where(x => x.getTestCategories != null && x.getTestCategories.GetBaseDefinition().DeclaringType.FullName == MSTestAttributeNames.TestCategoryBase)
+			.Select(x => (Func<IList<string>>)Delegate.CreateDelegate(typeof(Func<IList<string>>), x.attr, x.getTestCategories))
+			.SelectMany(x => x())
+			.ToArray();
+		
 		static class MSTestAttributeNames
 		{
 			public const string ClassInitialize =   "Microsoft.VisualStudio.TestTools.UnitTesting.ClassInitializeAttribute";
@@ -24,12 +25,10 @@ namespace Cone.Runners
 			public const string TestContext =       "Microsoft.VisualStudio.TestTools.UnitTesting.TestContext";
 			public const string TestClass =         "Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute";
 			public const string TestMethod =        "Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute";
-			public const string TestCategory =		"Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryAttribute";
+			public const string TestCategoryBase =	"Microsoft.VisualStudio.TestTools.UnitTesting.TestCategoryBaseAttribute";
 			public const string Ignore =            "Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute";
 			public const string ExpectedException = "Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedExceptionAttribute";
 		}
-
-		static readonly string[] NoStrings = new string[0];
 
 		class MSTestFixtureDescription : IFixtureDescription
 		{

@@ -15,10 +15,15 @@ namespace Microsoft.VisualStudio.TestTools.UnitTesting
 
 	public class TestCleanupAttribute : Attribute { }
 
-	public class TestCategoryAttribute : Attribute
+	public class TestCategoryAttribute : TestCategoryBaseAttribute
 	{
 		public TestCategoryAttribute(string category) { TestCategories = new[] { category }; }
-		public IList<string> TestCategories { get; set; }
+		public override IList<string> TestCategories { get; }
+	}
+
+	public class TestCategoryBaseAttribute : Attribute
+	{
+		public virtual IList<string> TestCategories => new string[0];
 	}
 
 	public class ClassInitializeAttribute : Attribute { }
@@ -96,8 +101,17 @@ namespace Cone.Runners
 		[TestClass, TestCategory("FixtureCategory")]
 		class CategorizedTestFixture
 		{
+			public class MyCategoryAttribute : TestCategoryBaseAttribute
+			{
+				public override IList<string> TestCategories => new[] { "MyCat"};
+			}
+
 			[TestMethod, TestCategory("MethodCategory")]
 			public void test() { }
+
+			[TestMethod, MyCategory]
+			public void my_cat() { }
+
 		}
 
 		public void supports_types_with_TestClass_attribute() {
@@ -287,6 +301,11 @@ namespace Cone.Runners
 			public void test_category() {
 				var suite = BuildSuite(new CategorizedTestFixture());
 				Check.That(() => suite.Tests.Single(x => x.TestName.Name == nameof(CategorizedTestFixture.test)).Categories.Any(x => x == "MethodCategory"));
+			}
+
+			public void test_category_using_base_attribute() {
+				var suite = BuildSuite(new CategorizedTestFixture());
+				Check.That(() => suite.Tests.Single(x => x.TestName.Name == "my cat").Categories.Any(x => x == "MyCat"));
 			}
 		}
 	}
