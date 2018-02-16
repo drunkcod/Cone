@@ -102,15 +102,19 @@ namespace Cone.Core
 			return string.Format("{0} ? {1} : {2}", Format(conditional.Test), Format(conditional.IfTrue), Format(conditional.IfFalse));
 		}
 
-		string FormatConvert(Expression expression) { return FormatConvert((UnaryExpression)expression); }
+		string FormatConvert(Expression expression) => FormatConvert((UnaryExpression)expression);
 		string FormatConvert(UnaryExpression conversion) {
 			if(conversion.Type == typeof(object))
 				return Format(conversion.Operand);
 			var operandMethod = conversion.Operand as MethodCallExpression;
-			if(operandMethod != null && operandMethod.Method == typeof(Delegate).GetMethod("CreateDelegate", new []{ typeof(Type), typeof(object), typeof(MethodInfo) }))
-				return ((operandMethod.Arguments[2] as ConstantExpression).Value as MethodInfo).Name;
-			if(operandMethod != null && operandMethod.Method == typeof(MethodInfo).GetMethod("CreateDelegate", new []{ typeof(Type), typeof(object) }))
-				return ((operandMethod.Object as ConstantExpression).Value as MethodInfo).Name;
+			if(operandMethod != null) { 
+				if(operandMethod.Method == typeof(Delegate).GetMethod("CreateDelegate", new []{ typeof(Type), typeof(object), typeof(MethodInfo) }))
+					return ((operandMethod.Arguments[2] as ConstantExpression).Value as MethodInfo).Name;
+				if(operandMethod.Method == typeof(MethodInfo).GetMethod("CreateDelegate", new []{ typeof(Type), typeof(object) }))
+					return ((operandMethod.Object as ConstantExpression).Value as MethodInfo).Name;
+			}
+			if(conversion.Method != null && conversion.Method.Name == "op_Implicit")
+				return Format(conversion.Operand);
 			return string.Format("({0}){1}", FormatType(conversion.Type), Format(conversion.Operand));
 		}
 

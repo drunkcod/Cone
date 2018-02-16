@@ -158,6 +158,9 @@ namespace Cone.Core
 
 		public void cast_any() { VerifyFormat(() => (Expression)Obj, "(Expression)Obj"); }
 
+		class CheckedObject { public static implicit operator bool(CheckedObject o) => true; }
+		public void cast_implicit() => VerifyFormat<bool>(() => new CheckedObject(), "new CheckedObject()");
+
 		public void array_index() {
 			var rows = new []{ 42 }; 
 			VerifyFormat(() => rows[0], "rows[0]");

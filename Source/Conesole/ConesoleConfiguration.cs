@@ -12,13 +12,12 @@ namespace Conesole
 	{	
 		class ConesoleFilterConfiguration
 		{
-			static Regex CreatePatternRegex(string pattern) {
-				return new Regex("^" + pattern
+			static Regex CreatePatternRegex(string pattern) => 
+				new Regex("^" + pattern
 					.Replace("\\", "\\\\")
 					.Replace(".", "\\.")
 					.Replace("*", ".*?"));
-			}
-		
+
 			readonly List<string> includedCategories = new List<string>();
 			readonly List<string> excludedCategories = new List<string>();
 
@@ -50,10 +49,9 @@ namespace Conesole
 						includedCategories.Add(category);
 			}
 
-			bool CategoryCheck(IConeEntity entity) {
-				return (includedCategories.IsEmpty() || entity.Categories.Any(includedCategories.Contains)) 
-					&& !entity.Categories.Any(excludedCategories.Contains);
-			}
+			bool CategoryCheck(IConeEntity entity) => 
+				(includedCategories.IsEmpty() || entity.Categories.Any(includedCategories.Contains)) 
+				&& !entity.Categories.Any(excludedCategories.Contains);
 		}
 
 		const string OptionPrefix = "--";
@@ -61,8 +59,8 @@ namespace Conesole
 
 		readonly ConesoleFilterConfiguration filters = new ConesoleFilterConfiguration();
 
-		public bool IncludeTest(IConeTest test) { return filters.Include(test); }
-		public bool IncludeSuite(IConeSuite suite) { return filters.Include(suite); }  
+		public bool IncludeTest(IConeTest test) => filters.Include(test);
+		public bool IncludeSuite(IConeSuite suite) => filters.Include(suite);
 
 		public LoggerVerbosity Verbosity = LoggerVerbosity.Default;
 		public bool IsDryRun;
