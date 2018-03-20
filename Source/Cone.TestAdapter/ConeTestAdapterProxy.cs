@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Cone.Core;
 using Cone.Runners;
@@ -7,7 +7,7 @@ namespace Cone.TestAdapter
 {
 	class ConeTestAdapterProxy : MarshalByRefObject
 	{
-		readonly SimpleConeRunner runner = SimpleConeRunner.ConeOnlyRunner(new BasicTestNamer());
+		readonly SimpleConeRunner runner = SimpleConeRunner.ConeOnlyRunner(new ConeTestNamer());
 
 		public int DiscoverTests(string source, ICrossDomainLogger sink) {
 			var dryRun = new DryRunTestExecutor();

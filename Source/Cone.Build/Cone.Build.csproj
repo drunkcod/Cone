@@ -49,7 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cone\Cone.csproj">
-      <Project>{E557FD03-E249-4211-80CF-FB0923FD4C7D}</Project>
+      <Project>{e557fd03-e249-4211-80cf-fb0923fd4c7d}</Project>
       <Name>Cone</Name>
     </ProjectReference>
   </ItemGroup>

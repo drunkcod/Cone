@@ -62,7 +62,7 @@ namespace Cone.Core
 
 		static bool ShouldIncludeFrame(StackFrame frame) {
 			var m = frame.GetMethod();
-			return m != null && m.DeclaringType != null && m.Module.Assembly != typeof(Check).Assembly;
+			return m != null && m.Module.Assembly != typeof(Check).Assembly;
 		}
 
 		public override string ToString() {

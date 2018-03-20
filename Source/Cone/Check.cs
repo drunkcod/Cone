@@ -184,8 +184,10 @@ namespace Cone
 			CheckExpect(ToExpect(body, parameters));
 
 		static ExpressionFormatter GetExpressionFormatter() {
-			var context = new StackTrace().GetFrames()
-				.Select(x => x.GetMethod()).First(x => x.DeclaringType.Assembly != typeof(Check).Assembly);
+			var context = new StackTrace(true)
+				.GetFrames()
+				.Select(x => x.GetMethod())
+				.First(x => x.Module.Assembly != typeof(Check).Assembly);
 			return ExpressionFormatter.Rebind(context.DeclaringType);
 		}
 

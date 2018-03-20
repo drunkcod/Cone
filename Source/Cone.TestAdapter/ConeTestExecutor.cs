@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Cone.Runners;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -33,12 +34,14 @@ namespace Cone.TestAdapter
 				var xDomainSink = new TestAdapterLogger(frameworkHandle, source);
 				xDomainSink.OnSuccess += (_, e) => frameworkHandle.RecordResult(new TestResult(e.TestCase) { Outcome = TestOutcome.Passed, Duration = e.Duration, });
 				xDomainSink.OnPending += (_, e) => frameworkHandle.RecordResult(new TestResult(e.TestCase) { Outcome = TestOutcome.Skipped, Duration = e.Duration });
-				xDomainSink.OnFailure += (_, e) => frameworkHandle.RecordResult(new TestResult(e.TestCase) {
-					Outcome = TestOutcome.Failed,
-					Duration = e.Duration,
-					ErrorMessage = e.ErrorMessage,
-					ErrorStackTrace = e.ErrorStackTrace,
-				});
+				xDomainSink.OnFailure += (_, e) => {
+					frameworkHandle.RecordResult(new TestResult(e.TestCase) {
+						Outcome = TestOutcome.Failed,
+						Duration = e.Duration,
+						ErrorMessage = e.ErrorMessage,
+						ErrorStackTrace = e.ErrorStackTrace,
+					});
+				};
 			return xDomainSink;
 		}
 		

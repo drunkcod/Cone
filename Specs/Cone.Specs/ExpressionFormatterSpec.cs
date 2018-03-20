@@ -18,8 +18,7 @@ namespace Cone.Core
 
 	[Flags]
 	enum MyFlags { Flag1 = 1, Flag2 = 2 }
-
-
+	
 	[Describe(typeof(ExpressionFormatter))]
 	public class ExpressionFormatterSpec
 	{
