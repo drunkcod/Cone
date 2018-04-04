@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -17,6 +18,7 @@ namespace Conesole.NetCoreApp
 		public string TargetFrameworks;
 
 		public string[] GetTargetFrameworks() => TargetFrameworks.Split(',');
+		public string GetTargetPath() => Path.Combine(OutputPath, TargetFileName);
 	}
 
 	class Program
@@ -41,7 +43,7 @@ namespace Conesole.NetCoreApp
 				foreach(var fx in targetInfo.GetTargetFrameworks()) {
 //					Console.WriteLine("Running specs from {0} targeting {1}", targetInfo.TargetProject, fx);
 					return IsDesktopFramework(fx) 
-					? RunDesktopConesole(targetInfo.TargetFileName)
+					? RunDesktopConesole(targetInfo.GetTargetPath())
 					: RunInProcConesole(args);
 				}
 				return 0;
@@ -82,10 +84,9 @@ namespace Conesole.NetCoreApp
 		static TargetInfo GetTargetInfo() {
 			var tmp = Path.GetTempFileName();
 			try {
-				var proj = Directory.GetFiles(".", "*.csproj").Single();
 				var msbuild = Process.Start(new ProcessStartInfo { 
 					FileName = "dotnet",
-					Arguments = $"msbuild {proj} /nologo /p:Cone-TargetFile={tmp} /t:Cone-TargetInfo"
+					Arguments = $"msbuild {FindTargetProject()} /nologo /p:Cone-TargetFile={tmp} /t:Build,Cone-TargetInfo"
 				});
 				msbuild.WaitForExit();
 				using(var info = File.OpenRead(tmp)) {
@@ -100,7 +101,16 @@ namespace Conesole.NetCoreApp
 			finally {
 				File.Delete(tmp);
 			}
-			
+		}
+
+		static string FindTargetProject() {
+			var proj = Directory.GetFiles(".", "*.csproj");
+			switch(proj.Length) {
+				case 0: throw new Exception("No .csproj found.");
+				case 1: return proj[0];
+				default: throw new Exception("More than one .csproj found.");
+			}
+
 		}
 	}
 }

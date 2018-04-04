@@ -1,9 +1,11 @@
-﻿
+
 using Cone.Core;
 using Cone.Runners;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Cone.TestAdapter
@@ -21,8 +23,7 @@ namespace Cone.TestAdapter
 		readonly string source;
 		readonly IMessageLogger logger;
 
-		TestCase currentTestCase;
-		Stopwatch stopwatch;
+		readonly ConcurrentDictionary<ConeTestName, KeyValuePair<TestCase, Stopwatch>> testCases = new ConcurrentDictionary<ConeTestName, KeyValuePair<TestCase, Stopwatch>>();
 
 		public EventHandler<TestAdapterEventArgs> OnBeginTest; 
 		public EventHandler<TestAdapterEventArgs> OnSuccess; 
@@ -34,29 +35,46 @@ namespace Cone.TestAdapter
 			this.logger = logger;
 		}
 
-		public void Info(string message){ logger.SendMessage(TestMessageLevel.Informational, message); }
-		public void Error(string message) { logger.SendMessage(TestMessageLevel.Error, message); }
+		public void Write(LogSeverity severity, string message) =>
+			logger.SendMessage(ToTestMessageLevel(severity), message);
 
-		public void Success() { OnSuccess?.Invoke(this, new TestAdapterEventArgs { TestCase = currentTestCase, Duration = stopwatch.Elapsed }); }
-		public void Failure(string file, int line, int column, string message, string stackTrace) {
-			currentTestCase.LineNumber = line;
-			currentTestCase.CodeFilePath = file;
+		static TestMessageLevel ToTestMessageLevel(LogSeverity severity) {
+			if(severity >= LogSeverity.Warning)
+				return TestMessageLevel.Warning;
+			if(severity < LogSeverity.Notice)
+				return TestMessageLevel.Informational;
+			return TestMessageLevel.Warning;
+		}
+
+		public void Success(ConeTestName testCase) {
+			if(testCases.TryRemove(testCase, out var found))
+				OnSuccess?.Invoke(this, new TestAdapterEventArgs { TestCase = found.Key, Duration = found.Value.Elapsed }); 
+		}
+		public void Failure(ConeTestName testCase, string file, int line, int column, string message, string stackTrace) {
+			if(!testCases.TryRemove(testCase, out var found))
+				return;
+			found.Key.LineNumber = line;
+			found.Key.CodeFilePath = file;
 			OnFailure?.Invoke(this, new TestAdapterEventArgs {
-				TestCase = currentTestCase,
-				Duration = stopwatch.Elapsed,
+				TestCase = found.Key,
+				Duration = found.Value.Elapsed,
 				ErrorMessage = message,
 				ErrorStackTrace = stackTrace,
 			});
 		}
-		public void Pending(string reason) { OnPending?.Invoke(this, new TestAdapterEventArgs { TestCase = currentTestCase, Duration = stopwatch.Elapsed  }); }
+		public void Pending(ConeTestName testCase, string reason) {
+			if(testCases.TryRemove(testCase, out var found))
+				OnPending?.Invoke(this, new TestAdapterEventArgs { TestCase = found.Key, Duration = found.Value.Elapsed  }); 
+		}
 
-		public void BeginTest(ConeTestName test) {
-			currentTestCase = new TestCase(test.FullName, ConeTestExecutor.ExecutorUri, source) {
-				DisplayName = test.Name,
+		public void BeginTest(ConeTestName testCase) {
+			var newTestCase = new TestCase(testCase.FullName, ConeTestExecutor.ExecutorUri, source) {
+				DisplayName = testCase.Name,
 			};
-			currentTestCase.Traits.Add("Context", test.Context);
-			OnBeginTest?.Invoke(this, new TestAdapterEventArgs { TestCase = currentTestCase });
-			stopwatch = Stopwatch.StartNew();
+			newTestCase.Traits.Add("Context", testCase.Context);
+			OnBeginTest?.Invoke(this, new TestAdapterEventArgs { TestCase = newTestCase });
+			
+			testCases.TryAdd(testCase, new KeyValuePair<TestCase, Stopwatch>(newTestCase, Stopwatch.StartNew()));
 		}
 	}
 }

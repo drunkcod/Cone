@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Cone.Core;
 using Cone.Runners;
 using Microsoft.Build.Framework;
@@ -27,23 +27,27 @@ namespace Cone.Build
 			}
 		}
 
-		void ICrossDomainLogger.Info(string message) {
-			BuildEngine.LogMessageEvent(new BuildMessageEventArgs(message, string.Empty, SenderName, MessageImportance.Low));
+		void ICrossDomainLogger.Write(LogSeverity severity, string message) =>
+			BuildEngine.LogMessageEvent(new BuildMessageEventArgs(message, string.Empty, SenderName, ToImportance(severity)));
+
+		static MessageImportance ToImportance(LogSeverity severity) {
+			if(severity >= LogSeverity.Error)
+				return MessageImportance.High;
+			if(severity < LogSeverity.Notice)
+				return MessageImportance.Low;
+			return MessageImportance.Normal;
 		}
-		void ICrossDomainLogger.Error(string message) {
-			BuildEngine.LogMessageEvent(new BuildMessageEventArgs(message, string.Empty, SenderName, MessageImportance.High));
-		}
 
-		void ICrossDomainLogger.BeginTest(ConeTestName test) { }
+		void ICrossDomainLogger.BeginTest(ConeTestName testCase) { }
 
-		void ICrossDomainLogger.Success() { }
+		void ICrossDomainLogger.Success(ConeTestName testCase) { }
 
-		void ICrossDomainLogger.Failure(string file, int line, int column, string message, string stackTrace) {
+		void ICrossDomainLogger.Failure(ConeTestName testCase, string file, int line, int column, string message, string stackTrace) {
 			noFailures = false;
 			BuildEngine.LogErrorEvent(new BuildErrorEventArgs("Test ", string.Empty, file, line, 0, 0, column, message, string.Empty, SenderName));
 		}
 
-		void ICrossDomainLogger.Pending(string reason) { }
+		void ICrossDomainLogger.Pending(ConeTestName testCase, string reason) { }
 
 		public ITaskHost HostObject { get; set; }
 

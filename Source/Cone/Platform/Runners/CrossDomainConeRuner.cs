@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,19 +9,80 @@ using Cone.Core;
 
 namespace Cone.Runners
 {
-	public interface ICrossDomainLogger 
+	//Inspired by Stackdriver 
+	public enum LogSeverity : short
 	{
-		void Info(string message);
-		void Error(string message);
-		void BeginTest(ConeTestName name);
-		void Success();
-		void Failure(string file, int line, int column, string message, string stackTrace);
-		void Pending(string reason);
+		Default = 0,
+		Debug = 100,
+		Info = 200,
+		Notice = 300,
+		Warning = 400,
+		Error = 500,
+		Critical = 600,
+		Alert = 700,
+		Emergency = 800,
 	}
 
-	public class CrossDomainSessionLoggerAdapter : ISessionLogger, ISuiteLogger, ITestLogger
+	public interface ICrossDomainLogger 
+	{
+		void Write(LogSeverity severity, string message);
+		void BeginTest(ConeTestName testCase);
+		void Success(ConeTestName testCase);
+		void Failure(ConeTestName testCase, string file, int line, int column, string message, string stackTrace);
+		void Pending(ConeTestName testCase, string reason);
+	}
+
+	public static class CrossDomainLoggerExtensions
+	{
+		public static void Info(this ICrossDomainLogger log, string message) => log.Write(LogSeverity.Info, message);
+		public static void Error(this ICrossDomainLogger log, string message) => log.Write(LogSeverity.Error, message);
+	}
+
+	public class CrossDomainSessionLoggerAdapter : ISessionLogger, ISuiteLogger
 	{
 		readonly ICrossDomainLogger crossDomainLog;
+
+		class CrossDomainTestLoggerAdapter : ITestLogger
+		{
+			readonly CrossDomainSessionLoggerAdapter parent;
+			readonly ConeTestName testCase;
+
+			ICrossDomainLogger crossDomainLog => parent.crossDomainLog;
+
+			public CrossDomainTestLoggerAdapter(CrossDomainSessionLoggerAdapter parent, ConeTestName testCase) {
+				this.parent = parent;
+				this.testCase = testCase;
+			}
+
+			void ITestLogger.Failure(ConeTestFailure failure) {
+				crossDomainLog.Failure(
+					testCase,
+					failure.File,
+					failure.Line,
+					failure.Column,
+					failure.Message,
+					"at " + string.Join(Environment.NewLine, failure.StackFrames.Select(x => x.ToString()))
+				);
+			}
+
+			void ITestLogger.Success() {
+				if(parent.ShowProgress)
+					crossDomainLog.Info(".");
+				crossDomainLog.Success(testCase);
+			}
+
+			void ITestLogger.Pending(string reason) {
+				if (parent.ShowProgress)
+					crossDomainLog.Info("?");
+				crossDomainLog.Pending(testCase, reason);
+			}
+
+			void ITestLogger.Skipped() { }
+
+			void ITestLogger.TestStarted() { }
+
+			void ITestLogger.TestFinished() { }
+		}
 
 		public CrossDomainSessionLoggerAdapter(ICrossDomainLogger crossDomainLog) {
 			this.crossDomainLog = crossDomainLog;
@@ -44,39 +105,13 @@ namespace Cone.Runners
 		public void EndSuite() { }
 
 		public ITestLogger BeginTest(IConeTest test) {
-			crossDomainLog.BeginTest(ConeTestName.From(test.TestName));
-			return this;
+			var testCase = ConeTestName.From(test.TestName);
+			crossDomainLog.BeginTest(testCase);
+			return new CrossDomainTestLoggerAdapter(this, testCase);
 		}
 
 		public void EndSession() { }
 
-		void ITestLogger.Failure(ConeTestFailure failure) {
-			crossDomainLog.Failure(
-				failure.File,
-				failure.Line,
-				failure.Column,
-				failure.Message, 
-				"at " + string.Join(Environment.NewLine, failure.StackFrames.Select(x => x.ToString()))
-			);
-		}
-
-		void ITestLogger.Success() {
-			if (ShowProgress)
-				crossDomainLog.Info(".");
-			crossDomainLog.Success();
-		}
-
-		void ITestLogger.Pending(string reason) {
-			if (ShowProgress)
-				crossDomainLog.Info("?");
-			crossDomainLog.Pending(reason);
-		}
-
-		void ITestLogger.Skipped() { }
-
-		void ITestLogger.TestStarted() { }
-
-		void ITestLogger.TestFinished() { }
 	}
 
 	public class CorssDomainRunnerConfiguration

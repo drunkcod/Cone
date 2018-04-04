@@ -7,6 +7,7 @@
                 <TargetInfo>;
                     <ProjectName>$(MSBuildProjectName)</ProjectName>;
                     <OutputPath>$(OutputPath)</OutputPath>;
+                    <Configuration>$(Configuration)</Configuration>;
                     <TargetFileName>$(TargetFileName)</TargetFileName>;
                     <TargetFrameworks>$(Fx.Replace(';',','))</TargetFrameworks>;
                 </TargetInfo>

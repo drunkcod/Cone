@@ -1,5 +1,4 @@
 <Project>
-    <Import Project="$(MSBuildThisFileDirectory)\Cone.targets" />
     <PropertyGroup>
         <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)\Build\obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
         <OutputPath>$(MSBuildThisFileDirectory)\Build\$(MSBuildProjectName)\$(Configuration)</OutputPath>
@@ -11,5 +10,6 @@
         <Description>Ergonomic unit testing for .NET</Description>
         <RepositoryUrl>https://github.com/drunkcod/Cone</RepositoryUrl>
     </PropertyGroup>
+    <Import Project="$(MSBuildThisFileDirectory)\Cone.targets" />
 
 </Project>
