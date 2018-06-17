@@ -28,5 +28,14 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cone\Cone.csproj" />
+  
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Bin\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\Build\Cone.Worker\Debug\net45\Cone.Worker.exe" Link="Bin\Cone.Worker.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

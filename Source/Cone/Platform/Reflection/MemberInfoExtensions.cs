@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -43,7 +43,7 @@ namespace Cone.Reflection
 		static Getter CreateGetter(this FieldInfo self, string name) {
             return NewGetter(name, il => il
 				.If(self.IsStatic, 
-					x => x.Ldsfld(self), 
+					x => x.Ldsfld(self),
 					x => x.Ldarg(0)
 						.UnboxAny(self.DeclaringType)
 						.Ldfld(self))

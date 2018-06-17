@@ -3,16 +3,27 @@
         <PropertyGroup>
             <Fx>$(TargetFramework)</Fx>
             <Fx Condition="'$(TargetFramework)'==''">$(TargetFrameworks)</Fx>
+        </PropertyGroup>
+        <ItemGroup>
+            <_TargetFramework Include="$(Fx.Split(';'))" />
+        </ItemGroup>
+        <WriteLinesToFile Encoding="UTF-8" File="$(Cone-TargetFile)" Lines="&lt;Targets&gt;" Overwrite="true" />
+        <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="Cone-WriteOutput" Properties="TargetFramework=%(_TargetFramework.Identity)" />
+        <WriteLinesToFile Encoding="UTF-8" File="$(Cone-TargetFile)" Lines="&lt;/Targets&gt;" Overwrite="false" />
+
+    </Target>
+    <Target Name="Cone-WriteOutput">
+        <PropertyGroup>
             <Lines>
-                <TargetInfo>;
+                <Target>;
                     <ProjectName>$(MSBuildProjectName)</ProjectName>;
                     <OutputPath>$(OutputPath)</OutputPath>;
                     <Configuration>$(Configuration)</Configuration>;
                     <TargetFileName>$(TargetFileName)</TargetFileName>;
-                    <TargetFrameworks>$(Fx.Replace(';',','))</TargetFrameworks>;
-                </TargetInfo>
+                    <TargetFramework>$(TargetFramework)</TargetFramework>;
+                </Target>
             </Lines>
         </PropertyGroup>
-        <WriteLinesToFile Encoding="UTF-8" File="$(Cone-TargetFile)" Lines="$(Lines)" Overwrite="true" />
+        <WriteLinesToFile Encoding="UTF-8" File="$(Cone-TargetFile)" Lines="$(Lines)" Overwrite="false" />
     </Target>
 </Project>

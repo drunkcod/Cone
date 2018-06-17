@@ -1,20 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">  
   <PropertyGroup>
-      <TargetFramework>net45</TargetFramework>
+      <TargetFrameworks>net45;netcoreapp2.0</TargetFrameworks>
       <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+      <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>  
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
     <Compile Include="..\..\Source\Cone.Platform\netstandard2.0\DynamicMember.cs" Link="NetStandard\DynamicMember.cs" />
-  </ItemGroup>  
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
+    <Compile Remove="NetStandard\**" />
+  </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Moq" Version="4.7.145" />
+    <PackageReference Include="Moq" Version="4.8.3" />
   </ItemGroup>  
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Cone\Cone.csproj" />
     <ProjectReference Include="..\..\Source\Cone.Expectations\Cone.Expectations.csproj" />
-    <ProjectReference Include="..\..\Source\Conesole\Conesole.csproj" />
   </ItemGroup>  
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
-  </ItemGroup>
 </Project>

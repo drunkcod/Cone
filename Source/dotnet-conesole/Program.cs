@@ -15,23 +15,20 @@ namespace Conesole.NetCoreApp
 		public string ProjectName;
 		public string OutputPath;
 		public string TargetFileName;
-		public string TargetFrameworks;
+		public string TargetFramework;
 
-		public string[] GetTargetFrameworks() => TargetFrameworks.Split(',');
 		public string GetTargetPath() => Path.Combine(OutputPath, TargetFileName);
+	}
+
+	[XmlRoot("Targets")]
+	public class TargetCollection
+	{
+		[XmlElement("Target")]
+		public TargetInfo[] Items;
 	}
 
 	class Program
 	{
-		static string[] DesktopFrameworks = new[] {
-			"net45",
-			"net451",
-			"net452",
-			"net462",
-			"net47",
-			"net471",
-		};
-
 		static int Main(string[] args) {
 			if(args.Length > 0)
 			{
@@ -40,48 +37,45 @@ namespace Conesole.NetCoreApp
 			}
 			try { 
 				var targetInfo = GetTargetInfo();
-				foreach(var fx in targetInfo.GetTargetFrameworks()) {
-//					Console.WriteLine("Running specs from {0} targeting {1}", targetInfo.TargetProject, fx);
-					return IsDesktopFramework(fx) 
-					? RunDesktopConesole(targetInfo.GetTargetPath())
-					: RunInProcConesole(args);
+				var allOk = true;
+				foreach(var item in targetInfo.Items) {
+					allOk &= RunDesktopConesole(item.TargetFramework, item.GetTargetPath()) == 0;					
 				}
-				return 0;
+				return allOk ? 0 : -1;
 			} catch(Exception ex) {
 				Console.Error.WriteLine("Failed to run specs: {0}", ex);
 				return -1;
 			}
 		}
 
-		static int RunDesktopConesole(params string[] args)
+		static int RunDesktopConesole(string fxVersion, params string[] args)
 		{
 			var myPath = Path.GetDirectoryName(new Uri(typeof(Program).Assembly.CodeBase).LocalPath);
 			var probePaths = new [] {
 				Path.Combine(myPath, "..", "..", "tools"),
-				Path.Combine(myPath, "..", "..", "..", "Conesole", "Debug"),
+				Path.Combine(myPath, "..", "..", "..", "Cone.Worker", "Debug"),
 			};
-			var toolPath = probePaths.Select(x => Path.Combine(Path.GetFullPath(x), "net45", "Conesole.exe")).FirstOrDefault(File.Exists);
+			var workers = new[] {
+				"Cone.Worker.exe",
+				"Cone.Worker.dll"
+			};
+			var toolPath = probePaths.SelectMany(x => workers.Select(worker => new { path = x, worker })).Select(x => Path.Combine(Path.GetFullPath(x.path), fxVersion, x.worker)).Select(x => 
+			{
+				Console.WriteLine("Probing {0}", x);
+				return x;
+			}).FirstOrDefault(File.Exists);
 			if(toolPath == null)
-				throw new Exception("Failed to locate Conesole.exe");
+				throw new Exception("Failed to locate Cone.Worker");
+			var isDll = toolPath.EndsWith(".dll");
 			var conesole = Process.Start(new ProcessStartInfo { 
-				FileName = toolPath,	
-				Arguments = string.Join(' ', Array.ConvertAll(args, x => $"\"{x}\""))
+				FileName = isDll ? "dotnet" : toolPath,	
+				Arguments = (isDll ? toolPath + " " : string.Empty) + string.Join(' ', Array.ConvertAll(args, x => $"\"{x}\""))
 			});
 			conesole.WaitForExit();
 			return conesole.ExitCode;
 		}
 
-		static int RunInProcConesole(string[] args) {
-			var specs = Assembly.LoadFrom(args[0]);
-			var localCone = Assembly.LoadFrom(Path.Combine(Path.GetDirectoryName(new Uri(specs.CodeBase).LocalPath), "Cone.dll"));
-			var inProcRunnerType = localCone.GetType("Cone.Runners.InProcRunner");
-			var inProcRunner = inProcRunnerType.GetConstructor(Type.EmptyTypes).Invoke(null);
-			return (int)inProcRunnerType.GetMethod("Main").Invoke(inProcRunner, new[]{ args });
-		}
-
-		static bool IsDesktopFramework(string targetFramework) => DesktopFrameworks.Contains(targetFramework);
-
-		static TargetInfo GetTargetInfo() {
+		static TargetCollection GetTargetInfo() {
 			var tmp = Path.GetTempFileName();
 			try {
 				var msbuild = Process.Start(new ProcessStartInfo { 
@@ -89,9 +83,10 @@ namespace Conesole.NetCoreApp
 					Arguments = $"msbuild {FindTargetProject()} /nologo /p:Cone-TargetFile={tmp} /t:Build,Cone-TargetInfo"
 				});
 				msbuild.WaitForExit();
+				//Console.WriteLine(File.ReadAllText(tmp));
 				using(var info = File.OpenRead(tmp)) {
-					var xml = new XmlSerializer(typeof(TargetInfo));
-					var result = (TargetInfo)xml.Deserialize(XmlReader.Create(info, new XmlReaderSettings { ConformanceLevel = ConformanceLevel.Fragment }));
+					var xml = new XmlSerializer(typeof(TargetCollection));
+					var result = (TargetCollection)xml.Deserialize(XmlReader.Create(info, new XmlReaderSettings { ConformanceLevel = ConformanceLevel.Fragment }));
 					//result.TargetProject = proj;
 					return result;
 				}

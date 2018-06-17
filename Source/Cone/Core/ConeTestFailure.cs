@@ -61,6 +61,7 @@ namespace Cone.Core
 		public string Message => Errors.Select(x => x.Message.ToString()).Join("\n");
 
 		static bool ShouldIncludeFrame(StackFrame frame) {
+			//return true;
 			var m = frame.GetMethod();
 			return m != null && m.Module.Assembly != typeof(Check).Assembly;
 		}

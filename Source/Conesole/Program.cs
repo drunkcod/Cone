@@ -11,6 +11,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Cone.Worker;
 
 namespace Conesole
 {
@@ -26,7 +27,7 @@ namespace Conesole
 			string configPath = null;
 			string[] assemblyPaths;
 			try {
-				var config = ConesoleConfiguration.Parse(args);
+				var config = WorkerConfiguration.Parse(args);
 				configPath = config.ConfigPath;
 				assemblyPaths = config.AssemblyPaths;
 			} catch {
@@ -83,22 +84,40 @@ namespace Conesole
 			return 0;
 		}
 
-		private static int RunTests(string[] args, string[] assemblyPaths, string configPath)
-		{
+		private static int RunTests(string[] args, string[] assemblyPaths, string configPath) {
+			if(!string.IsNullOrEmpty(configPath))
+				return CrossDomainRun(args, assemblyPaths, configPath);
+			return OutOfProcRun(args);
+		}
+
+		private static int CrossDomainRun(string[] args, string[] assemblyPaths, string configPath) {
 			return CrossDomainConeRunner.WithProxyInDomain<Program, int>(
 				configPath,
 				assemblyPaths,
-				program =>
-				{
+				program => {
 					program.AssemblyPaths = assemblyPaths;
 					program.Options = args;
 					return program.Execute();
 				});
 		}
 
-		int Execute(){
+		private static int OutOfProcRun(string[] args) {
+			var r = args.Aggregate(new StringBuilder(), (acc, x) => acc.AppendFormat("\"{0}\" ", x.Replace("\"", "\"\"\"")));
+			r.Length -= 1;
+			var p = Process.Start(new ProcessStartInfo {
+				UseShellExecute = false,
+				FileName = $@"{ExePath}\Bin\Cone.Worker.exe",
+				Arguments = r.ToString(),
+			});
+			p.WaitForExit();
+			return p.ExitCode;
+		}
+
+		static string ExePath => Path.GetDirectoryName(new Uri(typeof(Program).Assembly.CodeBase).LocalPath);
+
+		int Execute() {
 			try {
-				var config = ConesoleConfiguration.Parse(Options);
+				var config = WorkerConfiguration.Parse(Options);
 				var logger = CreateLogger(config);
 				var results = CreateTestSession(logger, config);
 				if(config.IsDryRun)
@@ -131,14 +150,14 @@ namespace Conesole
 		void Error(string format, params object[] args) { Console.Error.WriteLine(format, args); }
 		void Error(Exception e) { Console.Error.WriteLine(e); }
 
-		static TestSession CreateTestSession(ISessionLogger logger, ConesoleConfiguration config) {
+		static TestSession CreateTestSession(ISessionLogger logger, WorkerConfiguration config) {
 			return new TestSession(logger) {
 				IncludeSuite = config.IncludeSuite,
 				ShouldSkipTest = x => !config.IncludeTest(x)
 			};
 		}
 
-		static ISessionLogger CreateLogger(ConesoleConfiguration config) {
+		static ISessionLogger CreateLogger(WorkerConfiguration config) {
 			var loggers = new List<ISessionLogger>();
 
 			if (config.XmlConsole) {

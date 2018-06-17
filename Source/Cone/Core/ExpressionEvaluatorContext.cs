@@ -32,8 +32,8 @@ namespace Cone.Core
 				case ExpressionType.Convert: return Convert(body);
 				case ExpressionType.Equal: goto case ExpressionType.NotEqual;
 				case ExpressionType.NotEqual: return Binary(body);
-				case ExpressionType.MemberAccess: return MemberAccess(body);
-				case ExpressionType.New: return New(body);
+				case ExpressionType.MemberAccess: return MemberAccess((MemberExpression)body);
+				case ExpressionType.New: return New((NewExpression)body);
 				case ExpressionType.NewArrayInit: return NewArrayInit(body);
 				case ExpressionType.Quote: return Quote(body);
 				case ExpressionType.Invoke: return Invoke(body);
@@ -142,15 +142,14 @@ namespace Cone.Core
 			});
 		}
 
-		EvaluationResult MemberAccess(Expression expression) => MemberAccess((MemberExpression)expression);
 		EvaluationResult MemberAccess(MemberExpression expression) {
 			return GuardedInvocation(expression, () =>
 				EvaluateAsTarget(expression.Expression)
 				.Then<object>(x => Success(expression.Type, expression.Member.GetValue(x))));
 		}
 
-		EvaluationResult New(Expression expression) => New((NewExpression)expression);
 		EvaluationResult New(NewExpression expression) {
+
 			return GuardedInvocation(expression, () => {
 				var args = EvaluateAll(expression.Arguments).Result as object[];
 				if(expression.Constructor != null)

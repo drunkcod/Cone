@@ -6,9 +6,9 @@ using System.Text.RegularExpressions;
 using Cone.Core;
 using Cone.Runners;
 
-namespace Conesole
+namespace Cone.Worker
 {
-	public class ConesoleConfiguration
+	public class WorkerConfiguration
 	{	
 		class ConesoleFilterConfiguration
 		{
@@ -74,8 +74,8 @@ namespace Conesole
 		public string[] AssemblyPaths;
 		public string[] RunList;
 
-		public static ConesoleConfiguration Parse(params string[] args) {
-			var result = new ConesoleConfiguration();
+		public static WorkerConfiguration Parse(params string[] args) {
+			var result = new WorkerConfiguration();
 			var paths = new List<string>();
 			foreach(var item in args) {
 				if(!IsOption(item)) 

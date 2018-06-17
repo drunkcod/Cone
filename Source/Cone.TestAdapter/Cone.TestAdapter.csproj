@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <Import Project="$(SolutionDir)\Cone.props" />
   <PropertyGroup>
-    <TargetFrameworks>net452</TargetFrameworks>
+    <TargetFrameworks>net452;net46;net47</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Version.cs" Link="Version.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="15.6.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="15.7.2" PrivateAssets="All" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
   <ItemGroup>

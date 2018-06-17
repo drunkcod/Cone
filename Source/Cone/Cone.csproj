@@ -14,4 +14,8 @@
     <Compile Remove="Platform\**" />
     <Compile Include="..\Cone.Platform\netstandard2.0\**" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
 </Project>
