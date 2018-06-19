@@ -18,7 +18,6 @@ The easiest way to execute Cone specs.
   </metadata>
   <files>
     <file src="Build\Cone.Worker\$Configuration$\**" target="tools" />
-    <file src="Cone.targets" target="build\Cone.targets" />
     <file src="Build\dotnet-conesole\$Configuration$\**" target="lib" />
   </files>
 </package>

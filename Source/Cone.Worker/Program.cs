@@ -1,10 +1,11 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Text;
 
 namespace Cone.Worker
 {
-    class Program
+	class Program
     {
         static void Main(string[] args)
         {
@@ -12,6 +13,7 @@ namespace Cone.Worker
 			var workingDir = Path.GetDirectoryName(target);
 			var cone = Assembly.LoadFrom(Path.Combine(workingDir, "Cone.dll"));
 			var inProcRunnerType = cone.GetType("Cone.Runners.ConesoleRunner");
+			Console.OutputEncoding = Encoding.UTF8;
 			inProcRunnerType.GetMethod("Main").Invoke(null, new[] { args });
         }
     }
