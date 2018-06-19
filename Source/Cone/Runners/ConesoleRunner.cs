@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using System.Xml;
@@ -89,34 +87,9 @@ namespace Cone.Runners
 		}
 
 		private static XmlSessionLogger CreateXmlLogger(string path) {
-			var encoding = Encoding.UTF8;
-			Uri remoteLocation;
-			if (!Uri.TryCreate(path, UriKind.Absolute, out remoteLocation))
-				return new XmlSessionLogger(new XmlTextWriter(path, encoding) {
-					Formatting = Formatting.Indented
-				});
-
-			var output = new MemoryStream();
-			var xmlLogger = new XmlSessionLogger(new XmlTextWriter(output, encoding) {
+			return new XmlSessionLogger(new XmlTextWriter(path, Encoding.UTF8) {
 				Formatting = Formatting.Indented
 			});
-
-			xmlLogger.SessionEnded += (_, __) => {
-				var body = new ByteArrayContent(output.ToArray());
-				body.Headers.ContentType = new MediaTypeHeaderValue("text/xml") {
-					CharSet = encoding.WebName,
-				};
-				using (var http = new HttpClient()) {
-					try {
-						http.PostAsync(remoteLocation, body).Wait();
-					}
-					catch {
-						Console.Error.WriteLine("\nPOST to " + remoteLocation + " failed.");
-					}
-				}
-			};
-
-			return xmlLogger;
 		}
 	}
 }
