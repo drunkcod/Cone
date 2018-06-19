@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -26,17 +27,48 @@ namespace Conesole.NetCoreApp
 
 	class Program
 	{
+		class CommandSettings
+		{
+			public bool NoBuild;
+		}
+
+		static bool TryParseCommandArgs(IEnumerable<string> args, out CommandSettings result) {
+			var s = new CommandSettings();
+			foreach(var item in args)
+				switch(item) {
+					default:
+						result = null;
+						return false;
+					case "--no-build": 
+						s.NoBuild = true;
+						break;
+				}
+			result = s;
+			return true;
+		}
+
 		static int Main(string[] args) {
-			if(args.Length > 0)
+			var runSettings = new List<string>();
+			var commandArgs = new List<string>();
+
+			var target = commandArgs;
+			foreach(var item in args)
+				if(item == "--")
+					target = runSettings;
+				else target.Add(item);
+
+			if(!TryParseCommandArgs(commandArgs, out var settings))
 			{
-				Console.WriteLine("usage is: dotnet conesole");
+				Console.WriteLine("usage is: dotnet conesole [--no-build] [-- <conesole settings>]");
 				return -1;
 			}
 			try { 
-				var targetInfo = GetTargetInfo();
+				var targetInfo = GetTargetInfo(settings);
 				var allOk = true;
+				runSettings.Insert(0, string.Empty);
 				foreach(var item in targetInfo.Items) {
-					allOk &= RunConesole(item.TargetFramework, item.GetTargetPath()) == 0;					
+					runSettings[0] = item.GetTargetPath();
+					allOk &= RunConesole(item.TargetFramework, runSettings) == 0;					
 				}
 				return allOk ? 0 : -1;
 			} catch(Exception ex) {
@@ -45,23 +77,22 @@ namespace Conesole.NetCoreApp
 			}
 		}
 
-		static int RunConesole(string fxVersion, params string[] args)
+		static int RunConesole(string fxVersion, IEnumerable<string> args)
 		{
 			var myPath = Path.GetDirectoryName(new Uri(typeof(Program).Assembly.CodeBase).LocalPath);
 			var probePaths = new [] {
 				Path.Combine(myPath, "..", "..", "tools"),
+#if DEBUG
 				Path.Combine(myPath, "..", "..", "..", "Cone.Worker", "Debug"),
+#endif
 			};
-			var workers = new[] {
-				"Cone.Worker.exe",
-				"Cone.Worker.dll"
-			};
-			foreach(var toolPath in probePaths.Select(x => GetWorkerProbe(x, fxVersion))) {
-				if(!File.Exists(toolPath.worker))
+
+			foreach(var (worker, isDll) in probePaths.Select(x => GetWorkerProbe(x, fxVersion))) {
+				if(!File.Exists(worker))
 					continue;
 				var conesole = Process.Start(new ProcessStartInfo { 
-					FileName = toolPath.isDll ? "dotnet" : toolPath.worker,	
-					Arguments = (toolPath.isDll ? toolPath.worker + " " : string.Empty) + string.Join(' ', Array.ConvertAll(args, x => $"\"{x}\""))
+					FileName = isDll ? "dotnet" : worker,	
+					Arguments = (isDll ? worker + " " : string.Empty) + string.Join(' ', args.Select(x => $"\"{x}\""))
 				});
 				conesole.WaitForExit();
 				return conesole.ExitCode;
@@ -85,19 +116,18 @@ namespace Conesole.NetCoreApp
 			return (Path.Combine(probePath, "netcoreapp2.0", "Cone.Worker.dll"), true);
 		}
 
-		static TargetCollection GetTargetInfo() {
+		static TargetCollection GetTargetInfo(CommandSettings settings) {
 			var tmp = Path.GetTempFileName();
 			try {
+				var build = settings.NoBuild ? string.Empty : "/t:Build";
 				var msbuild = Process.Start(new ProcessStartInfo { 
 					FileName = "dotnet",
-					Arguments = $"msbuild {FindTargetProject()} /nologo /p:Cone-TargetFile={tmp} /p:CopyLocalLockFileAssemblies=true /t:Build,Cone-TargetInfo"
+					Arguments = $"msbuild {FindTargetProject()} /nologo {build} /t:Cone-TargetInfo /p:Cone-TargetFile={tmp} /p:CopyLocalLockFileAssemblies=true"
 				});
 				msbuild.WaitForExit();
-				//Console.WriteLine(File.ReadAllText(tmp));
 				using(var info = File.OpenRead(tmp)) {
 					var xml = new XmlSerializer(typeof(TargetCollection));
 					var result = (TargetCollection)xml.Deserialize(XmlReader.Create(info, new XmlReaderSettings { ConformanceLevel = ConformanceLevel.Fragment }));
-					//result.TargetProject = proj;
 					return result;
 				}
 			} catch(Exception ex) {

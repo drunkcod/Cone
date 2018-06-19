@@ -4,9 +4,6 @@
       <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
       <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>  
-  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.0'">
-    <Compile Include="..\..\Source\Cone.Platform\netstandard2.0\DynamicMember.cs" Link="NetStandard\DynamicMember.cs" />
-  </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)'!='netcoreapp2.0'">
     <ProjectReference Include="..\..\Source\Cone.TestAdapter\Cone.TestAdapter.csproj" />
     <Compile Remove="NetStandard\**" />
