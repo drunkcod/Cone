@@ -21,6 +21,6 @@
     <ProjectReference Include="..\..\Source\Cone.Expectations\Cone.Expectations.csproj" />
   </ItemGroup>  
   <ItemGroup>
-    <DotNetCliToolReference Include="dotnet-conesole" Version="2018.6.17" />
+    <DotNetCliToolReference Include="dotnet-conesole" Version="2018.6.21" />
   </ItemGroup>
 </Project>
