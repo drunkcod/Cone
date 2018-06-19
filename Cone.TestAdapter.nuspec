@@ -1,0 +1,27 @@
+﻿<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>Cone.TestAdapter</id>
+    <version>$Version$</version>
+    <authors>Torbjörn Gyllebring</authors>
+    <copyright>Copyright 2017</copyright>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>VisualStudio TestAdapter for Cone</summary>
+<description>
+Cone &lt;3 Test Window
+</description>
+    <releaseNotes>Let's get this NuGet party started.</releaseNotes>
+    <projectUrl>https://github.com/drunkcod/Cone</projectUrl>
+    <dependencies>
+      <group targetFramework=".NETFramework4.5.2">
+        <dependency id="Cone" version="2018.1.24" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5.2" />
+    </frameworkAssemblies>
+  </metadata>
+  <files>
+    <file src="Build\Cone.TestAdapter\$Configuration$\**\Cone.TestAdapter.dll" target="lib\" />
+  </files>
+</package>

@@ -1,10 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <Import Project="$(SolutionDir)\Cone.props" />
   <PropertyGroup>
-    <TargetFrameworks>net45;net462;net47;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Version.cs" Link="Version.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Net.Http" Version="4.3.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cone.Expectations\Cone.Expectations.csproj" />
@@ -13,9 +16,5 @@
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
     <Compile Remove="Platform\**" />
     <Compile Include="..\Cone.Platform\netstandard2.0\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="System.Net.Http" />
   </ItemGroup>
 </Project>

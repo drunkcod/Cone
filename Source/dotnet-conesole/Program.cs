@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -39,7 +36,7 @@ namespace Conesole.NetCoreApp
 				var targetInfo = GetTargetInfo();
 				var allOk = true;
 				foreach(var item in targetInfo.Items) {
-					allOk &= RunDesktopConesole(item.TargetFramework, item.GetTargetPath()) == 0;					
+					allOk &= RunConesole(item.TargetFramework, item.GetTargetPath()) == 0;					
 				}
 				return allOk ? 0 : -1;
 			} catch(Exception ex) {
@@ -48,7 +45,7 @@ namespace Conesole.NetCoreApp
 			}
 		}
 
-		static int RunDesktopConesole(string fxVersion, params string[] args)
+		static int RunConesole(string fxVersion, params string[] args)
 		{
 			var myPath = Path.GetDirectoryName(new Uri(typeof(Program).Assembly.CodeBase).LocalPath);
 			var probePaths = new [] {
@@ -59,20 +56,33 @@ namespace Conesole.NetCoreApp
 				"Cone.Worker.exe",
 				"Cone.Worker.dll"
 			};
-			var toolPath = probePaths.SelectMany(x => workers.Select(worker => new { path = x, worker })).Select(x => Path.Combine(Path.GetFullPath(x.path), fxVersion, x.worker)).Select(x => 
-			{
-				Console.WriteLine("Probing {0}", x);
-				return x;
-			}).FirstOrDefault(File.Exists);
-			if(toolPath == null)
-				throw new Exception("Failed to locate Cone.Worker");
-			var isDll = toolPath.EndsWith(".dll");
-			var conesole = Process.Start(new ProcessStartInfo { 
-				FileName = isDll ? "dotnet" : toolPath,	
-				Arguments = (isDll ? toolPath + " " : string.Empty) + string.Join(' ', Array.ConvertAll(args, x => $"\"{x}\""))
-			});
-			conesole.WaitForExit();
-			return conesole.ExitCode;
+			foreach(var toolPath in probePaths.Select(x => GetWorkerProbe(x, fxVersion))) {
+				if(!File.Exists(toolPath.worker))
+					continue;
+				var conesole = Process.Start(new ProcessStartInfo { 
+					FileName = toolPath.isDll ? "dotnet" : toolPath.worker,	
+					Arguments = (toolPath.isDll ? toolPath.worker + " " : string.Empty) + string.Join(' ', Array.ConvertAll(args, x => $"\"{x}\""))
+				});
+				conesole.WaitForExit();
+				return conesole.ExitCode;
+			}
+			throw new Exception("Failed to locate Cone.Worker");
+		}
+
+		static (string worker, bool isDll) GetWorkerProbe(string probePath, string fxVersion) {
+			switch(fxVersion) {
+				case "net45": 
+				case "net451": 
+				case "net452":
+				case "net46":
+				case "net461":
+				case "net462":
+				case "net47":
+				case "net471":
+				case "net472":
+					return (Path.Combine(probePath, "net45", "Cone.Worker.exe"), false);
+			}
+			return (Path.Combine(probePath, "netcoreapp2.0", "Cone.Worker.dll"), true);
 		}
 
 		static TargetCollection GetTargetInfo() {
@@ -80,7 +90,7 @@ namespace Conesole.NetCoreApp
 			try {
 				var msbuild = Process.Start(new ProcessStartInfo { 
 					FileName = "dotnet",
-					Arguments = $"msbuild {FindTargetProject()} /nologo /p:Cone-TargetFile={tmp} /t:Build,Cone-TargetInfo"
+					Arguments = $"msbuild {FindTargetProject()} /nologo /p:Cone-TargetFile={tmp} /p:CopyLocalLockFileAssemblies=true /t:Build,Cone-TargetInfo"
 				});
 				msbuild.WaitForExit();
 				//Console.WriteLine(File.ReadAllText(tmp));

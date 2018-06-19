@@ -1,20 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">  
   <PropertyGroup>
-      <TargetFrameworks>net45;netcoreapp2.0</TargetFrameworks>
+      <TargetFrameworks>net452;netcoreapp2.0</TargetFrameworks>
       <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
       <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>  
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.0'">
     <Compile Include="..\..\Source\Cone.Platform\netstandard2.0\DynamicMember.cs" Link="NetStandard\DynamicMember.cs" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
+  <ItemGroup Condition="'$(TargetFramework)'!='netcoreapp2.0'">
+    <ProjectReference Include="..\..\Source\Cone.TestAdapter\Cone.TestAdapter.csproj" />
     <Compile Remove="NetStandard\**" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
     <PackageReference Include="Moq" Version="4.8.3" />
   </ItemGroup>  
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Cone\Cone.csproj" />
     <ProjectReference Include="..\..\Source\Cone.Expectations\Cone.Expectations.csproj" />
   </ItemGroup>  
+  <ItemGroup>
+    <DotNetCliToolReference Include="dotnet-conesole" Version="2018.6.17" />
+  </ItemGroup>
 </Project>

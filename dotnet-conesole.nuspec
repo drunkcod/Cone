@@ -1,0 +1,24 @@
+﻿<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>dotnet-conesole</id>
+    <version>$Version$</version>
+    <authors>Torbjörn Gyllebring</authors>
+    <copyright>Copyright 2017</copyright>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>dotnet cli runner for Cone</summary>
+<description>
+The easiest way to execute Cone specs.
+</description>
+    <projectUrl>https://github.com/drunkcod/Cone</projectUrl>
+    <tags></tags>
+    <packageTypes>
+      <packageType name="DotnetCliTool" />
+    </packageTypes>
+  </metadata>
+  <files>
+    <file src="Build\Cone.Worker\$Configuration$\**" target="tools" />
+    <file src="Cone.targets" target="build\Cone.targets" />
+    <file src="Build\dotnet-conesole\$Configuration$\**" target="lib" />
+  </files>
+</package>

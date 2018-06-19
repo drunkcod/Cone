@@ -25,7 +25,10 @@ namespace Cone.Runners
 			};
 
 			if (!config.NoLogo)
-				logger.WriteInfo(x => x.Info("Cone {0}\n", runner.GetType().Assembly.GetName().Version.ToString(3)));
+				logger.WriteInfo(x => {
+					x.Info("Cone {0}\n", runner.GetType().Assembly.GetName().Version.ToString(3));
+					x.Write("  " + string.Join(", ", config.AssemblyPaths) + "\n");
+				});
 
 			var specPath = config.AssemblyPaths[0];
 			var specBinPath = Path.GetDirectoryName(specPath);

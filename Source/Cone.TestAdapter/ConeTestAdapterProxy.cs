@@ -43,12 +43,12 @@ namespace Cone.TestAdapter
 
 		TestSession CreateSession(ICrossDomainLogger sink, string context, string source) {
 			ISessionLogger log = new CrossDomainSessionLoggerAdapter(sink);
-			if(TryConnectDebugTab(context, source, out var debugTap))
+			if(TryConnectDebugTap(context, source, out var debugTap))
 				log = new MulticastSessionLogger(log, debugTap);
 			return new TestSession(log);
 		}
 
-		bool TryConnectDebugTab(string context, string source, out DebugTapLogger debugTap) {
+		bool TryConnectDebugTap(string context, string source, out DebugTapLogger debugTap) {
 			try {
 				var pipe = new NamedPipeClientStream("Cone.DebugTap+json");
 				pipe.Connect(0);

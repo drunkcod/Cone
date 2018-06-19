@@ -1,6 +1,5 @@
+dotnet restore Cone.sln
 dotnet msbuild /p:Configuration=Release
-
-& Build\Cone.Specs\Debug\net45\Conesole.exe Build\Cone.Specs\Debug\net45\Cone.specs.dll
 
 $Version = [System.Reflection.AssemblyName]::GetAssemblyName("Build\Cone\Release\net45\Cone.dll").Version.ToString(3)
 Write-Host Packing Version $Version

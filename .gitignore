@@ -9,4 +9,3 @@ obj/
 addins/
 TestResult.xml
 *.nupkg
-*.nuspec

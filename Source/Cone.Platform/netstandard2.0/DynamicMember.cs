@@ -7,7 +7,9 @@ namespace Cone.Platform.NetStandard
 {
     public static class DynamicMember
     {
-		static ConcurrentDictionary<MemberInfo, Func<object, object>> getterCache = new ConcurrentDictionary<MemberInfo, Func<object, object>>();
+		delegate object Getter(object source);
+
+		static ConcurrentDictionary<MemberInfo, Getter> getterCache = new ConcurrentDictionary<MemberInfo, Getter>();
 
         public static object GetValue(MemberInfo self, object target) {
 			var get = getterCache.GetOrAdd(self, CreateGetter);
@@ -15,9 +17,9 @@ namespace Cone.Platform.NetStandard
 			catch (Exception ex) { throw new TargetInvocationException(ex); }
 		}
 
-		static Func<object, object> CreateGetter(MemberInfo x) {
+		static Getter CreateGetter(MemberInfo x) {
 			var input = Expression.Parameter(typeof(object));
-			var getter = Expression.Lambda<Func<object, object>>(
+			var getter = Expression.Lambda<Getter>(
 				Expression.Convert(
 					ReadMember(Expression.Convert(input, x.DeclaringType), x),
 					typeof(object)),

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <Import Project="$(SolutionDir)\Cone.props" />
   <PropertyGroup>
-    <TargetFrameworks>net45;net462;net47</TargetFrameworks>
+    <TargetFrameworks>net45</TargetFrameworks>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
@@ -34,7 +34,7 @@
     <Folder Include="Bin\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\Build\Cone.Worker\Debug\net45\Cone.Worker.exe" Link="Bin\Cone.Worker.exe">
+    <Content Include="..\..\Build\Cone.Worker\$(Configuration)\$(TargetFramework)\Cone.Worker.exe" Link="Bin\Cone.Worker.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
