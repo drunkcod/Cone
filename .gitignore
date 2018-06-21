@@ -9,3 +9,5 @@ obj/
 addins/
 TestResult.xml
 *.nupkg
+#wtf jekyll?
+docs/.sass-cache/   

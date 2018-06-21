@@ -3,6 +3,10 @@
 
 @import "{{ site.theme }}";
 
-body, section {
+section {
     min-width: 800px;
+}
+
+.wrapper {
+    width: 1100px;
 }
