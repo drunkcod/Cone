@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.4.0 -->
+<title>Getting started with dotnet conesole</title>
+<meta name="generator" content="Jekyll v3.7.3" />
+<meta property="og:title" content="Getting started with dotnet conesole" />
+<meta property="og:locale" content="en_US" />
+<link rel="canonical" href="http://localhost:4000/getting-started-dotnet-conesole.html" />
+<meta property="og:url" content="http://localhost:4000/getting-started-dotnet-conesole.html" />
+<script type="application/ld+json">
+{"@type":"WebPage","url":"http://localhost:4000/getting-started-dotnet-conesole.html","headline":"Getting started with dotnet conesole","@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/assets/css/style.css?v=">
+    <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1><a href="http://localhost:4000/"></a></h1>
+        
+        
+
+        <p></p>
+
+        
+
+        
+
+        
+      </header>
+      <section>
+
+      <h1>Getting started with dotnet conesole.</h1>
+
+Ensure you have both the standard Cone package 
+and the dotnet-conesole cli packages referenced
+from your project file:
+<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;ItemGroup&gt;</span>
+    <span class="nt">&lt;PackageReference</span> <span class="na">Include=</span><span class="s">"Cone"</span> <span class="na">Version=</span><span class="s">"2018.6.21"</span> <span class="nt">/&gt;</span> 
+    <span class="nt">&lt;DotNetCliToolReference</span> <span class="na">Include=</span><span class="s">"dotnet-conesole"</span> <span class="na">Version=</span><span class="s">"2018.6.21"</span> <span class="nt">/&gt;</span> 
+  <span class="nt">&lt;/ItemGroup&gt;</span></code></pre></figure>
+
+To build and run your specs, place yourself next to the relevant .csproj
+ensure all packages are restored and invoke dotnet conesole.
+<pre>
+$ cd &lt;path to spec assembly&gt;
+$ dotnet restore
+$ dotnet conesole
+</pre>
+
+To avoid the build step that's done by passing "--no-build"
+<pre>$ dotnet conesole --no-build</pre>
+
+Additional parameters are passed to the runner by appending them efter a "--".
+To enable multicore mode do:
+<pre>
+    $ dotnet conesole -- --multicore
+</pre>
+
+Most parameters from the classic Conesole runner are supported.
+
+      </section>
+      <footer>
+        
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="/assets/js/scale.fix.js"></script>
+    
+  </body>
+</html>
