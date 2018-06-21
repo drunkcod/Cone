@@ -33,6 +33,8 @@ $ dotnet conesole -- --multicore
 ```
 Most parameters from the classic Conesole runner are supported, some useful ones:
 
+| Option ||
+|-|-|
 | `--multicore`                       | Uses multiple threads to run tests.                        |
 | `--include-tests=<pattern>`         | Run only tests matchingt pattern. '*' acts as wildcard.    |
 | `--run-list=<file>`                 | Executes tests in specified order. One test name per line. |
