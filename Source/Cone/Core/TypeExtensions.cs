@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Cone.Core
 {
@@ -30,9 +30,8 @@ namespace Cone.Core
             return false;
         }
 
-        public static object New(this Type self) {
-            return self.GetConstructor(Type.EmptyTypes).Invoke(null);
-        }
+        public static T New<T>(this Type self) => 
+			(T)self.GetConstructor(Type.EmptyTypes).Invoke(null);
 
         public static bool Implements<T>(this Type self) {
             return typeof(T).IsAssignableFrom(self);

@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+#if NET45
+#else
+using System.Runtime.Loader;
+#endif
 using System.Text;
 using System.Xml;
 using Cone.Core;
@@ -40,13 +44,22 @@ namespace Cone.Runners
 				}
 				return null;
 			};
-			var assemblies = Array.ConvertAll(config.AssemblyPaths, Assembly.LoadFrom);
+			var assemblies = Array.ConvertAll(config.AssemblyPaths,AssemblyLoadFrom);
 			if (config.RunList == null)
 				runner.RunTests(results, assemblies);
 			else runner.RunTests(config.RunList, results, assemblies);
 			
 			results.Report();
 			return results.FailureCount;
+		}
+
+		static Assembly AssemblyLoadFrom(string path) {
+#if NET45
+			return Assembly.LoadFrom(path);
+#else
+			Console.WriteLine("Loading " + path);
+			return AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
+#endif
 		}
 
 		static TestSession CreateTestSession(ISessionLogger logger, WorkerConfiguration config) {

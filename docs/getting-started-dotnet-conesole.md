@@ -42,6 +42,6 @@ Most parameters from the classic Conesole runner are supported, some useful ones
 | `--dry-run`                         | Show tests that would have run.                            |
 | `--debug`                           | Attach debugger on startup.                                |
 | `--labels`                          | Display test names while running.                          |
-| `--test-names`                    | Display test names, sutiable for runlist                   |
+| `--test-names`                      | Display test names, sutiable for runlist                   |
 | `--xml-console`                     | Output results as XML.                                     |
 | `--teamcity`                        | TeamCity formatted output.                                 |

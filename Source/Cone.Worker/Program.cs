@@ -13,11 +13,17 @@ namespace Cone.Worker
 			var workingDir = Path.GetDirectoryName(target);
 			if(RanInTestDomain(target, workingDir, args, out var result))
 				return result;
-			var cone = Assembly.LoadFrom(Path.Combine(workingDir, "Cone.dll"));
+			var cone = Assembly.LoadFrom(GetConePath(workingDir));
 			var inProcRunnerType = cone.GetType("Cone.Runners.ConesoleRunner");
 			Console.OutputEncoding = Encoding.UTF8;
+			AppDomain.CurrentDomain.AssemblyResolve += (_, e) => {
+				//Console.WriteLine("Failed to load:" + e.Name);
+				return null;
+			};
 			return (int)inProcRunnerType.GetMethod("Main").Invoke(null, new[] { args });
         }
+
+		static string GetConePath(string workingDir) => Path.Combine(workingDir, "Cone.dll");
 
 		static bool RanInTestDomain(string target, string workingDir, string[] args, out int result) {
 #if NET45
@@ -38,7 +44,7 @@ namespace Cone.Worker
 				new System.Security.PermissionSet(System.Security.Permissions.PermissionState.Unrestricted));
 			result = testDomain.ExecuteAssembly(new Uri(typeof(Program).Assembly.CodeBase).LocalPath, args);
 			return true;
-#elif NETCOREAPP2_0
+#elif NETCOREAPP2_0 || NETCOREAPP2_1
 			result = 0;
 			return false;
 #endif

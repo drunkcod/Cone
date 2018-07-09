@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
@@ -17,7 +17,7 @@ namespace Cone.Expectations
             var s = typeof(string);
             var t = new []{ s };
             methodDisplay = new Dictionary<MethodInfo, MethodDisplay> {
-                { s.GetMethod("Contains"), _ => "a string containing {0}" },
+                { s.GetMethod("Contains", t), _ => "a string containing {0}" },
                 { s.GetMethod("EndsWith", t), _ => "a string ending with {0}" },
                 { s.GetMethod("EndsWith", new []{ s, typeof(StringComparison) }), x => string.Format("a string ending with {{0}} using '{0}'", x[1]) },
                 { s.GetMethod("EndsWith", new []{ s, typeof(bool), typeof(CultureInfo) }), x => {
@@ -29,13 +29,11 @@ namespace Cone.Expectations
             };
         }
 
-        public IEnumerable<MethodInfo> GetSupportedMethods() {
-            return methodDisplay.Keys;
-        }
+        public IEnumerable<MethodInfo> GetSupportedMethods() => 
+			methodDisplay.Keys;
 
-        public IExpect GetExpectation(Expression body, MethodInfo method, object target, object[] args) {
-            return new StringMethodExpect(methodDisplay[method], body, method, target, args);
-        }
+        public IExpect GetExpectation(Expression body, MethodInfo method, object target, object[] args) =>
+			new StringMethodExpect(methodDisplay[method], body, method, target, args);
     }
 
     public class StringMethodExpect : MemberMethodExpect
@@ -47,8 +45,7 @@ namespace Cone.Expectations
             this.methodDisplay = methodDisplay;
         }
 
-        public override string FormatExpected(IFormatter<object> formatter) {
-            return string.Format(methodDisplay(arguments), formatter.Format(arguments[0]));
-        }
+        public override string FormatExpected(IFormatter<object> formatter) =>
+			string.Format(methodDisplay(arguments), formatter.Format(arguments[0]));
     }
 }

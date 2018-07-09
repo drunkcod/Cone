@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq.Expressions;
 using Cone.Core;
 using Cone.Expectations;
@@ -30,7 +30,7 @@ namespace Cone
         }
 
         StringMethodExpect ContainsExpect(Expression body, string actual, string value) {
-            return new StringMethodExpect(_ => "string containing", body, typeof(string).GetMethod("Contains"), actual, new []{ value });
+            return new StringMethodExpect(_ => "string containing", body, typeof(string).GetMethod("Contains", new[]{ typeof(string) }), actual, new []{ value });
         }
 
         string HelloWorld { get { return "Hello World"; } }

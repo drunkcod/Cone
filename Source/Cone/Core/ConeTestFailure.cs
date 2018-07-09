@@ -54,7 +54,15 @@ namespace Cone.Core
 			else
 			{
 				ErrorsContext = string.Empty;
-				Errors = new [] { new FailedExpectation(testError.Message) };
+				Errors = ExceptionAsFailure(testError).ToArray();
+			}
+		}
+
+		IEnumerable<FailedExpectation> ExceptionAsFailure(Exception ex) {
+			var prefix = string.Empty;
+			for(; ex != null; ex = ex.InnerException) { 
+				yield return new FailedExpectation(prefix + ex.Message);
+				prefix += "  ";
 			}
 		}
 

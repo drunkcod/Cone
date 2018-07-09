@@ -2,9 +2,8 @@
   <Import Project="$(SolutionDir)\Cone.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net45;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net45;netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
     <ApplicationIcon />
     <StartupObject />
   </PropertyGroup>
-
 </Project>

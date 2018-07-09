@@ -17,9 +17,9 @@ namespace Cone.Expectations
 		public ExpectFactory(ExpressionEvaluator evaluator, IEnumerable<Assembly> assembliesToScan) {
 			this.evaluator = evaluator;
 			var providers = assembliesToScan
-				.SelectMany(x => x.GetExportedTypes())
+				.SelectMany(AssemblyMethods.GetExportedTypes)
 				.Where(IsMethodExpectProvider)
-				.Select(x => x.New() as IMethodExpectProvider);
+				.Select(TypeExtensions.New<IMethodExpectProvider>);
 			foreach(var provider in providers)
 			foreach(var method in provider.GetSupportedMethods())
 				methodExpects.Insert(method, provider);

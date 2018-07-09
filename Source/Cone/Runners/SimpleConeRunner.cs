@@ -1,4 +1,4 @@
-﻿using Cone.Core;
+using Cone.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,7 +72,7 @@ namespace Cone.Runners
 		}
 
 		public void RunTests(TestSession results, IEnumerable<Assembly> assemblies) =>
-			RunTests(results, assemblies.SelectMany(x => x.GetExportedTypes()));
+			RunTests(results, assemblies.SelectMany(AssemblyMethods.GetExportedTypes));
 
 		public void RunTests(TestSession results, IEnumerable<Type> suiteTypes) {
 			Check.Initialize();
@@ -82,21 +82,22 @@ namespace Cone.Runners
 
 			var claimed = -1;
 
+			ParameterizedThreadStart runSuite = state => {
+				for (var collectResults = (Action<ConeSuite>)state; ; ) {
+					var n = Interlocked.Increment(ref claimed);
+					if (n >= toRun.Count)
+						return;
+					collectResults(toRun[n]);
+				}
+			};
+
 			results.RunSession(collectResults => {
-				ThreadStart runSuite = () => {
-					for(;;) {
-						var n = Interlocked.Increment(ref claimed);
-						if(n >= toRun.Count)
-							return;
-						collectResults(toRun[n]);
-					}
-				};
 				var workers = new Thread[Workers - 1];
 				for (var i = 0; i != workers.Length; ++i) {
 					var worker = workers[i] = new Thread(runSuite);
-					worker.Start();
+					worker.Start(collectResults);
 				}
-				runSuite();
+				runSuite(collectResults);
 				workers.ForEach(x => x.Join());
 			});
 		}
