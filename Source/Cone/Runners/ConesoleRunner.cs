@@ -40,26 +40,17 @@ namespace Cone.Runners
 				foreach(var ext in new[] { ".dll", ".exe "}) {
 					var probeBin = Path.Combine(specBinPath, probeName + ext);
 					if(File.Exists(probeBin))
-						return Assembly.LoadFrom(probeBin);
+						return AssemblyLoader.LoadFrom(probeBin);
 				}
 				return null;
 			};
-			var assemblies = Array.ConvertAll(config.AssemblyPaths,AssemblyLoadFrom);
+			var assemblies = Array.ConvertAll(config.AssemblyPaths, AssemblyLoader.LoadFrom);
 			if (config.RunList == null)
 				runner.RunTests(results, assemblies);
 			else runner.RunTests(config.RunList, results, assemblies);
 			
 			results.Report();
 			return results.FailureCount;
-		}
-
-		static Assembly AssemblyLoadFrom(string path) {
-#if NET45
-			return Assembly.LoadFrom(path);
-#else
-			Console.WriteLine("Loading " + path);
-			return AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
-#endif
 		}
 
 		static TestSession CreateTestSession(ISessionLogger logger, WorkerConfiguration config) {

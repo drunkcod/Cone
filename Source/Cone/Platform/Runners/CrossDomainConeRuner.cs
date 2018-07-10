@@ -188,7 +188,7 @@ namespace Cone.Runners
 			var testAssemblies = new List<Assembly>();
 			for(var i = 0; i != assemblyPaths.Length; ++i)
 				try { 
-					testAssemblies.Add(Assembly.LoadFrom(Path.GetFullPath(assemblyPaths[i])));
+					testAssemblies.Add(AssemblyLoader.LoadFrom(Path.GetFullPath(assemblyPaths[i])));
 				}
 				catch (FileNotFoundException) {
 					logError("Failed to load: " + assemblyPaths[i]);

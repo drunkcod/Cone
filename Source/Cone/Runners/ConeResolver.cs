@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Cone.Core;
 
 namespace Cone.Runners
 {
@@ -37,7 +38,7 @@ namespace Cone.Runners
 
 			var found = Array.FindIndex(candidates, x => x.Name == name);
 			if(found != -1) {
-				return Assembly.LoadFrom(candidates[found].Path);
+				return AssemblyLoader.LoadFrom(candidates[found].Path);
 			}
 
 			return null;

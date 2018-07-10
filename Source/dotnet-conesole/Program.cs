@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -90,10 +91,12 @@ namespace Conesole.NetCoreApp
 			foreach(var (worker, isDll) in probePaths.Select(x => GetWorkerProbe(x, fxVersion))) {
 				if(!File.Exists(worker))
 					continue;
-				var conesole = Process.Start(new ProcessStartInfo { 
-					FileName = isDll ? "dotnet" : worker,	
-					Arguments = (isDll ? worker + " " : string.Empty) + string.Join(' ', args.Select(x => $"\"{x}\""))
-				});
+				var startInfo = new ProcessStartInfo {
+					FileName = isDll ? "dotnet" : worker,
+					Arguments = (isDll ? worker + " " : string.Empty) + string.Join(' ', args.Select(x => $"\"{x}\"")),
+				};
+				startInfo.Environment.Add("CONE_TARGET_FRAMEWORK", fxVersion);
+				var conesole = Process.Start(startInfo);
 				conesole.WaitForExit();
 				return conesole.ExitCode;
 			}

@@ -44,7 +44,7 @@ namespace Cone.Runners
 			Check.Initialize();
 			results.RunTests(CreateTestRun(
 				runList, 
-				BuildFlatSuites(assemblies.SelectMany(x => x.GetExportedTypes()))
+				BuildFlatSuites(assemblies.SelectMany(AssemblyMethods.GetExportedTypes))
 				.SelectMany(x => x.Tests)));
 		}
 
