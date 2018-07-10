@@ -19,7 +19,7 @@ namespace Cone.Expectations
 			var providers = assembliesToScan
 				.SelectMany(AssemblyMethods.GetExportedTypes)
 				.Where(IsMethodExpectProvider)
-				.Select(TypeExtensions.New<IMethodExpectProvider>);
+				.Select(Core.TypeExtensions.New<IMethodExpectProvider>);
 			foreach(var provider in providers)
 			foreach(var method in provider.GetSupportedMethods())
 				methodExpects.Insert(method, provider);

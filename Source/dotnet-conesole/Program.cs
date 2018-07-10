@@ -91,6 +91,7 @@ namespace Conesole.NetCoreApp
 			foreach(var (worker, isDll) in probePaths.Select(x => GetWorkerProbe(x, fxVersion))) {
 				if(!File.Exists(worker))
 					continue;
+
 				var startInfo = new ProcessStartInfo {
 					FileName = isDll ? "dotnet" : worker,
 					Arguments = (isDll ? worker + " " : string.Empty) + string.Join(' ', args.Select(x => $"\"{x}\"")),

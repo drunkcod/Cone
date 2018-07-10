@@ -11,8 +11,10 @@ namespace Cone.Worker
         {
 			var target = Path.GetFullPath(args[0]);
 			var workingDir = Path.GetDirectoryName(target);
+			
 			if(RanInTestDomain(target, workingDir, args, out var result))
 				return result;
+
 			var cone = Assembly.LoadFrom(GetConePath(workingDir));
 			var inProcRunnerType = cone.GetType("Cone.Runners.ConesoleRunner");
 			Console.OutputEncoding = Encoding.UTF8;

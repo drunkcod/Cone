@@ -2,13 +2,11 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 using System.IO;
-using Newtonsoft.Json;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Cone.Core
 {
-
-
 #if NET45
     static class AssemblyLoader
     {
@@ -16,101 +14,126 @@ namespace Cone.Core
 			Console.WriteLine($"Loading {path}");
 			return Assembly.LoadFrom(path);
 		}
+
+		public static void InitDeps(string mainAssembly) { }
     }
 #else
 	using System.Runtime.Loader;
+	using Microsoft.DotNet.PlatformAbstractions;
 
-	public struct DependencyPath
+	public struct DependencyItem
 	{
-		public string Path;
-		public bool IsManaged;
+		public readonly string Path;
+		public readonly bool IsManaged;
+
+		public DependencyItem(string path, bool isManaged) {
+			this.Path = path;
+			this.IsManaged = isManaged;
+		}
 	}
 
 	public static class AssemblyLoader
-	{ 
-		public static IEnumerable<DependencyPath> Resolve(AssemblyJsonDeps deps, RuntimeDep runtime, string depName, HashSet<string> seen) {
-			if(!seen.Add(depName))
-				yield break;
-
-			if(!deps.TryGetLibraryDep(depName, out var found))
-				yield break;
-			string foundDep = null;
-			var depIsManaged = true;
-
-			foreach(var probePath in runtime.PackageProbePaths) {
-				var managedPath = $@"{probePath}\{found.path}\runtimes\{runtime.OS}\lib\{runtime.FrameworkVersion}";
-				if (Directory.Exists(managedPath)) {
-					foundDep = managedPath;
-					depIsManaged = true;
-				} else {
-					var nativepath = $@"{probePath}\{found.path}\runtimes\{runtime.OS}-{runtime.Arch}\native";
-					if (Directory.Exists(nativepath)) {
-						foundDep = nativepath;
-						depIsManaged = false;
-					}
-				}
-			}
-
-			/*
-						var foundDep = runtime.PackageProbePaths
-							.Select(x => {
-								if(found.path.StartsWith("runtime."))
-									return new DependencyPath { Path = Path.Combine(x, found.path, "runtimes", $"{runtime.OS}-{runtime.Arch}", "native"), IsManaged = false };
-								else
-									return new DependencyPath { Path = Path.Combine(x, found.path, "runtimes", runtime.OS, "lib", runtime.FrameworkVersion), IsManaged = true };
-							})
-							.FirstOrDefault(x => Directory.Exists(x.Path));
-			*/
-			if (foundDep != null)
-				foreach(var item in Directory.GetFiles(foundDep))
-				yield return new DependencyPath { Path = item, IsManaged = depIsManaged };
-
-			var childDeps = deps.DepsFor(found.FullKey).ToList();
-			//foreach(var item in childDeps)
-			//	Console.WriteLine($"Resolving {item} for {depName}");
-
-			foreach(var child in childDeps)
-			foreach(var item in Resolve(deps, runtime, child.Split('/')[0], seen))
-				yield return item;
-		}
-
-		static AssemblyJsonDeps Deps;
+	{		
+		static ConeLoadContext LoadContext;
 
 		class ConeLoadContext : AssemblyLoadContext
 		{
-			public void LoadNativeDll(string path) => LoadUnmanagedDllFromPath(path);
+			public readonly string BasePath;
+			public readonly AssemblyJsonDeps Deps;
+			public readonly RuntimeInfo Runtime;
+
+			public ConeLoadContext(string basePath, AssemblyJsonDeps deps, RuntimeInfo runtime) {
+				this.BasePath = basePath;
+				this.Deps = deps;
+				this.Runtime = runtime;
+			}
+
+			public Assembly OnResolving(AssemblyLoadContext _, AssemblyName e) {
+				WriteDiagnostic($"Resolving {e.Name}");
+				foreach (var item in LoadContext.Resolve(e.Name)) {
+					WriteDiagnostic($"  Loading Dependency {item.Path} for {e.Name}");
+					Load(item);
+				}
+				if (Deps.TryGetTarget(e.Name, out var found)) {
+					WriteDiagnostic($"  Found {e.Name}");
+
+					var xs = found.runtime.Select(x => LoadFromAssemblyPath(Path.Combine(BasePath, x.Key))).ToList();
+					return xs.First(x => x.GetName() == e);
+				}
+				return null;
+			}
+
+			public void Load(DependencyItem dep) {
+				if(dep.IsManaged)
+					Default.LoadFromAssemblyPath(dep.Path);
+				else LoadUnmanagedDllFromPath(dep.Path);
+			}
+
+			public IEnumerable<DependencyItem> Resolve(string depName) { 
+				var found = new List<DependencyItem>();
+				Resolve(depName, new HashSet<string>(), found.Add);
+				return found;
+			}
+
+			void Resolve(string depName, HashSet<string> seen, Action<DependencyItem> onFound) {
+				if (!seen.Add(depName) || !Deps.TryGetLibraryDep(depName, out var found))
+					return;
+
+				string foundDep = null;
+				var depIsManaged = true;
+
+				foreach (var probePath in Runtime.PackageProbePaths) {
+					var managedPath = $@"{probePath}\{found.path}\runtimes\{Runtime.OS}\lib\{Runtime.FrameworkVersion}";
+					if (Directory.Exists(managedPath)) {
+						foundDep = managedPath;
+						depIsManaged = true;
+						break;
+					}
+					else {
+						var nativepath = $@"{probePath}\{found.path}\runtimes\{Runtime.OS}-{Runtime.Arch}\native";
+						if (Directory.Exists(nativepath)) {
+							foundDep = nativepath;
+							depIsManaged = false;
+							break;
+						}
+					}
+				}
+
+				if (foundDep != null)
+					foreach (var item in Directory.GetFiles(foundDep))
+						onFound(new DependencyItem(item, depIsManaged));
+
+				foreach (var child in Deps.DepsFor(found.FullKey))
+					Resolve(child.Split('/')[0], seen, onFound);
+			}
+
 
 			protected override Assembly Load(AssemblyName assemblyName) => Default.LoadFromAssemblyName(assemblyName);
 		}
 
-
 		public static Assembly LoadFrom(string path) {
-			var result = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
-			if(Deps == null) {
-				Deps = AssemblyJsonDeps.LoadFrom(path);
-				var seen = new HashSet<string>();
-				var dlls = new ConeLoadContext();
-				AssemblyLoadContext.Default.Resolving += (_, e) => {
-					//WriteDiagnostic($"Resolving {e.Name}");
-					foreach(var item in Resolve(Deps, new RuntimeDep { 
-							OS = Environment.GetEnvironmentVariable("CONE_OS") ?? "win",
-							Arch = Environment.Is64BitProcess ? "x64" : "x86",
-							//FrameworkVersion = "netstandard2.0",
-							FrameworkVersion = Environment.GetEnvironmentVariable("CONE_TARGET_FRAMEWORK"),
-							PackageProbePaths = AppContext.GetData("PROBING_DIRECTORIES").ToString().Split(new[]{ ';' }, StringSplitOptions.RemoveEmptyEntries),
-					}, e.Name, seen)) { 
-						//WriteDiagnostic($"  Loading Dependencty {item.Path} for {e.Name}");
-						if(item.IsManaged)
-							LoadFrom(item.Path);
-						else dlls.LoadNativeDll(item.Path);
-					}
-					return null;
-				};
+			if (LoadContext == null)
+				InitDeps(path);
+			return LoadContext.LoadFromAssemblyPath(path);
+		}
+
+		public static void InitDeps(string mainAssembly) {
+			if (LoadContext != null) {
+				AssemblyLoadContext.Default.Resolving -= LoadContext.OnResolving;
 			}
-			return result;
+			LoadContext = new ConeLoadContext(Path.GetDirectoryName(mainAssembly), AssemblyJsonDeps.LoadFrom(mainAssembly), new RuntimeInfo {
+				OS = Environment.GetEnvironmentVariable("CONE_RUNTIME_OS") ?? (string)typeof(RuntimeEnvironment).GetMethod("GetRIDOS", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, null),
+				Arch = RuntimeEnvironment.RuntimeArchitecture,
+				//FrameworkVersion = "netstandard2.0",
+				FrameworkVersion = Environment.GetEnvironmentVariable("CONE_TARGET_FRAMEWORK"),
+				PackageProbePaths = AppContext.GetData("PROBING_DIRECTORIES").ToString().Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries),
+			});
+
+			AssemblyLoadContext.Default.Resolving += LoadContext.OnResolving;
 		}
 
 		static void WriteDiagnostic(string message) {
+			return;
 			var fc = Console.ForegroundColor;
 			Console.ForegroundColor = ConsoleColor.DarkCyan;
 			Console.WriteLine(message);
@@ -128,6 +151,8 @@ namespace Cone.Core
 			public JsonDepsRuntimeTarget runtimeTarget;
 			public Dictionary<string, Dictionary<string, JsonTargetDep>> targets;
 			public Dictionary<string, JsonLibraryDep> libraries;
+
+			public Dictionary<string, JsonTargetDep> CurrentRuntimeDeps => targets[runtimeTarget.name];
 		}
 
 		public class JsonDepsRuntimeTarget
@@ -137,8 +162,9 @@ namespace Cone.Core
 
 		public class JsonTargetDep
 		{
+			public string FullKey;
 			public Dictionary<string, string> dependencies;
-			public Dictionary<string, JsonRuntime> runtime;
+			public Dictionary<string, JsonRuntimeVersionInfo> runtime;
 			public Dictionary<string, JsonRuntimeTarget> runtimeTargets;
 		}
 
@@ -147,9 +173,11 @@ namespace Cone.Core
 			public string rid;
 		}
 
-		public class JsonRuntime
+		public struct JsonRuntimeVersionInfo
 		{
-			public string path;
+			public bool IsEmpty => string.IsNullOrEmpty(assemblyVersion) && string.IsNullOrEmpty(fileVersion);
+			public string assemblyVersion;
+			public string fileVersion;
 		}
 
 		public class JsonLibraryDep
@@ -162,22 +190,16 @@ namespace Cone.Core
 			public string hashPath;
 		}
 
-		JsonDeps deps;
+		public JsonDeps deps;
+		readonly Dictionary<string, JsonTargetDep> targetLookup = new Dictionary<string, JsonTargetDep>();
+		readonly Dictionary<string, JsonLibraryDep> libraryLookup = new Dictionary<string, JsonLibraryDep>();
 
-		public bool TryGetLibraryDep(string key, out JsonLibraryDep found) {
-			foreach(var item in deps.libraries) {
-				if(item.Key.Split('/')[0] == key) {
-					found = item.Value;
-					found.FullKey = item.Key;
-					return true;
-				}
-			}
-			found = null;
-			return false;
-		}
+		public bool TryGetLibraryDep(string key, out JsonLibraryDep found) => libraryLookup.TryGetValue(key, out found);
+
+		public bool TryGetTarget(string name, out JsonTargetDep found) => targetLookup.TryGetValue(name, out found);
 
 		public IEnumerable<string> DepsFor(string name) { 
-			if(deps.targets[deps.runtimeTarget.name].TryGetValue(name, out var found) && found.dependencies != null) { 
+			if(deps.CurrentRuntimeDeps.TryGetValue(name, out var found) && found.dependencies != null) { 
 				return found.dependencies.Select(x => x.Key);
 			} else 
 				return Enumerable.Empty<string>();
@@ -188,14 +210,25 @@ namespace Cone.Core
 			var result = new AssemblyJsonDeps();
 			if (File.Exists(depsPath)) {
 				result.deps = JsonConvert.DeserializeObject<JsonDeps>(File.ReadAllText(depsPath));
+
+				foreach(var item in result.deps.targets[result.deps.runtimeTarget.name]) { 
+					item.Value.FullKey = item.Key;
+					result.targetLookup.Add(NameOnly(item.Key), item.Value);
+				}
+				foreach (var item in result.deps.libraries) {
+					item.Value.FullKey = item.Key;
+					result.libraryLookup.Add(NameOnly(item.Key), item.Value);
+				}
 			}
 			return result;
 		}
 
+		static string NameOnly(string nameVersion) => nameVersion.Substring(0, nameVersion.IndexOf('/'));
+
 		public override string ToString() => JsonConvert.SerializeObject(deps, Formatting.Indented);
 	}
 
-	public class RuntimeDep
+	public class RuntimeInfo
 	{
 		public string OS;
 		public string Arch;
