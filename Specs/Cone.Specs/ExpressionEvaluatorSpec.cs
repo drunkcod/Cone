@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -49,6 +49,11 @@ namespace Cone
 		public void null_check_unary_expression() {
 			var foo = new { ThisValueIsNull = (string)null };
 			Check<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Contains("foo"));
+		}
+
+		public void null_check_array_expression() {
+			var foo = new { ThisValueIsNull = (string[])null };
+			Check<NullSubexpressionException>.When(() => foo.ThisValueIsNull.Length == 3);
 		}
 
 		public void new_expression_propagates_correct_exception() {

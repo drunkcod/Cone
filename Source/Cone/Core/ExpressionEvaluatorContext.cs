@@ -78,11 +78,17 @@ namespace Cone.Core
 			var index = (int)Evaluate(rank1.Right).Result;
 			if(index >= 0 && index <= array.Length)
 				return Success(rank1.Type, array.GetValue(index));
-			return Failure(rank1, new IndexOutOfRangeException());
+			return Failure(rank1, new IndexOutOfRangeException($"Tried to access element {index} target has only {array.Length} elements."));
 		}
 
 		EvaluationResult ArrayLength(Expression expression) {
-			var array = (Array)Evaluate(((UnaryExpression)expression).Operand).Result;
+			var target = Evaluate(((UnaryExpression)expression).Operand);
+			if(target.IsNull)
+				return Failure(expression, 
+					((UnaryExpression)expression).Operand is MemberExpression x 
+					? new NullSubexpressionException(x.Member.Name, expression, context)
+					: new NullSubexpressionException(expression, context));
+			var array = (Array)target.Result;
 			return Success(expression.Type, array.Length);
 		}
 

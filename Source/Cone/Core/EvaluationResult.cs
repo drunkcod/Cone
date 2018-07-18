@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq.Expressions;
 
 namespace Cone.Core
@@ -47,5 +47,11 @@ namespace Cone.Core
         }
 
         public EvaluationResult Then<T>(Func<T, EvaluationResult> next) { return Then(x => next((T)x.Result)); }
-    }
+
+		public override string ToString() {
+			if(IsNull)
+				return "null";
+			return value.ToString();
+		}
+	}
 }

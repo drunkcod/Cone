@@ -63,6 +63,7 @@ namespace Conesole.NetCoreApp
 				Console.WriteLine("usage is: dotnet conesole [--no-build] [-- <conesole settings>]");
 				return -1;
 			}
+
 			try { 
 				var targetInfo = GetTargetInfo(settings);
 				var allOk = true;

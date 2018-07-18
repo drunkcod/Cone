@@ -28,7 +28,7 @@ namespace Cone.Runners
 
 			if (!config.NoLogo)
 				logger.WriteInfo(x => {
-					x.Info("Cone {0}\n", runner.GetType().Assembly.GetName().Version.ToString(3));
+					x.Info("Cone {0} on {1}\n", runner.GetType().Assembly.GetName().Version.ToString(3), GetRuntimeHostName());
 					x.Write("  " + string.Join(", ", config.AssemblyPaths) + "\n");
 				});
 
@@ -51,6 +51,14 @@ namespace Cone.Runners
 			
 			results.Report();
 			return results.FailureCount;
+		}
+
+		static string GetRuntimeHostName() {
+			var pathParts = Path.GetFullPath(new Uri(typeof(object).Assembly.CodeBase).LocalPath).Split(new[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
+			var n = Array.IndexOf(pathParts, "Microsoft.NETCore.App");
+			if(n != -1)
+				return $"{pathParts[n]} {pathParts[n + 1]}";
+			return $".NET Framework {Version.Parse(((AssemblyFileVersionAttribute)typeof(object).Assembly.GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version).ToString(3)}";
 		}
 
 		static TestSession CreateTestSession(ISessionLogger logger, WorkerConfiguration config) {
