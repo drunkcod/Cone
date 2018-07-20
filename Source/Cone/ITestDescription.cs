@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace Cone
 {
-    public interface IFixtureDescription
+    public interface IFixtureDescription : IHaveCategories
     {
-        IEnumerable<string> Categories { get; }
         string SuiteName { get; }
         string SuiteType { get; }
         string TestName { get; }
