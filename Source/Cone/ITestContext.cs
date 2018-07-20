@@ -1,4 +1,4 @@
-﻿using Cone.Core;
+using Cone.Core;
 
 namespace Cone
 {
