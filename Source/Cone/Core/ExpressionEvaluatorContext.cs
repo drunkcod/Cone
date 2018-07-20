@@ -24,21 +24,21 @@ namespace Cone.Core
 
 		public EvaluationResult Evaluate(Expression body) {
 			switch(body.NodeType) {
-				case ExpressionType.Lambda: return Lambda(body);
+				case ExpressionType.Lambda: return Lambda((LambdaExpression)body);
 				case ExpressionType.ArrayIndex: return ArrayIndex(body);
 				case ExpressionType.ArrayLength: return ArrayLength(body);
-				case ExpressionType.Call: return Call(body);
+				case ExpressionType.Call: return Call((MethodCallExpression)body);
 				case ExpressionType.Constant: return Success(body.Type, ((ConstantExpression)body).Value);
-				case ExpressionType.Convert: return Convert(body);
+				case ExpressionType.Convert: return Convert((UnaryExpression)body);
 				case ExpressionType.Equal: goto case ExpressionType.NotEqual;
-				case ExpressionType.NotEqual: return Binary(body);
+				case ExpressionType.NotEqual: return Binary((BinaryExpression)body);
 				case ExpressionType.MemberAccess: return MemberAccess((MemberExpression)body);
 				case ExpressionType.New: return New((NewExpression)body);
-				case ExpressionType.NewArrayInit: return NewArrayInit(body);
-				case ExpressionType.Quote: return Quote(body);
-				case ExpressionType.Invoke: return Invoke(body);
-				case ExpressionType.AndAlso: return AndAlso(body);
-				case ExpressionType.Parameter: return Parameter(body);
+				case ExpressionType.NewArrayInit: return NewArrayInit((NewArrayExpression)body);
+				case ExpressionType.Quote: return Quote((UnaryExpression)body);
+				case ExpressionType.Invoke: return Invoke((InvocationExpression)body);
+				case ExpressionType.AndAlso: return AndAlso((BinaryExpression)body);
+				case ExpressionType.Parameter: return Parameter((ParameterExpression)body);
 				default: return Unsupported(body, parameters);
 			}
 		}
@@ -55,11 +55,9 @@ namespace Cone.Core
 			var fail = Array.FindIndex(evald, x => x.IsError);
 			if(fail != -1)
 				return evald[fail];
-			var result = Array.ConvertAll(evald, x => x.Result);
-			return Success(typeof(object[]), result);
+			return Success(typeof(object[]), Array.ConvertAll(evald, x => x.Result));
 		}
 
-		EvaluationResult Lambda(Expression expression) => Lambda((LambdaExpression)expression);
 		EvaluationResult Lambda(LambdaExpression expression) {
 			if(expression == context && expression.Parameters.Count == 0)
 				return Evaluate(expression.Body);
@@ -92,7 +90,6 @@ namespace Cone.Core
 			return Success(expression.Type, array.Length);
 		}
 
-		EvaluationResult Binary(Expression expression) => Binary((BinaryExpression)expression);
 		EvaluationResult Binary(BinaryExpression binary)  => 
 			Evaluate(binary.Left)
 				.Then<object>(left => Evaluate(binary.Right)
@@ -109,7 +106,6 @@ namespace Cone.Core
 			}
 		}
 
-		EvaluationResult Call(Expression expression) => Call((MethodCallExpression)expression);
 		EvaluationResult Call(MethodCallExpression expression) =>
 			EvaluateAsTarget(expression.Object).Then<object>(target =>
 				EvaluateAll(expression.Arguments).Then<object[]>(input => {
@@ -137,68 +133,59 @@ namespace Cone.Core
 			return Rebind(e).Evaluate(e).Result;
 		}
 
-		EvaluationResult Convert(Expression expression) => Convert((UnaryExpression)expression);
 		EvaluationResult Convert(UnaryExpression expression) {
 			return Evaluate(expression.Operand).Then<object>(value => {
 				var convertMethod = expression.Method;
 				if(convertMethod != null && convertMethod.IsStatic) {
-					return GuardedInvocation(expression, () => Success(convertMethod.ReturnType, convertMethod.Invoke(null, new [] { value })));
+					try {
+						return Success(convertMethod.ReturnType, convertMethod.Invoke(null, new[] { value }));
+					} catch (TargetInvocationException e) {
+						return Failure(expression, e.InnerException);
+					}
 				}
 				return Success(expression.Type, ChangeType(value, expression.Type));
 			});
 		}
 
-		EvaluationResult MemberAccess(MemberExpression expression) {
-			return GuardedInvocation(expression, () =>
-				EvaluateAsTarget(expression.Expression)
-				.Then<object>(x => Success(expression.Type, expression.Member.GetValue(x))));
+		EvaluationResult MemberAccess(MemberExpression expression) => GuardedInvocation(expression, MemberAccessCore);
+		EvaluationResult MemberAccessCore(MemberExpression expression) =>
+			EvaluateAsTarget(expression.Expression)
+			.Then<object>(x => Success(expression.Type, expression.Member.GetValue(x)));
+
+		EvaluationResult New(NewExpression expression) => GuardedInvocation(expression, NewCore);
+		EvaluationResult NewCore(NewExpression expression) {
+			var args = EvaluateAll(expression.Arguments).Result as object[];
+			if (expression.Constructor != null)
+				return Success(expression.Type, expression.Constructor.Invoke(args));
+			return Success(expression.Type, Activator.CreateInstance(expression.Type, args));
 		}
 
-		EvaluationResult New(NewExpression expression) {
-
-			return GuardedInvocation(expression, () => {
-				var args = EvaluateAll(expression.Arguments).Result as object[];
-				if(expression.Constructor != null)
-					return Success(expression.Type, expression.Constructor.Invoke(args));
-				return Success(expression.Type, Activator.CreateInstance(expression.Type, args));
-			});
+		EvaluationResult NewArrayInit(NewArrayExpression expression) => GuardedInvocation(expression, NewArrayInitCore);
+		EvaluationResult NewArrayInitCore(NewArrayExpression expression) {
+			var result = Array.CreateInstance(expression.Type.GetElementType(), expression.Expressions.Count);
+			for (var i = 0; i != result.Length; ++i)
+				result.SetValue(Evaluate(expression.Expressions[i]).Result, i);
+			return Success(expression.Type, result);
 		}
 
-		EvaluationResult NewArrayInit(Expression expression) => NewArrayInit((NewArrayExpression)expression);
-		EvaluationResult NewArrayInit(NewArrayExpression expression) {
-			return GuardedInvocation(expression, () => {
-				var result = Array.CreateInstance(expression.Type.GetElementType(), expression.Expressions.Count);
-				for(var i = 0; i != result.Length; ++i)
-					result.SetValue(Evaluate(expression.Expressions[i]).Result, i);
-				return Success(expression.Type, result);
-			});
-		}
-
-		EvaluationResult GuardedInvocation(Expression expression, Func<EvaluationResult> action) => GuardedInvocation(expression, action, () => {});
-		EvaluationResult GuardedInvocation(Expression expression, Func<EvaluationResult> action, Action @finally) {
-			try {
-				return action();
-			} catch(TargetInvocationException e) {
-				return Failure(expression, e.InnerException);
-			} finally { @finally(); }
-		}
-
-		EvaluationResult Quote(Expression expression) => Quote((UnaryExpression)expression);
 		EvaluationResult Quote(UnaryExpression expression) => Success(expression.Type, expression.Operand);
 
-		EvaluationResult Invoke(Expression expression) => Invoke((InvocationExpression)expression);
 		EvaluationResult Invoke(InvocationExpression expression) {
 			var target = Evaluate(expression.Expression).Result as Delegate;
 			return EvaluateAll(expression.Arguments)
-				.Then<object[]>(arguments => GuardedInvocation(expression, () => Success(expression.Type, target.DynamicInvoke(arguments))));
+				.Then<object[]>(arguments => {
+					try {
+						return Success(expression.Type, target.DynamicInvoke(arguments));
+					} catch (TargetInvocationException e) {
+						return Failure(expression, e.InnerException);
+					}
+				});
 		}
 
-		EvaluationResult AndAlso(Expression expression) { return AndAlso((BinaryExpression)expression); }
 		EvaluationResult AndAlso(BinaryExpression expression) =>
 			Evaluate(expression.Left)
 				.Then<bool>(leftResult => leftResult ? Evaluate(expression.Right) : Success(typeof(bool), false));
 
-		EvaluationResult Parameter(Expression expression) => Parameter((ParameterExpression)expression);
 		EvaluationResult Parameter(ParameterExpression expression) => Success(expression.Type, parameters[expression]);
 
 		ExpressionEvaluatorContext Rebind(Expression newContext) =>
@@ -209,6 +196,25 @@ namespace Cone.Core
 		object ChangeType(object value, Type to) => ObjectConverter.ChangeType(value, to);
 
 		EvaluationResult Success(Type type, object value) => EvaluationResult.Success(type, value);
-		EvaluationResult Failure(Expression expression, Exception e) => EvaluationResult.Failure(expression, e);  
+		EvaluationResult Failure(Expression expression, Exception e) => EvaluationResult.Failure(expression, e);
+
+		EvaluationResult GuardedInvocation(Expression expression, Func<EvaluationResult> action, Action @finally) {
+			try {
+				return action();
+			}
+			catch (TargetInvocationException e) {
+				return Failure(expression, e.InnerException);
+			}
+			finally { @finally(); }
+		}
+
+		EvaluationResult GuardedInvocation<T>(T expression, Func<T, EvaluationResult> action) where T : Expression {
+			try {
+				return action(expression);
+			}
+			catch (TargetInvocationException e) {
+				return Failure(expression, e.InnerException);
+			}
+		}
 	}
 }
