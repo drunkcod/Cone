@@ -8,10 +8,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="15.7.2" PrivateAssets="All" />
+    <ProjectReference Include="..\Cone\Cone.csproj" PrivateAssets="All" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <ProjectReference Include="..\Cone\Cone.csproj" PrivateAssets="All" />
   </ItemGroup>
 </Project>

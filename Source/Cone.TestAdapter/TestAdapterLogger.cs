@@ -72,9 +72,8 @@ namespace Cone.TestAdapter
 				DisplayName = testCase.Name,
 			};
 			newTestCase.Traits.Add("Context", testCase.Context);
-			OnBeginTest?.Invoke(this, new TestAdapterEventArgs { TestCase = newTestCase });
-			
 			testCases.TryAdd(testCase, new KeyValuePair<TestCase, Stopwatch>(newTestCase, Stopwatch.StartNew()));
+			OnBeginTest?.Invoke(this, new TestAdapterEventArgs { TestCase = newTestCase });			
 		}
 	}
 }
