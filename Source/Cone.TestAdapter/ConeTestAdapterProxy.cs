@@ -16,7 +16,8 @@ namespace Cone.TestAdapter
 
 		public int DiscoverTests(string source, ICrossDomainLogger sink) {
 			var session = CreateSession(sink, "DiscoverTests", source);
-			session.GetTestExecutor = _ => new DryRunTestExecutor();
+			var dryRun = new DryRunTestExecutor();
+			session.GetTestExecutor = _ => dryRun;
 
 			return RunSession(source, true, sink, session);
 		}
@@ -63,33 +64,58 @@ namespace Cone.TestAdapter
 		{
 			class DebugTapSuiteLogger : ISuiteLogger
 			{
-				public ITestLogger BeginTest(IConeTest test) {
-					return new DebugTapTestLogger();
+				readonly DebugTapLogger parent;
+				readonly IConeSuite suite;
+				public DebugTapSuiteLogger(DebugTapLogger parent, IConeSuite suite) {
+					this.parent = parent;
+					this.suite = suite;
 				}
 
-				public void EndSuite() {
+				public ITestLogger BeginTest(IConeTest test) {
+					Write(new { beginTest = new {
+						parent.pid,
+						suiteName = suite.Name,
+						testName = test.TestName.Name,
+					} });
+					return new DebugTapTestLogger(parent, test);
 				}
+
+				public void EndSuite() =>
+					Write(new { endSuite = new { parent.pid, name = suite.Name } });
+
+				void Write(object obj) => parent.Write(obj);
 			}
 
 			class DebugTapTestLogger : ITestLogger
 			{
-				public void Failure(ConeTestFailure failure) {
+				readonly DebugTapLogger parent;
+				readonly IConeTest test;
+
+				public DebugTapTestLogger(DebugTapLogger parent, IConeTest test) {
+					this.parent = parent;
+					this.test = test;
 				}
 
-				public void Pending(string reason) {
-				}
+				public void Failure(ConeTestFailure failure) => TestResult("fail", failure.ToString());
 
-				public void Skipped() {
-				}
+				public void Pending(string reason) => TestResult("pending", reason);
 
-				public void Success() {
-				}
+				public void Skipped() => TestResult("skipped", string.Empty);
 
-				public void TestFinished() {
-				}
+				public void Success() => TestResult("success", string.Empty);
 
-				public void TestStarted() {
-				}
+				public void TestFinished() { }
+
+				public void TestStarted() { }
+
+				void TestResult(string outcome, string message) =>
+					parent.Write(new { testResult = new {
+						parent.pid,
+						suiteName = test.Suite.Name,
+						testName = test.TestName.Name,
+						outcome, 
+						message,
+					} });
 			}
 
 			readonly Stream output;
@@ -105,22 +131,18 @@ namespace Cone.TestAdapter
 				this.source = source;
 			}
 
-			public static DebugTapLogger Create(Stream output, string context, string source) {
-				return new DebugTapLogger(output, Process.GetCurrentProcess().Id, context, source);
-			}
+			public static DebugTapLogger Create(Stream output, string context, string source)=>
+				new DebugTapLogger(output, Process.GetCurrentProcess().Id, context, source);
 
-			public void BeginSession() {
-				Write(new { beginSession = new { pid, context, source }});
-			}
+			public void BeginSession() => Write(new { beginSession = new { pid, context, source }});
 
 			public ISuiteLogger BeginSuite(IConeSuite suite) {
 				Write(new { beginSuite = new { pid, name = suite.Name } });
-				return new DebugTapSuiteLogger();
+				return new DebugTapSuiteLogger(this, suite);
 			}
 
-			public void EndSession() {
+			public void EndSession() => 
 				Write(new { endSession = new { pid } });
-			}
 
 			public void WriteInfo(Action<ISessionWriter> output) {
 			}
