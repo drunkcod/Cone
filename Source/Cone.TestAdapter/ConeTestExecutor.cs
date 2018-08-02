@@ -16,19 +16,21 @@ namespace Cone.TestAdapter
 
 		public void RunTests(IEnumerable<TestCase> tests, IRunContext runContext, IFrameworkHandle frameworkHandle) {
 			foreach(var source in tests.GroupBy(x => x.Source, x => x.FullyQualifiedName)) 
-				RunSourceInDomain(source.Key, runContext, frameworkHandle);
+				RunSourceInDomain(source.Key, runContext, frameworkHandle, source.ToArray());
 		}
 
 		public void RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle) {
 			foreach(var source in sources) 
-				RunSourceInDomain(source, runContext, frameworkHandle);
+				RunSourceInDomain(source, runContext, frameworkHandle, null);
 		}
 
-		void RunSourceInDomain(string source, IRunContext runContext, IFrameworkHandle frameworkHandle) {
+		void RunSourceInDomain(string source, IRunContext runContext, IFrameworkHandle frameworkHandle, string[] testList) {
 			frameworkHandle.SendMessage(TestMessageLevel.Informational, "Running Source: " + source);
 			var xDomainSink = CreateLogger(frameworkHandle, source);
 			CrossDomainConeRunner.WithProxyInDomain<ConeTestAdapterProxy, int>(string.Empty,  new [] { source },
-				proxy => proxy.RunTests(source, xDomainSink));
+				proxy => testList == null
+					? proxy.RunTests(source, xDomainSink)
+					: proxy.RunTests(source, xDomainSink, testList));
 		}
 
 		TestAdapterLogger CreateLogger(IFrameworkHandle frameworkHandle, string source) {

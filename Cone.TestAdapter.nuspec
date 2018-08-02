@@ -12,9 +12,10 @@ Cone &lt;3 Test Window
 </description>
     <releaseNotes>Let's get this NuGet party started.</releaseNotes>
     <projectUrl>https://github.com/drunkcod/Cone</projectUrl>
+    <developmentDependency>true</developmentDependency>
     <dependencies>
       <group targetFramework=".NETFramework4.5.2">
-        <dependency id="Cone" version="2018.1.24" exclude="Build,Analyzers" />
+        <dependency id="Cone" version="2018.7.32" exclude="Build,Analyzers" />
       </group>
     </dependencies>
     <frameworkAssemblies>
@@ -22,6 +23,12 @@ Cone &lt;3 Test Window
     </frameworkAssemblies>
   </metadata>
   <files>
-    <file src="Build\Cone.TestAdapter\$Configuration$\**\Cone.TestAdapter.dll" target="lib\" />
+    <file src="Build\Cone.TestAdapter\$Configuration$\**\Cone.TestAdapter.dll" target="build\" />
+    <file src="Build\Cone.TestAdapter\$Configuration$\**\Cone.TestAdapter.pdb" target="build\" />
+    <file src="Build\Cone.TestAdapter\$Configuration$\**\Cone.TestAdapater.props" target="build\" />
+    <file src="Build\Cone.TestAdapter\$Configuration$\**\Cone.dll" target="build\" />
+    <file src="Build\Cone.TestAdapter\$Configuration$\**\Cone.pdb" target="build\" />
+    <file src="Build\Cone.TestAdapter\$Configuration$\**\Cone.Expectations.dll" target="build\" />
+    <file src="Build\Cone.TestAdapter\$Configuration$\**\Cone.Expectations.pdb" target="build\" />
   </files>
 </package>
