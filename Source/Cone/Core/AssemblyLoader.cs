@@ -7,16 +7,15 @@ using Cone.Runtime;
 namespace Cone.Core
 {
 	using System.IO;
-#if NET45
+#if NETFX
     static class AssemblyLoader
     {
-		public static Assembly LoadFrom(string path) {
-			Console.WriteLine($"Loading {path}");
-			return Assembly.LoadFrom(path);
-		}
+		public static Assembly LoadFrom(string path) => 
+			Assembly.LoadFrom(path);
 
 		public static void InitDeps(string mainAssembly) { }
     }
+
 #else
 	using System.Runtime.Loader;
 	using Microsoft.DotNet.PlatformAbstractions;
@@ -39,12 +38,12 @@ namespace Cone.Core
 				try { 
 					var loaded = Default.LoadFromAssemblyPath(dep.Path);
 					knownAssemblies.Add(loaded.GetName(), loaded);
-				} catch(Exception ex) { 
+				} catch { 
 					LoadingLog?.WriteLine($"Ooops when loading {dep.Path}");	
 				}
 			} else try {
 					LoadUnmanagedDllFromPath(dep.Path);
-				}catch(Exception ex) {
+				}catch {
 					LoadingLog?.WriteLine($"Ooops when loading {dep.Path}");
 				}
 		}

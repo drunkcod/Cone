@@ -13,8 +13,8 @@
     <Compile Remove="NetFramework\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
-    <PackageReference Include="Moq" Version="4.8.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
+    <PackageReference Include="Moq" Version="4.10.1" />
   </ItemGroup>  
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Cone\Cone.csproj" />
