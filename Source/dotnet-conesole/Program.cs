@@ -110,17 +110,18 @@ namespace Conesole.NetCoreApp
 				case "net45": 
 				case "net451": 
 				case "net452":
+					return (Path.Combine(probePath, "net452", "Cone.Worker.exe"), false);
 				case "net46":
 				case "net461":
-					return (Path.Combine(probePath, "net45", "Cone.Worker.exe"), false);
 				case "net462":
+					return (Path.Combine(probePath, "net462", "Cone.Worker.exe"), false);
 				case "net47":
 				case "net471":
 				case "net472":
-					return (Path.Combine(probePath, "net462", "Cone.Worker.exe"), false);
+					return (Path.Combine(probePath, "net472", "Cone.Worker.exe"), false);
 				case "netcoreapp2.0":
 				case "netcoreapp2.1":
-					return (Path.Combine(probePath, fxVersion, "Cone.Worker.dll"), true);
+					return (Path.Combine(probePath, "netcoreapp2.1", "Cone.Worker.dll"), true);
 			}
 			return (Path.Combine(probePath, "netcoreapp2.2", "Cone.Worker.dll"), true);
 		}

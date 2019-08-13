@@ -1,7 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <Import Project="$(SolutionDir)\Cone.props" />
   <PropertyGroup>
-    <TargetFrameworks>net45</TargetFrameworks>
+    <TargetFrameworks>net452</TargetFrameworks>
+    <TargetFrameworkFamily Condition="$(TargetFramework.StartsWith('net4'))">NETFX</TargetFrameworkFamily>
+    <DefineConstants>$(DefineConstants);$(TargetFrameworkFamily)</DefineConstants>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />

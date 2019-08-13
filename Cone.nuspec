@@ -23,8 +23,10 @@ Say no to FluentCobol, say hello to Check.That(() => actual == expected);
     </dependencies>
   </metadata>
   <files>
-    <file src="Build\Cone\$Configuration$\**" target="lib\" />
+    <file src="Build\Cone\$Configuration$\**" target="lib\" exclude="**\Newtonsoft.Json.dll" />
+<!--
     <file src="dotnet-conesole.targets" target="build\Cone.targets" />
     <file src="dotnet-conesole.targets" target="buildMultiTargeting\Cone.targets" />
+-->
   </files>
 </package>

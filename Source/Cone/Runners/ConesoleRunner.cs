@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-#if NET45
+#if NETFX
 #else
 using System.Runtime.Loader;
 #endif

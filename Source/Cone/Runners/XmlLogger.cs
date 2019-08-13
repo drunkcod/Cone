@@ -101,9 +101,9 @@ namespace Cone.Runners
 					xml.WriteAttributeString("assembly", new Uri(test.Assembly.Location).LocalPath);
 				}
 
+
 				xml.WriteStartElement("failure");
 					xml.WriteAttributeString("type", failure.FailureType.ToString());
-					xml.WriteAttributeString("context", failure.Context);
 					xml.WriteAttributeString("file", failure.File);
 					xml.WriteAttribute("line", failure.Line);
 					xml.WriteAttribute("column", failure.Column);
@@ -179,7 +179,7 @@ namespace Cone.Runners
 				xml.WriteAttributeString("pending", summary.Pending.ToString());
 				xml.WriteAttributeString("skipped", summary.Skipped.ToString());
 			xml.WriteEndDocument();
-			xml.Flush();
+			xml.Close();
 			SessionEnded.Raise(this, EventArgs.Empty);
 		}
 

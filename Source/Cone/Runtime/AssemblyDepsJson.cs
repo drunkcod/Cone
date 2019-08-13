@@ -128,6 +128,7 @@ namespace Cone.Runtime
 		public DependencyResolutionItem ResolveDependency(RuntimeDependencyInfo dep) {
 			var runtimeTargets = dep
 					.RuntimeTarget
+					.Where(x => !x.Path.EndsWith("_._"))
 					.Join(new[] { 
 						new { Rid = RID, SortOrder = 1 },
 						new { Rid = OS, SortOrder = 2 },
@@ -140,27 +141,33 @@ namespace Cone.Runtime
 			if(!loadTargets.Any())
 				return new DependencyResolutionItem { Name = dep.Name, Items = new DependencyItem[0] };
 
-			var items = new DependencyItem[loadTargets.Count];
-			var itemIndex = 0;
+			var items = new List<DependencyItem>();
 			foreach (var candidate in loadTargets)
-				if (string.IsNullOrEmpty(candidate.Path)) {
-					var managedPath = $@"{ApplicationBase}\{candidate.Path}";
+				if (string.IsNullOrEmpty(dep.Path)) {
+					var managedPath = Path.Combine(ApplicationBase, candidate.Path);
 					var found = File.Exists(managedPath);
 					if (found) {
-						items[itemIndex++] = new DependencyItem(managedPath, candidate.IsManaged);
+						items.Add(new DependencyItem(managedPath, candidate.IsManaged));
 					}
 				}
-				else
-					foreach (var probePath in PackageProbePaths) {
-						var managedPath = $@"{probePath}\{dep.Path}\{candidate.Path}";
-						var found = File.Exists(managedPath);
-						if (found) {
-							items[itemIndex++] = new DependencyItem(managedPath, candidate.IsManaged);
-							break;
-}
-					}
-			Array.Resize(ref items, itemIndex);
-			return new DependencyResolutionItem { Name = dep.Name, Items = items, };
+				else if(TryResolve(dep, candidate, out var found)) {
+					items.Add(found);
+				} else {
+					//Console.Error.WriteLine($"Failed to bind {RID} \"{dep.Path}\", \"{candidate.Path}\" given \"{ApplicationBase}\",\"{string.Join(",\"", PackageProbePaths)}\"");
+				}
+			return new DependencyResolutionItem { Name = dep.Name, Items = items.ToArray(), };
+		}
+
+		bool TryResolve(RuntimeDependencyInfo dep, DependencyItem item, out DependencyItem found) {
+			foreach (var probePath in PackageProbePaths) {
+				var managedPath = Path.Combine(probePath, dep.Path, item.Path);
+				if (File.Exists(managedPath)) {
+					found = new DependencyItem(managedPath, item.IsManaged);
+					return true;
+				}
+			}
+			found = default(DependencyItem);
+			return false;
 		}
 	}
 

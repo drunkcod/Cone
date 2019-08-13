@@ -28,7 +28,7 @@ namespace Cone.Worker
 		static string GetConePath(string workingDir) => Path.Combine(workingDir, "Cone.dll");
 
 		static bool RanInTestDomain(string target, string workingDir, string[] args, out int result) {
-#if NET45 || NET462
+#if NETFX
 			var targetConfig = target + ".config";
 			if(!File.Exists(targetConfig) || !AppDomain.CurrentDomain.IsDefaultAppDomain()) {
 				result = 0;
@@ -46,7 +46,7 @@ namespace Cone.Worker
 				new System.Security.PermissionSet(System.Security.Permissions.PermissionState.Unrestricted));
 			result = testDomain.ExecuteAssembly(new Uri(typeof(Program).Assembly.CodeBase).LocalPath, args);
 			return true;
-#elif NETCOREAPP2_0 || NETCOREAPP2_1 || NETCOREAPP2_2
+#else
 			result = 0;
 			return false;
 #endif
