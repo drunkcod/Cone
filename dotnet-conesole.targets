@@ -1,4 +1,4 @@
-<Project>   
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <Target Name="Cone-TargetInfo">
         <PropertyGroup>
             <Fx>$(TargetFramework)</Fx>
@@ -7,21 +7,20 @@
         <ItemGroup>
             <_TargetFramework Include="$(Fx.Split(';'))" />
         </ItemGroup>
-        <WriteLinesToFile Encoding="UTF-8" File="$(Cone-TargetFile)" Lines="&lt;Targets&gt;" Overwrite="true" />
+        <WriteLinesToFile Encoding="UTF-8" File="$(Cone-TargetFile)" Lines="" Overwrite="true" />
         <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="Cone-WriteOutput" Properties="TargetFramework=%(_TargetFramework.Identity)" />
-        <WriteLinesToFile Encoding="UTF-8" File="$(Cone-TargetFile)" Lines="&lt;/Targets&gt;" Overwrite="false" />
-
     </Target>
+
     <Target Name="Cone-WriteOutput">
         <PropertyGroup>
             <Lines>
-                <Target>;
-                    <ProjectName>$(MSBuildProjectName)</ProjectName>;
-                    <OutputPath>$(OutputPath)</OutputPath>;
-                    <Configuration>$(Configuration)</Configuration>;
-                    <TargetFileName>$(TargetFileName)</TargetFileName>;
-                    <TargetFramework>$(TargetFramework)</TargetFramework>;
-                </Target>
+{ 
+  Target: "$(MSBuildProjectName)",
+  OutputPath: "$(OutputPath.Replace('\', '/'))",
+  Configuration: "$(Configuration)",
+  TargetFileName: "$(TargetFileName)",
+  TargetFramework: "$(TargetFramework)"
+}
             </Lines>
         </PropertyGroup>
         <WriteLinesToFile Encoding="UTF-8" File="$(Cone-TargetFile)" Lines="$(Lines)" Overwrite="false" />

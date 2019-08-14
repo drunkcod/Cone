@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace Conesole.NetCoreApp
 {
@@ -17,13 +18,6 @@ namespace Conesole.NetCoreApp
 		public string TargetFramework;
 
 		public string GetTargetPath() => Path.Combine(OutputPath, TargetFileName);
-	}
-
-	[XmlRoot("Targets")]
-	public class TargetCollection
-	{
-		[XmlElement("Target")]
-		public TargetInfo[] Items;
 	}
 
 	class Program
@@ -68,7 +62,7 @@ namespace Conesole.NetCoreApp
 				var targetInfo = GetTargetInfo(settings);
 				var allOk = true;
 				runSettings.Insert(0, string.Empty);
-				foreach(var item in targetInfo.Items) {
+				foreach(var item in targetInfo) {
 					runSettings[0] = item.GetTargetPath();
 					allOk &= RunConesole(item.TargetFramework, runSettings) == 0;					
 				}
@@ -126,7 +120,7 @@ namespace Conesole.NetCoreApp
 			return (Path.Combine(probePath, "netcoreapp2.2", "Cone.Worker.dll"), true);
 		}
 
-		static TargetCollection GetTargetInfo(CommandSettings settings) {
+		static IEnumerable<TargetInfo> GetTargetInfo(CommandSettings settings) {
 			var tmp = Path.GetTempFileName();
 			try {
 				var build = settings.NoBuild ? string.Empty : "/t:Build";
@@ -135,11 +129,13 @@ namespace Conesole.NetCoreApp
 					Arguments = $"msbuild {FindTargetProject()} /nologo {build} /t:Cone-TargetInfo /p:Cone-TargetFile={tmp} /p:CopyLocalLockFileAssemblies=true"
 				});
 				msbuild.WaitForExit();
-				using(var info = File.OpenRead(tmp)) {
-					var xml = new XmlSerializer(typeof(TargetCollection));
-					var result = (TargetCollection)xml.Deserialize(XmlReader.Create(info, new XmlReaderSettings { ConformanceLevel = ConformanceLevel.Fragment }));
-					return result;
+				var targets = new List<TargetInfo>();
+				using(var info = new JsonTextReader(File.OpenText(tmp)) { SupportMultipleContent = true }) {
+					var json = new JsonSerializer();
+					while(info.Read())
+						targets.Add(json.Deserialize<TargetInfo>(info));
 				}
+				return targets;
 			} catch(Exception ex) {
 				throw new InvalidOperationException("Failed to detect project", ex);
 			}

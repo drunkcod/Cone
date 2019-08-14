@@ -12,6 +12,10 @@ The easiest way to execute Cone specs.
 </description>
     <projectUrl>https://github.com/drunkcod/Cone</projectUrl>
     <tags></tags>
+    <dependencies>
+      <dependency id="Newtonsoft.Json" version="11.0.1" />
+    </dependencies>
+
     <packageTypes>
       <packageType name="DotnetCliTool" />
     </packageTypes>
@@ -19,7 +23,9 @@ The easiest way to execute Cone specs.
   <files>
     <file src="Build\Cone.Worker\$Configuration$\**" target="tools" />
     <file src="Build\dotnet-conesole\$Configuration$\**" target="lib" />
-    <file src="dotnet-conesole.targets" target="build\Cone.targets" />
-    <file src="dotnet-conesole.targets" target="buildMultiTargeting\Cone.targets" />
+<!--
+    <file src="dotnet-conesole.targets" target="build" />
+    <file src="dotnet-conesole.targets" target="buildMultiTargeting" />
+ -->
   </files>
 </package>
