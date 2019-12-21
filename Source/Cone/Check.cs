@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Cone.Core;
 using Cone.Expectations;
-using System.Linq;
 
 namespace Cone
 {
@@ -99,24 +99,6 @@ namespace Cone
 			xs.Select(check).Where(x => !x.IsSuccess).Select(x => x.Error).ToArray();
 
 		public static TException Exception<TException>(Expression<Action> expr) where TException : Exception => Check<TException>.When(expr);
-
-		class NotExpectedExpect : IExpect
-		{
-			readonly Expression expression;
-			readonly ConeMessage message;
-
-			public NotExpectedExpect(Expression expression, ConeMessage message) {
-				this.expression = expression;
-				this.message = message;
-			}
-
-			public CheckResult Check() => new CheckResult(false, Maybe<object>.None, Maybe<object>.None);
-
-			public string FormatActual(IFormatter<object> formatter) => string.Empty;
-			public string FormatExpected(IFormatter<object> formatter) => string.Empty;
-			public string FormatExpression(IFormatter<Expression> formatter) => formatter.Format(expression);
-			public ConeMessage FormatMessage(IFormatter<object> formatter) => message;
-		}
 
 		internal static IExpect ToExpect(Expression body, ExpressionEvaluatorParameters parameters) {
 			try {
@@ -265,4 +247,21 @@ namespace Cone
 			throw Check.MakeFail(r.Error, null);
 		}
 	}
+
+	class NotExpectedExpect : IExpect
+	{
+		readonly Expression expression;
+		readonly ConeMessage message;
+
+		public NotExpectedExpect(Expression expression, ConeMessage message) {
+			this.expression = expression;
+			this.message = message;
+		}
+
+		public CheckResult Check() => new CheckResult(false, Maybe<object>.None, Maybe<object>.None);
+
+		public string FormatExpression(IFormatter<Expression> formatter) => formatter.Format(expression);
+		public ConeMessage FormatMessage(IFormatter<object> formatter) => message;
+	}
+
 }

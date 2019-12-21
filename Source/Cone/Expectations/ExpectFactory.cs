@@ -19,7 +19,7 @@ namespace Cone.Expectations
 			var providers = assembliesToScan
 				.SelectMany(AssemblyMethods.GetExportedTypes)
 				.Where(IsMethodExpectProvider)
-				.Select(Core.TypeExtensions.New<IMethodExpectProvider>);
+				.Select(TypeExtensions.New<IMethodExpectProvider>);
 			foreach(var provider in providers)
 			foreach(var method in provider.GetSupportedMethods())
 				methodExpects.Insert(method, provider);
@@ -95,36 +95,19 @@ namespace Cone.Expectations
 		}
 
 		IExpect Method(MethodCallExpression body, ExpressionEvaluatorParameters parameters) {
-			IMethodExpectProvider provider;
 			var method = body.Method;
-			if(TryGetExpectProvider(method, out provider)) {
+			if(TryGetExpectProvider(method, out var provider)) {
 				var target = evaluator.EvaluateAsTarget(body.Object, body, parameters);
 				if(target.IsError)
-					return new InvocationTargetExpectFailure(body.Object, target.Exception.Message);
-				var args = body.Arguments.ConvertAll(x => EvaluateAs<object>(x, ExpressionEvaluatorParameters.Empty));
+					return new NotExpectedExpect(body.Object,
+						ConeMessage.Combine(
+							new[] { new ConeMessageElement("Raised: ", "info") }, 
+							ConeMessage.Parse(target.Exception.Message)));
+				
+				var args = body.Arguments.ConvertAll(x => EvaluateAs<object>(x));
 				return provider.GetExpectation(body, method, target.Result, args);
 			}
 			return Boolean(body, parameters);
-		}
-
-		class InvocationTargetExpectFailure : IExpect
-		{
-			readonly Expression body;
-			readonly string error;
-
-			public InvocationTargetExpectFailure(Expression body, string error) {
-				this.body = body;
-				this.error = error;
-			}
-
-			public CheckResult Check() => 
-				new CheckResult(false, Maybe<object>.None, Maybe<object>.None);
-
-			public string FormatExpression(IFormatter<Expression> formatter) =>
-				formatter.Format(body);
-
-			public ConeMessage FormatMessage(IFormatter<object> formatter) =>
-				ConeMessage.Combine(new[]{ new ConeMessageElement("Raised: ", "info") }, ConeMessage.Parse(error));
 		}
 
 		bool TryGetExpectProvider(MethodInfo method, out IMethodExpectProvider provider) =>
@@ -134,7 +117,9 @@ namespace Cone.Expectations
 			new BooleanExpect(body, new ExpectValue(EvaluateAs<bool>(body, parameters)));
 
 		IExpect Conversion(UnaryExpression conversion) =>
-			new ConversionExpect(conversion, EvaluateAs<object>(conversion.Operand, ExpressionEvaluatorParameters.Empty), conversion.Method);
+			new ConversionExpect(conversion, 
+				EvaluateAs<object>(conversion.Operand), 
+				conversion.Method);
 
 		Expect Binary(BinaryExpression body, ExpressionEvaluatorParameters parameters) {
 			var left = Evaluate(body.Left, body, parameters);
@@ -150,12 +135,11 @@ namespace Cone.Expectations
 			return MakeExpect(body, left, right);
 		}
 
-		static bool IsStringEquals(BinaryExpression body) {
-			return body.NodeType == ExpressionType.Equal
+		static bool IsStringEquals(BinaryExpression body) =>
+			body.NodeType == ExpressionType.Equal
 			&& body.Left.Type == typeof(string) 
 			&& body.Right.Type == typeof(string);
-		}
-
+		
 		static Expect MakeExpect(BinaryExpression body, IExpectValue left, IExpectValue right) {
 			switch(body.NodeType) {
 				case ExpressionType.Equal: return new EqualExpect(body, left, right);
@@ -185,7 +169,8 @@ namespace Cone.Expectations
 		}
 
 		T EvaluateAs<T>(Expression body, ExpressionEvaluatorParameters parameters) => (T)(Evaluate(body, body, parameters).Value);
-		
+		T EvaluateAs<T>(Expression body) => (T)(Evaluate(body, body, ExpressionEvaluatorParameters.Empty).Value);
+
 		IExpectValue Evaluate(Expression body, Expression context, ExpressionEvaluatorParameters parameters) { 
 			Expression unwrapped;
 			var value = evaluator.Evaluate(body, context, parameters).Result;
