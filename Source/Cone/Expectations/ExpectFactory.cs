@@ -98,11 +98,33 @@ namespace Cone.Expectations
 			IMethodExpectProvider provider;
 			var method = body.Method;
 			if(TryGetExpectProvider(method, out provider)) {
-				var target = evaluator.EvaluateAsTarget(body.Object, body, parameters).Result;
+				var target = evaluator.EvaluateAsTarget(body.Object, body, parameters);
+				if(target.IsError)
+					return new InvocationTargetExpectFailure(body.Object, target.Exception.Message);
 				var args = body.Arguments.ConvertAll(x => EvaluateAs<object>(x, ExpressionEvaluatorParameters.Empty));
-				return provider.GetExpectation(body, method, target, args);
+				return provider.GetExpectation(body, method, target.Result, args);
 			}
 			return Boolean(body, parameters);
+		}
+
+		class InvocationTargetExpectFailure : IExpect
+		{
+			readonly Expression body;
+			readonly string error;
+
+			public InvocationTargetExpectFailure(Expression body, string error) {
+				this.body = body;
+				this.error = error;
+			}
+
+			public CheckResult Check() => 
+				new CheckResult(false, Maybe<object>.None, Maybe<object>.None);
+
+			public string FormatExpression(IFormatter<Expression> formatter) =>
+				formatter.Format(body);
+
+			public ConeMessage FormatMessage(IFormatter<object> formatter) =>
+				ConeMessage.Combine(new[]{ new ConeMessageElement("Raised: ", "info") }, ConeMessage.Parse(error));
 		}
 
 		bool TryGetExpectProvider(MethodInfo method, out IMethodExpectProvider provider) =>
