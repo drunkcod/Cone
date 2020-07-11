@@ -3,22 +3,21 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Cone.Expectations
+namespace CheckThat.Expectations
 {
 	public class ConeMessageElement
 	{
 		readonly string value;
-		readonly string style;
 
 		public static readonly ConeMessageElement NewLine = new ConeMessageElement("\n", string.Empty);
 		public static readonly ConeMessageElement[] NoElements = new ConeMessageElement[0];
 
 		public ConeMessageElement(string value, string style) { 
 			this.value = value;
-			this.style = style;
+			this.Style = style;
 		}
 
-		public string Style => style;
+		public string Style { get; }
 		public int Length => value.Length;
 
 		public override string ToString() => value;
@@ -42,14 +41,13 @@ namespace Cone.Expectations
 		}
 
 		static IEnumerable<ConeMessageElement> Lines(IEnumerable<ConeMessageElement> parts) {
-			using(var item = parts.GetEnumerator()) {
-				if(!item.MoveNext())
-					yield break;
+			using var item = parts.GetEnumerator();
+			if (!item.MoveNext())
+				yield break;
+			yield return item.Current;
+			while (item.MoveNext()) {
+				yield return ConeMessageElement.NewLine;
 				yield return item.Current;
-				while(item.MoveNext()) {
-					yield return ConeMessageElement.NewLine;
-					yield return item.Current;
-				}
 			}
 		}
 

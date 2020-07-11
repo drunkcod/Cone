@@ -1,10 +1,10 @@
 using System;
 using System.Linq;
+using CheckThat.Expectations;
 using CheckThat.Internals;
 using Cone.Core;
-using Cone.Expectations;
 
-namespace Cone
+namespace CheckThat
 {
 	public class FailedExpectation
 	{

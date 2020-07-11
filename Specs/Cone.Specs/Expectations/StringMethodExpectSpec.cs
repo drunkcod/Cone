@@ -1,12 +1,13 @@
 using System;
-using System.Linq.Expressions;
-using Cone.Core;
 using System.Globalization;
+using System.Linq.Expressions;
 using CheckThat;
+using CheckThat.Expectations;
+using Cone.Core;
 
 namespace Cone.Expectations
 {
-    class ToStringFormatter : IFormatter<object>
+	class ToStringFormatter : IFormatter<object>
     {
         public string Format(object value) {
             return value.ToString();

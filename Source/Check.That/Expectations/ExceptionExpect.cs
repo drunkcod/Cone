@@ -1,27 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Linq.Expressions;
 using Cone.Core;
 
-namespace Cone.Expectations
+namespace CheckThat.Expectations
 {
-    public class ExceptionExpect : Expect
+	public class ExceptionExpect : Expect
     {
-        public static ExceptionExpect From(Expression<Action> expression, Type expected) {
-            return new ExceptionExpect(expression.Body, ExceptionOrNull(expression, expected), expected);
-        }
+        public static ExceptionExpect From(Expression<Action> expression, Type expected) =>
+			new ExceptionExpect(expression.Body, ExceptionOrNull(expression, expected), expected);
        
-        public static ExceptionExpect From<T>(Expression<Func<T>> expression, Type expected) {
-            return new ExceptionExpect(expression.Body, ExceptionOrNull(expression.Body, expected), expected);
-        }
-       
+        public static ExceptionExpect From<T>(Expression<Func<T>> expression, Type expected) =>
+			new ExceptionExpect(expression.Body, ExceptionOrNull(expression.Body, expected), expected);
+
         ExceptionExpect(Expression body, object result, Type expected): base(body, new ExpectValue(result), new ExpectValue(expected)) { }
 
-        Type ExpectedExceptionType { get { return (Type)ExpectedValue; } }
+        Type ExpectedExceptionType => (Type)ExpectedValue;
 
-        protected override bool CheckCore() {
-            return ActualValue != null && ExpectedExceptionType.IsAssignableFrom(ActualValue.GetType());
-        }
+        protected override bool CheckCore() =>
+			ActualValue != null && ExpectedExceptionType.IsAssignableFrom(ActualValue.GetType());
 
         static object ExceptionOrNull(Expression expression, Type expected) {
             var eval = new ExpressionEvaluator();

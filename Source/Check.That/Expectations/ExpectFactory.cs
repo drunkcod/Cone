@@ -6,7 +6,7 @@ using System.Reflection;
 using CheckThat;
 using Cone.Core;
 
-namespace Cone.Expectations
+namespace CheckThat.Expectations
 {
 	public class ExpectFactory
 	{

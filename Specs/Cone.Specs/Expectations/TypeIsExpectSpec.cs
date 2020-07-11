@@ -1,10 +1,11 @@
 using System;
 using System.Linq.Expressions;
 using CheckThat;
+using CheckThat.Expectations;
 
 namespace Cone.Expectations
 {
-    [Describe(typeof(TypeIsExpect))]
+	[Describe(typeof(TypeIsExpect))]
     public class TypeIsExpectSpec
     {
         public void null_handling() {

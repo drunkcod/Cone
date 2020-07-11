@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Reflection;
+using CheckThat.Expectations;
 using Cone.Core;
-using Cone.Expectations;
 
 namespace Cone.Runners
 {

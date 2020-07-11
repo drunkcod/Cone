@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Cone;
 using Cone.Core;
-using Cone.Expectations;
+using CheckThat.Expectations;
 using CheckThat.Internals;
 
 namespace CheckThat

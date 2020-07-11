@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using CheckThat;
 using Cone.Reflection;
-using System.Diagnostics;
 
 namespace Cone.Core
 {

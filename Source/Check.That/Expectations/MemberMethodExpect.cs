@@ -1,12 +1,11 @@
 using System.Linq.Expressions;
 using System.Reflection;
-using CheckThat.Expectations;
 using CheckThat.Internals;
 using Cone.Core;
 
-namespace Cone.Expectations
+namespace CheckThat.Expectations
 {
-    public abstract class MethodExpect : IExpect
+	public abstract class MethodExpect : IExpect
     {
         readonly Expression body;
         readonly MethodInfo method;
@@ -21,21 +20,16 @@ namespace Cone.Expectations
         protected abstract object Target { get; }
         protected abstract object Actual { get ; }
 
-        public virtual string FormatActual(IFormatter<object> formatter) {
-            return formatter.Format(Actual);
-        }
+        public virtual string FormatActual(IFormatter<object> formatter) =>
+			formatter.Format(Actual);
 
-        public virtual string FormatExpected(IFormatter<object> formatter) { 
-            return method.Name; 
-        }
+        public virtual string FormatExpected(IFormatter<object> formatter) => method.Name; 
 
-        public CheckResult Check() {
-            return new CheckResult((bool)method.Invoke(Target, arguments), Maybe<object>.Some(Actual), Maybe<object>.None);
-        }
+        public CheckResult Check() =>
+			new CheckResult((bool)method.Invoke(Target, arguments), Maybe<object>.Some(Actual), Maybe<object>.None);
 
-        public virtual string FormatExpression(IFormatter<Expression> formatter) {
-            return formatter.Format(body);
-        }
+        public virtual string FormatExpression(IFormatter<Expression> formatter) =>
+			formatter.Format(body);
 
 		public virtual ConeMessage FormatMessage(IFormatter<object> formatter) =>
 			ExpectMessages.EqualFormat(FormatActual(formatter), FormatExpected(formatter));

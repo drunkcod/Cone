@@ -1,13 +1,12 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using CheckThat.Expectations;
 using CheckThat.Internals;
 using Cone.Core;
 
-namespace Cone.Expectations
+namespace CheckThat.Expectations
 {
-    public class BooleanExpect : IExpect
+	public class BooleanExpect : IExpect
     {
         protected readonly Expression body;
         readonly IExpectValue actual;
@@ -41,11 +40,10 @@ namespace Cone.Expectations
         IExpectValue Actual => actual;
         protected virtual IExpectValue Expected => ExpectValue.True;
 
-        protected virtual bool CheckCore() {
-            if(ActualValue != null)
-                return ActualValue.Equals(ExpectedValue);
-            return ExpectedValue.Equals(ActualValue);
-        }
+        protected virtual bool CheckCore() =>
+			ActualValue != null
+			? ActualValue.Equals(ExpectedValue)
+            : ExpectedValue.Equals(ActualValue);
     }
 
     class ConversionExpect : BooleanExpect
@@ -56,21 +54,9 @@ namespace Cone.Expectations
             this.conversion = conversion;
         }
 
-        protected override bool CheckCore() {
-            if(ActualValue != null)
-                return conversion.Invoke(null, new []{ ActualValue }).Equals(ExpectedValue);
-            return ExpectedValue.Equals(ActualValue);
-        }
-    }
-
-    public class Expect : BooleanExpect 
-    {
-        readonly IExpectValue expected;
-
-        public Expect(Expression body, IExpectValue actual, IExpectValue expected) : base(body, actual) {            
-            this.expected = expected.Value != null ? expected : ExpectValue.Null;
-        }
-
-        protected override IExpectValue Expected => expected;
+        protected override bool CheckCore() =>
+			ActualValue != null
+			? conversion.Invoke(null, new []{ ActualValue }).Equals(ExpectedValue)
+            : ExpectedValue.Equals(ActualValue);
     }
 }

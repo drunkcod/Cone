@@ -1,13 +1,10 @@
-﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Reflection;
 using System.Linq.Expressions;
+using System.Reflection;
 
-namespace Cone.Expectations
+namespace CheckThat.Expectations
 {
-    public interface IMethodExpectProvider
+	public interface IMethodExpectProvider
     {
         IEnumerable<MethodInfo> GetSupportedMethods();
         IExpect GetExpectation(Expression body, MethodInfo method, object target, object[] args);

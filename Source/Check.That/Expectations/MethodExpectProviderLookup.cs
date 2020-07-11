@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Reflection;
 
-namespace Cone.Expectations
+namespace CheckThat.Expectations
 {
 	public class MethodExpectProviderLookup 
 	{

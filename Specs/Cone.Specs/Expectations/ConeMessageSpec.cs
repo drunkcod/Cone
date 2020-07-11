@@ -1,4 +1,5 @@
 using CheckThat;
+using CheckThat.Expectations;
 
 namespace Cone.Expectations
 {

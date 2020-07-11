@@ -1,7 +1,7 @@
 using System;
 using System.Linq.Expressions;
 
-namespace Cone
+namespace CheckThat
 {
     public class NullSubexpressionException : ArgumentNullException 
     {

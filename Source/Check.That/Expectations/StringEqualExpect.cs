@@ -1,9 +1,8 @@
 using System;
 using System.Linq.Expressions;
 using Cone.Core;
-using System.Diagnostics;
 
-namespace Cone.Expectations
+namespace CheckThat.Expectations
 {
 	public class StringEqualExpect : EqualExpect
 	{
@@ -15,13 +14,10 @@ namespace Cone.Expectations
 
 		public bool IncludeGuide = true;
 
-		public ConeMessage Preamble { 
-			get {
-				if(ActualString.Length == ExpectedString.Length)
-					return ConeMessage.Format("String lengths are both {0}.", ActualString.Length);
-				return ConeMessage.Format("Expected string length {0} but was {1}.", ExpectedString.Length, ActualString.Length);
-			}
-		}
+		public ConeMessage Preamble =>
+			ActualString.Length == ExpectedString.Length
+			? ConeMessage.Format("String lengths are both {0}.", ActualString.Length)
+			: ConeMessage.Format("Expected string length {0} but was {1}.", ExpectedString.Length, ActualString.Length);
 
 		public static ConeMessage Center(string input, int position, int width) {
 			if(input.Length <= width)
@@ -78,7 +74,7 @@ namespace Cone.Expectations
 		ConeMessage FormatNullValue(IFormatter<object> formatter) => 
 			ConeMessage.Create(new ConeMessageElement(formatter.Format(null), "info"));
 
-		string ActualString { get { return ActualValue.ToString(); } }
-		string ExpectedString { get { return ExpectedValue.ToString(); } }
+		string ActualString => ActualValue.ToString();
+		string ExpectedString => ExpectedValue.ToString();
 	}
 }

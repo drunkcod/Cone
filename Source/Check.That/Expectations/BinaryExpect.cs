@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Cone.Core;
 
-namespace Cone.Expectations
+namespace CheckThat.Expectations
 {
     public class BinaryExpect : Expect
     {

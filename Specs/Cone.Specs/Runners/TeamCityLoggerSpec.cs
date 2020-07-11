@@ -3,9 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using CheckThat;
+using CheckThat.Expectations;
 using CheckThat.Internals;
 using Cone.Core;
-using Cone.Expectations;
 using Cone.Stubs;
 
 namespace Cone.Runners

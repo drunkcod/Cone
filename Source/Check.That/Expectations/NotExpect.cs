@@ -1,10 +1,9 @@
 using System.Linq.Expressions;
-using CheckThat.Expectations;
 using Cone.Core;
 
-namespace Cone.Expectations
+namespace CheckThat.Expectations
 {
-    class NotExpect : IExpect
+	class NotExpect : IExpect
     {
         readonly IExpect inner;
 
@@ -15,9 +14,8 @@ namespace Cone.Expectations
             return new CheckResult(!innerResult.IsSuccess, innerResult.Actual, innerResult.Expected);
         }
 
-        public string FormatExpression(IFormatter<Expression> formatter) {
-            return string.Format("!({0})", inner.FormatExpression(formatter));
-        }
+        public string FormatExpression(IFormatter<Expression> formatter) =>
+			string.Format("!({0})", inner.FormatExpression(formatter));
 
 		public ConeMessage FormatMessage(IFormatter<object> formatter) =>
 			ConeMessage.Empty;

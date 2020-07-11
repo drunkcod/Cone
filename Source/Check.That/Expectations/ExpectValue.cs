@@ -1,6 +1,6 @@
-﻿using Cone.Core;
+using Cone.Core;
 
-namespace Cone.Expectations
+namespace CheckThat.Expectations
 {
 	public interface IExpectValue
 	{

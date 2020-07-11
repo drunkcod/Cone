@@ -1,10 +1,10 @@
 using System.Linq.Expressions;
-using Cone.Expectations;
 using CheckThat;
+using CheckThat.Expectations;
 
 namespace Cone
 {
-    [Describe(typeof(BooleanExpect))]
+	[Describe(typeof(BooleanExpect))]
     public class BooleanExpectSpec
     {
         public void uses_equal_format_for_messages() {

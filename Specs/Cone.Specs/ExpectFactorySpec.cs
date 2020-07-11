@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using CheckThat;
+using CheckThat.Expectations;
 using Cone.Core;
 using Cone.Expectations;
 

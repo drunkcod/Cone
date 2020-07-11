@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Cone.Expectations
+namespace CheckThat.Expectations
 {
-    class ExpectedNull
+	class ExpectedNull
     {
 		ExpectedNull() { }
         public static readonly ExpectedNull Value = new ExpectedNull();
@@ -14,12 +9,8 @@ namespace Cone.Expectations
             return obj == null;
         }
 
-        public override int GetHashCode() {
-            return 0;
-        }
+        public override int GetHashCode() => 0;
 
-        public override string ToString() {
-            return "null";
-        }
+        public override string ToString() => "null";
     }
 }

@@ -1,6 +1,6 @@
 using System.IO;
-using Cone.Expectations;
 using CheckThat;
+using CheckThat.Expectations;
 
 namespace Cone.Runners
 {
