@@ -7,6 +7,7 @@ using Cone.Core;
 using Cone.Expectations;
 using CheckThat;
 using CheckThat.Internals;
+using CheckThat.Expectations;
 
 namespace Cone
 {

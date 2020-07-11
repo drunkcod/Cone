@@ -1,6 +1,7 @@
 using System;
 using System.Linq.Expressions;
 using CheckThat;
+using CheckThat.Expectations;
 using CheckThat.Internals;
 using Cone.Core;
 using Cone.Expectations;

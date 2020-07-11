@@ -1,6 +1,6 @@
 using CheckThat.Internals;
 
-namespace Cone.Expectations
+namespace CheckThat.Expectations
 {
 	public struct CheckResult
 	{
@@ -14,26 +14,21 @@ namespace Cone.Expectations
 			this.Expected = expected;
 		}
 
-		public static bool operator==(CheckResult left, CheckResult right) {
-			return left.IsSuccess == right.IsSuccess 
-			       && left.Actual == right.Actual
-			       && left.Expected == right.Expected;
-		}
+		public static bool operator==(CheckResult left, CheckResult right) =>
+			left.IsSuccess == right.IsSuccess 
+			&& left.Actual == right.Actual
+			&& left.Expected == right.Expected;
 
-		public static bool operator!=(CheckResult left, CheckResult right) {
-			return !(left == right);
-		}
+		public static bool operator!=(CheckResult left, CheckResult right) => 
+			!(left == right);
 
-		public override string ToString() {
-			return string.Format("{{Success: {0}, Actual: {1}}}", IsSuccess, Actual);
-		}
+		public override string ToString() =>
+			string.Format("{{Success: {0}, Actual: {1}}}", IsSuccess, Actual);
 
-		public override bool Equals(object obj) {
-			return obj is CheckResult && (CheckResult)obj == this;
-		}
+		public override bool Equals(object obj) =>
+			obj is CheckResult && (CheckResult)obj == this;
 
-		public override int GetHashCode() {
-			return Actual.GetHashCode();
-		}
+		public override int GetHashCode() => 
+			Actual.GetHashCode();
 	}
 }
