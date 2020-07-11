@@ -4,12 +4,4 @@
     <TargetFrameworks>netstandard2.0;net472;net452</TargetFrameworks>
     <RootNamespace>CheckThat</RootNamespace>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-    <Compile Remove="Platform\**" />
-    <Compile Include="..\Cone.Platform\netstandard2.0\**" />
-    <Compile Include="..\Microsoft.DotNet.PlatformAbstractions\**\*.cs" />
-  </ItemGroup>
   </Project>
