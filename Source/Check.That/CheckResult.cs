@@ -1,4 +1,4 @@
-﻿using Cone.Core;
+using CheckThat.Internals;
 
 namespace Cone.Expectations
 {

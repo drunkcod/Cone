@@ -6,6 +6,7 @@ using System.Reflection;
 using Cone.Core;
 using Cone.Expectations;
 using CheckThat;
+using CheckThat.Internals;
 
 namespace Cone
 {

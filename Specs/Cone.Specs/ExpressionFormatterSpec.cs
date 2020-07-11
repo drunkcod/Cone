@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Linq;
 using System.Reflection;
 using CheckThat;
+using CheckThat.Internals;
 
 namespace Cone.Core
 {

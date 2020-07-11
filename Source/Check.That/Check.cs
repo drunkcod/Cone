@@ -7,6 +7,7 @@ using System.Reflection;
 using Cone;
 using Cone.Core;
 using Cone.Expectations;
+using CheckThat.Internals;
 
 namespace CheckThat
 {

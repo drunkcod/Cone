@@ -5,6 +5,8 @@
     <RootNamespace>CheckThat</RootNamespace>
     <LangVersion>latest</LangVersion>
     <Version>0.0.1</Version>
+
+    <Description>Soft and expressive checking without traces of Cobol.</Description>
   </PropertyGroup>
 
 </Project>

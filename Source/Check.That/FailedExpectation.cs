@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using CheckThat.Internals;
 using Cone.Core;
 using Cone.Expectations;
 

@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CheckThat;
+using Cone;
 
-namespace Cone.Core
+namespace CheckThat.Internals
 {
 	[Describe(typeof(Maybe<>))]
 	public class MaybeSpec

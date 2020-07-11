@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
+using CheckThat.Internals;
 using Cone.Core;
 using Cone.Expectations;
 
