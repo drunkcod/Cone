@@ -17,15 +17,17 @@ namespace CheckThat
 	 */
 	public static class Check
 	{
-		static Assembly ExtensionsAssembly => typeof(IMethodExpectProvider).Assembly;
 		static ExpectFactory expect;
 
 		static readonly ExpressionEvaluator Evaluator = new ExpressionEvaluator();
-		static ExpectFactory Expect => expect ?? (expect = new ExpectFactory(Evaluator, GetPluginAssemblies()));
+		static ExpectFactory Expect => expect ??= new ExpectFactory(Evaluator, GetPluginAssemblies());
 		static readonly ParameterFormatter ParameterFormatter = new ParameterFormatter();
 		static readonly ExpressionFormatter ExpressionFormatter = new ExpressionFormatter(typeof(Check), ParameterFormatter);
 
 		public static Func<IEnumerable<Assembly>> GetPluginAssemblies = GetDefaultPluginAssemblies;
+
+		static IEnumerable<Assembly> GetDefaultPluginAssemblies() =>
+			AppDomain.CurrentDomain.GetAssemblies().Where(ReferencesExtensionPoints);
 
 		public static bool IncludeGuide 
 		{
@@ -33,13 +35,10 @@ namespace CheckThat
 			set { Expect.IncludeGuide = value; }
 		}
 
-		static IEnumerable<Assembly> GetDefaultPluginAssemblies() =>
-            AppDomain.CurrentDomain.GetAssemblies().Where(ReferencesExtensionPoints);
-
 		static bool ReferencesExtensionPoints(Assembly assembly) => 
 			assembly.GetReferencedAssemblies().Any(a => a.FullName == ExtensionsAssembly.FullName);
 
-		internal static void Initialize() => That(() => Expect != null);
+		static Assembly ExtensionsAssembly => typeof(IMethodExpectProvider).Assembly;
 		
 		internal static Exception MakeFail(FailedExpectation fail, Exception innerException) =>
 			new CheckFailed(string.Empty, fail, innerException);
@@ -68,13 +67,19 @@ namespace CheckThat
 
 		internal static Exception Eval(IEnumerable<Expression<Func<bool>>> exprs) {
 			var failed = GetFailed(exprs, x => CheckExpect(x.Body, ExpressionEvaluatorParameters.Empty));
-			return failed.Length > 0 
-			? MakeFail(failed, null) 
-			: null;
+			return failed != null ? MakeFail(failed, null) : null;
 		}
 
-		static FailedExpectation[] GetFailed<T>(IEnumerable<T> xs, Func<T,EvalResult> check) =>
-			xs.Select(check).Where(x => !x.IsSuccess).Select(x => x.Error).ToArray();
+		static FailedExpectation[] GetFailed<T>(IEnumerable<T> xs, Func<T,EvalResult> check) 
+		{
+			List<FailedExpectation> errors = null;
+			foreach(var item in xs) {
+				var r = check(item);
+				if(!r.IsSuccess)
+					(errors ??= new List<FailedExpectation>()).Add(r.Error);
+			}
+			return errors?.ToArray();
+		}
 
 		public static TException Exception<TException>(Expression<Action> expr) where TException : Exception => Check<TException>.When(expr);
 
@@ -102,26 +107,13 @@ namespace CheckThat
 			readonly object value;
 
 			EvalResult(object value, bool isSuccess) { this.value = value; this.IsSuccess = isSuccess; }
+
 			public static EvalResult Success(object value) => new EvalResult(value, true);
 			public static EvalResult Failure(FailedExpectation value) => new EvalResult(value, false);
 
 			public bool IsSuccess { get; }
-
-			public object Value {
-				get {
-					if(IsSuccess)
-						return value;
-					throw new InvalidOperationException();
-				}
-			}
-
-			public FailedExpectation Error {
-				get {
-					if(IsSuccess)
-						throw new InvalidOperationException();
-					return (FailedExpectation)value;
-				}
-			}
+			public object Value => IsSuccess ? value : throw new InvalidOperationException();
+			public FailedExpectation Error => IsSuccess ? throw new InvalidOperationException() : (FailedExpectation)value;
 		}
 
 		internal static EvalResult CheckExpect(IExpect expect) {
@@ -183,7 +175,7 @@ namespace CheckThat
 
 			public void That(IEnumerable<LambdaExpression> exprs) {
 				var failed = GetFailed(exprs, BoundEval);
-				if(failed.Length > 0)
+				if(failed != null)
 					throw MakeFail(failed);
 			}
 
@@ -207,6 +199,8 @@ namespace CheckThat
 			public void That(Expression<Func<T,bool>> expr, params Expression<Func<T,bool>>[] extras) =>
 				check.That(new [] { expr }.Concat(extras));
 		}
+
+		internal static void Initialize() => That(() => Expect != null);
 	}
 
 	public static class Check<TException> where TException : Exception
