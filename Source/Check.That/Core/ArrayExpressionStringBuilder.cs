@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,7 +9,7 @@ namespace Cone.Core
 		string IFormatter<T>.Format(T expression) => expression.ToString();
 	}
 
-	class ArrayExpressionStringBuilder<T> : ICollectionFormatter<T>
+	public class ArrayExpressionStringBuilder<T> : ICollectionFormatter<T>
 	{
 		public string Format(IEnumerable<T> collection, IFormatter<T> itemFormatter) =>
 			FormatCore(collection, itemFormatter);

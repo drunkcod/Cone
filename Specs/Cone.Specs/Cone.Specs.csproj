@@ -18,6 +18,5 @@
   </ItemGroup>  
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Cone\Cone.csproj" />
-    <ProjectReference Include="..\..\Source\Cone.Expectations\Cone.Expectations.csproj" />
   </ItemGroup>  
 </Project>

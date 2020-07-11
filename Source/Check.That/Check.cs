@@ -38,7 +38,7 @@ namespace Cone
 		static bool ReferencesExtensionPoints(Assembly assembly) => 
 			assembly.GetReferencedAssemblies().Any(a => a.FullName == ExtensionsAssembly.FullName);
 
-		internal static void Initialize() {
+		public static void Initialize() {
 			DoMakeFail = DefaultFail;
 			That(() => Expect != null);
 		}
