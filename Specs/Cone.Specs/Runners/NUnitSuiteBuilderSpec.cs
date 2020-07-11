@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using CheckThat;
 using Cone.Core;
 using NUnit.Framework;
-using System.IO;
+
 
 //mimic the NUnit framework attributes, matches must be name based to avoid referenceing nunit.
 namespace NUnit.Framework

@@ -4,10 +4,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Cone;
 using Cone.Core;
 using Cone.Expectations;
 
-namespace Cone
+namespace CheckThat
 {
 	/*
 	 * This file contains more repitition than any sane man would normally agree with.
@@ -38,42 +39,19 @@ namespace Cone
 		static bool ReferencesExtensionPoints(Assembly assembly) => 
 			assembly.GetReferencedAssemblies().Any(a => a.FullName == ExtensionsAssembly.FullName);
 
-		public static void Initialize() {
-			DoMakeFail = DefaultFail;
-			That(() => Expect != null);
-		}
+		internal static void Initialize() => That(() => Expect != null);
 		
-		internal static Exception MakeFail(FailedExpectation fail, Exception innerException) => 
-			DoMakeFail(string.Empty, new [] { fail }, innerException);
+		internal static Exception MakeFail(FailedExpectation fail, Exception innerException) =>
+			new CheckFailed(string.Empty, fail, innerException);
 
-		internal delegate Exception NewFailedExpectationException(string context, FailedExpectation[] fails, Exception inner); 
-
-		static NewFailedExpectationException DoMakeFail = (context, fail, inner) =>
-			(DoMakeFail = LateBindFailureException())(context, fail, inner);
-
-		static NewFailedExpectationException LateBindFailureException() {
-			var nunit = Type.GetType("NUnit.Framework.AssertionException, NUnit.Framework");
-			if (nunit == null)
-				return DefaultFail;
-
-			var fails = Expression.Parameter(typeof (IEnumerable<FailedExpectation>), "fails");
-			var innerException = Expression.Parameter(typeof (Exception), "innerException");
-			
-			return Expression.Lambda<NewFailedExpectationException>(
-				Expression.New(nunit.GetConstructor(new [] {typeof (string), typeof (Exception)}),
-					Expression.Call(typeof (Check).GetMethod("FormatFailMessage", BindingFlags.Static | BindingFlags.NonPublic), fails),
-					innerException),
-				fails, innerException).Compile();
-		}
-
-		static Exception DefaultFail(string context, FailedExpectation[] fail, Exception innerException) =>
-			new CheckFailed(context, fail, innerException);
+		internal static Exception MakeFail(FailedExpectation[] fails, Exception innerException) =>
+			new CheckFailed(string.Empty, fails, innerException);
 
 		public static object That(Expression<Func<bool>> expr) {
 			var result = CheckExpect(expr.Body, ExpressionEvaluatorParameters.Empty);
 			if (result.IsSuccess)
 				return result.Value;
-			throw DoMakeFail(string.Empty, new [] { result.Error }, null);
+			throw MakeFail(result.Error, null);
 		}
 
 		public static void That(Expression<Func<bool>> expr, params Expression<Func<bool>>[] extras) {
@@ -91,7 +69,7 @@ namespace Cone
 		internal static Exception Eval(IEnumerable<Expression<Func<bool>>> exprs) {
 			var failed = GetFailed(exprs, x => CheckExpect(x.Body, ExpressionEvaluatorParameters.Empty));
 			return failed.Length > 0 
-			? DoMakeFail(string.Empty, failed, null) 
+			? MakeFail(failed, null) 
 			: null;
 		}
 
@@ -213,7 +191,7 @@ namespace Cone
 				CheckExpect(x.Body, ExpressionEvaluatorParameters.Create(x.Parameters, args));
 
 			Exception MakeFail(FailedExpectation[] failed) =>
-				DoMakeFail(formatContext(), failed, null);
+				new CheckFailed(formatContext(), failed, null);
 		}
 
 		public class CheckWith<T>
@@ -248,20 +226,9 @@ namespace Cone
 		}
 	}
 
-	class NotExpectedExpect : IExpect
+	//For those wanting to pre-warm their expectations.
+	public static class Batteries
 	{
-		readonly Expression expression;
-		readonly ConeMessage message;
-
-		public NotExpectedExpect(Expression expression, ConeMessage message) {
-			this.expression = expression;
-			this.message = message;
-		}
-
-		public CheckResult Check() => new CheckResult(false, Maybe<object>.None, Maybe<object>.None);
-
-		public string FormatExpression(IFormatter<Expression> formatter) => formatter.Format(expression);
-		public ConeMessage FormatMessage(IFormatter<object> formatter) => message;
+		public static void Included() => Check.Initialize();
 	}
-
 }

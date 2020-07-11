@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Cone.Runners;
+using CheckThat;
 
 namespace Cone.Core
 {

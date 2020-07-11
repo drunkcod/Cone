@@ -1,6 +1,7 @@
-using Cone.Core;
 using System.Reflection;
 using System.Threading.Tasks;
+using CheckThat;
+using Cone.Core;
 
 namespace Cone.Runners
 {

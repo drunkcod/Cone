@@ -7,6 +7,8 @@ using System.Text;
 using Cone.Core;
 using Cone.Runners;
 using Newtonsoft.Json;
+using CheckThat;
+
 
 namespace Cone.TestAdapter
 {

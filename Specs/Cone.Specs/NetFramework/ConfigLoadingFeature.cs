@@ -1,4 +1,6 @@
 using System.Configuration;
+using CheckThat;
+
 
 namespace Cone.NetFramework.Features
 {

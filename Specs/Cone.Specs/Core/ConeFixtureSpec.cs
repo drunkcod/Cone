@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Cone.Runners;
+using CheckThat;
 using Moq;
 
 namespace Cone.Core

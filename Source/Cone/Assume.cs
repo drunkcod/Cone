@@ -1,6 +1,6 @@
 using System;
-using System.Linq;
 using System.Linq.Expressions;
+using CheckThat;
 using Cone.Expectations;
 
 namespace Cone

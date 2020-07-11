@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using CheckThat;
 
 namespace Cone.Helpers
 {

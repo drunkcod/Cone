@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
-using static Cone.Check;
+using static CheckThat.Check;
 
 namespace Cone.Helpers
 {

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+using System.Linq;
+using CheckThat;
 
 namespace Cone.Core
 {

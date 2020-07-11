@@ -41,7 +41,7 @@ namespace Cone.Runners
 		public int Workers = 1;
 
 		public void RunTests(ICollection<string> runList, TestSession results, IEnumerable<Assembly> assemblies) {
-			Check.Initialize();
+			CheckThat.Batteries.Included();
 			results.RunTests(CreateTestRun(
 				runList, 
 				BuildFlatSuites(assemblies.SelectMany(AssemblyMethods.GetExportedTypes))
@@ -75,7 +75,7 @@ namespace Cone.Runners
 			RunTests(results, assemblies.SelectMany(AssemblyMethods.GetExportedTypes));
 
 		public void RunTests(TestSession results, IEnumerable<Type> suiteTypes) {
-			Check.Initialize();
+			CheckThat.Batteries.Included();
 			var toRun = BuildFlatSuites(suiteTypes)
 				.Where(x => results.IncludeSuite(x))
 				.ToList();

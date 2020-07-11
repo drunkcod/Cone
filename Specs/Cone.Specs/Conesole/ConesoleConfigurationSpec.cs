@@ -1,7 +1,7 @@
+using System;
+using CheckThat;
 using Cone.Stubs;
 using Cone.Worker;
-using System;
-using System.Configuration;
 
 namespace Cone.Conesole
 {

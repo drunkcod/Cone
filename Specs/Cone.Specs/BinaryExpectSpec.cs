@@ -1,12 +1,13 @@
-﻿using System;
+using System;
 using System.Linq.Expressions;
+using CheckThat;
 using Cone.Core;
 using Cone.Expectations;
 using Moq;
 
 namespace Cone
 {
-    [Describe(typeof(EqualExpect))]
+	[Describe(typeof(EqualExpect))]
     public class BinaryExpectSpec
     {
 		class WithOverloadedOperators<T>

@@ -1,9 +1,10 @@
-﻿using Cone.Core;
 using System;
+using CheckThat;
+using Cone.Core;
 
 namespace Cone
 {
-    [Describe(typeof(RowBuilder<>))]
+	[Describe(typeof(RowBuilder<>))]
     public class RowBuilderSpec
     {
         void DoStuff(object arg0) { }

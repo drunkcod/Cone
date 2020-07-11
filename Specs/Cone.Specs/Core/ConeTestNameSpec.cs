@@ -1,4 +1,5 @@
-﻿
+using CheckThat;
+
 namespace Cone.Core
 {
 	[Describe(typeof(ConeTestName))]

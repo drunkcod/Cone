@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Linq.Expressions;
 using Cone.Core;
 using System.Globalization;
+using CheckThat;
 
 namespace Cone.Expectations
 {

@@ -1,11 +1,12 @@
 using System;
 using System.Linq.Expressions;
+using CheckThat;
 using Cone.Core;
 using Cone.Expectations;
 
 namespace Cone
 {
-    [Describe(typeof(StringMethodExpect))]
+	[Describe(typeof(StringMethodExpect))]
     public class StringContainsSpec
     {
         public void check_success() {

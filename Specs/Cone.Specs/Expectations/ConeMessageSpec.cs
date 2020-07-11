@@ -1,4 +1,6 @@
-﻿namespace Cone.Expectations
+using CheckThat;
+
+namespace Cone.Expectations
 {
 	[Describe(typeof(ConeMessage))]
 	public class ConeMessageSpec

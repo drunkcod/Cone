@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
 using Cone.Core;
 using Cone.Stubs;
 using Cone.Expectations;
+using CheckThat;
 
 namespace Cone.Runners
 {

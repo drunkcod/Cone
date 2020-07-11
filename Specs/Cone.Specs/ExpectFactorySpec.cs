@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Cone.Expectations;
+using CheckThat;
 using Cone.Core;
+using Cone.Expectations;
 
 namespace Cone
 {

@@ -1,4 +1,5 @@
 using Cone.Core;
+using CheckThat;
 
 namespace Cone
 {

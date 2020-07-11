@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Linq;
+using CheckThat;
 using Moq;
 
 namespace Cone.Core
 {
-    [Describe(typeof(TestExecutionContext))]
+	[Describe(typeof(TestExecutionContext))]
     public class TestContextContextSpec
     {
         class Fixture {
