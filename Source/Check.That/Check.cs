@@ -42,17 +42,17 @@ namespace CheckThat
 
 		static Assembly ExtensionsAssembly => typeof(IMethodExpectProvider).Assembly;
 		
-		internal static Exception MakeFail(FailedExpectation fail, Exception innerException) =>
-			new CheckFailed(string.Empty, fail, innerException);
+		internal static Exception MakeFail(FailedExpectation fail) =>
+			new CheckFailed(string.Empty, fail, null);
 
-		internal static Exception MakeFail(FailedExpectation[] fails, Exception innerException) =>
-			new CheckFailed(string.Empty, fails, innerException);
+		internal static Exception MakeFail(FailedExpectation[] fails) =>
+			new CheckFailed(string.Empty, fails, null);
 
 		public static object That(Expression<Func<bool>> expr) {
 			var result = CheckExpect(expr.Body, ExpressionEvaluatorParameters.Empty);
 			if (result.IsSuccess)
 				return result.Value;
-			throw MakeFail(result.Error, null);
+			throw MakeFail(result.Error);
 		}
 
 		public static void That(Expression<Func<bool>> expr, params Expression<Func<bool>>[] extras) {
@@ -69,7 +69,7 @@ namespace CheckThat
 
 		internal static Exception Eval(IEnumerable<Expression<Func<bool>>> exprs) {
 			var failed = GetFailed(exprs, x => CheckExpect(x.Body, ExpressionEvaluatorParameters.Empty));
-			return failed != null ? MakeFail(failed, null) : null;
+			return failed != null ? MakeFail(failed) : null;
 		}
 
 		static FailedExpectation[] GetFailed<T>(IEnumerable<T> xs, Func<T,EvalResult> check) 
@@ -151,7 +151,7 @@ namespace CheckThat
 			var result = CheckExpect(Expression.NotEqual(expr.Body, Expression.Constant(null)), ExpressionEvaluatorParameters.Empty);
 			if (result.IsSuccess)
 				return new CheckWith<T>(expr.Body, (T)result.Value);
-			throw MakeFail(result.Error, null);
+			throw MakeFail(result.Error);
 		}
 
 		internal class CheckWith
@@ -211,14 +211,14 @@ namespace CheckThat
 			var r = Check.CheckExpect(ExceptionExpect.From(expr, typeof(TException)));
 			if(r.IsSuccess)
 				return (TException)r.Value;
-			throw Check.MakeFail(r.Error, null);
+			throw Check.MakeFail(r.Error);
 		}
 
 		public static TException When<TValue>(Expression<Func<TValue>> expr) {
 			var r = Check.CheckExpect(ExceptionExpect.From(expr, typeof(TException)));
 			if(r.IsSuccess)
 				return (TException)r.Value;
-			throw Check.MakeFail(r.Error, null);
+			throw Check.MakeFail(r.Error);
 		}
 	}
 
