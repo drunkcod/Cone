@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using CheckThat;
 using CheckThat.Expectations;
-using Cone.Core;
+using CheckThat.Expressions;
 using Cone.Expectations;
 
 namespace Cone

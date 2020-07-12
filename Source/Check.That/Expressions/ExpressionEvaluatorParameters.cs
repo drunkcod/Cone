@@ -1,11 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Cone.Core
+namespace CheckThat.Expressions
 {
 	public class ExpressionEvaluatorParameters : IEnumerable<KeyValuePair<ParameterExpression, object>>
 	{
@@ -22,6 +21,7 @@ namespace Cone.Core
 		}
 
 		public int Count => values.Length;
+
 		public object this[ParameterExpression parameter] {
 			get {
 				var found = Array.FindIndex(values, x => x.Key == parameter);

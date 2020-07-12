@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using CheckThat;
+using Cone;
 using Cone.Core;
 
-namespace Cone
+namespace CheckThat.Expressions
 {
 	[Describe(typeof(ExpressionEvaluator))]
 	public class ExpressionEvaluatorSpec

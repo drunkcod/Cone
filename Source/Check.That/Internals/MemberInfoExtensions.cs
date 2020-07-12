@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Cone.Reflection
+namespace CheckThat.Internals
 {
     static class MemberInfoExtensions
     {
@@ -11,11 +11,8 @@ namespace Cone.Reflection
 
 		static readonly ConcurrentDictionary<MemberInfo, Getter> getterCache = new ConcurrentDictionary<MemberInfo, Getter>();
 
-		public static object GetValue(this MemberInfo self, object target) {
-			var get = getterCache.GetOrAdd(self, CreateGetter);
-			try { return get(target); }
-			catch (Exception ex) { throw new TargetInvocationException(ex); }
-		}
+		public static object GetValue(this MemberInfo self, object target) =>
+			getterCache.GetOrAdd(self, CreateGetter)(target);
 
 		static Getter CreateGetter(MemberInfo x) {
 			var input = Expression.Parameter(typeof(object));

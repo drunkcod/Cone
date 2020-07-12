@@ -4,10 +4,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using CheckThat;
-using Cone.Reflection;
+using CheckThat.Internals;
+using Cone.Core;
 
-namespace Cone.Core
+namespace CheckThat.Expressions
 {
 	class ExpressionEvaluatorContext 
 	{
@@ -23,26 +23,24 @@ namespace Cone.Core
 			this.Unsupported = onUnsupported;
 		}
 
-		public EvaluationResult Evaluate(Expression body) {
-			switch(body.NodeType) {
-				case ExpressionType.Lambda: return Lambda((LambdaExpression)body);
-				case ExpressionType.ArrayIndex: return ArrayIndex(body);
-				case ExpressionType.ArrayLength: return ArrayLength(body);
-				case ExpressionType.Call: return Call((MethodCallExpression)body);
-				case ExpressionType.Constant: return Success(body.Type, ((ConstantExpression)body).Value);
-				case ExpressionType.Convert: return Convert((UnaryExpression)body);
-				case ExpressionType.Equal: goto case ExpressionType.NotEqual;
-				case ExpressionType.NotEqual: return Binary((BinaryExpression)body);
-				case ExpressionType.MemberAccess: return MemberAccess((MemberExpression)body);
-				case ExpressionType.New: return New((NewExpression)body);
-				case ExpressionType.NewArrayInit: return NewArrayInit((NewArrayExpression)body);
-				case ExpressionType.Quote: return Quote((UnaryExpression)body);
-				case ExpressionType.Invoke: return Invoke((InvocationExpression)body);
-				case ExpressionType.AndAlso: return AndAlso((BinaryExpression)body);
-				case ExpressionType.Parameter: return Parameter((ParameterExpression)body);
-				default: return Unsupported(body, parameters);
-			}
-		}
+		public EvaluationResult Evaluate(Expression body) => body.NodeType switch {
+			ExpressionType.Lambda => Lambda((LambdaExpression)body),
+			ExpressionType.ArrayIndex => ArrayIndex(body),
+			ExpressionType.ArrayLength => ArrayLength(body),
+			ExpressionType.Call => Call((MethodCallExpression)body),
+			ExpressionType.Constant => Success(body.Type, ((ConstantExpression)body).Value),
+			ExpressionType.Convert => Convert((UnaryExpression)body),
+			ExpressionType.Equal => Binary((BinaryExpression)body),
+			ExpressionType.NotEqual => Binary((BinaryExpression)body),
+			ExpressionType.MemberAccess => MemberAccess((MemberExpression)body),
+			ExpressionType.New => New((NewExpression)body),
+			ExpressionType.NewArrayInit => NewArrayInit((NewArrayExpression)body),
+			ExpressionType.Quote => Quote((UnaryExpression)body),
+			ExpressionType.Invoke => Invoke((InvocationExpression)body),
+			ExpressionType.AndAlso => AndAlso((BinaryExpression)body),
+			ExpressionType.Parameter => Parameter((ParameterExpression)body),
+			_ => Unsupported(body, parameters),
+		};
 
 		public EvaluationResult EvaluateAsTarget(Expression expression) {
 			if(expression == null)
@@ -116,7 +114,7 @@ namespace Cone.Core
 						() => AssignOutParameters(expression.Arguments, input, method.GetParameters()));
 				}));
 
-		void AssignOutParameters(IList<Expression> arguments, object[] results, ParameterInfo[] parameters) {
+		void AssignOutParameters(IReadOnlyList<Expression> arguments, object[] results, ParameterInfo[] parameters) {
 			if(results.Length == 0)
 				return;
 			for(int i = 0; i != parameters.Length; ++i)
@@ -202,18 +200,15 @@ namespace Cone.Core
 		EvaluationResult GuardedInvocation(Expression expression, Func<EvaluationResult> action, Action @finally) {
 			try {
 				return action();
-			}
-			catch (TargetInvocationException e) {
+			} catch (TargetInvocationException e) {
 				return Failure(expression, e.InnerException);
-			}
-			finally { @finally(); }
+			} finally { @finally(); }
 		}
 
 		EvaluationResult GuardedInvocation<T>(T expression, Func<T, EvaluationResult> action) where T : Expression {
 			try {
 				return action(expression);
-			}
-			catch (TargetInvocationException e) {
+			} catch (TargetInvocationException e) {
 				return Failure(expression, e.InnerException);
 			}
 		}

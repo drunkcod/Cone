@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq.Expressions;
 using CheckThat;
 using CheckThat.Expectations;
+using CheckThat.Expressions;
 using Cone.Core;
 
 namespace Cone.Expectations

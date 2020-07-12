@@ -1,10 +1,10 @@
 using System;
 using System.Linq.Expressions;
-using CheckThat;
+using Cone;
 
-namespace Cone.Core
+namespace CheckThat.Internals
 {
-    [Describe(typeof(ExpressionExtensions))]
+	[Describe(typeof(ExpressionExtensions))]
     public class ExpressionExtensionsSpec
     {
         public void ignore_redundant_casts() {

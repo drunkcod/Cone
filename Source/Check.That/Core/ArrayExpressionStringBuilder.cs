@@ -4,24 +4,22 @@ using System.Text;
 
 namespace Cone.Core
 {
-	class ToStringFormatter<T> : IFormatter<T>
-	{
-		string IFormatter<T>.Format(T expression) => expression.ToString();
-	}
-
 	public class ArrayExpressionStringBuilder<T> : ICollectionFormatter<T>
 	{
+		class ToStringFormatter : IFormatter<T>
+		{
+			string IFormatter<T>.Format(T expression) => expression.ToString();
+		}
+
 		public string Format(IEnumerable<T> collection, IFormatter<T> itemFormatter) =>
 			FormatCore(collection, itemFormatter);
-
 		
 		string ICollectionFormatter<T>.Format(IEnumerable collection, IFormatter<T> itemFormatter) =>
 			FormatCore(collection, itemFormatter);
-
 		
-		string IFormatter<IEnumerable<T>>.Format(IEnumerable<T> collection) => FormatCore(collection, new ToStringFormatter<T>());
+		string IFormatter<IEnumerable<T>>.Format(IEnumerable<T> collection) => FormatCore(collection, new ToStringFormatter());
 
-		string IFormatter<IEnumerable>.Format(IEnumerable collection) => FormatCore(collection, new ToStringFormatter<T>());
+		string IFormatter<IEnumerable>.Format(IEnumerable collection) => FormatCore(collection, new ToStringFormatter());
 		
 		string FormatCore(IEnumerable collection, IFormatter<T> itemFormatter) {
 			var result = new StringBuilder("new [] { ");

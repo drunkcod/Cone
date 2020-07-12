@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using CheckThat;
+using CheckThat.Internals;
+using Cone;
 
-namespace Cone.Core
+namespace CheckThat.Expressions
 {
 	public class ExpressionEvaluator
 	{

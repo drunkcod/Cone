@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 
-namespace Cone.Core
+namespace CheckThat.Internals
 {
     public static class StringExtensions
     {

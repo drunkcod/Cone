@@ -1,9 +1,8 @@
-using Cone.Core;
-using CheckThat;
+using Cone;
 
-namespace Cone
+namespace CheckThat.Internals
 {
-    [Describe(typeof(StringExtensions))]
+	[Describe(typeof(StringExtensions))]
     public class StringExtensionsSpec
     {
         [Row("a", "b", 0)

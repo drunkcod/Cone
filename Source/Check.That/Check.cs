@@ -4,10 +4,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using CheckThat.Expectations;
+using CheckThat.Expressions;
+using CheckThat.Internals;
 using Cone;
 using Cone.Core;
-using CheckThat.Expectations;
-using CheckThat.Internals;
 
 namespace CheckThat
 {
