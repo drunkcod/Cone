@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Cone.Helpers
+namespace CheckThat.Helpers
 {
 	public class FuncSpy<TResult> : MethodSpy
 	{

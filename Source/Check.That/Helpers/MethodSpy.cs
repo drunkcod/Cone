@@ -6,7 +6,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using static CheckThat.Check;
 
-namespace Cone.Helpers
+namespace CheckThat.Helpers
 {
 	public class MethodSpy 
 	{

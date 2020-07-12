@@ -1,7 +1,8 @@
 using System;
 using CheckThat;
+using Cone;
 
-namespace Cone.Helpers
+namespace CheckThat.Helpers
 {
 	[Describe(typeof(ActionSpy))]
 	public class ActionSpySpec 

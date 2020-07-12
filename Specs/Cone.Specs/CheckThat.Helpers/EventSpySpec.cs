@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using CheckThat;
+using Cone;
 
-namespace Cone.Helpers
+namespace CheckThat.Helpers
 {
 	[Describe(typeof(EventSpy<>))]
 	public class EventSpySpec
