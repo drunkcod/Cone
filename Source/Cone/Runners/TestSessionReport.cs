@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using Cone.Core;
+using CheckThat.Internals;
 
 namespace Cone.Runners
 {

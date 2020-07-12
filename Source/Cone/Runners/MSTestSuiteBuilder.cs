@@ -1,3 +1,4 @@
+using CheckThat.Internals;
 using Cone.Core;
 using System;
 using System.Collections.Generic;

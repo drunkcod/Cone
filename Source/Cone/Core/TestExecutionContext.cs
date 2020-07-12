@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using CheckThat.Internals;
 
 namespace Cone.Core
 {
@@ -17,7 +18,7 @@ namespace Cone.Core
             var context = new TestExecutionContext(fixture);
             fixture.FixtureType.GetFields()
                 .ForEachWhere(
-                    x => x.FieldType.Implements<ITestContext>(),
+                    x => typeof(ITestContext).IsAssignableFrom(x.FieldType),
                     context.testContexts.Add);
             return context;
         }

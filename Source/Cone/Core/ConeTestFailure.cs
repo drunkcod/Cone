@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Cone.Runners;
 using CheckThat;
+using CheckThat.Internals;
 
 namespace Cone.Core
 {

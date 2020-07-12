@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security;
 using System.Security.Permissions;
+using CheckThat.Internals;
 using Cone.Core;
 
 namespace Cone.Runners

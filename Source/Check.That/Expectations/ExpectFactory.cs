@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using CheckThat;
+using CheckThat.Internals;
 using Cone.Core;
 
 namespace CheckThat.Expectations
@@ -20,14 +20,17 @@ namespace CheckThat.Expectations
 			var providers = assembliesToScan
 				.SelectMany(x => x.GetExportedTypes())
 				.Where(IsMethodExpectProvider)
-				.Select(TypeExtensions.New<IMethodExpectProvider>);
+				.Select(NewMethodExpectProvider);
 			foreach(var provider in providers)
 			foreach(var method in provider.GetSupportedMethods())
 				methodExpects.Insert(method, provider);
 		}
 
+		static IMethodExpectProvider NewMethodExpectProvider(Type type) =>
+			(IMethodExpectProvider)type.GetConstructor(Type.EmptyTypes).Invoke(null);
+
 		public static bool IsMethodExpectProvider(Type type) =>
-			type.IsVisible && type.IsClass && type.Implements<IMethodExpectProvider>();
+			type.IsVisible && type.IsClass && typeof(IMethodExpectProvider).IsAssignableFrom(type);
 
 		public IExpect From(Expression body) {
 			switch(body.NodeType) {

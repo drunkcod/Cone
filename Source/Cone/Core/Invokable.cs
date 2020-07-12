@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Linq;
+using CheckThat.Internals;
 
 namespace Cone.Core
 {

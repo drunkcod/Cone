@@ -1,16 +1,17 @@
-using Cone.Core;
-using Cone.Runners;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Xml;
-using System.Text;
-using System.Threading;
-using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
+using System.Text;
+using System.Threading;
+using System.Xml;
+using CheckThat.Internals;
+using Cone.Core;
+using Cone.Runners;
 using Cone.Worker;
 
 namespace Conesole

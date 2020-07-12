@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using CheckThat.Internals;
 
 namespace Cone.Core
 {

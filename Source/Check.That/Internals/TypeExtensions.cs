@@ -1,12 +1,12 @@
 using System;
+using System.Reflection;
 
-namespace Cone.Core
+namespace CheckThat.Internals
 {
     public static class TypeExtensions
     {
-        public static bool Has<T>(this Type type) {
-            return type.GetCustomAttributes(typeof(T), true).Length == 1;
-        }
+        public static bool Has<T>(this Type type) =>
+			type.GetCustomAttribute(type, true) != null;
 
         public static bool HasAny(this Type self, params Type[] attributeTypes) {
             var attributes = self.GetCustomAttributes(true);
@@ -28,13 +28,6 @@ namespace Cone.Core
             }
             value = default(TAttribute);
             return false;
-        }
-
-        public static T New<T>(this Type self) => 
-			(T)self.GetConstructor(Type.EmptyTypes).Invoke(null);
-
-        public static bool Implements<T>(this Type self) {
-            return typeof(T).IsAssignableFrom(self);
         }
     }
 }

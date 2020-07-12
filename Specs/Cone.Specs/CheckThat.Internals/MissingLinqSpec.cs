@@ -1,7 +1,7 @@
 using System.Linq;
-using CheckThat;
+using Cone;
 
-namespace Cone.Core
+namespace CheckThat.Internals
 {
 	[Describe(typeof(MissingLinq))]
 	public class MissingLinqSpec

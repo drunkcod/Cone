@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Cone.Core
+namespace CheckThat.Internals
 {
 	public delegate bool TryConvert<TInput, TOutput>(TInput value, out TOutput result);
 
@@ -16,9 +16,8 @@ namespace Cone.Core
 			return false;
 		}
 
-		public static T Last<T>(this T[] self) {
-			return self[self.Length - 1];
-		}
+		public static T Last<T>(this T[] self) =>
+			self[self.Length - 1];
 
 		public static TOutput[] ConvertAll<TInput,TOutput>(this IList<TInput> self, Converter<TInput, TOutput> converter) {
 			var result = new TOutput[self.Count];
@@ -27,20 +26,26 @@ namespace Cone.Core
 			return result;
 		}
 
-		public static TOutput[] ConvertAll<TInput, TOutput>(this TInput[] self, Converter<TInput, TOutput> converter) {
-			return Array.ConvertAll(self, converter);
-		}
+		public static TOutput[] ConvertAll<TInput, TOutput>(this TInput[] self, Converter<TInput, TOutput> converter) =>
+			Array.ConvertAll(self, converter);
 
-		public static bool IsEmpty<T>(this IEnumerable<T> self) { 
-			return !self.Any(); } 
+		public static bool IsEmpty<T>(this IEnumerable<T> self) =>
+			!self.Any(); 
 		
-		public static bool IsEmpty<T>(this ICollection<T> self) {
-			return self.Count == 0;
-		}
+		public static bool IsEmpty<T>(this ICollection<T> self) =>
+			self.Count == 0;
 
-		public static bool IsEmpty<T>(this T[] self) {
-			return self.Length == 0;
-		}
+		public static bool IsEmpty<T>(this IReadOnlyCollection<T> self) =>
+			self.Count == 0;
+
+		public static bool IsEmpty<T>(this List<T> self) =>
+			self.Count == 0;
+
+		public static bool IsEmpty(this string self) =>
+			string.IsNullOrEmpty(self);
+
+		public static bool IsEmpty<T>(this T[] self) =>
+			self.Length == 0;
 
 		public static void ForEachWhere<T>(this T[] self, Func<T, bool> predicate, Action<T> @do) {
 			for(var i = 0; i != self.Length; ++i) {
@@ -94,9 +99,8 @@ namespace Cone.Core
 					yield return value;			
 		}
 
-		public static IEnumerable<T> Flatten<T>(this IEnumerable<T> self, Func<T, IEnumerable<T>> children) {
-			return self.SelectMany(x => Flatten(x, children));
-		}
+		public static IEnumerable<T> Flatten<T>(this IEnumerable<T> self, Func<T, IEnumerable<T>> children) => 
+			self.SelectMany(x => Flatten(x, children));
 
 		static IEnumerable<T> Flatten<T>(T parent, Func<T, IEnumerable<T>> children) {
 			yield return parent;

@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Text;
+using CheckThat.Internals;
 
 namespace Cone.Core
 {
