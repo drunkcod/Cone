@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Cone.Core
+namespace CheckThat.Formatting
 {
 	public class ArrayExpressionStringBuilder<T> : ICollectionFormatter<T>
 	{

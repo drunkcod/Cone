@@ -4,21 +4,22 @@ using System.Linq.Expressions;
 using CheckThat;
 using CheckThat.Expectations;
 using CheckThat.Expressions;
-using Cone.Core;
+using CheckThat.Formatting;
 
 namespace Cone.Expectations
 {
 	class ToStringFormatter : IFormatter<object>
-    {
-        public string Format(object value) {
-            return value.ToString();
-        }
-    }
+	{
+		public string Format(object value) {
+			return value.ToString();
+		}
+	}
 
-    [Describe(typeof(StringMethodExpect))]
+	[Describe(typeof(StringMethodExpect))]
     public class StringMethodExpectSpec
     {
-        public void EndsWith() {
+
+		public void EndsWith() {
             Check.That(() => Expected(() => "s".EndsWith("value")) == "a string ending with value");
         }
 

@@ -11,8 +11,11 @@ namespace CheckThat.Internals
 
 		static readonly ConcurrentDictionary<MemberInfo, Getter> getterCache = new ConcurrentDictionary<MemberInfo, Getter>();
 
-		public static object GetValue(this MemberInfo self, object target) =>
-			getterCache.GetOrAdd(self, CreateGetter)(target);
+		public static object GetValue(this MemberInfo self, object target) {
+			var get = getterCache.GetOrAdd(self, CreateGetter);
+			try { return get(target); }
+			catch(Exception ex) { throw new TargetInvocationException(ex); }
+		}
 
 		static Getter CreateGetter(MemberInfo x) {
 			var input = Expression.Parameter(typeof(object));

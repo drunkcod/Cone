@@ -1,5 +1,3 @@
-using Cone.Core;
-
 namespace CheckThat.Expectations
 {
     public static class ExpectMessages

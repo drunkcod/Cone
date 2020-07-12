@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Cone.Core;
-using Cone.Expectations;
 using CheckThat;
-using CheckThat.Internals;
 using CheckThat.Expectations;
+using CheckThat.Formatting;
+using CheckThat.Internals;
 
 namespace Cone
 {
-    [Feature("Custom IMethodExpectProvider")]
+	[Feature("Custom IMethodExpectProvider")]
     public class CustomMethodExpectFeature
     {
         public class MyInteger 

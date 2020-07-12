@@ -1,8 +1,7 @@
 using System;
-using CheckThat;
+using Cone;
 
-
-namespace Cone.Core
+namespace CheckThat.Formatting
 {
 	[Describe(typeof(TypeFormatterSpec))]
 	public class TypeFormatterSpec

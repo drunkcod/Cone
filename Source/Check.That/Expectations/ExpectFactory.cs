@@ -4,8 +4,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using CheckThat.Expressions;
+using CheckThat.Formatting;
 using CheckThat.Internals;
-using Cone.Core;
 
 namespace CheckThat.Expectations
 {

@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
-using CheckThat;
+using Cone;
+using Cone.Core;
 
-namespace Cone.Core
+namespace CheckThat.Formatting
 {
     enum DummyEnum { Value }
     [Describe(typeof(ParameterFormatter))]

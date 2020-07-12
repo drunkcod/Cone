@@ -1,8 +1,8 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using CheckThat.Formatting;
 using CheckThat.Internals;
-using Cone.Core;
 
 namespace CheckThat.Expectations
 {

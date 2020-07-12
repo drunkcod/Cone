@@ -2,7 +2,7 @@
   <Import Project="$(SolutionDir)\Cone.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net452;net462;net472;netcoreapp2.0;netcoreapp2.2</TargetFrameworks>
+    <TargetFrameworks>net452;net462;net472;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
     <TargetFrameworkFamily Condition="$(TargetFramework.StartsWith('net4'))">NETFX</TargetFrameworkFamily>
     <DefineConstants>$(DefineConstants);$(TargetFrameworkFamily)</DefineConstants>
     <ApplicationIcon />

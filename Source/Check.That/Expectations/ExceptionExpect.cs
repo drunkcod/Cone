@@ -1,7 +1,7 @@
 using System;
 using System.Linq.Expressions;
 using CheckThat.Expressions;
-using Cone.Core;
+using CheckThat.Formatting;
 
 namespace CheckThat.Expectations
 {

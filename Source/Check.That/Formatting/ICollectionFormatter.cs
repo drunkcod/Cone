@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Cone.Core
+namespace CheckThat.Formatting
 {
     public interface ICollectionFormatter<T> : IFormatter<IEnumerable<T>>, IFormatter<IEnumerable>
     {

@@ -1,15 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">  
   <PropertyGroup>
-      <TargetFrameworks>net452;;net462;netcoreapp2.2</TargetFrameworks>
+      <TargetFrameworks>net452;net472;netcoreapp2.1</TargetFrameworks>
       <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
       <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)'!='netcoreapp2.2'">
+  <ItemGroup Condition="'$(TargetFramework)'!='netcoreapp2.1'">
     <Compile Remove="NetStandard\**" />
     <None Include="NetStandard\**" />
     <ProjectReference Include="..\..\Source\Cone.TestAdapter\Cone.TestAdapter.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.2'">
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.1'">
     <Compile Remove="NetFramework\**" />
   </ItemGroup>
   <ItemGroup>

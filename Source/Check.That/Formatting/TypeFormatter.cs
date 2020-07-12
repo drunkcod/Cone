@@ -1,7 +1,7 @@
 using System;
 using CheckThat.Internals;
 
-namespace Cone.Core
+namespace CheckThat.Formatting
 {
 	public class TypeFormatter 
 	{

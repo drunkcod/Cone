@@ -1,9 +1,9 @@
-﻿using Cone.Core;
 using System;
+using CheckThat.Formatting;
 
 namespace Cone
 {
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+	[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
     public class DisplayClassAttribute : Attribute 
     {
         readonly Type displayClass;

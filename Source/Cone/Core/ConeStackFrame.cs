@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using CheckThat.Formatting;
 using CheckThat.Internals;
 using Cone.Core;
 

@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using CheckThat.Expectations;
 using CheckThat.Internals;
-using Cone.Core;
 
 namespace CheckThat
 {

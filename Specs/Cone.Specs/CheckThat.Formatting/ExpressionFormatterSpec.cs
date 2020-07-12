@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
-using CheckThat;
+using System.Runtime.CompilerServices;
 using CheckThat.Internals;
+using Cone;
 
-namespace Cone.Core
+namespace CheckThat.Formatting
 {
 	static class Extensions
 	{

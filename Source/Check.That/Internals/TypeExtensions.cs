@@ -6,7 +6,7 @@ namespace CheckThat.Internals
     public static class TypeExtensions
     {
         public static bool Has<T>(this Type type) =>
-			type.GetCustomAttribute(type, true) != null;
+			type.GetCustomAttribute(typeof(T), true) != null;
 
         public static bool HasAny(this Type self, params Type[] attributeTypes) {
             var attributes = self.GetCustomAttributes(true);

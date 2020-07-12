@@ -1,4 +1,4 @@
-﻿namespace Cone.Core
+namespace CheckThat.Formatting
 {
     public interface IFormatter<T>
     {

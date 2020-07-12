@@ -2,9 +2,8 @@ using System;
 using System.Linq.Expressions;
 using CheckThat;
 using CheckThat.Expectations;
+using CheckThat.Formatting;
 using CheckThat.Internals;
-using Cone.Core;
-using Cone.Expectations;
 using Moq;
 
 namespace Cone

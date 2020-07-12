@@ -3,7 +3,7 @@ using System.Collections;
 using System.Text;
 using CheckThat.Internals;
 
-namespace Cone.Core
+namespace CheckThat.Formatting
 {
 	public class ParameterFormatter : IFormatter<object>
 	{

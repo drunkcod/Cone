@@ -2,6 +2,7 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using CheckThat;
+using CheckThat.Formatting;
 
 namespace Cone.Core
 {
