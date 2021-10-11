@@ -72,8 +72,7 @@ namespace CheckThat
 			return failed != null ? MakeFail(failed) : null;
 		}
 
-		static FailedExpectation[] GetFailed<T>(IEnumerable<T> xs, Func<T,EvalResult> check) 
-		{
+		static FailedExpectation[] GetFailed<T>(IEnumerable<T> xs, Func<T,EvalResult> check) {
 			List<FailedExpectation> errors = null;
 			foreach(var item in xs) {
 				var r = check(item);

@@ -1,7 +1,7 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using CheckThat.Internals;
 
 namespace CheckThat.Expectations
 {
@@ -59,6 +59,6 @@ namespace CheckThat.Expectations
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-		public override string ToString() => string.Concat(Array.ConvertAll(elements, x => x.ToString()));
+		public override string ToString() => string.Concat(elements.Select(Lambdas.ToString));
 	}
 }

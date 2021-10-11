@@ -28,17 +28,19 @@ namespace CheckThat
 	[Serializable]
 	public class CheckFailed : Exception, IFailureMessage
 	{
-		public CheckFailed(string message) : this(string.Empty, new []{ new FailedExpectation(message) }, null) { }
+		public static Func<ConeMessage, string> FormatMessage = Lambdas.Unbound<Func<ConeMessage,string>>(typeof(ConeMessage).GetMethod(nameof(ConeMessage.ToString)));
 
 		public CheckFailed(string context, FailedExpectation fail, Exception innerException) : this(context, new [] { fail }, innerException) { }
 
-		public CheckFailed(string context, FailedExpectation[] fails, Exception innerException) : base(fails.Select(x => x.Message.ToString()).Join("\n"), innerException) {
+		public CheckFailed(string context, FailedExpectation[] fails, Exception innerException) : base(fails.Select(x => FormatMessage(x.Message)).Join("\n"), innerException) {
 			this.Context = context;
 			this.Failures = fails;
 		}
 
+		public static CheckFailed WithMessage(string message) => 
+			new CheckFailed(string.Empty, new[]{ new FailedExpectation(message) }, null);
+
 		public string Context { get; }
 		public FailedExpectation[] Failures { get; }
-
     }
 }

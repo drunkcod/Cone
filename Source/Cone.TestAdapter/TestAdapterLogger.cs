@@ -1,12 +1,12 @@
 
-using Cone.Core;
-using Cone.Runners;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Cone.Core;
+using Cone.Runners;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 
 namespace Cone.TestAdapter
 {
