@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <Import Project="$(SolutionDir)\Cone.props" />
   <PropertyGroup>
-    <TargetFrameworks>net452;net462;net472</TargetFrameworks>
+    <TargetFrameworks>net452;net472</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Version.cs" Link="Version.cs" />

@@ -49,11 +49,15 @@ namespace CheckThat.Expressions
 		}
 
 		public EvaluationResult EvaluateAll(ICollection<Expression> expressions) {
-			var evald = Array.ConvertAll(expressions.ToArray(), Evaluate);
-			var fail = Array.FindIndex(evald, x => x.IsError);
-			if(fail != -1)
-				return evald[fail];
-			return Success(typeof(object[]), Array.ConvertAll(evald, x => x.Result));
+			var r = new object[expressions.Count];
+			var i = 0;
+			foreach(var item in expressions) {
+				var e = Evaluate(item);
+				if(e.IsError)
+					return e;
+				r[i++] = e.Result;
+			}
+			return Success(typeof(object[]), r);
 		}
 
 		EvaluationResult Lambda(LambdaExpression expression) {
@@ -105,20 +109,52 @@ namespace CheckThat.Expressions
 		}
 
 		EvaluationResult Call(MethodCallExpression expression) =>
-			EvaluateAsTarget(expression.Object).Then<object>(target =>
-				EvaluateAll(expression.Arguments).Then<object[]>(input => {
-					var method = expression.Method;
+			EvaluateAsTarget(expression.Object).Then<object>(target => {
+				var method = expression.Method;
+				var ps = method.GetParameters();
+
+				if (HasByRefLikeParameter(ps))
+					return InvokeWithByRefArgs(target, expression);
+
+				return EvaluateAll(expression.Arguments).Then<object[]>(input => {
 					return GuardedInvocation(expression,
 						() => Success(method.ReturnType, method.Invoke(target, input)),
-						() => AssignOutParameters(expression.Arguments, input, method.GetParameters()));
-				}));
+						() => AssignOutParameters(expression.Arguments, input, ps));
+				});
+			});
+
+		static readonly Func<ParameterInfo[], bool> HasByRefLikeParameter = Lambdas.TryGetProperty<Type, bool>("IsByRefLike", out var isByRefLike) 
+			? xs => xs.Any(x => isByRefLike(x.ParameterType))
+			: _ => false;
+
+		EvaluationResult InvokeWithByRefArgs(object target, MethodCallExpression expression) {
+			var args = new object[parameters.Count + 1];
+			var ps = new List<ParameterExpression>(parameters.Count + 1) { 
+				Expression.Parameter(expression.Method.DeclaringType) 
+			};
+
+			args[0] = target;
+			foreach(var item in parameters) {
+				args[ps.Count] = item.Value;
+				ps.Add(item.Key);
+			}
+
+			var call =
+				Expression.Lambda(
+					Expression.Call(expression.Method.IsStatic ? null : ps[0], expression.Method, expression.Arguments), ps)
+				.Compile();
+			return GuardedInvocation(expression,
+				() => Success(expression.Method.ReturnType, call.DynamicInvoke(args)),
+				() => { });
+
+		}
 
 		void AssignOutParameters(IReadOnlyList<Expression> arguments, object[] results, ParameterInfo[] parameters) {
 			if(results.Length == 0)
 				return;
 			for(int i = 0; i != parameters.Length; ++i)
 				if(parameters[i].IsOut) {
-					var member = (arguments[i] as MemberExpression);
+					var member = arguments[i] as MemberExpression;
 					var field = member.Member as FieldInfo;
 					field.SetValue(EvaluateMember(member), results[i]);
 				}
@@ -187,24 +223,24 @@ namespace CheckThat.Expressions
 		EvaluationResult Parameter(ParameterExpression expression) => Success(expression.Type, parameters[expression]);
 
 		ExpressionEvaluatorContext Rebind(Expression newContext) =>
-			new ExpressionEvaluatorContext(newContext, ExpressionEvaluatorParameters.Empty, Unsupported) {
+			new(newContext, ExpressionEvaluatorParameters.Empty, Unsupported) {
 				NullSubexpression = NullSubexpression
 			};
 
 		object ChangeType(object value, Type to) => ObjectConverter.ChangeType(value, to);
 
-		EvaluationResult Success(Type type, object value) => EvaluationResult.Success(type, value);
-		EvaluationResult Failure(Expression expression, Exception e) => EvaluationResult.Failure(expression, e);
+		static EvaluationResult Success(Type type, object value) => EvaluationResult.Success(type, value);
+		static EvaluationResult Failure(Expression expression, Exception e) => EvaluationResult.Failure(expression, e);
 
-		EvaluationResult GuardedInvocation(Expression expression, Func<EvaluationResult> action, Action @finally) {
+		static EvaluationResult GuardedInvocation(Expression expression, Func<EvaluationResult> action, Action @finally) {
 			try {
 				return action();
 			} catch (TargetInvocationException e) {
 				return Failure(expression, e.InnerException);
 			} finally { @finally(); }
 		}
-
-		EvaluationResult GuardedInvocation<T>(T expression, Func<T, EvaluationResult> action) where T : Expression {
+		
+		static EvaluationResult GuardedInvocation<T>(T expression, Func<T, EvaluationResult> action) where T : Expression {
 			try {
 				return action(expression);
 			} catch (TargetInvocationException e) {
