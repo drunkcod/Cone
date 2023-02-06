@@ -75,7 +75,7 @@ namespace Conesole.NetCoreApp
 
 		static int RunConesole(string fxVersion, IEnumerable<string> args)
 		{
-			var myPath = Path.GetDirectoryName(new Uri(typeof(Program).Assembly.CodeBase).LocalPath);
+			var myPath = Path.GetDirectoryName(typeof(Program).Assembly.Location);
 			var probePaths = new [] {
 				Path.Combine(myPath, "..", "..", "tools"),
 #if DEBUG
